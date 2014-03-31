@@ -638,28 +638,34 @@ export function log(type: LogType, dataObj: LogObj): Promise<Result<void>> {
 }
 
 {
-    setInterval(() => {
-        fs.readdir(__logs, (err, files) => {
-            if (err) {
-                error(err);
-                return;
-            }
-            files.forEach((file) => {
-                fs.stat(path.resolve(__logs, file), (err, stats) => {
-                    if (err) {
-                        error(err);
-                        return;
-                    }
-                    if (Date.now() - stats.mtimeMs > Number(env.LOG_CLEAR_TIMEOUT)) {
-                        fs.rm(path.resolve(__logs, file), (err) => {
-                            if (err) {
-                                error(err);
-                                return;
-                            }
-                        });
-                    }
+    setInterval(
+        () => {
+            fs.readdir(__logs, (err, files) => {
+                if (err) {
+                    error(err);
+                    return;
+                }
+                files.forEach(file => {
+                    fs.stat(path.resolve(__logs, file), (err, stats) => {
+                        if (err) {
+                            error(err);
+                            return;
+                        }
+                        if (
+                            Date.now() - stats.mtimeMs >
+                            Number(env.LOG_CLEAR_TIMEOUT)
+                        ) {
+                            fs.rm(path.resolve(__logs, file), err => {
+                                if (err) {
+                                    error(err);
+                                    return;
+                                }
+                            });
+                        }
+                    });
                 });
             });
-        });
-    }, Number(env.LOG_CLEAR_TIMEOUT)||1000 * 60 * 60 * 24);
+        },
+        Number(env.LOG_CLEAR_TIMEOUT) || 1000 * 60 * 60 * 24
+    );
 }
