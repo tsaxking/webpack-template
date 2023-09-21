@@ -1,0 +1,144 @@
+<div class="row mb-3">
+    <div class="col-12">
+        <select name="" id="str--match-select"></select>
+        <div id="str--only-tator-check"></div>
+    </div>
+</div>
+
+<h2 class="text-center m-3">
+    Match Projections
+</h2>
+<div class="row mb-3">
+    <p class="text-center">
+        The alliance card that is shaded in is the alliance that is projected to win the match. Both shaded in is a projected tie.
+    </p>
+</div>
+<div class="row mb-3">
+    <h5 class="text-center">
+        <span id="str--projected-winning-alliance"></span> is projected to win the match by a margin of <span id="str--projected-winning-margin"></span> points. (<span id="str--projected-winning-probability"></span>% over minimum)
+    </h5>
+</div>
+<div class="row mb-3">
+    <div class="col-md-6 mb-3">
+        <div class="card" id="str--red-card">
+            <div class="card-header">
+                <h5 class="card-title">
+                    Red Alliance
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="container-fluid">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <select name="" class="str--red"></select>
+                        </div>
+                        <div class="col-md-4">
+                            <select name="" class="str--red"></select>
+                        </div>
+                        <div class="col-md-4">
+                            <select name="" class="str--red"></select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="table-responsive">
+                            <table class="table table-dark table-striped table-hover" id="str--red-table"></table>
+                        </div>
+                    </div>
+                    <!-- Alliance information -->
+                    <div class="row mb-3">
+                        <div id="str--red-projected-score"></div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="card bg-light">
+                            <canvas id="str--red-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="container-fluid" id="str--red-strategies">
+                            <div class="row mb-3">
+                                <div class="col-12 mb-3">
+                                    <h5 class="text-center">
+                                        Red Alliance Strategies
+                                    </h5>
+                                </div>
+                                <div class="col-12 mb-3" id="str--red-global-strategy-container">
+                                </div>
+                            </div>
+                            <div class="row mb-3" id="str--red-team-strategy-container">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="card" id="str--blue-card">
+            <div class="card-header">
+                <h5 class="card-title">
+                    Blue Alliance
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="container-fluid">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <select name="" class="str--blue"></select>
+                        </div>
+                        <div class="col-md-4">
+                            <select name="" class="str--blue"></select>
+                        </div>
+                        <div class="col-md-4">
+                            <select name="" class="str--blue"></select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="table-responsive">
+                            <table class="table table-dark table-striped table-hover" id="str--blue-table"></table>
+                        </div>
+                    </div>
+                    <!-- Alliance information -->
+                    <div class="row mb-3">
+                        <div id="str--blue-projected-score"></div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="card bg-light">
+                            <canvas id="str--blue-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="container-fluid" id="str--blue-strategies">
+                            <div class="row mb-3">
+                                <div class="col-12 mb-3">
+                                    <h5 class="text-center">
+                                        Blue Alliance Strategies
+                                    </h5>
+                                </div>
+                                <div class="col-12 mb-3" id="str--blue-global-strategy-container">
+                                </div>
+                            </div>
+                            <div class="row mb-3" id="str--blue-team-strategy-container">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-12">
+        <button class="btn btn-success w-100" id="str--save-strategy">
+            <i class="material-icons">save</i> &nbsp; Save Strategy
+        </button>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-12">
+        <textarea name="" id="str--comments" rows="10" class="w-100 form-control" placeholder="Put your comments here"></textarea>
+    </div>
+</div>
+
+<!-- <script src="../static/js/pages/home/strategy.js"></script> -->

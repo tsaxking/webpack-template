@@ -1,0 +1,19 @@
+{
+  "scripts": {
+    "build:dev": "webpack --mode development --watch",
+    "build:prod": "webpack --mode production"
+  },
+  "dependencies": {
+    "pdfjs": "^2.5.2",
+    "pdfjs-dist": "^3.10.111",
+    "resolve-cwd": "^3.0.0",
+    "socket.io": "^4.7.2",
+    "socket.io-client": "^4.7.2",
+    "ts-loader": "^9.4.4"
+  },
+  "devDependencies": {
+    "esbuild": "0.19.3",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4"
+  }
+}

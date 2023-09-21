@@ -1,0 +1,15 @@
+[{
+    "name": "Home",
+    // lowercaseTitle converts spaces into hyphens
+    // url is the path to the page, it's the lowercase title with a slash in front
+    "script": "/home.js", // Path to script (passed into getJSONSync())
+    "pageTitle": "", // Single word or small phrase
+    "keywords": [
+        // SEO Keywords
+    ],
+    "description": "", // SEO Description
+    "links": [{
+        // same format as pages
+    }], // Sub Pages (used for dropdowns)
+    "build": false // Whether or not to use the builder
+}]
