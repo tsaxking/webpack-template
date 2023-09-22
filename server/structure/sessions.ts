@@ -22,17 +22,22 @@ export type SessionObj = {
 
 
 export class Session {
+    static test(req: Request, res: Response, next: NextFunction) {
+        next();
+    }
+
+
     static middleware(req: CustomRequest, res: Response, next: NextFunction) {
-        const id = req.headers.cookie ? parseCookie(req.headers.cookie).ssid : null;
+        // const id = req.headers.cookie ? parseCookie(req.headers.cookie).ssid : null;
 
-        if (id && Session.sessions[id]) {
-            req.session = Session.sessions[id];
-        } else {
-            req.session = new Session(req, res);
-            Session.addSession(req.session);
-        }
+        // if (id && Session.sessions[id]) {
+        //     req.session = Session.sessions[id];
+        // } else {
+        //     req.session = new Session(req, res);
+        //     Session.addSession(req.session);
+        // }
 
-        req.session.requests++;
+        // req.session.requests++;
         next();
     }
 

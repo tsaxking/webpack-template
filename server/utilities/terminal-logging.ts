@@ -12,5 +12,5 @@ export const log = (...args: any[]) => {
     const lineNumber = site.getLineNumber();
     const fn = site.getFunctionName() || 'Global | Unnamed';
 
-    console.log(Colors.FgGreen, `[${filePath}:${lineNumber}]`, Colors.FgRed, `[${fn}]`, Colors.Reset, ...args);
+    console.log(Colors.FgGreen, `[${filePath}:${lineNumber}]`, Colors.FgCyan, `[${fn}]`, Colors.Reset, ...args);
 };

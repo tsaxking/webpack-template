@@ -17,12 +17,21 @@ import { homeBuilder, navBuilder } from './utilities/page-builder.ts';
 import accounts from './routes/accounts.ts';
 import * as ExpressTypes from 'npm:@types/express';
 import { bundle } from "./utilities/bundler.ts";
+import { log as terminalLog } from './utilities/terminal-logging.ts'
+
+terminalLog('Starting server...');
 
 
 const app: ExpressTypes.Application = express();
 
 const server = http.createServer(app);
 const io = new Server(server);
+
+app.use(Session.test);
+
+// app.use((req, res, next) => {
+//     next();
+// });
 
 initSocket(io);
 
@@ -94,7 +103,6 @@ function stripHtml(body: any) {
     return obj;
 }
 
-app.use(Session.middleware as NextFunction);
 
 app.use((req, res, next) => {
     console.log(Colors.FgRed, `[${req.method}]`, Colors.Reset, req.originalUrl, Colors.FgYellow, req.session.account?.username || 'Not logged in', Colors.Reset);
