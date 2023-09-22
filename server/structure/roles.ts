@@ -2,13 +2,7 @@ import { NextFunction, Request, Response } from "npm:express";
 import { DB } from "../utilities/databases.ts";
 import { Status } from "../utilities/status.ts";
 import { Permission, RoleName } from "../../shared/db-types.ts";
-
-
-type RoleObject = {
-    name: string;
-    description: string;
-    rank: number;
-}
+import { Role as RoleObject } from "../../shared/db-types.ts";
 
 
 
@@ -37,7 +31,13 @@ export default class Role {
         return fn as unknown as NextFunction;
     }
 
-
+    static fromId(id: string): Role | undefined {
+        const r = DB.get('roles/from-id', {
+            id
+        });
+        if (!r) return;
+        return new Role(r);
+    }
 
 
     static fromName(name: string): Role | undefined {
@@ -56,11 +56,13 @@ export default class Role {
     name: string;
     description: string;
     rank: number;
+    id: string;
 
     constructor(role: RoleObject) {
         this.name = role.name;
         this.description = role.description;
         this.rank = role.rank;
+        this.id = role.id;
     }
 
 

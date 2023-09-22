@@ -1,7 +1,5 @@
 import { Server, Socket } from "npm:socket.io";
 import { parseCookie } from "../../shared/cookie.ts";
-import { Session } from "./sessions.ts";
-import { workerData, isMainThread, parentPort } from "node:worker_threads";
 
 type SocketMetadata = {
     time: number;

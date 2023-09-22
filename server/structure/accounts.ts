@@ -12,7 +12,7 @@ import { Account as AccountObject, MembershipStatus, Member as MemberObj, Skill,
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import env from "../utilities/env.ts";
-
+import { deleteUpload } from "../utilities/files.ts";
 
 
 
@@ -96,10 +96,10 @@ export default class Account {
 
 
 
-    static async fromId(id: string): Promise<Account|null> {
+    static fromId(id: string): Account|null {
         if (Account.cachedAccounts[id]) return Account.cachedAccounts[id];
 
-        const data = await DB.get('account/from-id', {
+        const data = DB.get('account/from-id', {
             id
         });
         if (!data) return null;
@@ -496,9 +496,9 @@ export default class Account {
 
 
 
-    async getRoles(): Promise<Role[]> {
-        const data = await DB.all('account/roles', {
-            id: this.id
+    getRoles(): Role[] {
+        const data = DB.all('account/roles', {
+            accountId: this.id
         });
 
         return data.map((r) => {
@@ -506,40 +506,40 @@ export default class Account {
         }).filter(Boolean) as Role[];
     }
 
-    async addRole(...roles: string[]): Promise<AccountStatus[]> {
-        return Promise.all(roles.map(async (role) => {
-            const r = await Role.fromName(role);
+    addRole(...roles: string[]): AccountStatus[] {
+        return roles.map((role) => {
+            const r = Role.fromName(role);
             if (!r) return AccountStatus.noRole;
 
-            if ((await this.getRoles()).find(_r => _r.name === r.name)) {
+            if ((this.getRoles()).find(_r => _r.name === r.name)) {
                 return AccountStatus.hasRole;
             }
 
             DB.run('account/add-role', {
-                id: this.id,
-                role
+                accountId: this.id,
+                roleId: r.id
             });
 
             return AccountStatus.roleAdded;
-        }));
+        });
     }
 
-    async removeRole(...role: string[]): Promise<AccountStatus[]> {
-        return Promise.all(role.map(async(role) => {
-            const r = await Role.fromName(role);
+    removeRole(...role: string[]): AccountStatus[] {
+        return role.map((role) => {
+            const r = Role.fromName(role);
             if (!r) return AccountStatus.noRole;
 
-            if (!(await this.getRoles()).find(_r => _r.name === r.name)) {
+            if (!(this.getRoles()).find(_r => _r.name === r.name)) {
                 return AccountStatus.noRole;
             }
 
-            await DB.run('account/remove-role', {
-                id: this.id,
-                role
+            DB.run('account/remove-role', {
+                accountId: this.id,
+                roleId: r.id
             });
 
             return AccountStatus.roleRemoved;
-        }));
+        });
     }
 
 
@@ -549,10 +549,7 @@ export default class Account {
 
     async changePicture(id: string) {
         if (this.picture) {
-            console.log('deleting', path.resolve(__dirname, '../../uploads', this.picture));
-            if (fs.existsSync(path.resolve(__dirname, '../../uploads', this.picture))) {
-                await fs.promises.rm(path.resolve(__dirname, '../../uploads', this.picture));
-            }
+            deleteUpload(this.picture);
         }
 
         await DB.run('account/update-picture', {

@@ -218,7 +218,7 @@ export class Member {
             title: this.title,
             resume: this.resume,
             status: this.status as MembershipStatus,
-            skills: this.getSkills()
+            // skills: this.getSkills()
         } as MemberSafe;
     }
 
@@ -251,45 +251,45 @@ export class Member {
     }
 
 
-    async addSkill(...skills: { skill: string, years: number }[]): Promise<MemberReturnStatus[]> {
-        return Promise.all(skills.map(async(skill) => {
+    // async addSkill(...skills: { skill: string, years: number }[]): Promise<MemberReturnStatus[]> {
+    //     return Promise.all(skills.map(async(skill) => {
 
-            const exists = await DB.get('member/get-skill', {
-                id: this.id,
-                skill: skill.skill
-            });
-            if (exists) return MemberReturnStatus.hasSkill;
+    //         const exists = await DB.get('member/get-skill', {
+    //             id: this.id,
+    //             skill: skill.skill
+    //         });
+    //         if (exists) return MemberReturnStatus.hasSkill;
 
-            await DB.run('member/add-skill', {
-                id: this.id,
-                skill: skill.skill, 
-                years: Math.round(skill.years * 10) / 10
-            });
-            return MemberReturnStatus.skillAdded;
-        }));
-    }
+    //         await DB.run('member/add-skill', {
+    //             id: this.id,
+    //             skill: skill.skill, 
+    //             years: Math.round(skill.years * 10) / 10
+    //         });
+    //         return MemberReturnStatus.skillAdded;
+    //     }));
+    // }
 
-    async removeSkill(...skills: string[]): Promise<MemberReturnStatus[]> {
-        return Promise.all(skills.map(async(skill) => {
-            const exists = await DB.get('member/get-skill', {
-                id: this.id,
-                skill
-            });
-            if (!exists) return MemberReturnStatus.noSkill;
+    // async removeSkill(...skills: string[]): Promise<MemberReturnStatus[]> {
+    //     return Promise.all(skills.map(async(skill) => {
+    //         const exists = await DB.get('member/get-skill', {
+    //             id: this.id,
+    //             skill
+    //         });
+    //         if (!exists) return MemberReturnStatus.noSkill;
 
-            await DB.run('member/remove-skill', {
-                id: this.id,
-                skill
-            });
-            return MemberReturnStatus.skillRemoved;
-        }));
-    }
+    //         await DB.run('member/remove-skill', {
+    //             id: this.id,
+    //             skill
+    //         });
+    //         return MemberReturnStatus.skillRemoved;
+    //     }));
+    // }
 
-    getSkills(): Skill[] {
-        return DB.all('member/skills', {
-            id: this.id
-        });
-    }
+    // getSkills(): Skill[] {
+    //     return DB.all('member/skills', {
+    //         id: this.id
+    //     });
+    // }
 
     async changeResume(id: string) {
         const { resume } = this;

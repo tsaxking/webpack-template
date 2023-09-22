@@ -8,10 +8,8 @@ import { Bundle } from "https://deno.land/x/bundler@0.9.0/plugins/plugin.ts";
 
 
 export const bundle = async (path: string): Promise<Bundle> => {
-    const input = path;
-
-    const inputs = [input];
-    const outputMap = { [input]: "index.html" };
+    const inputs = [path];
+    const outputMap = { [path]: "index.html" };
 
     const plugins = [
         new HTMLPlugin(),

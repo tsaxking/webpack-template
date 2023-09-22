@@ -1,7 +1,7 @@
 INSERT INTO AccountRoles (
-    id,
-    "role"
+    accountId,
+    roleId
 ) VALUES (
-    :id,
-    :role
+    :accountId,
+    :roleId
 )

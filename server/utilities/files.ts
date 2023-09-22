@@ -2,6 +2,9 @@ import path from 'node:path';
 import callsite from 'npm:callsite';
 import { v4 as render } from 'npm:node-html-constructor';
 import ObjectsToCsv from 'npm:objects-to-csv';
+import { log as terminalLog } from "./terminal-logging.ts";
+import { __root, __uploads } from "./env.ts";
+
 
 
 const filePathBuilder = (file: string, ext: string, parentFolder: string) => {
@@ -13,9 +16,9 @@ const filePathBuilder = (file: string, ext: string, parentFolder: string) => {
         const stack = callsite(),
             requester = stack[1].getFileName(),
             requesterDir = path.dirname(requester);
-        output =  path.resolve(requesterDir, file);
+        output = path.resolve(requesterDir, file);
     } else {
-        output = path.resolve(__dirname, parentFolder, ...file.split('/'));
+        output = path.resolve(__root, parentFolder, ...file.split('/'));
     }
 
 
@@ -35,7 +38,7 @@ const removeComments = (content: string) => {
 
 
 export function getJSONSync<type = unknown>(file: string): type {
-    const filePath = filePathBuilder(file, '.json', '../../storage/jsons/');
+    const filePath = filePathBuilder(file, '.json', './storage/jsons/');
     const data = Deno.readFileSync(filePath);
     const decoder = new TextDecoder();
     const decoded = decoder.decode(data);
@@ -47,7 +50,7 @@ export function getJSONSync<type = unknown>(file: string): type {
 
 export function getJSON<type = unknown>(file: string): Promise<type> {
     return new Promise<type>((res, rej) => {
-        const filePath = filePathBuilder(file, '.json', '../../storage/jsons/');
+        const filePath = filePathBuilder(file, '.json', './storage/jsons/');
         Deno.readFile(filePath)
             .then(data => {
                 const decoder = new TextDecoder();
@@ -61,7 +64,7 @@ export function getJSON<type = unknown>(file: string): Promise<type> {
 }
 
 export function saveJSONSync(file: string, data: any) {
-    const p = filePathBuilder(file, '.json', '../../storage/jsons/');
+    const p = filePathBuilder(file, '.json', './storage/jsons/');
 
     try {
         data = JSON.stringify(data, null, 4);
@@ -74,7 +77,7 @@ export function saveJSONSync(file: string, data: any) {
 
 export function saveJSON(file: string, data: any) {
     return new Promise<void>((res, rej) => {
-        const p = filePathBuilder(file, '.json', '../../storage/jsons/');
+        const p = filePathBuilder(file, '.json', './storage/jsons/');
 
         try {
             data = JSON.stringify(data, null, 4);
@@ -90,7 +93,7 @@ export function saveJSON(file: string, data: any) {
 
 
 export function getTemplateSync(file: string, options?: { [key: string]: any }): string {
-    const p = filePathBuilder(file, '.html', '../../public/templates/');
+    const p = filePathBuilder(file, '.html', './public/templates/');
 
     const data = Deno.readFileSync(p);
     const decoder = new TextDecoder();
@@ -100,7 +103,7 @@ export function getTemplateSync(file: string, options?: { [key: string]: any }):
 
 export function getTemplate(file: string, options?: { [key: string]: any }): Promise<string> {
     return new Promise<string>((res, rej) => {
-        const p = filePathBuilder(file, '.html', '../../public/templates/');
+        const p = filePathBuilder(file, '.html', './public/templates/');
 
         Deno.readFile(p)
             .then(data => {
@@ -114,33 +117,70 @@ export function getTemplate(file: string, options?: { [key: string]: any }): Pro
 }
 
 export function saveTemplateSync(file: string, data: string) {
-    const p = filePathBuilder(file, '.html', '../../public/templates/');
+    const p = filePathBuilder(file, '.html', './public/templates/');
 
     return Deno.writeFileSync(p, new TextEncoder().encode(data));
 }
 
 export function saveTemplate(file: string, data: string) {
-    const p = filePathBuilder(file, '.html', '../../public/templates/');
+    const p = filePathBuilder(file, '.html', './public/templates/');
 
     return Deno.writeFile(p, new TextEncoder().encode(data));
 }
 
+
+
+export const createUploadsFolder = () => {
+    const p = filePathBuilder('', '', __uploads);
+
+    if (!Deno.statSync(p).isDirectory) {
+        terminalLog('Creating uploads folder');
+        Deno.mkdirSync(p);
+    }
+};
+
+
+
+
+
+
+
 export function saveUpload(filename: string, data: Uint8Array) {
-    const p = filePathBuilder(filename, '', '../../public/uploads/');
+    createUploadsFolder();
+    const p = filePathBuilder(filename, '', __uploads);
 
     return Deno.writeFile(p, data);
 }
 
 export function getUpload(filename: string) {
-    const p = filePathBuilder(filename, '', '../../public/uploads/');
+    createUploadsFolder();
+    const p = filePathBuilder(filename, '', __uploads);
+    try {
+        return Deno.readFile(p);
+    } catch {
+        terminalLog('error', `Could not delete file ${filename} because it likely does not exist`);
+    }
+}
 
-    return Deno.readFile(p);
+
+export function getUploadSync(filename: string) {
+    createUploadsFolder();
+    const p = filePathBuilder(filename, '', __uploads);
+    try {
+        return Deno.readFileSync(p);
+    } catch {
+        terminalLog('error', `Could not delete file ${filename} because it likely does not exist`);
+    }
 }
 
 export function deleteUpload(filename: string) {
-    const p = filePathBuilder(filename, '', '../../public/uploads/');
-
-    return Deno.remove(p);
+    createUploadsFolder();
+    const p = filePathBuilder(filename, '', __uploads);
+    try {
+        return Deno.remove(p);
+    } catch {
+        terminalLog('error', `Could not delete file ${filename} because it likely does not exist`);
+    }
 }
 
 
@@ -175,7 +215,7 @@ export type LogObj = {
 
 export function log(type: LogType, dataObj: LogObj) {
     return new ObjectsToCsv([dataObj]).toDisk(
-        path.resolve(__dirname, '../../storage/logs/', `${type}.csv`),
+        path.resolve(__root, '../../storage/logs/', `${type}.csv`),
         { append: true }
     );
 }

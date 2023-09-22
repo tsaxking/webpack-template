@@ -10,7 +10,7 @@ import { SocketWrapper, initSocket } from './structure/socket.ts';
 import Account from './structure/accounts.ts';
 import { getJSON, log, getTemplate, getJSONSync } from './utilities/files.ts';
 import { Colors } from './utilities/colors.ts';
-import env from "./utilities/env.ts";
+import env, { __root } from "./utilities/env.ts";
 import admin from './routes/admin.ts';
 import { parseCookie } from '../shared/cookie.ts';
 import { homeBuilder, navBuilder } from './utilities/page-builder.ts';
@@ -18,12 +18,6 @@ import accounts from './routes/accounts.ts';
 import * as ExpressTypes from 'npm:@types/express';
 import { bundle } from "./utilities/bundler.ts";
 
-
-
-await Promise.all([
-    bundle('./client/templates/main.html'),
-    bundle('./client/templates/admin.html')
-]);
 
 const app: ExpressTypes.Application = express();
 
@@ -34,15 +28,15 @@ initSocket(io);
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ limit: '50mb' }));
-app.use('/static', express.static(path.resolve(__dirname, './static')));
-app.use('/uploads', express.static(path.resolve(__dirname, './uploads')));
+app.use('/static', express.static(path.resolve(__root, './dist')));
+app.use('/uploads', express.static(path.resolve(__root, './uploads')));
 
 app.get('/favicon.ico', (req, res) => {
-    res.sendFile(path.resolve(__dirname, './static/pictures/logo-square.png'));
+    res.sendFile(path.resolve(__root, './client/pictures/logo-square.png'));
 });
 
 app.get('/robots.txt', (req, res) => {
-    res.sendFile(path.resolve(__dirname, './static/pictures/robots.jpg'));
+    res.sendFile(path.resolve(__root, './client/pictures/robots.jpg'));
 });
 
 
@@ -439,5 +433,5 @@ const PORT = env.PORT || 3000;
 
 server.listen(PORT, () => {
     console.log('------------------------------------------------');
-    console.log(`Listening on port \x1b[35m${env.DOMAIN}...\x1b[0m`);
+    console.log(`Listening on \x1b[35m${env.DOMAIN}...\x1b[0m`);
 });

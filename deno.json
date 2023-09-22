@@ -1,11 +1,12 @@
 {
   "tasks": {
-    "start": "deno run --allow-all ./server/index.ts",
+    "start": "deno run --allow-all --unstable ./server/index.ts",
     "dev": "deno task build & deno run --allow-all --unstable --watch ./server/index.ts",
-    "build": "deno run --allow-all --unstable ./bundler.ts"
+    "build": "deno run --allow-all --unstable ./bundler.ts",
+    "init": "deno run --allow-all --unstable ./storage/db/scripts/init.ts"
   },
   "compilerOptions": {
-    "noexplicitAny": false,
+    // "noexplicitAny": false,
     "lib": [
       "deno.ns",
       "dom",

@@ -1,18 +1,73 @@
 
 import { __root } from "./env.ts";
 import path from 'node:path';
-const dbDir = path.resolve(__root, './storage/db');
-
-
-import { Database, Statement } from "https://deno.land/x/sqlite3@0.8.0/mod.ts";
+import { Database, Statement } from "https://deno.land/x/sqlite3@0.9.1/mod.ts";
 import { MembershipStatus, Account, Member, Role, AccountRole, RolePermission, Skill } from "../../shared/db-types.ts";
+import { log } from "./terminal-logging.ts";
+import { SessionObj } from "../structure/sessions.ts";
 
-
-
+const dbDir = path.resolve(__root, './storage/db');
 export const MAIN = new Database(path.resolve(dbDir, './main.db'));
 
 
 type Queries = {
+    'sessions/delete': [
+        [{
+            id: string
+        }],
+        unknown
+    ],
+    'sessions/delete-all': [
+        [],
+        unknown
+    ],
+    'sessions/update': [
+        [{
+            id: string,
+            ip: string,
+            latestActivity: number,
+            accountId: string,
+            userAgent: string,
+            requests: number,
+            created: number
+        }],
+        unknown
+    ],
+    'sessions/all': [
+        [],
+        SessionObj
+    ],
+    'sessions/get': [
+        [{
+            id: string
+        }],
+        SessionObj
+    ],
+    'sessions/new': [
+        [{
+            id: string,
+            ip: string,
+            latestActivity: number,
+            accountId: string,
+            userAgent: string,
+            prevUrl: string,
+            requests: number,
+            created: number
+        }],
+        unknown
+    ],
+    'db/get-version': [
+        [],
+        {
+            version: number
+        }
+    ],
+    'roles/from-id': [
+        [{
+            id: string
+        }],
+        Role
+    ],
     'roles/from-name': [
         [{
             name: string
@@ -71,13 +126,13 @@ type Queries = {
             created: number,
             phoneNumber: string
         }],
-        any
+        unknown
     ],
     'account/delete': [
         [{
             id: string
         }],
-        any
+        unknown
     ],
     'account/from-id': [
         [{ 
@@ -90,61 +145,61 @@ type Queries = {
             id: string,
             email: string
         }],
-        any
+        unknown
     ],
     'account/verify': [
         [{
             id: string
         }],
-        any
+        unknown
     ],
     'account/set-verification': [
         [{
             id: string,
             verification: string
         }],
-        any
+        unknown
     ],
     'account/roles': [
         [{
-            id: string
+            accountId: string
         }],
         Role
     ],
     'account/add-role': [
         [{
-            id: string,
-            role: string
+            accountId: string,
+            roleId: string
         }],
-        any
+        unknown
     ],
     'account/remove-role': [
         [{
-            id: string,
-            role: string
+            accountId: string,
+            roleId: string
         }],
-        any
+        unknown
     ],
     'account/update-picture': [
         [{
             id: string,
             picture: string
         }],
-        any
+        unknown
     ],
     'account/change-username': [
         [{
             id: string,
             username: string
         }],
-        any
+        unknown
     ],
     'account/request-email-change': [
         [{
             id: string,
             emailChange: string
         }],
-        any
+        unknown
     ],
     'account/change-password': [
         [{
@@ -153,14 +208,14 @@ type Queries = {
             key: string,
             passwordChange: null
         }],
-        any
+        unknown
     ],
     'account/request-password-change': [
         [{
             id: string,
             passwordChange: string
         }],
-        any
+        unknown
     ],
     'member/from-username': [
         [{
@@ -177,81 +232,53 @@ type Queries = {
             status: MembershipStatus,
             id: string
         }],
-        any
+        unknown
     ],
     'member/new': [
         [{
             id: string,
             status: MembershipStatus
         }],
-        any
+        unknown
     ],
     'member/delete': [
         [{
             id: string
         }],
-        any
+        unknown
     ],
     'member/update-bio': [
         [{
             id: string,
             bio: string
         }],
-        any
+        unknown
     ],
     'member/update-title': [
         [{
             id: string,
             title: string
         }],
-        any
+        unknown
     ],
     'member/update-resume': [
         [{
             id: string,
             resume: string
         }],
-        any
-    ],
-    'member/add-skill': [
-        [{
-            id: string,
-            skill: string,
-            years: number
-        }],
-        any
-    ],
-    'member/remove-skill': [
-        [{
-            id: string,
-            skill: string
-        }],
-        any
-    ],
-    'member/get-skill': [
-        [{
-            id: string,
-            skill: string
-        }],
-        boolean
-    ],
-    'member/skills': [
-        [{
-            id: string
-        }],
-        Skill
+        unknown
     ],
     'member/add-to-board': [
         [{
             id: string
         }],
-        any
+        unknown
     ],
     'member/remove-from-board': [
         [{
             id: string
         }],
-        any
+        unknown
     ]
 };
 
@@ -262,6 +289,8 @@ const openDir = (dir: string) => {
     const filesAndDirs = Deno.readDirSync(dir);
 
     for (const f of filesAndDirs) {
+        if (f.name.startsWith('--')) continue;
+
         if (f.isDirectory) {
             openDir(path.resolve(dir, f.name));
         } else {
@@ -275,10 +304,15 @@ const openDir = (dir: string) => {
                 path.resolve(dir, f.name.split('.').slice(0, -1).join('.'))
             );
 
-            queries.set(
-                relative as keyof Queries, 
-                MAIN.prepare(data)
-            );
+            try {
+                queries.set(
+                    relative as keyof Queries, 
+                    MAIN.prepare(data)
+                );
+            } catch (e) {
+                log('Error in query', relative);
+                throw e;
+            }
         }
     }
 }
@@ -289,10 +323,20 @@ openDir(path.resolve(__root, './storage/db/queries/'));
 type Parameter = string | number | boolean | null;
 
 export class DB {
+    static get path() {
+        return path.resolve(dbDir, './main.db');
+    }
+
     static run<T extends keyof Queries>(type: T, ...args: Queries[T][0]): number {
         const q = queries.get(type);
         if (!q) throw new Error(`Query ${type} does not exist.`);
-        const d = q.run(...args);
+        let d: number;
+        try {
+            d = q.run(...args);
+        } catch (e) {
+            log('Error in query', type);
+            throw e;
+        }
         q.finalize();
         return d;
     }
@@ -300,15 +344,26 @@ export class DB {
     static get<T extends keyof Queries>(type: T, ...args: Queries[T][0]): Queries[T][1] | undefined {
         const q = queries.get(type);
         if (!q) throw new Error(`Query ${type} does not exist.`);
-        // return q.value<Queries[T][1]>(...args) as Queries[T][1];
-        return q.get(...args);
+        let d: Queries[T][1] | undefined;
+        try {
+            d = q.get(...args);
+        } catch (e) {
+            log('Error in query', type);
+            throw e;
+        }
+        return d;
     }
 
     static all<T extends keyof Queries>(type: T, ...args: Queries[T][0]): Queries[T][1][] {
         const q = queries.get(type);
         if (!q) throw new Error(`Query ${type} does not exist.`);
-        // return q.values<Queries[T][1]>(...args) as Queries[T][1][];
-        const d =  q.all<Record<string, Queries[T][1]>>(...args);
+        let d: Queries[T][1][];
+        try {
+            d = q.all(...args);
+        } catch (e) {
+            log('Error in query', type);
+            throw e;
+        }
         q.finalize();
         return d;
     }
@@ -319,19 +374,37 @@ export class DB {
         return {
             run: (query: string, ...args: Parameter[]): number => {
                 const q = MAIN.prepare(query);
-                const d = q.run(...args);
+                let d: number;
+                try {
+                    d = q.run(...args);
+                } catch (e) {
+                    log('Error in query', query);
+                    throw e;
+                }
                 q.finalize();
                 return d;
             },
-            get: (query: string, ...args: Parameter[]) => {
+            get: <type = unknown>(query: string, ...args: Parameter[]) => {
                 const q = MAIN.prepare(query);
-                const d = q.get(...args);
+                let d: Record<string, type> | undefined;
+                try {
+                    d = q.get<Record<string, type>>(...args);
+                } catch (e) {
+                    log('Error in query', query);
+                    throw e;
+                }
                 q.finalize();
                 return d;
             },
-            all: (query: string, ...args: Parameter[]) => {
+            all: <type>(query: string, ...args: Parameter[]) => {
                 const q = MAIN.prepare(query);
-                const d = q.all(...args);
+                let d: Record<string, type>[];
+                try {
+                    d = q.all<Record<string, type>>(...args);
+                } catch (e) {
+                    log('Error in query', query);
+                    throw e;
+                }
                 q.finalize();
                 return d;
             }

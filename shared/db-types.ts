@@ -51,8 +51,8 @@ export type Role = {
 
 
 export type AccountRole = {
-    id: string;
-    role: string;
+    accountId: string;
+    roleId: string;
 }
 
 

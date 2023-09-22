@@ -1,4 +1,5 @@
 export type SocketEvent = 
+    // aligned with status messages
     'account:created' |
     'account:logged-in' |
     'account:logged-out' |
@@ -27,6 +28,6 @@ export type SocketEvent =
     
     
     
-    
+    // client only
     'page:open' | 
     'disconnect';

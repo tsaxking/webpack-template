@@ -1,9 +1,10 @@
 import { Status } from '../utilities/status.ts';
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'npm:express';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { uuid } from '../utilities/uuid.ts';
-import { formatBytes } from '../utilities/files.ts';
+import { formatBytes, createUploadsFolder } from '../utilities/files.ts';
+import { __uploads } from "../utilities/env.ts";
 
 
 
@@ -26,7 +27,7 @@ type FileStreamOptions = {
  * @returns {(req: any, res: any, next: any) => unknown}
  */
 export const fileStream = (opts?: FileStreamOptions): NextFunction => {
-    if (!fs.existsSync(path.resolve(__dirname, '../uploads'))) fs.mkdirSync(path.resolve(__dirname, '../uploads'));
+    createUploadsFolder();
 
     const fn = async(req: Request, res: Response, next: NextFunction) => {
         let { maxFileSize, extensions } = opts || {};
@@ -68,11 +69,11 @@ export const fileStream = (opts?: FileStreamOptions): NextFunction => {
 
 
         // never overwrite files
-        while (fs.existsSync(path.resolve(__dirname, '../uploads', fileId + fileExt))) {
+        while (fs.existsSync(path.resolve(__uploads, fileId + fileExt))) {
             fileId = generateFileId();
         }
 
-        const file = fs.createWriteStream(path.resolve(__dirname, '../uploads', fileId + fileExt));
+        const file = fs.createWriteStream(path.resolve(__uploads, fileId + fileExt));
 
         let total = 0;
         req.on('data', (chunk: {

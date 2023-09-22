@@ -1,2 +1,2 @@
 DELETE FROM AccountRoles
-WHERE id = :id AND role = :role;
+WHERE accountId = :id AND roleId = :roleId;
