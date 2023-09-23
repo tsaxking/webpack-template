@@ -90,15 +90,7 @@ type DiscordLink = {
 
 
 export default class Account {
-    private static cachedAccounts: {
-        [username: string]: Account
-    } = {};
-
-
-
     static fromId(id: string): Account|null {
-        if (Account.cachedAccounts[id]) return Account.cachedAccounts[id];
-
         const data = DB.get('account/from-id', {
             id
         });
@@ -107,53 +99,32 @@ export default class Account {
     }
 
 
-    static async fromUsername(username: string): Promise<Account|null> {
-        for (const username in Account.cachedAccounts) {
-            const account = Account.cachedAccounts[username];
-            if (account.username === username) return account;
-        }
-
-        const data = await DB.get('account/from-username', {
+    static fromUsername(username: string): Account|null {
+        const data = DB.get('account/from-username', {
             username
         });
         if (!data) return null;
         return new Account(data);
     }
 
-    static async fromEmail(email: string): Promise<Account|null> {
-        // find in cache
-        for (const id in Account.cachedAccounts) {
-            const account = Account.cachedAccounts[id];
-            if (account.email === email) return account;
-        }
-
-        const data = await DB.get('account/from-email', {
+    static fromEmail(email: string): Account|null {
+        const data = DB.get('account/from-email', {
             email
         });
         if (!data) return null; 
         return new Account(data);
     }
 
-    static async fromVerificationKey(key: string): Promise<Account|null> {
-        const cachedAccount = Object.values(Account.cachedAccounts).find((a) => a.verification === key);
-
-        if (cachedAccount) return cachedAccount;
-
-        const data = await DB.get('account/from-verification-key', {
+    static fromVerificationKey(key: string): Account|null {
+        const data = DB.get('account/from-verification-key', {
             verification: key
         });
         if (!data) return null;
         return new Account(data);
     }
 
-    static async fromPasswordChangeKey(key: string): Promise<Account|null> {
-        // find in cache
-        for (const username in Account.cachedAccounts) {
-            const account = Account.cachedAccounts[username];
-            if (account.passwordChange === key) return account;
-        }
-
-        const data = await DB.get('account/from-password-change', {
+    static fromPasswordChangeKey(key: string): Account|null {
+        const data = DB.get('account/from-password-change', {
             passwordChange: key
         });
         if (!data) return null;

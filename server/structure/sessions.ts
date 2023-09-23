@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'npm:express';
+// import { Request, Response, NextFunction } from 'npm:express';
 import { getClientIp } from 'npm:request-ip';
 import { uuid } from '../utilities/uuid.ts';
 import Account from './accounts.ts';
@@ -22,23 +22,9 @@ export type SessionObj = {
 
 
 export class Session {
-    static test(req: Request, res: Response, next: NextFunction) {
-        next();
-    }
-
-
-    static middleware(req: CustomRequest, res: Response, next: NextFunction) {
-        // const id = req.headers.cookie ? parseCookie(req.headers.cookie).ssid : null;
-
-        // if (id && Session.sessions[id]) {
-        //     req.session = Session.sessions[id];
-        // } else {
-        //     req.session = new Session(req, res);
-        //     Session.addSession(req.session);
-        // }
-
-        // req.session.requests++;
-        next();
+    static get(cookie: string): Session | undefined {
+        const id = parseCookie(cookie).ssid;
+        return Session.sessions[id];
     }
 
     static _sessions: { [key: string]: Session } = {};
@@ -51,7 +37,7 @@ export class Session {
     static addSession(session: Session) {
         Session._sessions[session.id] = session;
         if (!session.account) {
-            session.signOut();
+            // session.signOut();
         }
     }
 
@@ -81,6 +67,8 @@ export class Session {
 
     static loadSessions() {
         const sessions = DB.all('sessions/all');
+
+        console.log(sessions);
 
         for (const s of sessions) {
             Session._sessions[s.id] = Session.fromSessObj(s);
@@ -114,12 +102,12 @@ export class Session {
         else this.ip = 'unknown';
         this.id = uuid();
 
-        this.userAgent = req?.headers['user-agent'];
+        // this.userAgent = req?.headers['user-agent'];
 
-        if (res) res.cookie('ssid', this.id, {
-            httpOnly: true,
-            maxAge: env.SESSION_DURATION ? +env.SESSION_DURATION : 1000 * 60 * 60 * 24 * 7 // 1 week
-        });
+        // if (res) res.cookie('ssid', this.id, {
+        //     httpOnly: true,
+        //     maxAge: env.SESSION_DURATION ? +env.SESSION_DURATION : 1000 * 60 * 60 * 24 * 7 // 1 week
+        // });
 
 
 
@@ -138,19 +126,19 @@ export class Session {
 
 
 
-    signIn(account: Account) {
-        this.account = account;
-    }
+    // signIn(account: Account) {
+    //     this.account = account;
+    // }
 
-    signOut() {
-        this.account = null;
-    }
+    // signOut() {
+    //     this.account = null;
+    // }
 
-    destroy() {
-        Session.removeSession(this);
-    }
+    // destroy() {
+    //     Session.removeSession(this);
+    // }
 }
 
-Session.loadSessions();
+// Session.loadSessions();
 
 setInterval(Session.saveSessions, 1000 * 10); // save sessions every 10 seconds

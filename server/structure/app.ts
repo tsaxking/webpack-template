@@ -5,7 +5,8 @@ import { __root } from "../utilities/env.ts";
 import PATH from 'npm:path';
 import { log } from "../utilities/terminal-logging.ts";
 import { Session } from "./sessions.ts";
-
+import stack from 'npm:callsite';
+import { Colors } from "../utilities/colors.ts";
 
 const fileTypeHeaders = {
     js: 'application/javascript',
@@ -49,23 +50,95 @@ const fileTypeHeaders = {
 };
 
 
-
-type BodyValue = string | number | boolean | null | undefined;
-
-type Body = {
-    [key: string]: BodyValue | BodyValue[] | Body | Body[]
-} | BodyValue[] | BodyValue;
-
-
-
-type CustomRequest = Request & {
-    params: {
+export class Req {
+    readonly params: {
         [key: string]: string
+    };
+
+    readonly session?: Session;
+    body: any;
+    readonly url: string;
+    readonly method: string;
+    readonly headers: Headers;
+    readonly pathname: string;
+    readonly query: URLSearchParams;
+
+    constructor(public readonly req: Request) {
+        this.url = req.url;
+        this.method = req.method;
+        this.headers = req.headers;
+        this.pathname = new URL(req.url, 'http://localhost').pathname;
+        this.query = new URL(req.url, 'http://localhost').searchParams;
+        this.params = extractParams('/api', this.pathname);
+
+        const cookie = req.headers.get('cookie');
+        if (cookie) {
+            this.session = Session.get(cookie);
+        }
+    }
+};
+
+export class Res {
+    public readonly promise: Promise<Response>;
+    public resolve?: (res: Response) => void;
+    public reject?: (error: string) => void;
+    public fulfilled: boolean = false;
+    public readonly trace: string[] = [];
+
+    constructor() {
+        this.promise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
     }
 
-    session: Session;
-    content: any;
-}
+    private isFulfilled() {
+        if (this.fulfilled) {
+            log('Response already fulfilled at:');
+            return console.log(this.trace.filter(t => t!=='null:null').map(t => {
+                t = t.replace('file://', '').replace('file:', '');
+                t = PATH.relative(__root, t);
+                t = `\t${Colors.FgYellow}${t}${Colors.Reset}`
+                return t;
+            }).join('\n'));
+        }
+        this.fulfilled = true;
+
+        this.trace.push(...stack().map((site: any) => {
+            return site.getFileName() + ':' + site.getLineNumber();
+        }));
+    }
+
+
+    json(data: any) {
+        this.isFulfilled();
+        try {
+            const d = JSON.stringify(data);
+            this.resolve?.(new Response(d, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }));
+        } catch {};
+    }
+
+    send(data: string) {
+        this.isFulfilled();
+        this.resolve?.(new Response(data));
+    }
+
+    sendFile(path: string) {
+        this.isFulfilled();
+        const extName = PATH.extname(path).replace('.', '');
+        const data = Deno.readFileSync(path);
+        this.resolve?.(new Response(data, {
+            headers: {
+                'Content-Type': fileTypeHeaders[extName as keyof typeof fileTypeHeaders] || 'text/plain'
+            }
+        }));
+    }
+};
+
 
 
 
@@ -128,9 +201,9 @@ enum RequestMethod {
     DELETE = 'DELETE'
 }
 
+export type Next = () => void;
 
-
-export type ServerFunction = (req: CustomRequest) => any;
+export type ServerFunction = (req: Req, res: Res, next: Next) => any;
 type ServerFunctionHandler = {
     path: string;
     callback: ServerFunction;
@@ -150,7 +223,7 @@ export class App {
     public readonly server: Deno.Server;
 
     constructor(public readonly port: number, public readonly domain: string, options?: AppOptions) {
-        this.server = Deno.serve({ port: this.port }, this.handleHttp.bind(this));
+        this.server = Deno.serve({ port: this.port }, (req: Request) => this.handler(req));
 
         if (options) {
             if (options.onListen) {
@@ -163,61 +236,69 @@ export class App {
         }
     };
 
-    private async handleHttp(req: Request): Promise<Response> {
-        const extName = PATH.extname(req.url).replace('.', '');
-        const url = new URL(req.url, this.domain);
-        log(`[${req.method}]`, url);
+    private async handler(denoReq: Request): Promise<Response> {
+        return new Promise<Response>(async (resolve, reject) => {
+            const extName = PATH.extname(denoReq.url).replace('.', '');
+            const url = new URL(denoReq.url, this.domain);
 
 
-        const fns = this.serverFunctions.filter(sf => {
+            const fns = this.serverFunctions.filter(sf => {
+                if (sf.method !== denoReq.method) return false;
+                if (sf.path === url.pathname) return true;
+                if (sf.path.endsWith('*')) {
+                    const pathParts = sf.path.split('/');
+                    const urlParts = url.pathname.split('/');
 
+                    if (pathParts.length !== urlParts.length) return false;
 
-            if (sf.method !== req.method) return false;
-            if (sf.path === url.pathname) return true;
-            if (sf.path.endsWith('*')) {
-                const pathParts = sf.path.split('/');
-                const urlParts = url.pathname.split('/');
+                    for (let i = 0; i < pathParts.length; i++) {
+                        if (pathParts[i] === '*') return true;
+                        if (pathParts[i].startsWith(':')) continue;
+                        if (pathParts[i] !== urlParts[i]) return false;
+                    }
 
-                if (pathParts.length !== urlParts.length) return false;
-
-                for (let i = 0; i < pathParts.length; i++) {
-                    if (pathParts[i] === '*') return true;
-                    if (pathParts[i].startsWith(':')) continue;
-                    if (pathParts[i] !== urlParts[i]) return false;
+                    return true;
                 }
 
-                return true;
-            }
+                return false;
+            });
 
-            return false;
+            console.log(fns);
+
+            const req = new Req(denoReq);
+            const res = new Res();
+
+            const runFn = async (i: number) => {
+                const fn = fns[i] as ServerFunctionHandler | undefined;
+                if (!fn && !res.fulfilled) {
+                    return res.reject?.(`No response to ${req.method}: ${req.pathname}`);
+                }
+
+                const next = () => {
+                    runFn(i + 1);
+                }
+
+                return fn?.callback(req, res, next);
+            };
+
+            runFn(0);
+
+
+            await res.promise
+                .then((response: Response) => {
+                    resolve(response);
+                })
+                .catch((e: Error) => {
+                    log(e);
+                });
+
+            if (!res.fulfilled) resolve(new Response('404: Page not found', {
+                headers: {
+                    'Content-Type': 'text/plain'
+                }
+            }));
         });
 
-        for (const fn of fns) {
-            (req as CustomRequest).params = extractParams(fn.path, url.pathname);
-            (req as CustomRequest).content = await req.json();
-
-            const d = await fn.callback(req as CustomRequest);
-            if (d) {
-                switch (req.method) {
-                    case 'GET':
-                        return new Response(d, {
-                            headers: {
-                                'Content-Type': fileTypeHeaders[extName as keyof typeof fileTypeHeaders] || 'text/plain'
-                            }
-                        });
-                    case 'POST': 
-                        return new Response(JSON.stringify(d), {
-                            headers: {
-                                'Content-Type': 'application/json'
-                            }
-                        });
-                    default: 
-                        return new Response(d);
-                }
-            }
-        }
-
-        return new Response('404 Not Found', { status: 404 });
     }
 
     private readonly serverFunctions: ServerFunctionHandler[] = [];
