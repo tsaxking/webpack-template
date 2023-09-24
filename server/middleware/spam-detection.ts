@@ -1,10 +1,9 @@
 // const SpamScanner = require('spamscanner');
 import { validate } from 'npm:deep-email-validator';
-import { NextFunction, Request, Response } from 'npm:express';
-
+import { Req, Res, Next, ServerFunction } from "../structure/app.ts";
 export type Options = {
-    onspam?: (req: Request, res: Response, next: NextFunction) => void;
-    onerror?: (req: Request, res: Response, next: NextFunction) => void;
+    onspam?: (req: Req, res: Res, next: Next) => void;
+    onerror?: (req: Req, res: Res, next: Next) => void;
     goToNext?: boolean;
 }
 
@@ -38,8 +37,8 @@ export type Options = {
 // };
 
 
-export const emailValidation = (keys: string[], options: Options = {}): NextFunction => {
-    const fn = (req: Request, res: Response, next: NextFunction) => {
+export const emailValidation = (keys: string[], options: Options = {}): ServerFunction => {
+    return (req: Req, res: Res, next: Next) => {
         const arr = keys.map(key => req.body[key]);
 
         if (!arr.length) return next();    
@@ -58,6 +57,4 @@ export const emailValidation = (keys: string[], options: Options = {}): NextFunc
                 next();
             });
     }
-
-    return fn as NextFunction;
 };

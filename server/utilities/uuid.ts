@@ -67,7 +67,7 @@ const getId = (): string => {
  * @param {uuidOptions} options 
  * @returns {string} unique id
  */
-export const uuid = (options?: uuidOptions) => {
+export const uuid = (options?: uuidOptions): string => {
     // random string, only letters
     let id: string;
     id = getId();

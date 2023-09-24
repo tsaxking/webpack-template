@@ -23,13 +23,6 @@ export enum MemberReturnStatus {
 }
 
 export class Member {
-    public static members: {
-        [username: string]: Member
-    } = {};
-
-
-
-
 
     static async canManage(req: Request, res: Response, next: NextFunction) {
         const { username } = req.body;
@@ -40,8 +33,8 @@ export class Member {
         const account = await Account.fromUsername(username);
         if (!account) return Status.from('account.notFound', req).send(res);
 
-        const selfRank = await self.getRank();
-        const rank = await account.getRank();
+        const selfRank  = self.rank;
+        const rank = account.rank;
 
         if (selfRank < rank) return next();
 
@@ -115,8 +108,6 @@ export class Member {
     }
 
     static async get(username: string): Promise<Member|null> {
-        if (Member.members[username]) return Member.members[username];
-
         const data = await DB.get('member/from-username', {
             username
         });
@@ -126,8 +117,6 @@ export class Member {
     }
 
     static async getMembers(): Promise<Member[]> {
-        if (Object.keys(Member.members).length) return Object.values(Member.members);
-
         const membersInfo = await DB.all('member/all');
 
         return membersInfo.map(m => new Member(m));
@@ -147,8 +136,6 @@ export class Member {
         this.title = memberInfo.title;
         this.resume = memberInfo.resume;
         this.status = memberInfo.status;
-
-        Member.members[this.id] = this;
     }
 
     async accept() {
@@ -195,8 +182,6 @@ export class Member {
         await DB.run('member/delete', {
             id: this.id
         });
-        delete Member.members[this.id];
-
         io?.emit('member-revoked', {
             id: this.id
         });

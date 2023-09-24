@@ -118,35 +118,6 @@ app.post('/*', (req, res, next) => {
 // production/testing/development middleware
 
 
-app.use((req, res, next) => {
-    switch (env.env) {
-        case 'prod':
-            (() => {
-                // This code will only run in production
-
-
-            })();
-            break;
-        case 'test':
-            (() => {
-                // this code will only run in testing
-                // you could add features like auto-reloading, automatic sign-in, etc.
-
-
-            })();
-            break;
-        case 'dev':
-            (() => {
-                // this code will only run in development
-                // you could add features like auto-reloading, automatic sign-in, etc.
-
-
-            })();
-            break;
-    }
-
-    next();
-});
 
 
 // spam detection

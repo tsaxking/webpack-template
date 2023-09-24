@@ -1,17 +1,13 @@
 // import { Request, Response, NextFunction } from 'npm:express';
-import { getClientIp } from 'npm:request-ip';
 import { uuid } from '../utilities/uuid.ts';
 import Account from './accounts.ts';
 import { parseCookie } from '../../shared/cookie.ts';
-import env from "../utilities/env.ts";
 import { DB } from "../utilities/databases.ts";
-type CustomRequest = Request & {
-    session: Session;
-}
+import { Req, Res, Next, ServerFunction, CookieOptions } from "./app.ts";
 
 
 export type SessionObj = {
-    ip: string|null;
+    ip: string;
     id: string;
     latestActivity: number;
     accountId: string|null;
@@ -22,58 +18,15 @@ export type SessionObj = {
 
 
 export class Session {
+    private static requestsPerMinute?: number;
+    private static onOverload?: (session: Session) => void;
+
     static get(cookie: string): Session | undefined {
         const id = parseCookie(cookie).ssid;
-        return Session.sessions[id];
+        const s = DB.get('sessions/get', { id });
+        return s ? Session.fromSessObj(s) : undefined;
     }
 
-    static _sessions: { [key: string]: Session } = {};
-    static get sessions() {
-        return Session._sessions;
-    }
-
-
-
-    static addSession(session: Session) {
-        Session._sessions[session.id] = session;
-        if (!session.account) {
-            // session.signOut();
-        }
-    }
-
-
-
-    static removeSession(session: Session) {
-        delete Session._sessions[session.id];
-        DB.run('sessions/delete', {
-            id: session.id
-        });
-    }
-
-    static saveSessions() {
-        for (const s of Object.values(Session.sessions)) {
-            console.log('Saving session', s);
-            DB.run('sessions/update', {
-                id: s.id,
-                ip: s.ip || '',
-                latestActivity: s.latestActivity,
-                accountId: s.account?.id || '',
-                userAgent: s.userAgent || '',
-                created: s.created,
-                requests: s.requests
-            });
-        }
-    }
-
-    static loadSessions() {
-        const sessions = DB.all('sessions/all');
-
-        console.log(sessions);
-
-        for (const s of sessions) {
-            Session._sessions[s.id] = Session.fromSessObj(s);
-        }
-    }
 
     static fromSessObj(s: SessionObj) {
         const session = new Session();
@@ -82,36 +35,97 @@ export class Session {
         session.latestActivity = s.latestActivity;
         session.prevUrl = s.prevUrl;
         session.userAgent = s.userAgent;
-        if (s.accountId) session.account = Account.fromId(s.accountId);
         return session;
     }
 
+    static new(req: Req, res: Res, options?: CookieOptions): Session {
+        const s = new Session(req);
+        res.cookie('ssid', s.id, options);
+        return s;
+    }
 
 
-    ip: string|null;
+    static middleware(options?: {
+        cookie: CookieOptions;
+        requests?: {
+            perMinute: number;
+            onOverload: (session: Session) => void;
+        }
+    }): ServerFunction {
+        let rpm: number = Infinity;
+        if (options?.requests) {
+            Session.requestsPerMinute = options.requests.perMinute;
+            rpm = options.requests.perMinute;
+            Session.onOverload = options.requests.onOverload;
+        }
+        return (req: Req, res: Res, next: Next) => {
+            const cookie = req.headers.get('cookie');
+            let s: Session;
+
+            if (!cookie) {
+                s = Session.new(req, res, options?.cookie);
+            } else {
+                s = Session.get(cookie) || Session.new(req, res, options?.cookie);
+            }
+
+            req.session = s;
+            s.requests++;
+
+            if (s.requests > rpm) Session.onOverload?.(s);
+            s.latestActivity = Date.now();
+            next();
+        }
+    }
+
+    ip: string = '';
     id: string;
+    accountId?: string;
     latestActivity: number = Date.now();
-    account: Account | null = null;
     prevUrl?: string;
     requests: number = 0;
     created: number = Date.now();
     userAgent?: string;
+    limitTime?: number;
 
-    constructor(req?: CustomRequest, res?: Response) {
-        if (req) this.ip = getClientIp(req);
-        else this.ip = 'unknown';
-        this.id = uuid();
+    constructor(req?: Req) {
+        this.id = (uuid() + uuid() + uuid() + uuid()).replace(/-/g, '');
 
-        // this.userAgent = req?.headers['user-agent'];
+        if (req) {
+            this.ip = req.ip;
+            this.userAgent = req.headers.get('user-agent') || '';
+            // this.prevUrl = req.headers.get('referer') || '';
+        }
 
-        // if (res) res.cookie('ssid', this.id, {
-        //     httpOnly: true,
-        //     maxAge: env.SESSION_DURATION ? +env.SESSION_DURATION : 1000 * 60 * 60 * 24 * 7 // 1 week
-        // });
+        if (Session.onOverload && Session.requestsPerMinute) {
+            setInterval(() => {
+                this.requests = 0;
+            }, 1000 * 60);
+        }
+    }
 
+    get account(): Account | null {
+        if (!this.accountId) return null;
+        return Account.fromId(this.accountId);
+    }
 
+    signIn(account: Account) {
+        this.accountId = account.id;
+        this.save();
+    }
 
-        DB.run('sessions/new', {
+    signOut() {
+        this.accountId = undefined;
+        this.save();
+    }
+
+    destroy() {
+        DB.run('sessions/delete', { id: this.id });
+    }
+
+    save() {
+        this.account?.save();
+
+        DB.run('sessions/update', {
             id: this.id,
             ip: this.ip || '',
             latestActivity: this.latestActivity,
@@ -123,22 +137,11 @@ export class Session {
         });
     }
 
+    limit(time: number) {
 
+    }
 
+    block() {
 
-    // signIn(account: Account) {
-    //     this.account = account;
-    // }
-
-    // signOut() {
-    //     this.account = null;
-    // }
-
-    // destroy() {
-    //     Session.removeSession(this);
-    // }
+    }
 }
-
-// Session.loadSessions();
-
-setInterval(Session.saveSessions, 1000 * 10); // save sessions every 10 seconds

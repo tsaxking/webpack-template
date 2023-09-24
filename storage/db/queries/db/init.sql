@@ -57,6 +57,10 @@ CREATE TABLE IF NOT EXISTS Permissions (
 );
 
 
+
+-- DO NOT CHANGE THESE TABLES
+
+
 CREATE TABLE IF NOT EXISTS Version (
     version INTEGER NOT NULL
 );
@@ -70,9 +74,15 @@ CREATE TABLE IF NOT EXISTS Sessions (
     latestActivity TEXT,
     requests INTEGER NOT NULL DEFAULT 0,
     created INTEGER NOT NULL,
-    prevUrl TEXT
+    prevUrl TEXT,
+    limitTime INTEGER
 );
 
+
+CREATE TABLE IF NOT EXISTS BlockList {
+    ip TEXT PRIMARY KEY,
+    created INTEGER NOT NULL
+}
 
 
 

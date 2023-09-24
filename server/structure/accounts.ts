@@ -9,10 +9,9 @@ import { Email, EmailOptions, EmailType } from "../utilities/email.ts";
 import Filter from 'npm:bad-words';
 import { Member } from "./member.ts";
 import { Account as AccountObject, MembershipStatus, Member as MemberObj, Skill, Permission } from "../../shared/db-types.ts";
-import * as fs from 'node:fs';
-import * as path from 'node:path';
 import env from "../utilities/env.ts";
 import { deleteUpload } from "../utilities/files.ts";
+import { Req, Res, Next, ServerFunction } from './app.ts';
 
 
 
@@ -90,6 +89,23 @@ type DiscordLink = {
 
 
 export default class Account {
+    static autoSignIn(username?: string): ServerFunction {
+        return (req, res, next) => {
+            if (!username) return next();
+            const a = req.session?.accountId;
+            if (a) return next();
+
+            const account = Account.fromUsername(username);
+            if (!account) return next();
+
+            req.session!.accountId = account.id;
+            next();
+        }
+    }
+
+
+
+
     static fromId(id: string): Account|null {
         const data = DB.get('account/from-id', {
             id
@@ -637,8 +653,12 @@ export default class Account {
     }
 
 
-    async getRank(): Promise<number> {
-        const roles = await this.getRoles();
+    get rank(): number {
+        const roles = this.getRoles();
         return Math.min(...roles.map((r) => r.rank));
     }
+
+
+
+    save() {}
 };

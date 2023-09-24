@@ -55,28 +55,27 @@ export class Req {
         [key: string]: string
     };
 
-    readonly session?: Session;
+    session?: Session;
     body: any;
     readonly url: string;
     readonly method: string;
     readonly headers: Headers;
     readonly pathname: string;
     readonly query: URLSearchParams;
+    readonly ip: string = 'localhost';
+    readonly start: number = Date.now();
 
-    constructor(public readonly req: Request) {
+    constructor(public readonly req: Request, info: Deno.ServeHandlerInfo) {
         this.url = req.url;
         this.method = req.method;
         this.headers = req.headers;
         this.pathname = new URL(req.url, 'http://localhost').pathname;
         this.query = new URL(req.url, 'http://localhost').searchParams;
         this.params = extractParams('/api', this.pathname);
-
-        const cookie = req.headers.get('cookie');
-        if (cookie) {
-            this.session = Session.get(cookie);
-        }
+        this.ip = info.remoteAddr.hostname;
     }
 };
+
 
 export class Res {
     public readonly promise: Promise<Response>;
@@ -98,9 +97,9 @@ export class Res {
             return console.log(this.trace.filter(t => t!=='null:null').map(t => {
                 t = t.replace('file://', '').replace('file:', '');
                 t = PATH.relative(__root, t);
-                t = `\t${Colors.FgYellow}${t}${Colors.Reset}`
+                t = `\n\t${Colors.FgYellow}${t}${Colors.Reset}`
                 return t;
-            }).join('\n'));
+            }).join(''));
         }
         this.fulfilled = true;
 
@@ -137,9 +136,37 @@ export class Res {
             }
         }));
     }
+
+
+    redirect(path: string) {
+        this.isFulfilled();
+        this.resolve?.(Response.redirect(path));
+    }
+
+
+    cookie(id: string, value: string, options?: CookieOptions) {
+        // this.isFulfilled();
+        this.resolve?.(new Response(null, {
+            headers: {
+                'Set-Cookie': `${id}=${value}; 
+                    ${options?.maxAge ? `Max-Age=${options.maxAge}; ` : ''}
+                    ${options?.httpOnly ? 'HttpOnly; ' : ''}${options?.secure ? 'Secure; ' : ''}
+                    ${options?.domain ? `Domain=${options.domain}; ` : ''}
+                    ${options?.path ? `Path=${options.path}; ` : ''}
+                    ${options?.sameSite ? `SameSite=${options.sameSite}; ` : ''}`
+            }
+        }));
+    }
 };
 
-
+export type CookieOptions = {
+    maxAge?: number;
+    httpOnly?: boolean;
+    secure?: boolean;
+    domain?: string;
+    path?: string;
+    sameSite?: 'Strict' | 'Lax' | 'None';
+}
 
 
 export class Route {
@@ -223,7 +250,7 @@ export class App {
     public readonly server: Deno.Server;
 
     constructor(public readonly port: number, public readonly domain: string, options?: AppOptions) {
-        this.server = Deno.serve({ port: this.port }, (req: Request) => this.handler(req));
+        this.server = Deno.serve({ port: this.port }, (req: Request, info: Deno.ServeHandlerInfo) => this.handler(req, info));
 
         if (options) {
             if (options.onListen) {
@@ -236,7 +263,7 @@ export class App {
         }
     };
 
-    private async handler(denoReq: Request): Promise<Response> {
+    private async handler(denoReq: Request, info: Deno.ServeHandlerInfo): Promise<Response> {
         return new Promise<Response>(async (resolve, reject) => {
             const extName = PATH.extname(denoReq.url).replace('.', '');
             const url = new URL(denoReq.url, this.domain);
@@ -263,26 +290,52 @@ export class App {
                 return false;
             });
 
-            console.log(fns);
+            fns.push(...this.finalFunctions.map(fn => ({
+                path: '',
+                callback: fn,
+                method: RequestMethod.GET
+            })));
 
-            const req = new Req(denoReq);
+            const req = new Req(denoReq, info);
             const res = new Res();
 
             const runFn = async (i: number) => {
                 const fn = fns[i] as ServerFunctionHandler | undefined;
-                if (!fn && !res.fulfilled) {
-                    return res.reject?.(`No response to ${req.method}: ${req.pathname}`);
+
+                if (!fn) {
+                    if (!res.fulfilled) {
+                        // there was no response
+                        return res.reject?.(`No response to ${req.method}: ${req.pathname}`);
+                    }
+
+                    // if the request was responded to, then the promise was resolved already.
+                    return;
                 }
+
+                let ranNext = false;
 
                 const next = () => {
                     runFn(i + 1);
-                }
+                    ranNext = true;
+                };
+                await fn.callback(req, res, next);
 
-                return fn?.callback(req, res, next);
+                if (!ranNext && !res.fulfilled && fns[i + 1]) {
+                    const site = stack().map((site: any) => {
+                        return site.getFileName() + ':' + site.getLineNumber();
+                    });
+                    const str = site.filter((t: string) => t!=='null:null').map((t: string) => {
+                        t = t.replace('file://', '').replace('file:', '');
+                        t = PATH.relative(__root, t);
+                        t = `\n\t${Colors.FgYellow}${t}${Colors.Reset}`
+                        return t;
+                    }).join('');
+
+                    log(`Request ${req.method}: ${req.pathname} was not resolved and did not call next() at ${str}`);
+                }
             };
 
             runFn(0);
-
 
             await res.promise
                 .then((response: Response) => {
@@ -292,6 +345,7 @@ export class App {
                     log(e);
                 });
 
+            // need to create a better 404 page
             if (!res.fulfilled) resolve(new Response('404: Page not found', {
                 headers: {
                     'Content-Type': 'text/plain'
@@ -302,7 +356,7 @@ export class App {
     }
 
     private readonly serverFunctions: ServerFunctionHandler[] = [];
-
+    private readonly finalFunctions: ServerFunction[] = [];
 
 
     static(path: string, filePath: string) {
@@ -356,6 +410,12 @@ export class App {
             callback: sf.callback,
             method: sf.method
         })));
+        return this;
+    }
+
+
+    final(callback: ServerFunction): App {
+        this.finalFunctions.push(callback);
         return this;
     }
 }

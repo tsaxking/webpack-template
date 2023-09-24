@@ -29,7 +29,8 @@ type Queries = {
             accountId: string,
             userAgent: string,
             requests: number,
-            created: number
+            created: number,
+            prevUrl: string
         }],
         unknown
     ],
