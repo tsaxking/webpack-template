@@ -83,8 +83,10 @@ export class Res {
     public reject?: (error: string) => void;
     public fulfilled: boolean = false;
     public readonly trace: string[] = [];
+    private readonly app: App;
 
-    constructor() {
+    constructor(app: App) {
+        this.app = app;
         this.promise = new Promise((resolve, reject) => {
             this.resolve = resolve;
             this.reject = reject;
@@ -140,7 +142,7 @@ export class Res {
 
     redirect(path: string) {
         this.isFulfilled();
-        this.resolve?.(Response.redirect(path));
+        this.resolve?.(Response.redirect(this.app.domain + path));
     }
 
 
@@ -297,7 +299,7 @@ export class App {
             })));
 
             const req = new Req(denoReq, info);
-            const res = new Res();
+            const res = new Res(this);
 
             const runFn = async (i: number) => {
                 const fn = fns[i] as ServerFunctionHandler | undefined;
@@ -318,8 +320,15 @@ export class App {
                     runFn(i + 1);
                     ranNext = true;
                 };
-                await fn.callback(req, res, next);
+                
+                
+                try {
+                    await fn.callback(req, res, next);
+                } catch (e) {
+                    log(`Error on callback [${req.method}] ${req.url}`, e)
+                }
 
+                    
                 if (!ranNext && !res.fulfilled && fns[i + 1]) {
                     const site = stack().map((site: any) => {
                         return site.getFileName() + ':' + site.getLineNumber();

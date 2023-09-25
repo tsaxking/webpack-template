@@ -25,6 +25,11 @@ const app = new App(port, domain, {
 app.static('/static', './dist');
 app.static('/uploads', './uploads');
 
+app.get('/*', (req, res, next) => {
+    log(`[${req.method}] ${req.url}`);
+    next();
+});
+
 app.use('/*', Session.middleware({
     cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 7 * 52 * 10 // 10 years
@@ -127,6 +132,10 @@ app.get('/*', (req, res, next) => {
     }
     next();
 });
+
+
+
+
 
 
 

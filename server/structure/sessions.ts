@@ -38,7 +38,7 @@ export class Session {
         return session;
     }
 
-    static new(req: Req, res: Res, options?: CookieOptions): Session {
+    static newSession(req: Req, res: Res, options?: CookieOptions): Session {
         const s = new Session(req);
         res.cookie('ssid', s.id, options);
         return s;
@@ -63,9 +63,9 @@ export class Session {
             let s: Session;
 
             if (!cookie) {
-                s = Session.new(req, res, options?.cookie);
+                s = Session.newSession(req, res, options?.cookie);
             } else {
-                s = Session.get(cookie) || Session.new(req, res, options?.cookie);
+                s = Session.get(cookie) || Session.newSession(req, res, options?.cookie);
             }
 
             req.session = s;

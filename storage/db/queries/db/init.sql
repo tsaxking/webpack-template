@@ -79,10 +79,10 @@ CREATE TABLE IF NOT EXISTS Sessions (
 );
 
 
-CREATE TABLE IF NOT EXISTS BlockList {
+CREATE TABLE IF NOT EXISTS BlockList (
     ip TEXT PRIMARY KEY,
     created INTEGER NOT NULL
-}
+);
 
 
 
