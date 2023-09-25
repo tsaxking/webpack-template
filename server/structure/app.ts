@@ -7,6 +7,7 @@ import { log } from "../utilities/terminal-logging.ts";
 import { Session } from "./sessions.ts";
 import stack from 'npm:callsite';
 import { Colors } from "../utilities/colors.ts";
+import { StatusCode } from "../../shared/status.ts";
 
 const fileTypeHeaders = {
     js: 'application/javascript',
@@ -84,6 +85,7 @@ export class Res {
     public fulfilled: boolean = false;
     public readonly trace: string[] = [];
     private readonly app: App;
+    private _status: StatusCode = 500;
 
     constructor(app: App) {
         this.app = app;
@@ -116,6 +118,7 @@ export class Res {
         try {
             const d = JSON.stringify(data);
             this.resolve?.(new Response(d, {
+                status: this._status,
                 headers: {
                     'Content-Type': 'application/json'
                 }
@@ -125,7 +128,9 @@ export class Res {
 
     send(data: string) {
         this.isFulfilled();
-        this.resolve?.(new Response(data));
+        this.resolve?.(new Response(data, {
+            status: this._status
+        }));
     }
 
     sendFile(path: string) {
@@ -133,10 +138,17 @@ export class Res {
         const extName = PATH.extname(path).replace('.', '');
         const data = Deno.readFileSync(path);
         this.resolve?.(new Response(data, {
+            status: this._status,
             headers: {
                 'Content-Type': fileTypeHeaders[extName as keyof typeof fileTypeHeaders] || 'text/plain'
             }
         }));
+    }
+
+
+    status(status: StatusCode) {
+        this._status = status;
+        return this;
     }
 
 

@@ -52,7 +52,7 @@ export class Session {
             onOverload: (session: Session) => void;
         }
     }): ServerFunction {
-        let rpm: number = Infinity;
+        let rpm = Infinity;
         if (options?.requests) {
             Session.requestsPerMinute = options.requests.perMinute;
             rpm = options.requests.perMinute;
@@ -77,12 +77,12 @@ export class Session {
         }
     }
 
-    ip: string = '';
+    ip = '';
     id: string;
     accountId?: string;
     latestActivity: number = Date.now();
     prevUrl?: string;
-    requests: number = 0;
+    requests = 0;
     created: number = Date.now();
     userAgent?: string;
     limitTime?: number;
