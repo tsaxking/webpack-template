@@ -153,7 +153,7 @@ export default class Account {
             const { account } = session;
 
             if (!account) {
-                const s = Status.from('account.notLoggedIn', req);
+                const s = Status.from('account:not-logged-in', req);
                 return s.send(res);
             }
 
@@ -179,11 +179,11 @@ export default class Account {
         const { session: { account } } = req;
 
         if (!account) {
-            return Status.from('account.serverError', req).send(res);
+            return Status.from('account:server-error', req).send(res);
         }
 
         if (account.username === 'guest') {
-            return Status.from('account.notLoggedIn', req).send(res);
+            return Status.from('account:not-logged-in', req).send(res);
         }
 
         next();
@@ -197,7 +197,7 @@ export default class Account {
         // }
 
         if (account) {
-            return Status.from('account.loggedIn', req).send(res);
+            return Status.from('account:logged-in', req).send(res);
         }
 
         next();

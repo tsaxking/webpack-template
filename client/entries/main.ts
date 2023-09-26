@@ -1,6 +1,9 @@
-import CBS from "../submodules/custom-bootstrap/src/1-main/1-main.ts";
+import io from '../../node_modules/socket.io/client-dist/socket.io.js';
 
 
-
-
-const card = CBS.createElement('card');
+export const socket = io('http://localhost:9001', {
+    "force new connection": true,
+    "reconnectionAttempts": "Infinity",
+    "timeout": 10000,
+    "transports": ["websocket"]
+});

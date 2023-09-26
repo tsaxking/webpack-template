@@ -1,13 +1,15 @@
 // make a class that simulates npm:express using the deno std library
 import { serve } from "https://deno.land/std@0.150.0/http/server.ts";
-import { Server } from "https://deno.land/x/socket_io@0.1.1/mod.ts";
+import { Server } from "https://deno.land/x/socket_io@0.2.0/mod.ts";
 import { __root } from "../utilities/env.ts";
 import PATH from 'npm:path';
 import { log } from "../utilities/terminal-logging.ts";
 import { Session } from "./sessions.ts";
 import stack from 'npm:callsite';
 import { Colors } from "../utilities/colors.ts";
-import { StatusCode } from "../../shared/status.ts";
+import { StatusCode, StatusId } from "../../shared/status.ts";
+import { Status } from "../utilities/status.ts";
+import { getTemplateSync } from "../utilities/files.ts";
 
 const fileTypeHeaders = {
     js: 'application/javascript',
@@ -50,13 +52,49 @@ const fileTypeHeaders = {
     flv: 'video/x-flv'
 };
 
+export type FileType = 
+    'js' | 
+    'css' |
+    'html' |
+    'json' |
+    'png' |
+    'jpg' |
+    'jpeg' |
+    'gif' |
+    'svg' |
+    'ico' |
+    'ttf' |
+    'woff' |
+    'woff2' |
+    'otf' |
+    'eot' |
+    'mp4' |
+    'webm' |
+    'mp3' |
+    'wav' |
+    'ogg' |
+    'txt' |
+    'pdf' |
+    'zip' |
+    'rar' |
+    'tar' |
+    '7z' |
+    'xml' |
+    'doc' |
+    'docx' |
+    'xls' |
+    'xlsx' |
+    'ppt' |
+    'pptx' |
+    'avi' |
+    'wmv' |
+    'mov' |
+    'mpeg' |
+    'flv';
+
 
 export class Req {
-    readonly params: {
-        [key: string]: string
-    };
-
-    session?: Session;
+    public params: Record<string, string> = {};
     body: any;
     readonly url: string;
     readonly method: string;
@@ -66,14 +104,21 @@ export class Req {
     readonly ip: string = 'localhost';
     readonly start: number = Date.now();
 
-    constructor(public readonly req: Request, info: Deno.ServeHandlerInfo) {
+    constructor(public readonly req: Request, info: Deno.ServeHandlerInfo, public readonly io: Server) {
         this.url = req.url;
         this.method = req.method;
         this.headers = req.headers;
         this.pathname = new URL(req.url, 'http://localhost').pathname;
         this.query = new URL(req.url, 'http://localhost').searchParams;
-        this.params = extractParams('/api', this.pathname);
         this.ip = info.remoteAddr.hostname;
+    }
+
+
+    get session(): Session {
+        const s = Session.get(this.headers.get('cookie') || '');
+    
+        if (!s) throw new Error('No session found for req');
+        return s;
     }
 };
 
@@ -85,9 +130,11 @@ export class Res {
     public fulfilled: boolean = false;
     public readonly trace: string[] = [];
     private readonly app: App;
-    private _status: StatusCode = 500;
+    public _status?: StatusCode;
+    private readonly req: Req;
 
-    constructor(app: App) {
+    constructor(app: App, req: Req) {
+        this.req = req;
         this.app = app;
         this.promise = new Promise((resolve, reject) => {
             this.resolve = resolve;
@@ -126,14 +173,18 @@ export class Res {
         } catch {};
     }
 
-    send(data: string) {
+    send(data: string, filetype: FileType = 'html') {
         this.isFulfilled();
         this.resolve?.(new Response(data, {
-            status: this._status
+            status: this._status,
+            headers: {
+                'Content-Type': fileTypeHeaders[filetype] || 'text/plain'
+            }
         }));
     }
 
     sendFile(path: string) {
+        // log('Sending file', path);
         this.isFulfilled();
         const extName = PATH.extname(path).replace('.', '');
         const data = Deno.readFileSync(path);
@@ -171,6 +222,15 @@ export class Res {
             }
         }));
     }
+
+
+    sendStatus(id: StatusId) {
+        return Status.from(id, this.req).send(this);
+    };
+
+    sendTemplate(template: string, options?: any) {
+        this.send(getTemplateSync(template, options));
+    }
 };
 
 export type CookieOptions = {
@@ -185,12 +245,6 @@ export type CookieOptions = {
 
 export class Route {
     public readonly serverFunctions: ServerFunctionHandler[] = [];
-
-
-    constructor(public readonly path: string) {
-    }
-
-
 
     get(path: string, ...callbacks: ServerFunction[]) {
         this.serverFunctions.push(...callbacks.map(cb => ({
@@ -253,18 +307,19 @@ type ServerFunctionHandler = {
 
 type AppOptions = {
     onListen?: (server: Deno.Server) => void;
-    onConnection?: () => void;
+    onConnection?: (socket: any) => void;
     onDisconnect?: () => void;
     ioPort?: number;
 };
 
 
 export class App {
-    public readonly io: Server = new Server();
+    public readonly io: Server;
     public readonly server: Deno.Server;
 
     constructor(public readonly port: number, public readonly domain: string, options?: AppOptions) {
         this.server = Deno.serve({ port: this.port }, (req: Request, info: Deno.ServeHandlerInfo) => this.handler(req, info));
+        this.io = new Server();
 
         if (options) {
             if (options.onListen) {
@@ -274,34 +329,43 @@ export class App {
             if (options.ioPort) {
                 serve(this.io.handler(), { port: options.ioPort });
             }
+
+            if (options.onConnection) {
+                this.io.on('connection', options.onConnection);
+            }
+
+            if (options.onDisconnect) {
+                this.io.on('disconnect', options.onDisconnect);
+            }
         }
     };
 
     private async handler(denoReq: Request, info: Deno.ServeHandlerInfo): Promise<Response> {
         return new Promise<Response>(async (resolve, reject) => {
-            const extName = PATH.extname(denoReq.url).replace('.', '');
             const url = new URL(denoReq.url, this.domain);
 
 
             const fns = this.serverFunctions.filter(sf => {
+                // get rid of query
+                const path = url.pathname.split('?')[0];
                 if (sf.method !== denoReq.method) return false;
-                if (sf.path === url.pathname) return true;
-                if (sf.path.endsWith('*')) {
-                    const pathParts = sf.path.split('/');
-                    const urlParts = url.pathname.split('/');
+                const pathParts = sf.path.split('/');
+                const urlParts = path.split('/');
 
-                    if (pathParts.length !== urlParts.length) return false;
+                // if (pathParts.length !== urlParts.length) return false;
 
-                    for (let i = 0; i < pathParts.length; i++) {
-                        if (pathParts[i] === '*') return true;
-                        if (pathParts[i].startsWith(':')) continue;
-                        if (pathParts[i] !== urlParts[i]) return false;
-                    }
 
-                    return true;
-                }
+                const test = pathParts.every((part, i) => {
+                    // log(part, urlParts[i]);
 
-                return false;
+                    if (part === '*') return true;
+                    if (part.startsWith(':')) return true;
+                    return part === urlParts[i];
+                });
+
+                // log(test);
+
+                return test;
             });
 
             fns.push(...this.finalFunctions.map(fn => ({
@@ -310,8 +374,20 @@ export class App {
                 method: RequestMethod.GET
             })));
 
-            const req = new Req(denoReq, info);
-            const res = new Res(this);
+            // log(`[${denoReq.method}] ${denoReq.url}`, fns);
+
+            const req = new Req(denoReq, info, this.io);
+            const res = new Res(this, req);
+
+            
+            const cookie = req.headers.get('cookie');
+            let s: Session;
+
+            if (!cookie) {
+                s = Session.newSession(req, res);
+            } else {
+                s = Session.get(cookie) || Session.newSession(req, res);
+            }
 
             const runFn = async (i: number) => {
                 const fn = fns[i] as ServerFunctionHandler | undefined;
@@ -328,7 +404,9 @@ export class App {
 
                 let ranNext = false;
 
-                const next = () => {
+                req.params = extractParams(fn.path, req.pathname);
+
+                const next = (): void => {
                     runFn(i + 1);
                     ranNext = true;
                 };
@@ -337,9 +415,8 @@ export class App {
                 try {
                     await fn.callback(req, res, next);
                 } catch (e) {
-                    log(`Error on callback [${req.method}] ${req.url}`, e)
+                    log(`Error on callback [${req.method}] ${req.url}`, e);
                 }
-
                     
                 if (!ranNext && !res.fulfilled && fns[i + 1]) {
                     const site = stack().map((site: any) => {
@@ -356,22 +433,20 @@ export class App {
                 }
             };
 
-            runFn(0);
+            try {
+                runFn(0);
 
-            await res.promise
-                .then((response: Response) => {
-                    resolve(response);
-                })
-                .catch((e: Error) => {
-                    log(e);
-                });
+                await res.promise
+                    .then((response: Response) => {
+                        resolve(response);
+                    })
+                    .catch((e: Error) => {
+                        log(e);
+                    });
 
-            // need to create a better 404 page
-            if (!res.fulfilled) resolve(new Response('404: Page not found', {
-                headers: {
-                    'Content-Type': 'text/plain'
-                }
-            }));
+            } catch (e) {
+                log(e);
+            }
         });
 
     }
@@ -381,14 +456,9 @@ export class App {
 
 
     static(path: string, filePath: string) {
-        this.get(path + '/*', async (req) => {
-            return Deno.readFile(
-                PATH.resolve(
-                    __root,
-                    filePath,
-                    '.' + req.url.replace(path, '').replace(this.domain, '')
-                )
-            )
+        this.get(path + '/*', async (req, res, next) => {
+            // log('Sending file:', filePath + req.pathname.replace(path, ''), req.pathname);
+            res.sendFile(filePath + req.pathname.replace(path, ''));
         });
     }
 

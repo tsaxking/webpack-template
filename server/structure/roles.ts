@@ -1,21 +1,21 @@
-import { NextFunction, Request, Response } from "npm:express";
 import { DB } from "../utilities/databases.ts";
 import { Status } from "../utilities/status.ts";
 import { Permission, RoleName } from "../../shared/db-types.ts";
 import { Role as RoleObject } from "../../shared/db-types.ts";
+import { Req, Res, Next, ServerFunction } from "./app.ts";
 
 
 
 
 
 export default class Role {
-    static allowRoles(...role: RoleName[]): NextFunction {
-        const fn = async (req: Request, res: Response, next: NextFunction) => {
+    static allowRoles(...role: RoleName[]): ServerFunction {
+        return async (req: Req, res: Res, next: Next) => {
             const { session } = req;
             const { account } = session;
 
             if (!account) {
-                return Status.from('account.notLoggedIn', req).send(res);
+                return res.sendStatus('account:not-logged-in');
             }
 
             const roles = await account.getRoles();
@@ -23,12 +23,9 @@ export default class Role {
             if (role.every(r => roles.find((_r: Role) => _r.name === r))) {
                 return next();
             } else {
-                const s = Status.from('roles.invalid', req);
-                return s.send(res);
+                return res.sendStatus('permissions:unauthorized');
             }
         }
-
-        return fn as unknown as NextFunction;
     }
 
     static fromId(id: string): Role | undefined {

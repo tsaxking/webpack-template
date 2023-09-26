@@ -14,12 +14,36 @@ export type SessionObj = {
     prevUrl?: string;
     userAgent?: string;
     created: number;
+    limitTime?: number;
+}
+
+type SessionOptions = {
+    cookie?: CookieOptions;
+    request?: {
+        max: number;
+        per: number;
+        onOverload?: (session: Session) => void;
+    };
+    name?: string;
 }
 
 
 export class Session {
-    private static requestsPerMinute?: number;
-    private static onOverload?: (session: Session) => void;
+    static requestsInfo: {
+        max: number;
+        per: number;
+        onOverload?: (session: Session) => void;
+    } = {
+        max: Infinity,
+        per: 60 * 1000
+    };
+
+    static cookieOptions: CookieOptions = {
+        maxAge: 60 * 60 * 24 * 7,
+        httpOnly: true,
+        sameSite: 'Strict'
+    };
+    static sessionName: string = 'ssid';
 
     static get(cookie: string): Session | undefined {
         const id = parseCookie(cookie).ssid;
@@ -38,40 +62,41 @@ export class Session {
         return session;
     }
 
-    static newSession(req: Req, res: Res, options?: CookieOptions): Session {
+    static newSession(req: Req, res: Res): Session {
         const s = new Session(req);
-        res.cookie('ssid', s.id, options);
+        res.cookie(Session.sessionName, s.id, Session.cookieOptions);
+
+        DB.run('sessions/new', {
+            id: s.id,
+            ip: s.ip || '',
+            latestActivity: s.latestActivity,
+            accountId: s.accountId || '',
+            userAgent: s.userAgent || '',
+            prevUrl: s.prevUrl || '',
+            requests: s.requests,
+            created: s.created
+        });
+
         return s;
     }
 
 
-    static middleware(options?: {
-        cookie: CookieOptions;
-        requests?: {
-            perMinute: number;
-            onOverload: (session: Session) => void;
-        }
-    }): ServerFunction {
-        let rpm = Infinity;
-        if (options?.requests) {
-            Session.requestsPerMinute = options.requests.perMinute;
-            rpm = options.requests.perMinute;
-            Session.onOverload = options.requests.onOverload;
-        }
-        return (req: Req, res: Res, next: Next) => {
-            const cookie = req.headers.get('cookie');
-            let s: Session;
-
-            if (!cookie) {
-                s = Session.newSession(req, res, options?.cookie);
-            } else {
-                s = Session.get(cookie) || Session.newSession(req, res, options?.cookie);
+    static middleware(options?: SessionOptions): ServerFunction {
+        if (options) {
+            if (options.request) {
+                Session.requestsInfo = options.request;
             }
+            if (options.cookie) {
+                Session.cookieOptions = options.cookie;
+            }
+            if (options.name) {
+                Session.sessionName = options.name;
+            }
+        }
 
-            req.session = s;
+        return (req: Req, res: Res, next: Next) => {
+            const s = req.session;
             s.requests++;
-
-            if (s.requests > rpm) Session.onOverload?.(s);
             s.latestActivity = Date.now();
             next();
         }
@@ -85,7 +110,6 @@ export class Session {
     requests = 0;
     created: number = Date.now();
     userAgent?: string;
-    limitTime?: number;
 
     constructor(req?: Req) {
         this.id = (uuid() + uuid() + uuid() + uuid()).replace(/-/g, '');
@@ -93,13 +117,12 @@ export class Session {
         if (req) {
             this.ip = req.ip;
             this.userAgent = req.headers.get('user-agent') || '';
-            // this.prevUrl = req.headers.get('referer') || '';
         }
 
-        if (Session.onOverload && Session.requestsPerMinute) {
+        if (Session.requestsInfo.max < Infinity) {
             setInterval(() => {
                 this.requests = 0;
-            }, 1000 * 60);
+            }, Session.requestsInfo.per);
         }
     }
 
@@ -125,23 +148,37 @@ export class Session {
     save() {
         this.account?.save();
 
-        DB.run('sessions/update', {
-            id: this.id,
-            ip: this.ip || '',
-            latestActivity: this.latestActivity,
-            accountId: this.account?.id || '',
-            userAgent: this.userAgent || '',
-            prevUrl: this.prevUrl || '',
-            requests: this.requests,
-            created: this.created
-        });
+        const s = DB.get('sessions/get', { id: this.id });
+
+        if (s) {
+            DB.run('sessions/update', {
+                id: this.id,
+                ip: this.ip || '',
+                latestActivity: this.latestActivity,
+                accountId: this.accountId || '',
+                userAgent: this.userAgent || '',
+                prevUrl: this.prevUrl || '',
+                requests: this.requests,
+                created: this.created
+            });
+        } else {
+            DB.run('sessions/new', {
+                id: this.id,
+                ip: this.ip || '',
+                latestActivity: this.latestActivity,
+                accountId: this.accountId || '',
+                userAgent: this.userAgent || '',
+                prevUrl: this.prevUrl || '',
+                requests: this.requests,
+                created: this.created
+            });
+        }
     }
 
-    limit(time: number) {
+    // limit(time: number) {
+    // }
 
-    }
+    // block() {
 
-    block() {
-
-    }
+    // }
 }

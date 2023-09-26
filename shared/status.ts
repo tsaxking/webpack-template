@@ -385,7 +385,12 @@ export const messages: {
         code: 400,
         instructions: 'Please try again.'
     },
-    
+    'spam': {
+        message: 'Spam detected',
+        color: 'danger',
+        code: 400,
+        instructions: 'Please try again.'
+    },
 
 
 
@@ -473,6 +478,13 @@ export const messages: {
         color: 'danger',
         code: 400,
         instructions: ''
+    },
+
+    'not-found': {
+        message: 'Not found',
+        color: 'danger',
+        code: 404,
+        instructions: 'Please try again.'
     }
 };
 
@@ -481,4 +493,67 @@ export const messages: {
 
 
 
-export type StatusId = keyof typeof messages;
+export type StatusId = 
+    'account:created' |
+    'account:username-taken' |
+    'account:email-taken' |
+    'account:invalid-email' |
+    'account:invalid-password' |
+    'account:invalid-username' |
+    'account:incorrect-username-or-password' |
+    'account:password-mismatch' |
+    'account:not-logged-in' |
+    'account:not-found' |
+    'account:logged-in' |
+    'account:logged-out' |
+    'account:server-error' |
+    'account:already-logged-in' |
+    'account:invalid-password-reset-key' |
+    'account:removed' |
+    'account:invalid-verification-key' |
+    'account:verified' |
+    'account:password-reset-request' |
+
+    'roles:added' |
+    'roles:removed' |
+    'roles:not-found' |
+    'roles:has-role' |
+    'roles:invalid-role' |
+    'roles:does-not-have-role' |
+
+    'skills:added' |
+    'skills:removed' |
+    'skills:not-found' |
+    'skills:has-skill' |
+    'skills:invalid-skill' |
+    
+    'admin:invalid-key' |
+
+    'page:not-found' |
+
+    'permissions:invalid' |
+    'permissions:error' |
+    'permissions:forbidden' |
+    'permissions:unauthorized' |
+
+    'unknown' |
+
+    'profanity' |
+    'spam' |
+
+    'files:too-large' |
+    'files:invalid-extension' |
+    'files:invalid' |
+    'files:uploaded' |
+
+    'member:not-member' |
+    'member:not-found' |
+    'member:requested-sent' |
+    'member:update-bio' |
+    'member:update-title' |
+    'member:update-resume' |
+    'member:add-skill' |
+    'member:remove-skill' |
+    'member:cannot-manage' | 
+    
+    'not-found';

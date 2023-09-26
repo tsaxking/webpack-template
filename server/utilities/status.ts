@@ -1,4 +1,3 @@
-import { NextFunction, Request, Response } from "npm:express";
 import { LogType, getJSONSync, getTemplateSync, log } from "./files.ts";
 import Account from "../structure/accounts.ts";
 import { Email, EmailType } from "./email.ts";
@@ -6,6 +5,7 @@ import { Session } from "../structure/sessions.ts";
 import { Server } from "npm:socket.io";
 import env from "./env.ts";
 import { messages, StatusCode, StatusId, StatusMessage, StatusColor } from "../../shared/status.ts";
+import { Req, Res, Next, ServerFunction } from "../structure/app.ts";
 
 declare global {
     namespace Express {
@@ -21,8 +21,8 @@ declare global {
 
 
 export class Status {
-    static middleware(id: string, test: (session: Session) => boolean) {
-        return (req: Request, res: Response, next: NextFunction) => {
+    static middleware(id: StatusId, test: (session: Session) => boolean): ServerFunction {
+        return (req: Req, res: Res, next: Next) => {
             if (test(req.session)) {
                 next();
             } else {
@@ -37,7 +37,7 @@ export class Status {
 
 
 
-    static from(id: StatusId, req: Request, data?: any): Status {
+    static from(id: StatusId, req: Req, data?: any): Status {
         try {
             data = JSON.stringify(data);
         } catch (e) {
@@ -90,7 +90,7 @@ export class Status {
     public readonly instructions: string;
     public readonly data: string;
     public readonly redirect?: string;
-    public readonly request: Request;
+    public readonly request: Req;
 
 
 
@@ -99,7 +99,7 @@ export class Status {
         public readonly title: string,
         public readonly status: string,
         data: any,
-        req: Request
+        req: Req
     ) {
         this.message = message.message;
         this.color = message.color;
@@ -166,7 +166,7 @@ export class Status {
         }
     }
 
-    send(res: Response) {
+    send(res: Res) {
         switch (this.request.method) {
             case 'GET':
                 res.status(this.code).send(this.html);

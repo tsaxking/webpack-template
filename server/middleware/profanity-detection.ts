@@ -1,19 +1,17 @@
 import Filter from 'npm:bad-words';
 import { Status } from '../utilities/status.ts';
-import { NextFunction } from 'npm:express';
+import { Req, Res, Next, ServerFunction } from "../structure/app.ts";
 
 const filter = new Filter();
 
 
-export const detect = (...keys: string[]): NextFunction => {
-    const fn = (req: any, res: any, next: any) => {
+export const detect = (...keys: string[]): ServerFunction => {
+    return (req: Req, res: Res, next: Next) => {
         for (const key of keys) {
             if (filter.isProfane(req.body[key])) {
-                return Status.from('profanity', res).send(res);
+                return res.sendStatus('profanity');
             }
         }
         next();
     }
-
-    return fn as NextFunction;
 }

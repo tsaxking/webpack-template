@@ -58,7 +58,7 @@ export const fileStream = (opts?: FileStreamOptions): NextFunction => {
 
         if (maxFileSize && +fileSize > maxFileSize) {
             console.log('File size is too large', formatBytes(+fileSize), formatBytes(maxFileSize));
-            return Status.from('file.tooLarge', req).send(res);
+            return Status.from('files:too-large', req).send(res);
         }
 
         if (extensions && !extensions.includes(fileExt.toLowerCase())) {

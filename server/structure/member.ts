@@ -1,4 +1,3 @@
-import { NextFunction, Request, Response } from "npm:express";
 import { DB } from "../utilities/databases.ts";
 import Account from "./accounts.ts";
 import { EmailType } from "../utilities/email.ts";
@@ -6,6 +5,7 @@ import { Status } from "../utilities/status.ts";
 import { io } from "../structure/socket.ts";
 import { deleteUpload } from "../utilities/files.ts";
 import { MembershipStatus, Member as MemberObj, MemberSafe, Skill } from "../../shared/db-types.ts";
+import { Req, Res, Next, ServerFunction } from "./app.ts";
 
 
 
@@ -23,30 +23,29 @@ export enum MemberReturnStatus {
 }
 
 export class Member {
-
-    static async canManage(req: Request, res: Response, next: NextFunction) {
+    static async canManage(req: Req, res: Res, next: Next) {
         const { username } = req.body;
         const self = req.session.account;
-        if (!self) return Status.from('account.notLoggedIn', req).send(res);
+        if (!self) return res.sendStatus('account:not-logged-in')
         if (self.username === username) return next(); // can manage self
 
         const account = await Account.fromUsername(username);
-        if (!account) return Status.from('account.notFound', req).send(res);
+        if (!account) return res.sendStatus('account:not-found');
 
         const selfRank  = self.rank;
         const rank = account.rank;
 
         if (selfRank < rank) return next();
 
-        Status.from('member.cannotManage', req).send(res);
+        res.sendStatus('member:cannot-manage')
     }
 
-    static async isMember(req: Request, res: Response, next: NextFunction) {
+    static async isMember(req: Req, res: Res, next: Next) {
         const { account } = req.session;
 
         if (!account) {
-            req.session.prevUrl = req.originalUrl;
-            return Status.from('account.notLoggedIn', req).send(res);
+            req.session.prevUrl = req.pathname;
+            return res.sendStatus('account:not-logged-in');
         }
 
         const member = await Member.get(account.username);
@@ -138,8 +137,8 @@ export class Member {
         this.status = memberInfo.status;
     }
 
-    async accept() {
-        await DB.run('member/update-status', {
+    accept() {
+        DB.run('member/update-status', {
             status: 'accepted',
             id: this.id
         });
@@ -148,7 +147,7 @@ export class Member {
 
         io?.emit('member-accepted', this.id);
 
-        const account = await Account.fromId(this.id);
+        const account = Account.fromId(this.id);
         if (!account) return;
 
         account.sendEmail('sfzMusic Membership Request Accepted', EmailType.text, {
@@ -159,10 +158,10 @@ export class Member {
         });
     }
 
-    async reject() {
+    reject() {
         if (this.status === 'twicePending') {
 
-            await DB.run('member/update-status', {
+            DB.run('member/update-status', {
                 status: 'notAllowed',
                 id: this.id
             });
@@ -170,7 +169,7 @@ export class Member {
             this.status = 'notAllowed';
             return;
         }
-        await DB.run('member/update-status', {
+        DB.run('member/update-status', {
             status: 'rejected',
             id: this.id
         });
@@ -178,15 +177,15 @@ export class Member {
         this.status = 'rejected';
     }
 
-    async revoke() {
-        await DB.run('member/delete', {
+    revoke() {
+        DB.run('member/delete', {
             id: this.id
         });
         io?.emit('member-revoked', {
             id: this.id
         });
 
-        const account = await Account.fromId(this.id);
+        const account = Account.fromId(this.id);
         if (!account) return;
         account.sendEmail('sfzMusic Membership Revoked', EmailType.text, {
             constructor: {
@@ -208,10 +207,10 @@ export class Member {
     }
 
 
-    async changeBio(bio: string) {
+    changeBio(bio: string) {
         if (!Account.valid(bio, [' '])) return MemberReturnStatus.invalidBio;
 
-        await DB.run('member/update-bio', {
+        DB.run('member/update-bio', {
             bio: bio,
             id: this.id
         });
@@ -222,10 +221,10 @@ export class Member {
     }
 
 
-    async changeTitle(title: string) {
+    changeTitle(title: string) {
         if (!Account.valid(title, [' '])) return MemberReturnStatus.invalidTitle;
 
-        await DB.run('member/update-title', {
+        DB.run('member/update-title', {
             title,
             id: this.id
         });
@@ -276,7 +275,7 @@ export class Member {
     //     });
     // }
 
-    async changeResume(id: string) {
+    changeResume(id: string) {
         const { resume } = this;
         if (resume) {
             deleteUpload(resume + '.pdf');
@@ -285,21 +284,21 @@ export class Member {
         this.resume = resume;
 
 
-        await DB.run('member/update-resume', {
+        DB.run('member/update-resume', {
             resume: id,
             id: this.id
         });
     }
 
 
-    async addToBoard() {
-        return await DB.run('member/add-to-board', {
+    addToBoard() {
+        return DB.run('member/add-to-board', {
             id: this.id
         });
     }
 
-    async removeFromBoard() {
-        return await DB.run('member/remove-from-board', {
+    removeFromBoard() {
+        return DB.run('member/remove-from-board', {
             id: this.id
         });
     }

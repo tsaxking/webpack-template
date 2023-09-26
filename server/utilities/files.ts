@@ -3,7 +3,8 @@ import callsite from 'npm:callsite';
 import { v4 as render } from 'npm:node-html-constructor';
 import ObjectsToCsv from 'npm:objects-to-csv';
 import { log as terminalLog } from "./terminal-logging.ts";
-import { __root, __uploads } from "./env.ts";
+import { __root, __uploads, __logs } from "./env.ts";
+import fs from 'node:fs';
 
 
 
@@ -131,15 +132,18 @@ export function saveTemplate(file: string, data: string) {
 
 
 export const createUploadsFolder = () => {
-    const p = filePathBuilder('', '', __uploads);
-
-    if (!Deno.statSync(p).isDirectory) {
+    if (!fs.existsSync(__uploads)) {
         terminalLog('Creating uploads folder');
-        Deno.mkdirSync(p);
+        fs.mkdirSync(__uploads);
     }
 };
 
-
+export const createLogsFolder = () => {
+    if (!fs.existsSync(__logs)) {
+        terminalLog('Creating logs folder');
+        fs.mkdirSync(__logs);
+    }
+}
 
 
 
@@ -214,8 +218,9 @@ export type LogObj = {
 
 
 export function log(type: LogType, dataObj: LogObj) {
+    createLogsFolder();
     return new ObjectsToCsv([dataObj]).toDisk(
-        path.resolve(__root, '../../storage/logs/', `${type}.csv`),
+        path.resolve(__logs, `${type}.csv`),
         { append: true }
     );
 }

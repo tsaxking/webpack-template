@@ -28,17 +28,12 @@ CREATE TABLE IF NOT EXISTS Members (
 );
 
 
-
-
-
 CREATE TABLE IF NOT EXISTS Roles (
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
     description TEXT,
     rank INTEGER NOT NULL
 );
-
-
 
 
 CREATE TABLE IF NOT EXISTS AccountRoles (
@@ -48,8 +43,6 @@ CREATE TABLE IF NOT EXISTS AccountRoles (
     FOREIGN KEY (roleId) REFERENCES Roles(id)
 );
 
-
-
 CREATE TABLE IF NOT EXISTS Permissions (
     roleId INTEGER NOT NULL,
     permission TEXT NOT NULL,
@@ -57,8 +50,11 @@ CREATE TABLE IF NOT EXISTS Permissions (
 );
 
 
-
--- DO NOT CHANGE THESE TABLES
+-- CREATE TABLE IF NOT EXISTS Limit (
+--     ip TEXT PRIMARY KEY,
+--     limitStart INTEGER NOT NULL,
+--     limitTime INTEGER NOT NULL
+-- );
 
 
 CREATE TABLE IF NOT EXISTS Version (
@@ -74,15 +70,14 @@ CREATE TABLE IF NOT EXISTS Sessions (
     latestActivity TEXT,
     requests INTEGER NOT NULL DEFAULT 0,
     created INTEGER NOT NULL,
-    prevUrl TEXT,
-    limitTime INTEGER
+    prevUrl TEXT
 );
 
 
-CREATE TABLE IF NOT EXISTS BlockList (
-    ip TEXT PRIMARY KEY,
-    created INTEGER NOT NULL
-);
+-- CREATE TABLE IF NOT EXISTS BlockList (
+--     ip TEXT PRIMARY KEY,
+--     created INTEGER NOT NULL
+-- );
 
 
 
