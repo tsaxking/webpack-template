@@ -1,8 +1,8 @@
-import { SocketListener, ViewUpdate, ViewUpdateWrapper, socket, SocketWrapper } from "../utilities/socket.ts";
-import { capitalize } from "../../shared/text.ts";
-import { ServerRequest, RequestOptions, StreamOptions } from "../utilities/requests.ts";
-import CBS from "../submodules/custom-bootstrap/src/1-main/1-main.ts";
-import { CBS_Document } from "../submodules/custom-bootstrap/src/1-main/4-document.ts";
+import { SocketListener, ViewUpdate, ViewUpdateWrapper, socket, SocketWrapper } from "./socket";
+import { capitalize } from "../../shared/text";
+import { ServerRequest, RequestOptions, StreamOptions } from "./requests";
+import CBS from "../submodules/custom-bootstrap/src/1-main/1-main";
+import { CBS_Document } from "../submodules/custom-bootstrap/src/1-main/4-document";
 
 
 export type PageEvent = 'open' | 'close' | 'load';

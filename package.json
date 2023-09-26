@@ -1,20 +1,25 @@
 {
+  "name": "myapp",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "build:dev": "webpack --mode development --watch",
-    "build:prod": "webpack --mode production"
-  },
-  "dependencies": {
-    "esbuild-svelte": "^0.8.0",
-    "pdfjs": "^2.5.2",
-    "pdfjs-dist": "^3.10.111",
-    "resolve-cwd": "^3.0.0",
-    "socket.io": "^4.7.2",
-    "socket.io-client": "^4.7.2",
-    "ts-loader": "^9.4.4"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "svelte-check --tsconfig ./tsconfig.json"
   },
   "devDependencies": {
-    "esbuild": "0.19.3",
-    "webpack": "^5.88.2",
-    "webpack-cli": "^5.1.4"
+    "@sveltejs/vite-plugin-svelte": "^2.4.6",
+    "@tsconfig/svelte": "^5.0.0",
+    "svelte": "^4.0.5",
+    "svelte-check": "^3.4.6",
+    "svelte-preprocess-esbuild": "^3.0.1",
+    "tslib": "^2.6.0",
+    "typescript": "^5.0.2",
+    "vite": "^4.4.9"
+  },
+  "dependencies": {
+    "socket.io": "^4.7.2"
   }
 }

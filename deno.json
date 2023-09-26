@@ -11,7 +11,24 @@
       "deno.ns",
       "dom",
       "es2022",
-      "esnext"
+      "esnext",
+			"DOM.Iterable"
     ]
+
+    
+    //,
+    // "include": [
+    //   "./client/**/*.svelte"
+    // ],
+		// "moduleResolution": "node",
+		// "module": "esnext",
+		// "target": "esnext",
+		// "ignoreDeprecations": "5.0",
+		// "importsNotUsedAsValues": "error",
+		// "isolatedModules": true,
+		// "preserveValueImports": true,
+    // "types": [
+    //   "svelte"
+    // ]
   }
 }

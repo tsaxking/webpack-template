@@ -1,8 +1,8 @@
-import CBS, {} from "../submodules/custom-bootstrap/src/1-main/1-main.ts";
-import { CBS_Modal } from "../submodules/custom-bootstrap/src/components/1-general/modal.ts";
-import { CBS_Button } from "../submodules/custom-bootstrap/src/components/1-general/1-button.ts";
-import { CBS_Container } from "../submodules/custom-bootstrap/src/components/0-grid/container.ts";
-import { PdfJsDocument, PdfJsPage } from "../declaration-merging/pdfjslib.d.ts";
+import CBS, {} from "../submodules/custom-bootstrap/src/1-main/1-main";
+import { CBS_Modal } from "../submodules/custom-bootstrap/src/components/1-general/modal";
+import { CBS_Button } from "../submodules/custom-bootstrap/src/components/1-general/1-button";
+import { CBS_Container } from "../submodules/custom-bootstrap/src/components/0-grid/container";
+import { PdfJsDocument, PdfJsPage } from "../declaration-merging/pdfjslib.d";
 import pdfjsLib from '../../node_modules/pdfjs-dist/build/pdf.js';
 
 

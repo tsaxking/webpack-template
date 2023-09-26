@@ -1,4 +1,4 @@
-import { ServerRequest } from "../utilities/requests.ts";
+import { ServerRequest } from "../utilities/requests";
 
 
 export class Role {

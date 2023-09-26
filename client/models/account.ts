@@ -1,18 +1,18 @@
-import { CBS_Container } from "../submodules/custom-bootstrap/src/components/0-grid/container.ts";
-import { CBS_Input } from "../submodules/custom-bootstrap/src/components/form-inputs/1-input.ts";
-import { CBS_FileInput } from "../submodules/custom-bootstrap/src/components/form-inputs/file.ts";
-import { ViewUpdate } from "../utilities/socket.ts";
-import CBS, { CBS_ElementContainer } from "../submodules/custom-bootstrap/src/1-main/1-main.ts";
-import { capitalize, fromCamelCase } from "../../shared/text.ts";
-import { CBS_MaterialIcon } from "../submodules/custom-bootstrap/src/z-extensions/material-icons.ts";
-import { CBS_Component } from "../submodules/custom-bootstrap/src/1-main/3-components.ts";
-import { CBS_Paragraph } from "../submodules/custom-bootstrap/src/components/0-text/paragraph.ts";
-import { CBS_Options } from "../submodules/custom-bootstrap/src/1-main/2-element.ts";
-import { CBS_Button } from "../submodules/custom-bootstrap/src/components/1-general/1-button.ts";
-import { ServerRequest } from "../utilities/requests.ts";
-import { Member } from "./member.ts";
-import { MemberSafe } from "../../shared/db-types.ts";
-import { CBS_Modal } from "../submodules/custom-bootstrap/src/components/1-general/modal.ts";
+import { CBS_Container } from "../submodules/custom-bootstrap/src/components/0-grid/container";
+import { CBS_Input } from "../submodules/custom-bootstrap/src/components/form-inputs/1-input";
+import { CBS_FileInput } from "../submodules/custom-bootstrap/src/components/form-inputs/file";
+import { ViewUpdate } from "../utilities/socket";
+import CBS, { CBS_ElementContainer } from "../submodules/custom-bootstrap/src/1-main/1-main";
+import { capitalize, fromCamelCase } from "../../shared/text";
+import { CBS_MaterialIcon } from "../submodules/custom-bootstrap/src/z-extensions/material-icons";
+import { CBS_Component } from "../submodules/custom-bootstrap/src/1-main/3-components";
+import { CBS_Paragraph } from "../submodules/custom-bootstrap/src/components/0-text/paragraph";
+import { CBS_Options } from "../submodules/custom-bootstrap/src/1-main/2-element";
+import { CBS_Button } from "../submodules/custom-bootstrap/src/components/1-general/1-button";
+import { ServerRequest } from "../utilities/requests";
+import { Member } from "./member";
+import { MemberSafe } from "../../shared/db-types";
+import { CBS_Modal } from "../submodules/custom-bootstrap/src/components/1-general/modal";
 
 
 

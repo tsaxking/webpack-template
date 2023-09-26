@@ -1,7 +1,7 @@
-// import { Card } from "./views/card.ts";
+// import { Card } from "./views/card";
 console.log('Admin');
 
 
-import { Account } from "../../shared/account.ts";
+import { Account } from "../../shared/account";
 
 const a = new Account('1', '2', '3', '4', new Date(), new Date());

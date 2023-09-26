@@ -1,8 +1,8 @@
-import { capitalize, toSnakeCase, fromCamelCase, fromSnakeCase } from "../../shared/text.ts";
-import { sleep } from "../../shared/sleep.ts";
-import { StatusJson } from "../../shared/status.ts";
-import CBS from "../submodules/custom-bootstrap/src/1-main/1-main.ts";
-import { CBS_Color } from "../submodules/custom-bootstrap/src/1-main/enums.ts";
+import { capitalize, toSnakeCase, fromCamelCase, fromSnakeCase } from "../../shared/text";
+import { sleep } from "../../shared/sleep";
+import { StatusJson } from "../../shared/status";
+import CBS from "../submodules/custom-bootstrap/src/1-main/1-main";
+import { CBS_Color } from "../submodules/custom-bootstrap/src/1-main/enums";
 
 
 export type RequestOptions = {
@@ -166,7 +166,8 @@ export class ServerRequest {
             this.sent = true;
 
             if (this.options?.cached) {
-                const req = ServerRequest.all.findLast((r) => r.url == this.url);
+                const reqs = ServerRequest.all.filter((r) => r.url == this.url);
+                const req = reqs[reqs.length - 1];
                 if (req) {
                     this.duration = Date.now() - start;
                     this.response = req.response;

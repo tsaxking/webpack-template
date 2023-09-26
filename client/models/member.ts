@@ -1,16 +1,16 @@
-import { CBS_Container } from "../submodules/custom-bootstrap/src/components/0-grid/container.ts";
-import { CBS_Input } from "../submodules/custom-bootstrap/src/components/form-inputs/1-input.ts";
-import { CBS_FileInput } from "../submodules/custom-bootstrap/src/components/form-inputs/file.ts";
-import { ViewUpdate } from "../utilities/socket.ts";
-import CBS, { CBS_ElementContainer } from "../submodules/custom-bootstrap/src/1-main/1-main.ts";
-import { capitalize, fromCamelCase } from "../../shared/text.ts";
-import { ServerRequest } from "../utilities/requests.ts";
-import { Skill, MembershipStatus, MemberSafe as MemberInfo } from "../../shared/db-types.ts";
-import { CBS_Modal } from "../submodules/custom-bootstrap/src/components/1-general/modal.ts";
-import { PDF } from "./pdf.ts";
-import { Account } from "./account.ts";
-import { CBS_ListItem } from "../submodules/custom-bootstrap/src/components/list/list-item.ts";
-import { CBS_Row } from "../submodules/custom-bootstrap/src/components/0-grid/row.ts";
+import { CBS_Container } from "../submodules/custom-bootstrap/src/components/0-grid/container";
+import { CBS_Input } from "../submodules/custom-bootstrap/src/components/form-inputs/1-input";
+import { CBS_FileInput } from "../submodules/custom-bootstrap/src/components/form-inputs/file";
+import { ViewUpdate } from "../utilities/socket";
+import CBS, { CBS_ElementContainer } from "../submodules/custom-bootstrap/src/1-main/1-main";
+import { capitalize, fromCamelCase } from "../../shared/text";
+import { ServerRequest } from "../utilities/requests";
+import { Skill, MembershipStatus, MemberSafe as MemberInfo } from "../../shared/db-types";
+import { CBS_Modal } from "../submodules/custom-bootstrap/src/components/1-general/modal";
+import { PDF } from "./pdf";
+import { Account } from "./account";
+import { CBS_ListItem } from "../submodules/custom-bootstrap/src/components/list/list-item";
+import { CBS_Row } from "../submodules/custom-bootstrap/src/components/0-grid/row";
 
 
 

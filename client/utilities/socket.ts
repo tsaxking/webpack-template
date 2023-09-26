@@ -1,6 +1,6 @@
-import io from '../../node_modules/socket.io/client-dist/socket.io.js';
-import { Page } from '../views/page.ts';
-import { SocketEvent } from "../../shared/socket.ts";
+import io from 'socket.io/client-dist/socket.io.js';
+import { Page } from './page';
+import { SocketEvent } from "../../shared/socket";
 
 const __socket = io();
 
