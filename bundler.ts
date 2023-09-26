@@ -1,5 +1,6 @@
 import * as esbuild from 'https://deno.land/x/esbuild@v0.11.12/mod.js'
 import { log } from "./server/utilities/terminal-logging.ts";
+import sveltePlugin from 'npm:esbuild-svelte';
 
 log('Deno version:', Deno.version.deno);
 log('Typescript version:', Deno.version.typescript);
@@ -19,5 +20,7 @@ const result = await esbuild.build({
             if (error) console.error('watch build failed:', error);
             else console.log('watch build succeeded:', result);
         }
-    }
+    },
+    // trust me, it works
+    plugins: [(sveltePlugin as unknown as Function)()]
 });

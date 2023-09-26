@@ -4,6 +4,7 @@
     "build:prod": "webpack --mode production"
   },
   "dependencies": {
+    "esbuild-svelte": "^0.8.0",
     "pdfjs": "^2.5.2",
     "pdfjs-dist": "^3.10.111",
     "resolve-cwd": "^3.0.0",
