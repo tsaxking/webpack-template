@@ -321,16 +321,31 @@ const openDir = (dir: string) => {
 
 openDir(path.resolve(__root, './storage/db/queries/'));
 
+
+
+
+
 type Parameter = string | number | boolean | null;
 
 export class DB {
+    private static prepare<T extends keyof Queries>(type: T): Statement {
+        try {
+            const data = Deno.readFileSync(path.resolve(__root, './storage/db/queries/', type + '.sql'));
+            const sql = new TextDecoder('utf-8').decode(data);
+
+            return MAIN.prepare(sql);
+        } catch (err) {
+            throw new Error('Could not find query: ' + type);
+        }
+    }
+
+
     static get path() {
         return path.resolve(dbDir, './main.db');
     }
 
     static run<T extends keyof Queries>(type: T, ...args: Queries[T][0]): number {
-        const q = queries.get(type);
-        if (!q) throw new Error(`Query ${type} does not exist.`);
+        const q = DB.prepare(type);
         let d: number;
         try {
             d = q.run(...args);
@@ -343,8 +358,7 @@ export class DB {
     }
 
     static get<T extends keyof Queries>(type: T, ...args: Queries[T][0]): Queries[T][1] | undefined {
-        const q = queries.get(type);
-        if (!q) throw new Error(`Query ${type} does not exist.`);
+        const q = DB.prepare(type);
         let d: Queries[T][1] | undefined;
         try {
             d = q.get(...args);
@@ -356,8 +370,7 @@ export class DB {
     }
 
     static all<T extends keyof Queries>(type: T, ...args: Queries[T][0]): Queries[T][1][] {
-        const q = queries.get(type);
-        if (!q) throw new Error(`Query ${type} does not exist.`);
+        const q = DB.prepare(type);
         let d: Queries[T][1][];
         try {
             d = q.all(...args);

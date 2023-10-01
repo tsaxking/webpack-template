@@ -4,6 +4,7 @@ import Account from './accounts.ts';
 import { parseCookie } from '../../shared/cookie.ts';
 import { DB } from "../utilities/databases.ts";
 import { Req, Res, Next, ServerFunction, CookieOptions } from "./app.ts";
+import { log } from "../utilities/terminal-logging.ts";
 
 
 export type SessionObj = {
@@ -45,8 +46,7 @@ export class Session {
     };
     static sessionName: string = 'ssid';
 
-    static get(cookie: string): Session | undefined {
-        const id = parseCookie(cookie).ssid;
+    static get(id: string): Session | undefined {
         const s = DB.get('sessions/get', { id });
         return s ? Session.fromSessObj(s) : undefined;
     }
@@ -62,9 +62,10 @@ export class Session {
         return session;
     }
 
-    static newSession(req: Req, res: Res): Session {
+    static newSession(req: Req, res: Res): Session|undefined {
         const s = new Session(req);
         res.cookie(Session.sessionName, s.id, Session.cookieOptions);
+        req.addCookie('ssid', s.id);
 
         DB.run('sessions/new', {
             id: s.id,
@@ -119,11 +120,12 @@ export class Session {
             this.userAgent = req.headers.get('user-agent') || '';
         }
 
-        if (Session.requestsInfo.max < Infinity) {
-            setInterval(() => {
-                this.requests = 0;
-            }, Session.requestsInfo.per);
-        }
+        // if (Session.requestsInfo.max < Infinity) {
+            // log(Session.requestsInfo.max, Session.requestsInfo.per);
+            // setInterval(() => {
+            //     this.requests = 0;
+            // }, Session.requestsInfo.per);
+        // }
     }
 
     get account(): Account | null {
@@ -174,11 +176,4 @@ export class Session {
             });
         }
     }
-
-    // limit(time: number) {
-    // }
-
-    // block() {
-
-    // }
 }

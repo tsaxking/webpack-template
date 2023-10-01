@@ -2,6 +2,7 @@
   "version": "3",
   "packages": {
     "specifiers": {
+      "npm:@jridgewell/trace-mapping": "npm:@jridgewell/trace-mapping@0.3.19",
       "npm:@types/express": "npm:@types/express@4.17.17",
       "npm:axios": "npm:axios@1.5.0",
       "npm:bad-words": "npm:bad-words@3.0.4",
@@ -9,7 +10,10 @@
       "npm:callsite": "npm:callsite@1.0.0",
       "npm:deep-email-validator": "npm:deep-email-validator@0.1.21",
       "npm:dotenv": "npm:dotenv@16.3.1",
+      "npm:esbuild": "npm:esbuild@0.19.3",
+      "npm:esbuild-plugin-svelte": "npm:esbuild-plugin-svelte@0.1.1_esbuild@0.8.57_svelte@3.59.2",
       "npm:esbuild-svelte": "npm:esbuild-svelte@0.8.0_esbuild@0.19.3_svelte@4.2.1",
+      "npm:esbuild-svelte@0.7.4": "npm:esbuild-svelte@0.7.4_esbuild@0.19.3_svelte@4.2.1",
       "npm:esbuild-svelte@^0.8.0": "npm:esbuild-svelte@0.8.0_esbuild@0.19.3_svelte@4.2.1",
       "npm:esbuild@0.19.3": "npm:esbuild@0.19.3",
       "npm:express": "npm:express@4.18.2",
@@ -27,9 +31,12 @@
       "npm:socket.io@^4.7.2": "npm:socket.io@4.7.2",
       "npm:sqlite": "npm:sqlite@5.0.1",
       "npm:sqlite3": "npm:sqlite3@5.1.6",
+      "npm:svelte-native-preprocessor": "npm:svelte-native-preprocessor@1.0.0_svelte@3.59.2",
+      "npm:svelte@3.39.0": "npm:svelte@3.39.0",
       "npm:svelte@^4.2.1": "npm:svelte@4.2.1",
       "npm:sveltestrap@^5.11.2": "npm:sveltestrap@5.11.2_svelte@3.59.2",
       "npm:ts-loader@^9.4.4": "npm:ts-loader@9.4.4_typescript@5.2.2_webpack@5.88.2__acorn@8.10.0",
+      "npm:util": "npm:util@0.10.4",
       "npm:uuid": "npm:uuid@9.0.1",
       "npm:webpack-cli@^5.1.4": "npm:webpack-cli@5.1.4_webpack@5.88.2__acorn@8.10.0",
       "npm:webpack@^5.88.2": "npm:webpack@5.88.2_acorn@8.10.0"
@@ -1243,6 +1250,20 @@
         "integrity": "sha512-JUFAyicQV9mXc3YRxPnDlrfBKpqt6hUYzz9/boprUJHs4e4KVr3XwOF70doO6gwXUor6EWZJAyWAfKki84t20Q==",
         "dependencies": {}
       },
+      "esbuild-plugin-svelte@0.1.1_esbuild@0.8.57_svelte@3.59.2": {
+        "integrity": "sha512-/52fCH5sbztdFI7lsp+jyiiI7HuXlOW+ebXmiwAlwYYCXJ4gbBtVOHP2c2bG0cgb65fGCa2HL0I0gInQy19jtw==",
+        "dependencies": {
+          "esbuild": "esbuild@0.8.57",
+          "svelte": "svelte@3.59.2"
+        }
+      },
+      "esbuild-svelte@0.7.4_esbuild@0.19.3_svelte@4.2.1": {
+        "integrity": "sha512-d4Vafj5nFTmZPXznW6YL3ZHXiWwNiPLcE8yfq/5oE8nbyrZlIB92ZCVh3JMbMje+vCb4jnKdH+WoV2sLZRdOJA==",
+        "dependencies": {
+          "esbuild": "esbuild@0.19.3",
+          "svelte": "svelte@4.2.1"
+        }
+      },
       "esbuild-svelte@0.8.0_esbuild@0.19.3_svelte@4.2.1": {
         "integrity": "sha512-uKcPf1kl2UGMjrfHChv4dLxGAvCNhf9s72mHo19ZhKP+LrVOuQkOM/g8GE7MiGpoqjpk8UHqL08uLRbSKXhmhw==",
         "dependencies": {
@@ -1277,6 +1298,10 @@
           "@esbuild/win32-ia32": "@esbuild/win32-ia32@0.19.3",
           "@esbuild/win32-x64": "@esbuild/win32-x64@0.19.3"
         }
+      },
+      "esbuild@0.8.57": {
+        "integrity": "sha512-j02SFrUwFTRUqiY0Kjplwjm1psuzO1d6AjaXKuOR9hrY0HuPsT6sV42B6myW34h1q4CRy+Y3g4RU/cGJeI/nNA==",
+        "dependencies": {}
       },
       "escalade@3.1.1": {
         "integrity": "sha512-k0er2gUkLf8O0zKJiAhmkTnJlTvINGv7ygDNPbeIsX/TJjGJZHuh9B2UxbsaEkmlEo9MfhrSzmhIlhRlI2GXnw==",
@@ -2679,6 +2704,16 @@
         "integrity": "sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==",
         "dependencies": {}
       },
+      "svelte-native-preprocessor@1.0.0_svelte@3.59.2": {
+        "integrity": "sha512-U36DsUbxJIY3eiCYUBDjxkEiglhtxpNmOb5XvIxvOgoWxJlp0AaolTkow/Oqe9q5m9FMvUmr3vk1us5UOHu9Sg==",
+        "dependencies": {
+          "svelte": "svelte@3.59.2"
+        }
+      },
+      "svelte@3.39.0": {
+        "integrity": "sha512-dcJCongL0cRkZWe9q+fde0T4HX8PksBywz2+EGDVIrdYdJaxTzrJu0RVeuDtL8Mx2hs4yn3W8zKPScuzG63hTg==",
+        "dependencies": {}
+      },
       "svelte@3.59.2": {
         "integrity": "sha512-vzSyuGr3eEoAtT/A6bmajosJZIUWySzY2CzB3w2pgPvnkUjGqlDnsNnA0PMO+mMAhuyMul6C2uuZzY6ELSkzyA==",
         "dependencies": {}
@@ -3027,6 +3062,7 @@
     }
   },
   "redirects": {
+    "https://deno.land/std/http/cookie.ts": "https://deno.land/std@0.203.0/http/cookie.ts",
     "https://deno.land/x/bundler/mod.ts": "https://deno.land/x/bundler@0.9.0/mod.ts",
     "https://esm.sh/postcss": "https://esm.sh/postcss@8.4.30",
     "https://esm.sh/postcss-preset-env": "https://esm.sh/postcss-preset-env@9.1.4",
@@ -3146,6 +3182,9 @@
     "https://deno.land/std@0.179.0/path/posix.ts": "8b7c67ac338714b30c816079303d0285dd24af6b284f7ad63da5b27372a2c94d",
     "https://deno.land/std@0.179.0/path/separator.ts": "0fb679739d0d1d7bf45b68dacfb4ec7563597a902edbaf3c59b50d5bcadd93b1",
     "https://deno.land/std@0.179.0/path/win32.ts": "d186344e5583bcbf8b18af416d13d82b35a317116e6460a5a3953508c3de5bba",
+    "https://deno.land/std@0.203.0/assert/assert.ts": "9a97dad6d98c238938e7540736b826440ad8c1c1e54430ca4c4e623e585607ee",
+    "https://deno.land/std@0.203.0/assert/assertion_error.ts": "4d0bde9b374dfbcbe8ac23f54f567b77024fb67dbb1906a852d67fe050d42f56",
+    "https://deno.land/std@0.203.0/http/cookie.ts": "c6079019fc15c781c302574f40fa2ac71c26b251e8f74eb236ea43e0424edcd7",
     "https://deno.land/std@0.62.0/_util/assert.ts": "e1f76e77c5ccb5a8e0dbbbe6cce3a56d2556c8cb5a9a8802fc9565af72462149",
     "https://deno.land/std@0.62.0/archive/tar.ts": "8bb9fb4cdf52d27726a55ae0ce8611662b03e1657a8bf72beb1655205ac33eb9",
     "https://deno.land/std@0.62.0/bytes/mod.ts": "b1a149ac741728db00bda9ce1a2d044f248edd5ac95e708a6cc501bfd3adb4a7",

@@ -1,9 +1,7 @@
 <script lang="ts">
-
     export let name: String;
-
 </script>
 
 
 
-<main></main>
+<main>Hello, {name}</main>

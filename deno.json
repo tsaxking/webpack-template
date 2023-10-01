@@ -1,8 +1,8 @@
 {
   "tasks": {
-    "start": "deno run --allow-all --unstable ./server/index.ts",
-    "dev": "deno task build & deno run --allow-all --unstable --watch ./server/index.ts",
-    "build": "deno run --allow-all ./bundler.ts",
+    "start": "deno run --allow-all --unstable ./server/server.ts prod",
+    "dev": "deno task build & deno run --allow-all --unstable --watch ./server/server.ts dev",
+    "build": "deno run --allow-all ./server/bundler.ts",
     "init": "deno run --allow-all --unstable ./storage/db/scripts/init.ts"
   },
   "compilerOptions": {
@@ -11,24 +11,7 @@
       "deno.ns",
       "dom",
       "es2022",
-      "esnext",
-			"DOM.Iterable"
+      "esnext"
     ]
-
-    
-    //,
-    // "include": [
-    //   "./client/**/*.svelte"
-    // ],
-		// "moduleResolution": "node",
-		// "module": "esnext",
-		// "target": "esnext",
-		// "ignoreDeprecations": "5.0",
-		// "importsNotUsedAsValues": "error",
-		// "isolatedModules": true,
-		// "preserveValueImports": true,
-    // "types": [
-    //   "svelte"
-    // ]
   }
 }

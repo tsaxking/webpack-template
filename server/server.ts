@@ -10,18 +10,17 @@ import { Status } from "./utilities/status.ts";
 import { homeBuilder, navBuilder } from "./utilities/page-builder.ts";
 import Account from "./structure/accounts.ts";
 
-
-
 const port = +env.PORT || 3000;
 const domain = env.DOMAIN || `http://localhost:${port}`;
 
+
 const app = new App(port, domain, {
-    onListen: () => {
+    // onListen: () => {
         // log(`Listening on ${domain}`);
-    },
-    onConnection: (socket) => {
+    // },
+    // onConnection: (socket) => {
         // log('New connection:', socket.id);
-    },
+    // },
     ioPort: port + 1
 });
 
@@ -124,6 +123,12 @@ app.get('/*', async (req, res, next) => {
     next();
 });
 
+app.get('/test/:page', (req, res, next) => {
+    if (env.ENVIRONMENT !== 'dev') return next();
+    res.sendTemplate('entries/test/' + req.params.page);
+});
+
+
 app.use('/*', Account.autoSignIn(env.AUTO_SIGN_IN));
 
 app.get('/*', (req, res, next) => {
@@ -135,6 +140,12 @@ app.get('/*', (req, res, next) => {
     next();
 });
 
+
+
+
+app.get('/home', (req, res, next) => {
+    res.sendTemplate('index');
+});
 
 
 
@@ -310,6 +321,8 @@ type Log = {
 
 
 app.final((req, res, next) => {
+    log('Final function');
+
     if (!res.fulfilled) {
         return res.sendStatus('not-found');
     }
@@ -336,5 +349,15 @@ app.final((req, res, next) => {
         query: JSON.stringify(req.query)
     };
 
-    // serverLog('request', csvObj);
+    serverLog('request', csvObj);
 });
+
+
+
+
+
+// const handler = (req: Request): Response => {
+//     return new Response('Hello World!');
+// }
+
+// Deno.serve({ port: 3000 }, handler);

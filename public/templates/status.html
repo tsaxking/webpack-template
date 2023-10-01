@@ -36,16 +36,16 @@
         {{ redirect }}
     </div>
 
-    <script src="../../dist/status.js"></script>
+    <!-- <script src="../../dist/status.js"></script> -->
 
     <script>
         const redirect = document.getElementById('redirect').innerText;
 
-        if (redirect) {
-            CBS.alert('You will be redirected in 3 seconds.');
-            setTimeout(() => {
-                location.pathname = redirect.trim();
-            }, 3000);
-        }
+        // if (redirect) {
+        //     CBS.alert('You will be redirected in 3 seconds.');
+        //     setTimeout(() => {
+        //         location.pathname = redirect.trim();
+        //     }, 3000);
+        // }
     </script>
 </body>

@@ -10,6 +10,8 @@ import { Colors } from "../utilities/colors.ts";
 import { StatusCode, StatusId } from "../../shared/status.ts";
 import { Status } from "../utilities/status.ts";
 import { getTemplateSync } from "../utilities/files.ts";
+import { parseCookie } from "../../shared/cookie.ts";
+import { deleteCookie, setCookie, getCookies } from "https://deno.land/std/http/cookie.ts";
 
 const fileTypeHeaders = {
     js: 'application/javascript',
@@ -94,6 +96,10 @@ export type FileType =
 
 
 export class Req {
+    private _cookie?: {
+        [key: string]: string
+    };
+
     public params: Record<string, string> = {};
     body: any;
     readonly url: string;
@@ -113,10 +119,28 @@ export class Req {
         this.ip = info.remoteAddr.hostname;
     }
 
+    get cookie(): {
+        [key: string]: string
+    } {
+        if (this._cookie) return this._cookie;
+
+        const c = parseCookie(this.headers.get('cookie') || '');
+        this._cookie = c;
+        return c;
+    }
+
+
+    addCookie(name: string, value: string) {
+        this._cookie = {
+            ...this.cookie,
+            [name]: value
+        };
+    }
+
+
 
     get session(): Session {
-        const s = Session.get(this.headers.get('cookie') || '');
-    
+        const s = Session.get(this.cookie.ssid);
         if (!s) throw new Error('No session found for req');
         return s;
     }
@@ -132,6 +156,13 @@ export class Res {
     private readonly app: App;
     public _status?: StatusCode;
     private readonly req: Req;
+
+    private _cookie: {
+        [key: string]: {
+            value: string;
+            options?: CookieOptions;
+        }
+    } = {};
 
     constructor(app: App, req: Req) {
         this.req = req;
@@ -175,12 +206,25 @@ export class Res {
 
     send(data: string, filetype: FileType = 'html') {
         this.isFulfilled();
-        this.resolve?.(new Response(data, {
+        const res = new Response(data, {
             status: this._status,
             headers: {
                 'Content-Type': fileTypeHeaders[filetype] || 'text/plain'
             }
-        }));
+        });
+        this._setCookie(res);
+        this.resolve?.(res);
+    }
+
+    private _setCookie(res: Response) {
+        for (const id in this._cookie) {
+            const c = this._cookie[id];
+            setCookie(res.headers, {
+                name: id,
+                value: c.value,
+                ...c.options
+            });
+        }
     }
 
     sendFile(path: string) {
@@ -188,12 +232,14 @@ export class Res {
         this.isFulfilled();
         const extName = PATH.extname(path).replace('.', '');
         const data = Deno.readFileSync(path);
-        this.resolve?.(new Response(data, {
+        const res = new Response(data, {
             status: this._status,
             headers: {
                 'Content-Type': fileTypeHeaders[extName as keyof typeof fileTypeHeaders] || 'text/plain'
             }
-        }));
+        });
+        this._setCookie(res);
+        this.resolve?.(res);
     }
 
 
@@ -210,17 +256,10 @@ export class Res {
 
 
     cookie(id: string, value: string, options?: CookieOptions) {
-        // this.isFulfilled();
-        this.resolve?.(new Response(null, {
-            headers: {
-                'Set-Cookie': `${id}=${value}; 
-                    ${options?.maxAge ? `Max-Age=${options.maxAge}; ` : ''}
-                    ${options?.httpOnly ? 'HttpOnly; ' : ''}${options?.secure ? 'Secure; ' : ''}
-                    ${options?.domain ? `Domain=${options.domain}; ` : ''}
-                    ${options?.path ? `Path=${options.path}; ` : ''}
-                    ${options?.sameSite ? `SameSite=${options.sameSite}; ` : ''}`
-            }
-        }));
+        this._cookie[id] = {
+            value: value,
+            options: options
+        };
     }
 
 
@@ -379,14 +418,11 @@ export class App {
             const req = new Req(denoReq, info, this.io);
             const res = new Res(this, req);
 
-            
-            const cookie = req.headers.get('cookie');
-            let s: Session;
-
+            const cookie = parseCookie(req.headers.get('cookie') || '').ssid;
             if (!cookie) {
-                s = Session.newSession(req, res);
+                Session.newSession(req, res);
             } else {
-                s = Session.get(cookie) || Session.newSession(req, res);
+                Session.get(cookie) || Session.newSession(req, res);
             }
 
             const runFn = async (i: number) => {
