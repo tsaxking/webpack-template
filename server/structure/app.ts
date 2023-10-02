@@ -263,8 +263,8 @@ export class Res {
     }
 
 
-    sendStatus(id: StatusId) {
-        return Status.from(id, this.req).send(this);
+    sendStatus(id: StatusId, data?: any) {
+        return Status.from(id, this.req, data).send(this);
     };
 
     sendTemplate(template: string, options?: any) {

@@ -221,10 +221,30 @@ export const messages: {
         code: 200,
         instructions: ''
     },
-
-
-
-
+    'account:not-verified': {
+        message: 'Account is not verified',
+        color: 'danger',
+        code: 403,
+        instructions: 'Please wait for your account to be verified'
+    },
+    'account:cannot-edit-self': {
+        message: 'You cannot edit this part of your account presently',
+        color: 'danger',
+        code: 403,
+        instructions: ''
+    },
+    'account:cannot-reject-verified': {
+        message: 'You cannot reject a verified account',
+        color: 'danger',
+        code: 403,
+        instructions: ''
+    },
+    'account:unverified': {
+        message: 'Account has been unverified',
+        color: 'success',
+        code: 200,
+        instructions: ''
+    },
 
 
 
@@ -513,6 +533,9 @@ export type StatusId =
     'account:invalid-verification-key' |
     'account:verified' |
     'account:password-reset-request' |
+    'account:not-verified' |
+    'account:cannot-edit-self' |
+    'account:cannot-reject-verified' |
 
     'roles:added' |
     'roles:removed' |

@@ -41,6 +41,7 @@ export enum AccountStatus {
     incorrectUsername = 'incorrectUsername',
     incorrectEmail = 'incorrectEmail',
 
+    unverified = 'unverified',
 
 
     // roles
@@ -103,7 +104,9 @@ export default class Account {
         }
     }
 
-
+    static unverifiedAccounts() {
+        return DB.all('account/unverified').map(a => new Account(a));
+    }
 
 
     static fromId(id: string): Account|null {
@@ -284,7 +287,7 @@ export default class Account {
         if (!valid(lastName)) return AccountStatus.invalidName;
 
         const emailValid = await validate({ email })
-            .then((results) => !!results.valid)
+            .then((results: any) => !!results.valid)
             .catch(() => false);
 
         if (!emailValid) return AccountStatus.invalidEmail;
@@ -327,11 +330,11 @@ export default class Account {
 
     // static async reject(username: string): Promise<AccountStatus> {}
 
-    static async delete(id: string): Promise<AccountStatus> {
-        const account = await Account.fromId(id);
+    static delete(id: string): AccountStatus {
+        const account = Account.fromId(id);
         if (!account) return AccountStatus.notFound;
 
-        await DB.run('account/delete', {
+        DB.run('account/delete', {
             id
         });
 
@@ -658,6 +661,10 @@ export default class Account {
         return Math.min(...roles.map((r) => r.rank));
     }
 
+    unverify() {
+        DB.run('account/unverify', { id: this.id });
+        return AccountStatus.unverified;
+    }
 
 
     save() {}

@@ -109,6 +109,10 @@ type Queries = {
         }],
         Account
     ],
+    'account/unverified': [
+        [],
+        Account
+    ],
     'account/all': [
         [],
         Account
@@ -126,6 +130,12 @@ type Queries = {
             verification: string,
             created: number,
             phoneNumber: string
+        }],
+        unknown
+    ],
+    'account/unverify': [
+        [{
+            id: string
         }],
         unknown
     ],

@@ -12,6 +12,7 @@ export type SocketEvent =
     'account:update-last-name' |
     'account:update-picture' |
     'account:update-phone-number' |
+    'account:unverified' |
 
     'roles:added' |
     'roles:removed' |
