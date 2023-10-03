@@ -1,5 +1,5 @@
-import '../utilities/imports';
-import SignIn from '../views/components/SignIn.svelte';
+import '../../utilities/imports';
+import SignIn from '../../views/components/SignIn.svelte';
 
 
 const app = new SignIn({

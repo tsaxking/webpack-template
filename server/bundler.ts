@@ -36,9 +36,9 @@ const readDir = (dirPath: string): string[] => {
     });
 }
 
-const entries = readDir('./client/entries');
+let entries = [];
 
-log(entries);
+entries = readDir('./client/entries');
 
 export const builder = new EventEmitter<'build' | 'error'>();
 
@@ -51,8 +51,6 @@ const result = await esbuild.build({
     conditions: ["svelte", "browser"],
     watch: {
         onRebuild(error: Error, result: any) {
-            if (error) console.error(error);
-            else console.log('Build complete', result);
 
             if (error) builder.emit('error', error);
             else builder.emit('build', result);
@@ -75,4 +73,4 @@ const result = await esbuild.build({
     }
 });
 
-// builder.on('build', () => readDir('./client/entries'));
+builder.on('build', () => entries = readDir('./client/entries'));

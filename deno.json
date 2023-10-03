@@ -3,7 +3,10 @@
     "start": "deno run --allow-all --unstable ./server/server.ts prod",
     "dev": "deno task build & deno run --allow-all --unstable --watch ./server/server.ts dev",
     "build": "deno run --allow-all ./server/bundler.ts",
-    "init": "deno run --allow-all --unstable ./storage/db/scripts/init.ts"
+    "init": "deno run --allow-all --unstable ./storage/db/scripts/init.ts",
+    "entry": "deno run --allow-all ./scripts/add-entry.ts prompt",
+    "status": "deno run --allow-all ./scripts/add-status.ts status",
+    "socket": "deno run --allow-all ./scripts/add-status.ts socket"
   },
   "compilerOptions": {
     // "noexplicitAny": false,

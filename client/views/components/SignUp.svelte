@@ -2,6 +2,7 @@
     import { ServerRequest } from '../../utilities/requests';
 
     export let title: string;
+    document.title = title + ': Sign up';
     export let username: string = '';
     export let password: string = '';
     export let confirmPassword: string = '';

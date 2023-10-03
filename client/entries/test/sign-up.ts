@@ -1,5 +1,5 @@
-import '../utilities/imports';
-import SignUp from '../views/components/SignIn.svelte';
+import '../../utilities/imports';
+import SignUp from '../../views/components/SignUp.svelte';
 
 
 const app = new SignUp({

@@ -4,7 +4,8 @@ import { Email, EmailType } from "./email.ts";
 import { Session } from "../structure/sessions.ts";
 import { Server } from "npm:socket.io";
 import env from "./env.ts";
-import { messages, StatusCode, StatusId, StatusMessage, StatusColor } from "../../shared/status.ts";
+import {  StatusCode, StatusMessage, StatusColor } from "../../shared/status.ts";
+import { messages, StatusId } from "../../shared/status-messages.ts";
 import { Req, Res, Next, ServerFunction } from "../structure/app.ts";
 
 declare global {

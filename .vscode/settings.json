@@ -1,7 +1,9 @@
 {
     "deno.enablePaths": [
         "./server",
-        "./storage/db/scripts"
+        "./storage/db/scripts",
+        "./scripts",
+        "./shared"
     ],
     "deno.disablePaths": [
         "./client"
