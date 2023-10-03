@@ -4,6 +4,17 @@
     export let navItems: string[] = [];
 
     export let active: string = '';
+
+    export let account: {
+        firstName: string,
+        lastName: string,
+        username: string,
+        email: string,
+        picture?: string,
+        phoneNumber?: string
+    };
+
+    export let accountLinks: (string|null)[] = [];
 </script>
 
 
@@ -35,4 +46,30 @@
             {/each}
         </ul>
     </div>
+
+    <a class="nav-link dropdown-toggle me-3" href="#navbarDropdown" id="navbarDropdown-link" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        Hello, {account.username}&nbsp;
+        {#if (account.picture)}
+            <img src="../uploads/${account.picture}" class="profile-pic mx-1" alt="">
+        {:else}
+            <span class="material-icons">person</span>
+        {/if}
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end p-0" aria-labelledby="navbarDropdown" id="navbarDropdown">
+        {#each accountLinks as link}
+            {#if (link)}
+                <li><a href={link} class="dropdown-item">{capitalize(fromSnakeCase(link, '-'))}</a></li>
+            {:else}
+                <li><hr class="dropdown-divider"></li>
+            {/if}
+        {/each}
+
+
+        <!-- <li><a href="/institution/new" class="dropdown-item">Create Institution <span class="material-icons">home</span></a></li> -->
+        <!-- <li><a class="dropdown-item" href="/my-account">My Account</a></li> -->
+        <!-- <li>
+            <hr class="dropdown-divider">
+        </li> -->
+        <li class="p-1"><a class="dropdown-item" href="/account/sign-out">Sign Out</a></li>
+    </ul>
 </nav>

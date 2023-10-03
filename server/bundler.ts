@@ -2,15 +2,41 @@ import * as esbuild from 'https://deno.land/x/esbuild@v0.11.12/mod.js'
 import { log } from "./utilities/terminal-logging.ts";
 import { typescript, sveltePlugin } from "./build/esbuild-svelte.ts";
 import { EventEmitter } from "./utilities/event-listener.ts";
+import { getTemplateSync, saveTemplateSync } from "./utilities/files.ts";
+import path from 'node:path';
+import env, { __root, __templates } from "./utilities/env.ts";
 
 log('Deno version:', Deno.version.deno);
 log('Typescript version:', Deno.version.typescript);
 log('V8 version:', Deno.version.v8);
 
+const readDir = (dirPath: string): string[] => {
+    const entries = Array.from(Deno.readDirSync(dirPath));
+    return entries.flatMap(e => {
+        if (!e.isFile) return readDir(`${dirPath}/${e.name}`);
 
-const entries = Array.from(Deno.readDirSync('./client/entries')).map(e => {
-    return `./client/entries/${e.name}`;
-});
+        const file = dirPath.split('/').slice(2).join('/') + '/' + e.name.replace('.ts', '.html');
+
+        saveTemplateSync(
+            '/' + file,
+            getTemplateSync('index', {
+                script: path.relative(
+                    path.resolve(__templates, file),
+                    path.resolve(__root, 'dist', dirPath.split('/').slice(3).join('/'), e.name.replace('.ts', '.js'))
+                ),
+                style: path.relative(
+                    path.resolve(__templates, file),
+                    path.resolve(__root, 'dist', dirPath.split('/').slice(3).join('/'), e.name.replace('.ts', '.css'))
+                ),
+                title: env.TITLE
+            })
+        );
+
+        return `${dirPath}/${e.name}`;
+    });
+}
+
+const entries = readDir('./client/entries');
 
 log(entries);
 
@@ -18,12 +44,6 @@ export const builder = new EventEmitter<'build' | 'error'>();
 
 const result = await esbuild.build({
     entryPoints: entries,
-    // entryPoints: [
-    //     './client/entries/main.ts',
-    //     './client/entries/admin.ts',
-    //     './client/entries/status.ts',
-    //     './client/entries/test.ts'
-    //     ],
     bundle: true,
     // minify: true,
     outdir: './dist',
@@ -31,8 +51,8 @@ const result = await esbuild.build({
     conditions: ["svelte", "browser"],
     watch: {
         onRebuild(error: Error, result: any) {
-            // if (error) console.error(error);
-            // else console.log('Build complete', result);
+            if (error) console.error(error);
+            else console.log('Build complete', result);
 
             if (error) builder.emit('error', error);
             else builder.emit('build', result);
@@ -46,11 +66,13 @@ const result = await esbuild.build({
     })],
     logLevel: "info",
     loader: {
-      '.png': 'dataurl',
-      '.woff': 'dataurl',
-      '.woff2': 'dataurl',
-      '.eot': 'dataurl',
-      '.ttf': 'dataurl',
-      '.svg': 'dataurl',
+        '.png': 'dataurl',
+        '.woff': 'dataurl',
+        '.woff2': 'dataurl',
+        '.eot': 'dataurl',
+        '.ttf': 'dataurl',
+        '.svg': 'dataurl',
     }
 });
+
+// builder.on('build', () => readDir('./client/entries'));

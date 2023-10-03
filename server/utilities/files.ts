@@ -3,9 +3,23 @@ import callsite from 'npm:callsite';
 import { v4 as render } from 'npm:node-html-constructor';
 import ObjectsToCsv from 'npm:objects-to-csv';
 import { log as terminalLog } from "./terminal-logging.ts";
-import { __root, __uploads, __logs } from "./env.ts";
+import { __root, __uploads, __logs, __templates } from "./env.ts";
 import fs from 'node:fs';
 
+const makeFolder = (folder: string) => {
+    const dirs = folder.split('/');
+
+    let mainDir = '';
+
+    for (const dir of dirs) {
+        if (dir.includes('.')) continue;
+
+        mainDir = path.resolve(mainDir, dir);
+        if (!fs.existsSync(mainDir)) {
+            fs.mkdirSync(mainDir);
+        }
+    }
+};
 
 
 const filePathBuilder = (file: string, ext: string, parentFolder: string) => {
@@ -120,11 +134,15 @@ export function getTemplate(file: string, options?: { [key: string]: any }): Pro
 export function saveTemplateSync(file: string, data: string) {
     const p = filePathBuilder(file, '.html', './public/templates/');
 
+    makeFolder(path.relative(__templates, p));
+
     return Deno.writeFileSync(p, new TextEncoder().encode(data));
 }
 
 export function saveTemplate(file: string, data: string) {
     const p = filePathBuilder(file, '.html', './public/templates/');
+
+    makeFolder(path.relative(__templates, p));
 
     return Deno.writeFile(p, new TextEncoder().encode(data));
 }

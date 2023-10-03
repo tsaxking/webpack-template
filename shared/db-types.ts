@@ -1,6 +1,5 @@
 export type Account = {
     id: string;
-
     username: string;
     key: string;
     salt: string;
@@ -17,6 +16,17 @@ export type Account = {
     picture?: string;
 }
 
+
+export type AccountSafe = {
+    username: string;
+    firstName: string;
+    lastName: string;
+    email:string;
+    verified: 0 | 1;
+    created: number;
+    phoneNumber: string;
+    picture?: string;
+}
 
 export type MembershipStatus =
     'pending' |

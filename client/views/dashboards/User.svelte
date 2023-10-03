@@ -3,6 +3,7 @@
     import Page from "../components/main/Page.svelte";
     import { getOpenPage } from '../../utilities/page';
     import Dashboard from '../pages/Dashboard.svelte'
+    import Account from "../pages/account.svelte";
 
     const groups = [{
         name: 'Home',
@@ -12,15 +13,6 @@
         },{
             name: 'account',
             icon: 'person'
-        },{
-            name: 'users',
-            icon: 'people'
-        },{
-            name: 'contact',
-            icon: 'phone'
-        }, {
-            name: 'logout',
-            icon: 'logout'
         }]
     }];
 
@@ -32,17 +24,19 @@
     }
 
     const navItems = [
-        'app'
+    ];
+
+    const accountLinks = [
+        // 'account',
+        // 'contact',
+        // null
     ];
 </script>
 
 
 
 
-<Main title="Team Tators" {groups} on:openPage={openPage} {active} {navItems}>
+<Main title="Team Tators" {groups} on:openPage={openPage} {active} {navItems} {accountLinks}>
     <Page {active} {domain} title='dashboard'><Dashboard></Dashboard></Page>
-    <Page {active} {domain} title='account'></Page>
-    <Page {active} {domain} title='users'></Page>
-    <Page {active} {domain} title='contact'></Page>
-    <Page {active} {domain} title='logout'></Page>
+    <Page {active} {domain} title='account'><Account></Account></Page>
 </Main>
