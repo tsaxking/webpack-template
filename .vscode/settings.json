@@ -1,6 +1,5 @@
 {
     "deno.enablePaths": [
-        // "./server",
         "./server",
         "./storage/db/scripts"
     ],

@@ -1,12 +1,27 @@
-import io from 'socket.io/client-dist/socket.io.js';
-import { Page } from './page';
+import { io } from "socket.io-client";
+// import { Page } from './page';
 import { SocketEvent } from "../../shared/socket";
+import { ServerRequest } from './requests';
+import { uptime } from "./clock";
 
-const __socket = io();
 
-__socket.on('disconnect', () => {
-    socket.io.reconnect();
+const initialized = new Promise<void>((res) => {
+    ServerRequest.post('/socket-url').then(({ url }) => {
+        res();
+        const s = io(url);
+        s.on('disconnect', () => {
+            s.io.reconnect();
+        });
+    
+        s.on('reload', () => {
+            if (uptime() > 1000) location.reload();
+        });
+    
+        socket.io = s;
+    });
 });
+
+
 
 export type SocketMetadata = {
     time: number;
@@ -76,17 +91,25 @@ export class SocketWrapper {
         [key: string]: SocketListener;
     } = {};
 
+    private socket?: any
 
-
-    constructor(private readonly socket: any) {}
+    constructor() {}
 
     get io() {
-        return this.socket.io;
+        return this.socket?.io;
+    }
+
+
+    set io(socket: any) {
+        if (this.socket) throw new Error('Socket is already initialized');
+        this.socket = socket;
     }
 
 
     // wrapper for socket so that it can update the model and view if on the correct page with a single listener
-    on(event: SocketEvent, dataUpdate: (...args: any[]) => void): SocketListener {
+    async on(event: SocketEvent, dataUpdate: (...args: any[]) => void): Promise<SocketListener> {
+        await initialized;
+
         if (SocketWrapper.listeners[event]) {
             console.error(`Event ${event} already has a listener`);
             return SocketWrapper.listeners[event];
@@ -107,9 +130,6 @@ export class SocketWrapper {
                 if (!vu.page) {
                     vu.callback(...args);
                     continue;
-                }
-                if (Page.current?.name === vu.page) {
-                    vu.callback(...args);
                 } else {
                     ViewUpdate.updates.push(
                         new ViewUpdateWrapper(vu, ...args)
@@ -122,9 +142,4 @@ export class SocketWrapper {
     }
 }
 
-export const socket = new SocketWrapper(__socket);
-
-// const socket = io();
-socket.on('disconnect', () => {
-    socket.io.reconnect();
-});
+export const socket = new SocketWrapper();

@@ -21,8 +21,11 @@
     "vite": "^4.4.9"
   },
   "dependencies": {
+    "bootstrap": "^5.3.2",
     "esbuild-svelte": "^0.8.0",
+    "material-icons": "^1.13.12",
     "socket.io": "^4.7.2",
+    "socket.io-client": "^4.7.2",
     "svelte": "^3.39.0",
     "vite-plugin-svelte-monorepo": "github:sveltejs/vite-plugin-svelte"
   }

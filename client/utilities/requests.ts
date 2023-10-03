@@ -1,8 +1,8 @@
 import { capitalize, toSnakeCase, fromCamelCase, fromSnakeCase } from "../../shared/text";
 import { sleep } from "../../shared/sleep";
 import { StatusJson } from "../../shared/status";
-import CBS from "../submodules/custom-bootstrap/src/1-main/1-main";
-import { CBS_Color } from "../submodules/custom-bootstrap/src/1-main/enums";
+// import CBS from "../submodules/custom-bootstrap/src/1-main/1-main";
+// import { CBS_Color } from "../submodules/custom-bootstrap/src/1-main/enums";
 
 
 export type RequestOptions = {
@@ -223,23 +223,23 @@ export class ServerRequest {
             }
         }
 
-        const t = CBS.createElement('toast', {
-            dismiss: 5000,
-            title: data.title,
-            body: message,
-            color: data.status as CBS_Color
-        });
+        // const t = CBS.createElement('toast', {
+        //     dismiss: 5000,
+        //     title: data.title,
+        //     body: message,
+        //     color: data.status as CBS_Color
+        // });
 
         switch(data.status) {
             case 'danger':
             case 'success':
-                t.subcomponents.body.addClass('text-light');
+                // t.subcomponents.body.addClass('text-light');
                 break;
             default:
-                t.subcomponents.body.addClass('text-dark');
+                // t.subcomponents.body.addClass('text-dark');
                 break;
         }
 
-        t.show();
+        // t.show();
     }
 }

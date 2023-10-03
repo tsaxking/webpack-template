@@ -1,6 +1,6 @@
 import env, { __root } from "./utilities/env.ts";
 import { log } from "./utilities/terminal-logging.ts";
-import { App } from "./structure/app.ts";
+import { App, ResponseStatus } from "./structure/app.ts";
 import { Req, Res, Next, ServerFunction } from "./structure/app.ts";
 import { Session } from "./structure/sessions.ts";
 import * as path from 'node:path';
@@ -9,6 +9,7 @@ import { getJSON, getJSONSync, getTemplate, log as serverLog } from "./utilities
 import { Status } from "./utilities/status.ts";
 import { homeBuilder, navBuilder } from "./utilities/page-builder.ts";
 import Account from "./structure/accounts.ts";
+import { builder } from "./bundler.ts";
 
 const port = +env.PORT || 3000;
 const domain = env.DOMAIN || `http://localhost:${port}`;
@@ -21,9 +22,21 @@ const app = new App(port, domain, {
     // onConnection: (socket) => {
         // log('New connection:', socket.id);
     // },
-    ioPort: port + 1
+    ioPort: +env.SOCKET_PORT || port + 1
 });
 
+
+// building client listeners
+builder.on('build', () => {
+    if (env.ENVIRONMENT === 'dev') app.io.emit('reload');
+    log('Build complete');
+});
+
+builder.on('error', (e) => log('Build error:', e));
+
+app.get('/app', (req, res, next) => {
+    res.redirect(env.APP_DOMAIN);
+});
 
 app.use('/*', (req, res, next) => {
     log(`[${req.method}] ${req.url}`);
@@ -31,6 +44,7 @@ app.use('/*', (req, res, next) => {
 });
 
 
+app.static('/client', path.resolve(__root, './client'));
 app.static('/public', path.resolve(__root, './public'));
 app.static('/dist', path.resolve(__root, './dist'));
 app.static('/uploads', path.resolve(__root, './uploads'));
@@ -39,6 +53,12 @@ app.static('/uploads', path.resolve(__root, './uploads'));
 app.use('/*', Session.middleware());
 
 
+
+app.post('/socket-url', (req, res, next) => {
+    res.json({
+        url: env.SOCKET_DOMAIN
+    });
+});
 
 
 
@@ -52,6 +72,7 @@ app.get('/robots.txt', (req, res) => {
 });
 
 function stripHtml(body: any) {
+    if (!body) return body;
     let files: any;
 
     if (body.files) {
@@ -125,7 +146,10 @@ app.get('/*', async (req, res, next) => {
 
 app.get('/test/:page', (req, res, next) => {
     if (env.ENVIRONMENT !== 'dev') return next();
-    res.sendTemplate('entries/test/' + req.params.page);
+    const s = res.sendTemplate('entries/test/' + req.params.page);
+    if (s === ResponseStatus.error || s === ResponseStatus.fileNotFound) {
+        res.sendStatus('page:not-found', { page: req.params.page });
+    }
 });
 
 

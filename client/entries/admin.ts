@@ -1,7 +1,7 @@
-// import { Card } from "./views/card";
-console.log('Admin');
+// // import { Card } from "./views/card";
+// console.log('Admin');
 
 
-import { Account } from "../../shared/account";
+// import { Account } from "../../shared/account";
 
-const a = new Account('1', '2', '3', '4', new Date(), new Date());
+// const a = new Account('1', '2', '3', '4', new Date(), new Date());

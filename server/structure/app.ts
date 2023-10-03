@@ -1,7 +1,7 @@
 // make a class that simulates npm:express using the deno std library
 import { serve } from "https://deno.land/std@0.150.0/http/server.ts";
 import { Server } from "https://deno.land/x/socket_io@0.2.0/mod.ts";
-import { __root } from "../utilities/env.ts";
+import env, { __root } from "../utilities/env.ts";
 import PATH from 'npm:path';
 import { log } from "../utilities/terminal-logging.ts";
 import { Session } from "./sessions.ts";
@@ -147,6 +147,13 @@ export class Req {
 };
 
 
+export enum ResponseStatus {
+    fileNotFound,
+    success,
+    error
+}
+
+
 export class Res {
     public readonly promise: Promise<Response>;
     public resolve?: (res: Response) => void;
@@ -191,7 +198,7 @@ export class Res {
     }
 
 
-    json(data: any) {
+    json(data: any): ResponseStatus {
         this.isFulfilled();
         try {
             const d = JSON.stringify(data);
@@ -201,10 +208,14 @@ export class Res {
                     'Content-Type': 'application/json'
                 }
             }));
-        } catch {};
+            return ResponseStatus.success;
+        } catch (e) {
+            log("Cannot stringify data", e);
+            return ResponseStatus.error;
+        };
     }
 
-    send(data: string, filetype: FileType = 'html') {
+    send(data: string, filetype: FileType = 'html'): ResponseStatus {
         this.isFulfilled();
         const res = new Response(data, {
             status: this._status,
@@ -214,6 +225,8 @@ export class Res {
         });
         this._setCookie(res);
         this.resolve?.(res);
+
+        return ResponseStatus.success;
     }
 
     private _setCookie(res: Response) {
@@ -225,21 +238,29 @@ export class Res {
                 ...c.options
             });
         }
+
+        return ResponseStatus.success;
     }
 
-    sendFile(path: string) {
+    sendFile(path: string): ResponseStatus {
         // log('Sending file', path);
-        this.isFulfilled();
-        const extName = PATH.extname(path).replace('.', '');
-        const data = Deno.readFileSync(path);
-        const res = new Response(data, {
-            status: this._status,
-            headers: {
-                'Content-Type': fileTypeHeaders[extName as keyof typeof fileTypeHeaders] || 'text/plain'
-            }
-        });
-        this._setCookie(res);
-        this.resolve?.(res);
+        try {
+            this.isFulfilled();
+            const extName = PATH.extname(path).replace('.', '');
+            const data = Deno.readFileSync(path);
+            const res = new Response(data, {
+                status: this._status,
+                headers: {
+                    'Content-Type': fileTypeHeaders[extName as keyof typeof fileTypeHeaders] || 'text/plain'
+                }
+            });
+            this._setCookie(res);
+            this.resolve?.(res);
+            return ResponseStatus.success;
+        } catch (e) {
+            log(e);
+            return ResponseStatus.fileNotFound;
+        }
     }
 
 
@@ -249,9 +270,12 @@ export class Res {
     }
 
 
-    redirect(path: string) {
+    redirect(path: string): ResponseStatus {
+        path = path.startsWith('/') ? this.app.domain + path : path;
+
         this.isFulfilled();
-        this.resolve?.(Response.redirect(this.app.domain + path));
+        this.resolve?.(Response.redirect(path));
+        return ResponseStatus.success;
     }
 
 
@@ -263,12 +287,25 @@ export class Res {
     }
 
 
-    sendStatus(id: StatusId, data?: any) {
-        return Status.from(id, this.req, data).send(this);
+    sendStatus(id: StatusId, data?: any): ResponseStatus {
+        try {
+            Status.from(id, this.req, data).send(this);
+            return ResponseStatus.success;
+        } catch (error) {
+            log('Error sending status', error);
+            return ResponseStatus.error;
+        }
     };
 
-    sendTemplate(template: string, options?: any) {
-        this.send(getTemplateSync(template, options));
+    sendTemplate(template: string, options?: any): ResponseStatus {
+        try {
+            const t = getTemplateSync(template, options);
+            this.send(t, 'html');
+            return ResponseStatus.success;
+        } catch (e) {
+            log('Error sending template', e);
+            return ResponseStatus.error;
+        }
     }
 };
 
@@ -358,7 +395,21 @@ export class App {
 
     constructor(public readonly port: number, public readonly domain: string, options?: AppOptions) {
         this.server = Deno.serve({ port: this.port }, (req: Request, info: Deno.ServeHandlerInfo) => this.handler(req, info));
-        this.io = new Server();
+        this.io = new Server({
+            cors: {
+                origin: '*',
+                methods: ['GET', 'POST']
+            }
+        });
+
+        this.io.on('connection', (socket) => {
+            log('New connection:', socket.id);
+
+            if (env.ENVIRONMENT === 'dev') {
+                socket.emit('reload');
+            }
+        });
+
 
         if (options) {
             if (options.onListen) {
