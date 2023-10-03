@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS Accounts (
-    id INTEGER PRIMARY KEY,
+    id TEXT PRIMARY KEY,
     username TEXT UNIQUE NOT NULL,
     key TEXT NOT NULL,
     salt TEXT NOT NULL,
@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS Accounts (
 
 
 CREATE TABLE IF NOT EXISTS Members (
-    id INTEGER PRIMARY KEY,
+    id TEXT PRIMARY KEY,
     title TEXT,
     status TEXT,
     bio TEXT,
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS Members (
 
 
 CREATE TABLE IF NOT EXISTS Roles (
-    id INTEGER PRIMARY KEY,
+    id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     description TEXT,
     rank INTEGER NOT NULL
@@ -37,14 +37,14 @@ CREATE TABLE IF NOT EXISTS Roles (
 
 
 CREATE TABLE IF NOT EXISTS AccountRoles (
-    accountId INTEGER NOT NULL,
-    roleId INTEGER NOT NULL,
+    accountId TEXT NOT NULL,
+    roleId TEXT NOT NULL,
     FOREIGN KEY (accountId) REFERENCES Accounts(id),
     FOREIGN KEY (roleId) REFERENCES Roles(id)
 );
 
 CREATE TABLE IF NOT EXISTS Permissions (
-    roleId INTEGER NOT NULL,
+    roleId TEXT NOT NULL,
     permission TEXT NOT NULL,
     FOREIGN KEY (roleId) REFERENCES Roles(id)
 );
@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS Version (
 
 CREATE TABLE IF NOT EXISTS Sessions (
     id TEXT PRIMARY KEY,
-    accountId INTEGER,
+    accountId TEXT,
     ip TEXT,
     userAgent TEXT,
     latestActivity TEXT,

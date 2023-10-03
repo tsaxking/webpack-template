@@ -1,8 +1,8 @@
 import { io } from "socket.io-client";
-// import { Page } from './page';
 import { SocketEvent } from "../../shared/socket";
 import { ServerRequest } from './requests';
 import { uptime } from "./clock";
+import { Socket } from "socket.io";
 
 
 const initialized = new Promise<void>((res) => {
@@ -10,7 +10,8 @@ const initialized = new Promise<void>((res) => {
         res();
         const s = io(url);
         s.on('disconnect', () => {
-            s.io.reconnect();
+            // this says it doesn't exist but it does, so I have a small work around :)
+            (s.io as any).reconnect();
         });
     
         s.on('reload', () => {
@@ -26,15 +27,6 @@ const initialized = new Promise<void>((res) => {
 export type SocketMetadata = {
     time: number;
 };
-
-export class ViewUpdateWrapper {
-    public readonly args: any[];
-    
-    constructor(public readonly viewUpdate: ViewUpdate, ...args: any[]) {
-        this.args = args;
-    }
-}
-
 
 export class SocketListener {
     public static readonly listeners: {
@@ -61,8 +53,6 @@ export class SocketListener {
 }
 
 export class ViewUpdate {
-    static updates: ViewUpdateWrapper[] = [];
-
     constructor(
         public readonly event: string,
         public readonly page: string|null,
@@ -127,14 +117,7 @@ export class SocketWrapper {
                     console.log('filtering out', vu);
                     continue;
                 }
-                if (!vu.page) {
-                    vu.callback(...args);
-                    continue;
-                } else {
-                    ViewUpdate.updates.push(
-                        new ViewUpdateWrapper(vu, ...args)
-                    );
-                }
+                vu.callback(...args);
             }
         });
 

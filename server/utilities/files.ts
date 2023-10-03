@@ -29,9 +29,9 @@ const filePathBuilder = (file: string, ext: string, parentFolder: string) => {
     if (file.startsWith('.')) {
         // use callsite
         const stack = callsite(),
-            requester = stack[1].getFileName(),
+            requester = stack[2].getFileName(),
             requesterDir = path.dirname(requester);
-        output = path.resolve(requesterDir, file);
+        output = path.resolve(requesterDir.replace('file:/',''), file);
     } else {
         output = path.resolve(__root, parentFolder, ...file.split('/'));
     }

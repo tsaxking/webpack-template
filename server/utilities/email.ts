@@ -59,8 +59,6 @@ export class Email {
             footer: (env.FOOTER || '')
         }
 
-
-
         let html: string;
         let temp: string|boolean;
         

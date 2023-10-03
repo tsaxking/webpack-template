@@ -12,6 +12,7 @@ import { Account as AccountObject, MembershipStatus, Member as MemberObj, Skill,
 import env from "../utilities/env.ts";
 import { deleteUpload } from "../utilities/files.ts";
 import { Req, Res, Next, ServerFunction } from './app.ts';
+import { log } from "../utilities/terminal-logging.ts";
 
 
 
@@ -176,7 +177,7 @@ export default class Account {
         const { session: { account } } = req;
 
         if (account) {
-            return Status.from('account:logged-in', req).send(res);
+            return res.sendStatus('account:logged-in');
         }
 
         next();
@@ -246,7 +247,6 @@ export default class Account {
             console.log('Invalid characters/words:', invalidChars);
         }
 
-
         return valid;
     }
 
@@ -262,11 +262,16 @@ export default class Account {
         if (!valid(firstName)) return AccountStatus.invalidName;
         if (!valid(lastName)) return AccountStatus.invalidName;
 
-        const emailValid = await validate({ email })
-            .then((results: any) => !!results.valid)
-            .catch(() => false);
+        // log('Validating', email);
 
-        if (!emailValid) return AccountStatus.invalidEmail;
+        // const emailValid = await validate({ email })
+        //     .then((results: any) => {
+        //         log(results);
+        //         return !!results.valid;
+        //     })
+        //     .catch(() => false);
+
+        // if (!emailValid) return AccountStatus.invalidEmail;
 
         const { salt, key } = Account.newHash(password);
 

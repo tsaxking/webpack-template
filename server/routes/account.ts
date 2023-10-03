@@ -3,6 +3,7 @@ import Account from "../structure/accounts.ts";
 import { Status } from "../utilities/status.ts";
 import Role from "../structure/roles.ts";
 import { StatusId } from "../../shared/status-messages.ts";
+import { log } from "../utilities/terminal-logging.ts";
 
 export const router = new Route();
 
@@ -75,6 +76,7 @@ router.post('/sign-up', Account.notSignedIn, async(req, res) => {
         firstName,
         lastName
     );
+
     res.sendStatus('account:' + status as StatusId, { username });
 });
 

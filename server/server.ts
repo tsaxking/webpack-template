@@ -127,9 +127,10 @@ app.post('/*', emailValidation(['email', 'confirmEmail'], {
     onspam: (req, res, next) => {
         res.sendStatus('spam:detected');
     },
-    onerror: (req, res, next) => {
-        res.sendStatus('unknown:error');
-    }
+    // onerror: (req, res, next) => {
+    //     // res.sendStatus('unknown:error');
+    //     next();
+    // }
 }));
 
 

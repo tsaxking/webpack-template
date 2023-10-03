@@ -479,6 +479,8 @@ export class App {
             req.body = await req.req.json().catch(() => {});
 
             const runFn = async (i: number) => {
+                // log('Running fn', i +'/'+ fns.length);
+
                 const fn = fns[i] as ServerFunctionHandler | undefined;
 
                 if (!fn) {
@@ -506,7 +508,6 @@ export class App {
                 } catch (e) {
                     log(`Error on callback [${req.method}] ${req.url}`, e);
                 }
-                    
                 if (!ranNext && !res.fulfilled && fns[i + 1]) {
                     const site = stack().map((site: any) => {
                         return site.getFileName() + ':' + site.getLineNumber();

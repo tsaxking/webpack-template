@@ -26,8 +26,8 @@
         });
     };
 
-    const isValid = (username: string, password: string) => {
-        return isUsernameValid(username) && password.length > 8;
+    const isValid = (username: string, password: string, confirmPassword: string) => {
+        return isUsernameValid(username) && isPasswordValid(password).length === 0 && password === confirmPassword;
     };
 
     const isUsernameValid = (username: string):boolean => {
@@ -40,9 +40,18 @@
     let valid = false;
 
     const onInput = () => {
-        valid = isValid(username, password);
+        valid = isValid(username, password, confirmPassword);
     }
 
+    const isPasswordValid = (password: string): string[] => {
+        const output = [];
+        if (password.length < 8) output.push('8 characters long');
+        if (!password.match(/[a-z]/)) output.push('1 lowercase letter');
+        if (!password.match(/[A-Z]/)) output.push('1 uppercase letter');
+        if (!password.match(/[0-9]/)) output.push('1 number');
+        if (!password.match(/[^a-zA-Z\d]/)) output.push('1 special character');
+        return output;
+    }
 </script>
 
 <div class="container pt-5">
@@ -50,7 +59,7 @@
         <div class="col-md-6">
                 <div class="row mb-3">
                     <h1>
-                        {title}: Sign in
+                        {title}: Sign up
                     </h1>
                 </div>
         
@@ -106,10 +115,35 @@
                     <div class="mb-3 form-floating">
                         <input class="form-control" type="password" name="password" id="password" bind:value={password} placeholder="Password" on:input={onInput}>
                         <label class="form-label" for="password">Password</label>
+                        {#if (isPasswordValid(password).length > 0)}
+                            <small class="text-danger">
+                                Password must have the following properties:
+                                <ul>
+                                    {#each isPasswordValid(password) as property}
+                                        <li>{property}</li>
+                                    {/each}
+                                </ul>
+                            </small>
+                        {:else}
+                            <small class="text-success">
+                                Looks good!
+                            </small>
+                        {/if}
                     </div>
                     <div class="mb-3 form-floating">
-                        <input class="form-control" type="confirmPassword" name="confirmPassword" id="confirmPassword" bind:value={confirmPassword} placeholder="Password" on:input={onInput}>
+                        <input class="form-control" type="password" name="confirmPassword" id="confirmPassword" bind:value={confirmPassword} placeholder="Password" on:input={onInput}>
                         <label class="form-label" for="confirmPassword">Confirm Password</label>
+                        {#if (password.length > 0)}
+                            {#if (password !== confirmPassword)}
+                                <small class="text-danger">
+                                    Passwords do not match
+                                </small>
+                            {:else}
+                                <small class="text-success">
+                                    Looks good!
+                                </small>
+                            {/if}
+                        {/if}
                     </div>
 
                     <input type="submit" class="btn btn-primary" disabled={!valid} value="Submit" on:click|preventDefault={submit}>

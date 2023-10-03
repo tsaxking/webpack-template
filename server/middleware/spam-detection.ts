@@ -54,7 +54,7 @@ export const emailValidation = (keys: string[], options: Options = {}): ServerFu
             })
             .catch(err => {
                 if (options.onerror) return options.onerror(req, res, next);
-                console.error(err);
+                // console.error(err);
                 next();
             });
     }
