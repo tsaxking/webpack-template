@@ -23,4 +23,5 @@ export type SocketEvent =
 	| 'roles:removed'
 	| 'skills:added'
 	| 'skills:removed'
+	| 'test:success'
 ;

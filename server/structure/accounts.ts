@@ -150,8 +150,8 @@ export default class Account {
         return new Account(data);
     }
 
-    static allowPermissions(...permission: string[]): NextFunction {
-        const fn = (req: Request, res: Response, next: NextFunction) => {
+    static allowPermissions(...permission: string[]): ServerFunction {
+        return (req: Req, res: Res, next: Next) => {
             const { session } = req;
             const { account } = session;
 
@@ -159,45 +159,21 @@ export default class Account {
                 const s = Status.from('account:not-logged-in', req);
                 return s.send(res);
             }
-
-            // account.getPermissions()
-            //     .then((permissions) => {
-            //         if (permissions.permissions.every((p) => permission.includes(p))) {
-            //             return next();
-            //         } else {
-            //             const s = Status.from('permissions.invalid', req);
-            //             return s.send(res);
-            //         }
-            //     })
-            //     .catch((err) => {
-            //         const s = Status.from('permissions.error', req, err);
-            //         return s.send(res);
-            //     })
         }
-
-        return fn as NextFunction;
     }
 
-    static isSignedIn(req: Request, res: Response, next: NextFunction) {
+    static isSignedIn(req: Req, res: Res, next: Next) {
         const { session: { account } } = req;
 
         if (!account) {
-            return Status.from('account:server-error', req).send(res);
-        }
-
-        if (account.username === 'guest') {
-            return Status.from('account:not-logged-in', req).send(res);
+            return res.sendStatus('account:not-logged-in');
         }
 
         next();
     }
 
-    static notSignedIn(req: Request, res: Response, next: NextFunction) {
+    static notSignedIn(req: Req, res: Res, next: Next) {
         const { session: { account } } = req;
-
-        // if (!account) {
-        //     return Status.from('account.serverError', req).send(res);
-        // }
 
         if (account) {
             return Status.from('account:logged-in', req).send(res);
@@ -206,8 +182,8 @@ export default class Account {
         next();
     }
 
-    static async all(): Promise<Account[]> {
-        const data = await DB.all('account/all');
+    static all(): Account[] {
+        const data = DB.all('account/all');
         return data.map(a => new Account(a));
     }
 
@@ -275,8 +251,8 @@ export default class Account {
     }
 
     static async create(username: string, password: string, email: string, firstName: string, lastName: string): Promise<AccountStatus> {
-        if (await Account.fromUsername(username)) return AccountStatus.usernameTaken;
-        if (await Account.fromEmail(email)) return AccountStatus.emailTaken;
+        if (Account.fromUsername(username)) return AccountStatus.usernameTaken;
+        if (Account.fromEmail(email)) return AccountStatus.emailTaken;
 
         const { valid } = Account;
 
@@ -295,7 +271,7 @@ export default class Account {
         const { salt, key } = Account.newHash(password);
 
 
-        await DB.run('account/new', {
+        DB.run('account/new', {
             id: uuid(),
             username,
             key,
@@ -397,7 +373,7 @@ export default class Account {
 
 
 
-    async verify() {
+    verify() {
         if (this.emailChange) {
             const { email, date } = this.emailChange;
             const now = Date.now();
@@ -407,7 +383,7 @@ export default class Account {
                 return AccountStatus.emailChangeExpired;
             }
 
-            await DB.run('account/change-email', {
+            DB.run('account/change-email', {
                 id: this.id,
                 email
             });
@@ -418,7 +394,7 @@ export default class Account {
         }
 
 
-        await DB.run('account/verify', {
+        DB.run('account/verify', {
             id: this.id
         });
         this.verified = 1;
@@ -428,10 +404,10 @@ export default class Account {
     }
 
 
-    async sendVerification() {
+    sendVerification() {
         const key = uuid();
 
-        await DB.run('account/set-verification', {
+        DB.run('account/set-verification', {
             verification: key,
             id: this.id
         });
@@ -449,7 +425,7 @@ export default class Account {
     }
 
 
-    async safe(include?: {
+    safe(include?: {
         roles?: boolean;
         memberInfo?: boolean;
         permissions?: boolean;
@@ -461,9 +437,9 @@ export default class Account {
             lastName: this.lastName,
             picture: this.picture,
             email: include?.email ? this.email : undefined,
-            roles: include?.roles ? await this.getRoles() : [],
-            memberInfo: include?.memberInfo ? await this.getMemberInfo() : undefined,
-            permissions: include?.permissions ? await this.getPermissions() : []
+            roles: include?.roles ? this.getRoles() : [],
+            memberInfo: include?.memberInfo ? this.getMemberInfo() : undefined,
+            permissions: include?.permissions ? this.getPermissions() : []
         };
     }
 
@@ -471,11 +447,11 @@ export default class Account {
 
 
 
-    async getMemberInfo(): Promise<Member | null> {
+    getMemberInfo(): Member | null {
         return Member.get(this.id);
     }
 
-    async sendEmail(subject: string, type: EmailType, options: EmailOptions) {
+    sendEmail(subject: string, type: EmailType, options: EmailOptions) {
         const email = new Email(this.email, subject, type, options);
         return email.send();
     }
@@ -553,9 +529,9 @@ export default class Account {
 
 
 
-    async getPermissions(): Promise<Permission[]> {
-        const roles = await this.getRoles();
-        return (await Promise.all(roles.map((role) => role.getPermissions()))).flat();
+    getPermissions(): Permission[] {
+        const roles = this.getRoles();
+        return (roles.flatMap((role) => role.getPermissions()));
     }
 
 
@@ -579,11 +555,11 @@ export default class Account {
     }
 
 
-    async changeUsername(username: string): Promise<AccountStatus> {
-        const a = await Account.fromUsername(username);
+    changeUsername(username: string): AccountStatus {
+        const a = Account.fromUsername(username);
         if (a) return AccountStatus.usernameTaken;
 
-        await DB.run('account/change-username', {
+        DB.run('account/change-username', {
             id: this.id,
             username
         });
@@ -604,8 +580,8 @@ export default class Account {
     }
 
 
-    async changeEmail(email: string) {
-        const exists = await Account.fromEmail(email);
+    changeEmail(email: string) {
+        const exists = Account.fromEmail(email);
 
         if (exists) return AccountStatus.emailTaken;
 
@@ -627,22 +603,22 @@ export default class Account {
         return AccountStatus.checkEmail;
     }
 
-    async requestPasswordChange(): Promise<string> {
+    requestPasswordChange(): string {
         const key = uuid();
         this.passwordChange = key;
 
-        await DB.run('account/request-password-change', {
+        DB.run('account/request-password-change', {
             id: this.id,
             passwordChange: key
         });
         return key;
     }
 
-    async changePassword(key: string, password: string): Promise<AccountStatus> {
+    changePassword(key: string, password: string): AccountStatus {
         if (key !== this.passwordChange) return AccountStatus.passwordChangeInvalid;
 
         const { salt, key: newKey } = Account.newHash(password);
-        await DB.run('account/change-password', {
+        DB.run('account/change-password', {
             id: this.id,
             salt,
             key: newKey,

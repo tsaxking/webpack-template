@@ -9,7 +9,6 @@
     export let password: string = '';
 
     const submit = () => {
-        console.log('Submitting!');
         if (!valid) {
             console.log('Is not valid');
         }
@@ -17,7 +16,7 @@
         ServerRequest.post('/account/sign-in', {
             username,
             password
-        }).then((res) => {});
+        });
     };
 
     const isValid = (username: string, password: string) => {
@@ -37,13 +36,6 @@
         valid = isValid(username, password);
     }
 
-    const onKeyDown = (e) => {
-        switch (e.key) {
-            case 'Enter':
-                return submit();
-        }
-    }
-
 </script>
 
 <div class="container pt-5">
@@ -60,7 +52,7 @@
                 </div>
                 <form on:submit|preventDefault={submit}>
                     <div class="mb-3 form-floating">
-                        <input class="form-control" type="text" name="username" id="username" bind:value={username} placeholder="Username or Email" on:input={onInput} on:keypress={onKeyDown}>
+                        <input class="form-control" type="text" name="username" id="username" bind:value={username} placeholder="Username or Email" on:input={onInput}>
                         <label class="form-label" for="username">Username or Email</label>
                         {#if (username.includes('@'))}
                             {#if (username.split('@')[1]?.split('.')[0]?.length)}
@@ -77,7 +69,7 @@
                         {/if}
                     </div>
                     <div class="mb-3 form-floating">
-                        <input class="form-control" type="password" name="password" id="password" bind:value={password} placeholder="Password" on:input={onInput} on:keypress={onKeyDown}>
+                        <input class="form-control" type="password" name="password" id="password" bind:value={password} placeholder="Password" on:input={onInput}>
                         <label class="form-label" for="password">Password</label>
                     </div>
 

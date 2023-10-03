@@ -22,17 +22,17 @@ router.post('/get-roles', async(req, res) => {
 });
 
 router.get('/sign-in', (_req, res) => {
-    res.sendTemplate('accounts/sign-in');
+    res.sendTemplate('entries/account/sign-in');
 });
 
 router.get('/sign-up', (_req, res) => {
-    res.sendTemplate('accounts/sign-up');
+    res.sendTemplate('entries/account/sign-up');
 });
 
 router.post('/sign-in', Account.notSignedIn, (req, res) => {
     const { 
-        'Username or Email': username,
-        'Password': password
+        username,
+        password
     } = req.body;
 
     const account = Account.fromUsername(username);
@@ -58,12 +58,12 @@ router.post('/sign-in', Account.notSignedIn, (req, res) => {
 
 router.post('/sign-up', Account.notSignedIn, async(req, res) => {
     const {
-        'Username': username,
-        'Password': password,
-        'Confirm Password': confirmPassword,
-        'Email': email,
-        'First Name': firstName,
-        'Last Name': lastName
+        username,
+        password,
+        confirmPassword,
+        email,
+        firstName,
+        lastName
     } = req.body;
 
     if (password !== confirmPassword) return Status.from('account:password-mismatch', req).send(res);

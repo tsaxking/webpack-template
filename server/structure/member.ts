@@ -106,8 +106,8 @@ export class Member {
         return 'pending';
     }
 
-    static async get(username: string): Promise<Member|null> {
-        const data = await DB.get('member/from-username', {
+    static get(username: string): Member|null {
+        const data = DB.get('member/from-username', {
             username
         });
         if (!data) return null;
@@ -115,8 +115,8 @@ export class Member {
         return new Member(data);
     }
 
-    static async getMembers(): Promise<Member[]> {
-        const membersInfo = await DB.all('member/all');
+    static getMembers(): Member[] {
+        const membersInfo = DB.all('member/all');
 
         return membersInfo.map(m => new Member(m));
     }

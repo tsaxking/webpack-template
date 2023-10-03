@@ -356,13 +356,25 @@ export const messages: {
     code: 200,
     instructions: ''
 },
-    'spam': {
+    'spam:detected': {
     message: 'Spam detected',
     color: 'danger',
     code: 400,
     instructions: 'Please try again.'
 },
-    'unknown': {
+    'test:fail': {
+    message: 'This test failed',
+    color: 'danger',
+    code: 400,
+    instructions: ''
+},
+    'test:success': {
+    message: 'This test was successful',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'unknown:error': {
     message: 'Unknown error',
     color: 'danger',
     code: 500,
@@ -426,6 +438,8 @@ export type StatusId = 'account:already-logged-in'
 	| 'skills:invalid-skill'
 	| 'skills:not-found'
 	| 'skills:removed'
-	| 'spam'
-	| 'unknown'
+	| 'spam:detected'
+	| 'test:fail'
+	| 'test:success'
+	| 'unknown:error'
 ;

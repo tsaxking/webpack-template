@@ -1,9 +1,6 @@
-import { capitalize, toSnakeCase, fromCamelCase, fromSnakeCase } from "../../shared/text";
 import { sleep } from "../../shared/sleep";
 import { StatusJson } from "../../shared/status";
-// import CBS from "../submodules/custom-bootstrap/src/1-main/1-main";
-// import { CBS_Color } from "../submodules/custom-bootstrap/src/1-main/enums";
-
+import { notify } from "./notifications";
 
 export type RequestOptions = {
     headers?: {
@@ -18,6 +15,7 @@ export type StreamOptions = {
         [key: string]: string;
     }
 };
+
 
 
 export class ServerRequest {
@@ -123,7 +121,7 @@ export class ServerRequest {
                             const response = JSON.parse(xhr.responseText);
                             if (response.status) {
                                 // this is a notification
-                                ServerRequest.notify(response);
+                                notify(response);
                             }
                         } catch (e) {
     
@@ -190,7 +188,7 @@ export class ServerRequest {
 
                     if (data?.status) {
                         // this is a notification
-                        ServerRequest.notify(data);
+                        notify(data);
                     }
 
 
@@ -210,36 +208,5 @@ export class ServerRequest {
                     rej(e);
                 });
         });
-    }
-
-    private static notify(data: StatusJson) {
-        const status = capitalize(fromCamelCase(data.title));
-
-        let message = `${status}: ${data.message}`;
-
-        if(data.data) {
-            for (const [key, value] of Object.entries(data.data)) {
-                message += `\n${key}: ${value}`;
-            }
-        }
-
-        // const t = CBS.createElement('toast', {
-        //     dismiss: 5000,
-        //     title: data.title,
-        //     body: message,
-        //     color: data.status as CBS_Color
-        // });
-
-        switch(data.status) {
-            case 'danger':
-            case 'success':
-                // t.subcomponents.body.addClass('text-light');
-                break;
-            default:
-                // t.subcomponents.body.addClass('text-dark');
-                break;
-        }
-
-        // t.show();
     }
 }

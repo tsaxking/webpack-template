@@ -10,6 +10,9 @@ import { Status } from "./utilities/status.ts";
 import { homeBuilder, navBuilder } from "./utilities/page-builder.ts";
 import Account from "./structure/accounts.ts";
 import { builder } from "./bundler.ts";
+import { router as admin } from './routes/admin.ts';
+import { router as account } from './routes/account.ts';
+import Role from "./structure/roles.ts";
 
 const port = +env.PORT || 3000;
 const domain = env.DOMAIN || `http://localhost:${port}`;
@@ -34,8 +37,9 @@ builder.on('build', () => {
 
 builder.on('error', (e) => log('Build error:', e));
 
-app.get('/app', (req, res, next) => {
-    res.redirect(env.APP_DOMAIN);
+
+app.post('/test', (req, res, next) => {
+    res.sendStatus('test:success');
 });
 
 app.use('/*', (req, res, next) => {
@@ -121,10 +125,10 @@ app.post('/*', (req, res, next) => {
 
 app.post('/*', emailValidation(['email', 'confirmEmail'], {
     onspam: (req, res, next) => {
-        Status.from('spam', req).send(res);
+        res.sendStatus('spam:detected');
     },
     onerror: (req, res, next) => {
-        Status.from('spam', req).send(res);
+        res.sendStatus('unknown:error');
     }
 }));
 
@@ -153,6 +157,8 @@ app.get('/test/:page', (req, res, next) => {
 });
 
 
+app.route('/account', account);
+
 app.use('/*', Account.autoSignIn(env.AUTO_SIGN_IN));
 
 app.get('/*', (req, res, next) => {
@@ -175,11 +181,8 @@ app.get('/home', (req, res, next) => {
 
 // routing
 
-import { router as admin } from './routes/admin.ts';
-import { router as account } from './routes/account.ts';
 
 app.route('/admin', admin);
-app.route('/account', account);
 
 
 
@@ -194,149 +197,15 @@ app.route('/account', account);
 
 
 
+app.get('/user/*', Account.isSignedIn,  (req, res, next) => {
+    res.sendTemplate('entries/user');
+});
+
+app.get('/admin/*', Role.allowRoles('admin'), (req, res, next) => {
+    res.sendTemplate('entries/admin');
+});
 
 
-
-
-
-type Link = {
-    name: string;
-    html: string;
-    icon: string;
-    pathname: string;
-    scripts: string[];
-    styles: string[];
-    keywords: string[];
-    description: string;
-    screenInfo: {
-        size: string;
-        color: string
-    };
-    prefix: string;
-    display: boolean;
-    permission?: string;
-};
-
-type Page = {
-    name: string;
-    links: Link[];
-    display: boolean;
-};
-
-
-const getBlankTemplate = (page: string): ServerFunction => {
-    return async (req: Req, res: Res, _next: Next) => {
-        const { page: _requestedPage } = req.params;
-
-        // const permissions = await req.session.account?.getPermissions();
-
-        // if (permissions?.permissions.includes('logs')) {
-        //     req.session.getSocket(req)?.join('logs');
-        // }
-
-
-        const pages = await getJSON('pages/' + page) as Page[];
-
-        // const links = pages.map(p => p.links).some(linkList => linkList.some(l =>  l.pathname === req.originalUrl));
-
-        // if (!links) return res.redirect(`/${page}` + pages[0].links[0].pathname);
-
-        const cstr = {
-            pages: (await Promise.all(pages.map(async p => {
-                return Promise.all(p.links.map(async l => {
-                    if (l.display === false) return;
-                    return {
-                        title: l.name,
-                        content: await getTemplate(`dashboards/${page}/` + l.html),
-                        lowercaseTitle: l.name.toLowerCase().replace(/ /g, '-'),
-                        prefix: l.prefix,
-                        year: new Date().getFullYear()
-                    }
-                }))
-            }))).flat(Infinity).filter(Boolean),
-
-
-            navSections: pages.flatMap(page => {
-                return [
-                    {
-                        navScript: {
-                            title: page.name,
-                            type: 'navTitle'
-                        }
-                    },
-                    ...page.links.map(l => {
-                        if (l.display === false) return;
-                        return {
-                            navScript: {
-                                name: l.name,
-                                type: 'navLink',
-                                pathname: l.pathname,
-                                icon: l.icon,
-                                lowercaseTitle: l.name.toLowerCase().replace(/ /g, '-'),
-                                prefix: l.prefix
-                            }
-                        }
-                    })
-                ];
-            }).flat(Infinity).filter(Boolean),
-
-
-            description: 'sfzMusic Dashboard',
-            keywords: 'sfzMusic, Dashboard',
-            offcanvas: true,
-            navbar: await navBuilder(req.url, true),
-            year: new Date().getFullYear(),
-            script: await getTemplate('dashboards/' + page + '/script'),
-        };
-
-        const html = await getTemplate('dashboard-index', cstr);
-        res.status(200).send(html);
-    };
-};
-
-
-
-// app.get('/member/:page', Account.isSignedIn, Member.isMember, getBlankTemplate('member'));
-// app.get('/instructor/:page', Account.isSignedIn, getBlankTemplate('instructor'));
-// app.get('/admin/:page', Role.allowRoles('admin'), getBlankTemplate('admin'));
-// app.get('/student/:page', Account.isSignedIn, getBlankTemplate('student'));
-// app.get('/library/:page', Account.isSignedIn, getBlankTemplate('library'));
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-type Log = {
-    date: number,
-    duration: number,
-    ip?: string|null,
-    method: string,
-    url: string,
-    status?: number,
-    userAgent?: string,
-    body: string,
-    params: string,
-    query: string
-}
 
 
 
@@ -351,9 +220,9 @@ app.final((req, res, next) => {
         return res.sendStatus('not-found');
     }
 
+    req.session.save();
 
-    // req.session.save();
-    const csvObj: Log = {
+    serverLog('request', {
         date: Date.now(),
         duration: Date.now() - req.start,
         ip: req.session?.ip,
@@ -371,17 +240,5 @@ app.final((req, res, next) => {
         })()) : '',
         params: JSON.stringify(req.params),
         query: JSON.stringify(req.query)
-    };
-
-    serverLog('request', csvObj);
+    });
 });
-
-
-
-
-
-// const handler = (req: Request): Response => {
-//     return new Response('Hello World!');
-// }
-
-// Deno.serve({ port: 3000 }, handler);

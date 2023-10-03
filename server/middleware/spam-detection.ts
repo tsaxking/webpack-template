@@ -1,6 +1,7 @@
 // const SpamScanner = require('spamscanner');
 import { validate } from 'npm:deep-email-validator';
 import { Req, Res, Next, ServerFunction } from "../structure/app.ts";
+import { log } from "../utilities/terminal-logging.ts";
 export type Options = {
     onspam?: (req: Req, res: Res, next: Next) => void;
     onerror?: (req: Req, res: Res, next: Next) => void;
@@ -39,7 +40,7 @@ export type Options = {
 
 export const emailValidation = (keys: string[], options: Options = {}): ServerFunction => {
     return (req: Req, res: Res, next: Next) => {
-        const arr = keys.map(key => req.body[key]);
+        const arr = keys.map(key => req.body[key]).filter(Boolean);
 
         if (!arr.length) return next();    
 

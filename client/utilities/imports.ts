@@ -5,7 +5,6 @@ import '../styles/style.css';
 
 // bootstrap
 import 'bootstrap/dist/css/bootstrap.css';
-import 'bootstrap/dist/js/bootstrap.bundle.js';
 
 // material icons
 import 'material-icons/iconfont/material-icons.css';

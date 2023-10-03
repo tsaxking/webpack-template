@@ -7,7 +7,7 @@ import { log } from "../utilities/terminal-logging.ts";
 import { Session } from "./sessions.ts";
 import stack from 'npm:callsite';
 import { Colors } from "../utilities/colors.ts";
-import { StatusCode, StatusId } from "../../shared/status.ts";
+import { StatusCode, StatusId } from "../../shared/status-messages.ts";
 import { Status } from "../utilities/status.ts";
 import { getTemplateSync } from "../utilities/files.ts";
 import { parseCookie } from "../../shared/cookie.ts";
@@ -475,6 +475,8 @@ export class App {
             } else {
                 Session.get(cookie) || Session.newSession(req, res);
             }
+
+            req.body = await req.req.json().catch(() => {});
 
             const runFn = async (i: number) => {
                 const fn = fns[i] as ServerFunctionHandler | undefined;

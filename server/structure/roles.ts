@@ -63,8 +63,8 @@ export default class Role {
     }
 
 
-    async getPermissions(): Promise<Permission[]> {
-        const data = await DB.all('permissions/from-role', {
+    getPermissions(): Permission[] {
+        const data = DB.all('permissions/from-role', {
             role: this.name
         });
         return data.map(d => d.permission) as Permission[];
