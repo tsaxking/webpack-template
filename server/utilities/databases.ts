@@ -293,43 +293,6 @@ type Queries = {
     ]
 };
 
-const queries: Map<keyof Queries, Statement> = new Map();
-
-
-const openDir = (dir: string) => {
-    const filesAndDirs = Deno.readDirSync(dir);
-
-    for (const f of filesAndDirs) {
-        if (f.name.startsWith('--')) continue;
-
-        if (f.isDirectory) {
-            openDir(path.resolve(dir, f.name));
-        } else {
-            const file = Deno.readFileSync(path.resolve(dir, f.name));
-            
-            const decoder = new TextDecoder('utf-8');
-            const data = decoder.decode(file);
-
-            const relative = path.relative(
-                path.resolve(__root, './storage/db/queries/'), 
-                path.resolve(dir, f.name.split('.').slice(0, -1).join('.'))
-            );
-
-            try {
-                queries.set(
-                    relative as keyof Queries, 
-                    MAIN.prepare(data)
-                );
-            } catch (e) {
-                log('Error in query', relative);
-                throw e;
-            }
-        }
-    }
-}
-
-
-openDir(path.resolve(__root, './storage/db/queries/'));
 
 
 
