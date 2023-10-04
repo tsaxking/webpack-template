@@ -1,13 +1,11 @@
 import env, { __root } from "./utilities/env.ts";
 import { log } from "./utilities/terminal-logging.ts";
 import { App, ResponseStatus } from "./structure/app.ts";
-import { Req, Res, Next, ServerFunction } from "./structure/app.ts";
 import { Session } from "./structure/sessions.ts";
 import * as path from 'node:path';
-import { emailValidation } from './middleware/spam-detection.ts';
-import { getJSON, getJSONSync, getTemplate, log as serverLog } from "./utilities/files.ts";
-import { Status } from "./utilities/status.ts";
-import { homeBuilder, navBuilder } from "./utilities/page-builder.ts";
+// import { emailValidation } from './middleware/spam-detection.ts';
+import { getJSONSync, log as serverLog } from "./utilities/files.ts";
+import { homeBuilder } from "./utilities/page-builder.ts";
 import Account from "./structure/accounts.ts";
 import { builder } from "./bundler.ts";
 import { router as admin } from './routes/admin.ts';
@@ -47,25 +45,18 @@ app.use('/*', (req, res, next) => {
     next();
 });
 
-
 app.static('/client', path.resolve(__root, './client'));
 app.static('/public', path.resolve(__root, './public'));
 app.static('/dist', path.resolve(__root, './dist'));
 app.static('/uploads', path.resolve(__root, './uploads'));
 
-
 app.use('/*', Session.middleware());
-
-
 
 app.post('/socket-url', (req, res, next) => {
     res.json({
         url: env.SOCKET_DOMAIN
     });
 });
-
-
-
 
 app.get('/favicon.ico', (req, res) => {
     res.sendFile(path.resolve(__root, './public/pictures/logo-square.png'));
@@ -122,16 +113,16 @@ app.post('/*', (req, res, next) => {
 });
 
 
-
-app.post('/*', emailValidation(['email', 'confirmEmail'], {
-    onspam: (req, res, next) => {
-        res.sendStatus('spam:detected');
-    },
-    // onerror: (req, res, next) => {
-    //     // res.sendStatus('unknown:error');
-    //     next();
-    // }
-}));
+// TODO: There is an error with the email validation middleware
+// app.post('/*', emailValidation(['email', 'confirmEmail'], {
+//     onspam: (req, res, next) => {
+//         res.sendStatus('spam:detected');
+//     },
+//     // onerror: (req, res, next) => {
+//     //     // res.sendStatus('unknown:error');
+//     //     next();
+//     // }
+// }));
 
 
 const homePages = getJSONSync('pages/home') as string[];
@@ -181,8 +172,6 @@ app.get('/home', (req, res, next) => {
 
 
 // routing
-
-
 app.route('/admin', admin);
 
 
@@ -214,12 +203,8 @@ app.get('/admin/*', Role.allowRoles('admin'), (req, res, next) => {
 
 
 
-app.final((req, res, next) => {
+app.final((req, res) => {
     log('Final function');
-
-    if (!res.fulfilled) {
-        return res.sendStatus('not-found');
-    }
 
     req.session.save();
 
@@ -242,4 +227,8 @@ app.final((req, res, next) => {
         params: JSON.stringify(req.params),
         query: JSON.stringify(req.query)
     });
+
+    if (!res.fulfilled) {
+        return res.sendStatus('page:not-found', { page: req.url });
+    }
 });

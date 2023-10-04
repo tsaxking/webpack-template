@@ -20,7 +20,7 @@ uploads/
 static/build/
 */scss/*.css
 ignore-list.txt
-/logs/*.csv
+*/logs/*.csv
 *.db
 
 # package.json

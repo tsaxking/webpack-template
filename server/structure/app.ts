@@ -11,7 +11,7 @@ import { StatusCode, StatusId } from "../../shared/status-messages.ts";
 import { Status } from "../utilities/status.ts";
 import { getTemplateSync } from "../utilities/files.ts";
 import { parseCookie } from "../../shared/cookie.ts";
-import { deleteCookie, setCookie, getCookies } from "https://deno.land/std/http/cookie.ts";
+import { deleteCookie, setCookie, getCookies } from "https://deno.land/std@0.203.0/http/cookie.ts";
 
 const fileTypeHeaders = {
     js: 'application/javascript',
@@ -321,6 +321,7 @@ export type CookieOptions = {
 
 export class Route {
     public readonly serverFunctions: ServerFunctionHandler[] = [];
+    public readonly finalFunctions: FinalFunction[] = [];
 
     get(path: string, ...callbacks: ServerFunction[]) {
         this.serverFunctions.push(...callbacks.map(cb => ({
@@ -363,6 +364,11 @@ export class Route {
         })));
         return this;
     }
+
+    final(callback: FinalFunction) {
+        this.finalFunctions.push(callback);
+        return this;
+    }
 }
 
 enum RequestMethod {
@@ -375,6 +381,8 @@ enum RequestMethod {
 export type Next = () => void;
 
 export type ServerFunction = (req: Req, res: Res, next: Next) => any;
+export type FinalFunction = (req: Req, res: Res) => any;
+
 type ServerFunctionHandler = {
     path: string;
     callback: ServerFunction;
@@ -392,6 +400,9 @@ type AppOptions = {
 export class App {
     public readonly io: Server;
     public readonly server: Deno.Server;
+    // private readonly routes: {
+    //     [key: string]: Route
+    // } = {};
 
     constructor(public readonly port: number, public readonly domain: string, options?: AppOptions) {
         this.server = Deno.serve({ port: this.port }, (req: Request, info: Deno.ServeHandlerInfo) => this.handler(req, info));
@@ -434,6 +445,7 @@ export class App {
         return new Promise<Response>(async (resolve, reject) => {
             const url = new URL(denoReq.url, this.domain);
 
+            const finals = this.finalFunctions;
 
             const fns = this.serverFunctions.filter(sf => {
                 // get rid of query
@@ -458,12 +470,6 @@ export class App {
                 return test;
             });
 
-            fns.push(...this.finalFunctions.map(fn => ({
-                path: '',
-                callback: fn,
-                method: RequestMethod.GET
-            })));
-
             // log(`[${denoReq.method}] ${denoReq.url}`, fns);
 
             const req = new Req(denoReq, info, this.io);
@@ -479,52 +485,61 @@ export class App {
             req.body = await req.req.json().catch(() => {});
 
             const runFn = async (i: number) => {
-                // log('Running fn', i +'/'+ fns.length);
+                return new Promise<void>(async (resolve) => {
+                    // log('Running fn', i +'/'+ fns.length);
 
-                const fn = fns[i] as ServerFunctionHandler | undefined;
+                    const fn = fns[i] as ServerFunctionHandler | undefined;
 
-                if (!fn) {
-                    if (!res.fulfilled) {
-                        // there was no response
-                        return res.reject?.(`No response to ${req.method}: ${req.pathname}`);
+                    if (!fn) {
+                        if (!res.fulfilled) {
+                            // there was no response
+                            resolve();
+                            return res.reject?.(`No response to ${req.method}: ${req.pathname}`);
+                        }
+
+                        // if the request was responded to, then the promise was resolved already.
+                        return resolve();
                     }
 
-                    // if the request was responded to, then the promise was resolved already.
-                    return;
-                }
+                    let ranNext = false;
 
-                let ranNext = false;
+                    req.params = extractParams(fn.path, req.pathname);
 
-                req.params = extractParams(fn.path, req.pathname);
+                    const next = (): void => {
+                        runFn(i + 1);
+                        ranNext = true;
+                    };
 
-                const next = (): void => {
-                    runFn(i + 1);
-                    ranNext = true;
-                };
-                
-                
-                try {
-                    await fn.callback(req, res, next);
-                } catch (e) {
-                    log(`Error on callback [${req.method}] ${req.url}`, e);
-                }
-                if (!ranNext && !res.fulfilled && fns[i + 1]) {
-                    const site = stack().map((site: any) => {
-                        return site.getFileName() + ':' + site.getLineNumber();
-                    });
-                    const str = site.filter((t: string) => t!=='null:null').map((t: string) => {
-                        t = t.replace('file://', '').replace('file:', '');
-                        t = PATH.relative(__root, t);
-                        t = `\n\t${Colors.FgYellow}${t}${Colors.Reset}`
-                        return t;
-                    }).join('');
 
-                    log(`Request ${req.method}: ${req.pathname} was not resolved and did not call next() at ${str}`);
-                }
+                    try {
+                        await fn.callback(req, res, next);
+                    } catch (e) {
+                        log(`Error on callback [${req.method}] ${req.url}`, e);
+                    }
+                    if (!ranNext && !res.fulfilled && fns[i + 1]) {
+                        const site = stack().map((site: any) => {
+                            return site.getFileName() + ':' + site.getLineNumber();
+                        });
+                        const str = site.filter((t: string) => t!=='null:null').map((t: string) => {
+                            t = t.replace('file://', '').replace('file:', '');
+                            t = PATH.relative(__root, t);
+                            t = `\n\t${Colors.FgYellow}${t}${Colors.Reset}`
+                            return t;
+                        }).join('');
+
+                        log(`Request ${req.method}: ${req.pathname} was not resolved and did not call next() at ${str}`);
+                        resolve();
+                    }
+                });
             };
 
+
             try {
-                runFn(0);
+                runFn(0).then(() => {
+                    for (const fn of this.finalFunctions) {
+                        fn(req, res);
+                    }
+                });
 
                 await res.promise
                     .then((response: Response) => {
@@ -542,7 +557,7 @@ export class App {
     }
 
     private readonly serverFunctions: ServerFunctionHandler[] = [];
-    private readonly finalFunctions: ServerFunction[] = [];
+    private readonly finalFunctions: FinalFunction[] = [];
 
 
     static(path: string, filePath: string) {
@@ -591,11 +606,12 @@ export class App {
             callback: sf.callback,
             method: sf.method
         })));
+        // this.routes[path] = route;
         return this;
     }
 
 
-    final(callback: ServerFunction): App {
+    final(callback: FinalFunction): App {
         this.finalFunctions.push(callback);
         return this;
     }
