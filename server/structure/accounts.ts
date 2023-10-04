@@ -2,9 +2,7 @@ import { DB } from "../utilities/databases.ts";
 import crypto from "node:crypto";
 import { uuid } from "../utilities/uuid.ts";
 import Role from "./roles.ts";
-import { NextFunction, Request, Response } from "npm:express";
 import { Status } from "../utilities/status.ts";
-import { validate } from 'npm:deep-email-validator';
 import { Email, EmailOptions, EmailType } from "../utilities/email.ts";
 import Filter from 'npm:bad-words';
 import { Member } from "./member.ts";
@@ -12,67 +10,8 @@ import { Account as AccountObject, MembershipStatus, Member as MemberObj, Skill,
 import env from "../utilities/env.ts";
 import { deleteUpload } from "../utilities/files.ts";
 import { Req, Res, Next, ServerFunction } from './app.ts';
-import { log } from "../utilities/terminal-logging.ts";
+import { AccountStatusId, RolesStatusId } from "../../shared/status-messages.ts";
 
-
-
-
-export enum AccountStatus {
-    success = 'success',
-    invalidUsername = 'invalidUsername',
-    invalidPassword = 'invalidPassword',
-    invalidEmail = 'invalidEmail',
-    invalidName = 'invalidName',
-    usernameTaken = 'usernameTaken',
-    emailTaken = 'emailTaken',
-    notFound = 'notFound',
-    created = 'created',
-    removed = 'removed',
-    checkEmail = 'checkEmail',
-    emailChangeExpired = 'emailChangeExpired',
-
-    // verification
-    alreadyVerified = 'alreadyVerified',
-    notVerified = 'notVerified', 
-    verified = 'verified',
-    invalidVerificationKey = 'invalidVerificationKey',
-
-    // login
-    incorrectPassword = 'incorrectPassword',
-    incorrectUsername = 'incorrectUsername',
-    incorrectEmail = 'incorrectEmail',
-
-    unverified = 'unverified',
-
-
-    // roles
-    hasRole = 'hasRole',
-    noRole = 'noRole',
-    invalidRole = 'invalidRole',
-    roleAdded = 'roleAdded',
-    roleRemoved = 'roleRemoved',
-
-
-    // skills
-    hasSkill = 'hasRole',
-    noSkill = 'noRole',
-    invalidSkill = 'invalidRole',
-    skillAdded = 'roleAdded',
-    skillRemoved = 'roleRemoved',
-
-
-
-    // password change
-    passwordChangeSuccess = 'passwordChangeSuccess',  
-    passwordChangeInvalid = 'passwordChangeInvalid',
-    passwordChangeExpired = 'passwordChangeExpired',
-    passwordChangeUsed = 'passwordChangeUsed',
-
-
-
-    invalidBio = 'invalidBio',
-    invalidTitle = 'invalidTitle',
-}
 
 export enum AccountDynamicProperty {
     firstName = 'firstName',
@@ -250,17 +189,17 @@ export default class Account {
         return valid;
     }
 
-    static async create(username: string, password: string, email: string, firstName: string, lastName: string): Promise<AccountStatus> {
-        if (Account.fromUsername(username)) return AccountStatus.usernameTaken;
-        if (Account.fromEmail(email)) return AccountStatus.emailTaken;
+    static async create(username: string, password: string, email: string, firstName: string, lastName: string): Promise<AccountStatusId> {
+        if (Account.fromUsername(username)) return 'username-taken';
+        if (Account.fromEmail(email)) return 'email-taken';
 
         const { valid } = Account;
 
-        if (!valid(username)) return AccountStatus.invalidUsername;
-        if (!valid(password)) return AccountStatus.invalidPassword;
-        if (!valid(email)) return AccountStatus.invalidEmail;
-        if (!valid(firstName)) return AccountStatus.invalidName;
-        if (!valid(lastName)) return AccountStatus.invalidName;
+        if (!valid(username)) return 'invalid-username';
+        if (!valid(password)) return 'invalid-password';
+        if (!valid(email)) return 'invalid-email';
+        if (!valid(firstName)) return 'invalid-first-name';
+        if (!valid(lastName)) return 'invalid-last-name';
 
         // log('Validating', email);
 
@@ -306,20 +245,20 @@ export default class Account {
 
         a.sendVerification();
 
-        return AccountStatus.created;
+        return 'created';
     }
 
     // static async reject(username: string): Promise<AccountStatus> {}
 
-    static delete(id: string): AccountStatus {
+    static delete(id: string): AccountStatusId {
         const account = Account.fromId(id);
-        if (!account) return AccountStatus.notFound;
+        if (!account) return 'not-found';
 
         DB.run('account/delete', {
             id
         });
 
-        return AccountStatus.removed;
+        return 'removed';
     }
 
 
@@ -378,14 +317,14 @@ export default class Account {
 
 
 
-    verify() {
+    verify(): AccountStatusId {
         if (this.emailChange) {
             const { email, date } = this.emailChange;
             const now = Date.now();
 
             // 30 minutes
             if (now - date > 1000 * 60 * 30) {
-                return AccountStatus.emailChangeExpired;
+                return 'email-change-expired';
             }
 
             DB.run('account/change-email', {
@@ -395,7 +334,7 @@ export default class Account {
             this.email = email;
             delete this.emailChange;
 
-            return AccountStatus.verified;
+            return 'verified';
         }
 
 
@@ -405,7 +344,7 @@ export default class Account {
         this.verified = 1;
         delete this.verification;
 
-        return AccountStatus.verified;
+        return 'verified';
     }
 
 
@@ -477,40 +416,36 @@ export default class Account {
         }).filter(Boolean) as Role[];
     }
 
-    addRole(...roles: string[]): AccountStatus[] {
-        return roles.map((role) => {
-            const r = Role.fromName(role);
-            if (!r) return AccountStatus.noRole;
+    addRole(role: string): AccountStatusId|RolesStatusId {
+        const r = Role.fromName(role);
+        if (!r) return 'not-found';
 
-            if ((this.getRoles()).find(_r => _r.name === r.name)) {
-                return AccountStatus.hasRole;
-            }
+        if ((this.getRoles()).find(_r => _r.name === r.name)) {
+            return 'has-role';
+        }
 
-            DB.run('account/add-role', {
-                accountId: this.id,
-                roleId: r.id
-            });
-
-            return AccountStatus.roleAdded;
+        DB.run('account/add-role', {
+            accountId: this.id,
+            roleId: r.id
         });
+
+        return 'role-added';
     }
 
-    removeRole(...role: string[]): AccountStatus[] {
-        return role.map((role) => {
-            const r = Role.fromName(role);
-            if (!r) return AccountStatus.noRole;
+    removeRole(role: string): AccountStatusId|RolesStatusId {
+        const r = Role.fromName(role);
+        if (!r) return 'not-found';
 
-            if (!(this.getRoles()).find(_r => _r.name === r.name)) {
-                return AccountStatus.noRole;
-            }
+        if (!(this.getRoles()).find(_r => _r.name === r.name)) {
+            return 'no-role';
+        }
 
-            DB.run('account/remove-role', {
-                accountId: this.id,
-                roleId: r.id
-            });
-
-            return AccountStatus.roleRemoved;
+        DB.run('account/remove-role', {
+            accountId: this.id,
+            roleId: r.id
         });
+
+        return 'role-removed';
     }
 
 
@@ -518,18 +453,18 @@ export default class Account {
 
 
 
-    async changePicture(id: string) {
+    changePicture(id: string): AccountStatusId {
         if (this.picture) {
             deleteUpload(this.picture);
         }
 
-        await DB.run('account/update-picture', {
+        DB.run('account/update-picture', {
             id: this.id,
             picture: id
         });
         this.picture = id;
 
-        return AccountStatus.success;
+        return 'picture-updated';
     }
 
 
@@ -541,9 +476,14 @@ export default class Account {
 
 
 
-    async change(property: AccountDynamicProperty, to: string): Promise<AccountStatus> {
+    change(property: AccountDynamicProperty, to: string): AccountStatusId {
         if (property !== AccountDynamicProperty.picture &&!Account.valid(to)) {
-            return AccountStatus.invalidName;
+            switch (property) {
+                case AccountDynamicProperty.firstName:
+                    return 'invalid-first-name';
+                case AccountDynamicProperty.lastName:
+                    return 'invalid-last-name';
+            }
         }
 
         const query = `
@@ -552,17 +492,17 @@ export default class Account {
             WHERE username = ?        
         `;
 
-        await DB.unsafe.run(query, to, this.username);
+        DB.unsafe.run(query, to, this.username);
 
         this[property] = to;
 
-        return AccountStatus.success;
+        return 'updated';
     }
 
 
-    changeUsername(username: string): AccountStatus {
+    changeUsername(username: string): AccountStatusId {
         const a = Account.fromUsername(username);
-        if (a) return AccountStatus.usernameTaken;
+        if (a) return 'username-taken';
 
         DB.run('account/change-username', {
             id: this.id,
@@ -571,7 +511,7 @@ export default class Account {
 
         this.username = username;
 
-        return AccountStatus.success;
+        return 'username-changed';
     }
 
 
@@ -585,10 +525,10 @@ export default class Account {
     }
 
 
-    changeEmail(email: string) {
+    changeEmail(email: string): AccountStatusId {
         const exists = Account.fromEmail(email);
 
-        if (exists) return AccountStatus.emailTaken;
+        if (exists) return 'email-taken';
 
         this.emailChange = {
             email,
@@ -605,7 +545,7 @@ export default class Account {
 
         this.sendVerification();
 
-        return AccountStatus.checkEmail;
+        return 'check-email';
     }
 
     requestPasswordChange(): string {
@@ -619,8 +559,8 @@ export default class Account {
         return key;
     }
 
-    changePassword(key: string, password: string): AccountStatus {
-        if (key !== this.passwordChange) return AccountStatus.passwordChangeInvalid;
+    changePassword(key: string, password: string): AccountStatusId {
+        if (key !== this.passwordChange) return 'invalid-password-reset-key'
 
         const { salt, key: newKey } = Account.newHash(password);
         DB.run('account/change-password', {
@@ -633,7 +573,7 @@ export default class Account {
         this.salt = salt;
         this.passwordChange = null;
 
-        return AccountStatus.passwordChangeSuccess;
+        return 'password-reset-success';
     }
 
 
@@ -642,9 +582,9 @@ export default class Account {
         return Math.min(...roles.map((r) => r.rank));
     }
 
-    unverify() {
+    unverify(): AccountStatusId {
         DB.run('account/unverify', { id: this.id });
-        return AccountStatus.unverified;
+        return 'unverified';
     }
 
 

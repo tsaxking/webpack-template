@@ -1,6 +1,8 @@
 import { validCodes } from "../shared/status.ts";
 import { messages, StatusCode, StatusColor, StatusId } from "../shared/status-messages.ts";
 import { Colors } from "../server/utilities/colors.ts";
+import { capitalize, fromSnakeCase } from "../shared/text.ts";
+import Filter from 'npm:bad-words';
 
 
 
@@ -42,14 +44,14 @@ export const addStatus = (data: {
     message: string;
     color: string;
     code: StatusCode;
-    instructions?: string;
+    instructions: string;
 }) => {
     const value = data.group + ':' + data.name as StatusId;
     const obj = {
         message: data.message,
         color: data.color as StatusColor,
         code: data.code as StatusCode,
-        instructions: data.instructions || ''
+        instructions: data.instructions
     };
 
     if (messages[value]) throw new Error(`Status ${Colors.FgGreen}${value}${Colors.Reset} already exists`);
@@ -74,6 +76,13 @@ export const addStatus = (data: {
 }`;
     }).join(',\n');
 
+    const groups = Object.keys(messages).reduce((acc, key) => {
+        if (!acc[key.split(':')[0]]) acc[key.split(':')[0]] = [];
+        acc[key.split(':')[0]].push(key.split(':')[1]);
+        return acc;
+    }, {
+    } as any);
+
 
     const file = Deno.readFileSync('./shared/status-messages.ts');
     const decoder = new TextDecoder();
@@ -81,7 +90,7 @@ export const addStatus = (data: {
 
     const [, end] = decoded.split('export type StatusId =');
 
-    let ids = end.split('|').map(i => i.trim().replace(';', '').replace(/\n/g, ''));
+    let ids = end.split(';')[0].split('|').map(i => i.trim().replace(';', '').replace(/\n/g, ''));
 
     ids.push(`'${value}'`);
 
@@ -112,7 +121,13 @@ export const messages: {
 ${str}
 };
 
-export type StatusId = ${ids.join('\n\t| ')}\n;`;
+export type StatusId = ${ids.join('\n\t| ')}\n;
+
+${Object.keys(groups).map(key => {
+        return `export type ${capitalize(fromSnakeCase(key))}StatusId = ${groups[key].map((i: string) => `'${i}'`).join('\n\t| ')};`
+    }
+).join('\n\n\n')}
+`;
 
     Deno.writeFileSync('./shared/status-messages.ts', new TextEncoder().encode(newFile));
 
@@ -131,20 +146,31 @@ const repeatPrompt = (message: string, original?: string, validate?: (data: stri
 
 
 export const addStatusPrompt = () => {
-    const group = repeatPrompt('Status group');
-    const name = repeatPrompt('Status name');
-    const message = repeatPrompt('Status message');
+    const allowedCharacters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_';
+
+    const parse = (str: string) => str.trim().toLowerCase().split('').filter(i => allowedCharacters.includes(i)).join('');
+    const filter = (str: string): boolean => {
+        if (str.length < 3) return false;
+        const filter = new Filter();
+        const filtered = filter.clean(str);
+        if (filtered !== str) return false;
+        return true;
+    }
+
+    const group = repeatPrompt('Status group', undefined, filter);
+    const name = repeatPrompt('Status name', undefined, filter);
+    const message = repeatPrompt('Status message', undefined, filter);
     const color = repeatPrompt('Status color', undefined, (i) => ['success', 'danger', 'warning', 'info'].includes(i));
     const code = repeatPrompt('Status code', undefined, (i) => validCodes.includes(+i as StatusCode));
-    const instructions = prompt('Status instructions:') || undefined;
+    const instructions = prompt('Status instructions:') || '';
 
     addStatus({
-        group,
-        name,
-        message,
+        group: parse(group),
+        name: parse(name),
+        message: message,
         color,
         code: +code as StatusCode,
-        instructions
+        instructions: parse(instructions)
     });
 };
 

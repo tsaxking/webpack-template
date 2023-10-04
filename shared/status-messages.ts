@@ -38,17 +38,35 @@ export const messages: {
     code: 403,
     instructions: ''
 },
+    'account:check-email': {
+    message: 'An email was sent to the email address associated with this account',
+    color: 'info',
+    code: 200,
+    instructions: ''
+},
     'account:created': {
     message: 'Your account has been created.',
     color: 'success',
     code: 200,
     instructions: 'You will be redirected to the login page'
 },
+    'account:email-change-expired': {
+    message: 'Your email change expired',
+    color: 'danger',
+    code: 400,
+    instructions: 'Please retry changing your email address'
+},
     'account:email-taken': {
     message: 'That email is already taken.',
     color: 'danger',
     code: 400,
     instructions: 'Please try another email.'
+},
+    'account:has-role': {
+    message: 'This account has this role already',
+    color: 'danger',
+    code: 400,
+    instructions: ''
 },
     'account:incorrect-username-or-password': {
     message: 'Incorrect username or password.',
@@ -61,6 +79,18 @@ export const messages: {
     color: 'danger',
     code: 400,
     instructions: 'Please try another email.'
+},
+    'account:invalid-first-name': {
+    message: 'Your first name was invalid. It likely has characters that are not implemented yet.',
+    color: 'danger',
+    code: 400,
+    instructions: 'Please fix the first name'
+},
+    'account:invalid-last-name': {
+    message: 'Your last name was invalid. It likely has characters that are not implemented yet.',
+    color: 'danger',
+    code: 400,
+    instructions: 'Please fix the last name'
 },
     'account:invalid-password': {
     message: 'That password is invalid.',
@@ -98,6 +128,12 @@ export const messages: {
     code: 200,
     instructions: 'You will be redirected to the home page.'
 },
+    'account:no-role': {
+    message: 'This account does not have this role',
+    color: 'danger',
+    code: 400,
+    instructions: ''
+},
     'account:not-found': {
     message: 'Account not found.',
     color: 'danger',
@@ -128,8 +164,32 @@ export const messages: {
     code: 200,
     instructions: 'Please follow the instructions in the email to reset your password.'
 },
+    'account:password-reset-success': {
+    message: 'The password associated with this account has been updated',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'account:picture-updated': {
+    message: 'Added a picture to this account',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
     'account:removed': {
     message: 'Account has been removed.',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'account:role-added': {
+    message: 'Added a role to this account',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'account:role-removed': {
+    message: 'Removed a role from this account',
     color: 'success',
     code: 200,
     instructions: ''
@@ -148,6 +208,12 @@ export const messages: {
 },
     'account:updated': {
     message: 'Account has been updated.',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'account:username-changed': {
+    message: 'The username associated with this account has changed',
     color: 'success',
     code: 200,
     instructions: ''
@@ -248,12 +314,6 @@ export const messages: {
     code: 200,
     instructions: ''
 },
-    'not-found': {
-    message: 'Not found',
-    color: 'danger',
-    code: 404,
-    instructions: 'Please try again.'
-},
     'page:not-found': {
     message: 'Page not found',
     color: 'danger',
@@ -294,18 +354,6 @@ export const messages: {
     message: 'Role added',
     color: 'success',
     code: 200,
-    instructions: ''
-},
-    'roles:does-not-have-role': {
-    message: 'User does not have role',
-    color: 'danger',
-    code: 400,
-    instructions: ''
-},
-    'roles:has-role': {
-    message: 'User already has role',
-    color: 'danger',
-    code: 400,
     instructions: ''
 },
     'roles:invalid-role': {
@@ -385,25 +433,36 @@ export const messages: {
 export type StatusId = 'account:already-logged-in'
 	| 'account:cannot-edit-self'
 	| 'account:cannot-reject-verified'
+	| 'account:check-email'
 	| 'account:created'
+	| 'account:email-change-expired'
 	| 'account:email-taken'
+	| 'account:has-role'
 	| 'account:incorrect-username-or-password'
 	| 'account:invalid-email'
+	| 'account:invalid-first-name'
+	| 'account:invalid-last-name'
 	| 'account:invalid-password'
 	| 'account:invalid-password-reset-key'
 	| 'account:invalid-username'
 	| 'account:invalid-verification-key'
 	| 'account:logged-in'
 	| 'account:logged-out'
+	| 'account:no-role'
 	| 'account:not-found'
 	| 'account:not-logged-in'
 	| 'account:not-verified'
 	| 'account:password-mismatch'
 	| 'account:password-reset-request'
+	| 'account:password-reset-success'
+	| 'account:picture-updated'
 	| 'account:removed'
+	| 'account:role-added'
+	| 'account:role-removed'
 	| 'account:server-error'
 	| 'account:unverified'
 	| 'account:updated'
+	| 'account:username-changed'
 	| 'account:username-taken'
 	| 'account:verified'
 	| 'admin:invalid-key'
@@ -420,7 +479,6 @@ export type StatusId = 'account:already-logged-in'
 	| 'member:update-bio'
 	| 'member:update-resume'
 	| 'member:update-title'
-	| 'not-found'
 	| 'page:not-found'
 	| 'permissions:error'
 	| 'permissions:forbidden'
@@ -428,8 +486,6 @@ export type StatusId = 'account:already-logged-in'
 	| 'permissions:unauthorized'
 	| 'profanity'
 	| 'roles:added'
-	| 'roles:does-not-have-role'
-	| 'roles:has-role'
 	| 'roles:invalid-role'
 	| 'roles:not-found'
 	| 'roles:removed'
@@ -443,3 +499,94 @@ export type StatusId = 'account:already-logged-in'
 	| 'test:success'
 	| 'unknown:error'
 ;
+
+export type AccountStatusId = 'already-logged-in'
+	| 'cannot-edit-self'
+	| 'cannot-reject-verified'
+	| 'check-email'
+	| 'created'
+	| 'email-change-expired'
+	| 'email-taken'
+	| 'has-role'
+	| 'incorrect-username-or-password'
+	| 'invalid-email'
+	| 'invalid-first-name'
+	| 'invalid-last-name'
+	| 'invalid-password'
+	| 'invalid-password-reset-key'
+	| 'invalid-username'
+	| 'invalid-verification-key'
+	| 'logged-in'
+	| 'logged-out'
+	| 'no-role'
+	| 'not-found'
+	| 'not-logged-in'
+	| 'not-verified'
+	| 'password-mismatch'
+	| 'password-reset-request'
+	| 'picture-updated'
+	| 'removed'
+	| 'role-added'
+	| 'role-removed'
+	| 'server-error'
+	| 'unverified'
+	| 'updated'
+	| 'username-changed'
+	| 'username-taken'
+	| 'verified'
+	| 'password-reset-success';
+
+
+export type AdminStatusId = 'invalid-key';
+
+
+export type FilesStatusId = 'invalid'
+	| 'invalid-extension'
+	| 'too-large'
+	| 'uploaded';
+
+
+export type MemberStatusId = 'add-skill'
+	| 'cannot-manage'
+	| 'not-found'
+	| 'not-member'
+	| 'remove-skill'
+	| 'requested-sent'
+	| 'update-bio'
+	| 'update-resume'
+	| 'update-title';
+
+
+export type PageStatusId = 'not-found';
+
+
+export type PermissionsStatusId = 'error'
+	| 'forbidden'
+	| 'invalid'
+	| 'unauthorized';
+
+
+export type ProfanityStatusId = 'undefined';
+
+
+export type RolesStatusId = 'added'
+	| 'invalid-role'
+	| 'not-found'
+	| 'removed';
+
+
+export type SkillsStatusId = 'added'
+	| 'has-skill'
+	| 'invalid-skill'
+	| 'not-found'
+	| 'removed';
+
+
+export type SpamStatusId = 'detected';
+
+
+export type TestStatusId = 'fail'
+	| 'success';
+
+
+export type UnknownStatusId = 'error';

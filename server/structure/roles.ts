@@ -45,8 +45,8 @@ export default class Role {
         return new Role(r);
     }
 
-    static async all(): Promise<Role[]> {
-        const data = await DB.all('roles/all');
+    static all(): Role[] {
+        const data = DB.all('roles/all');
         return data.map(d => new Role(d)).sort((a, b) => a.rank - b.rank);
     }
 

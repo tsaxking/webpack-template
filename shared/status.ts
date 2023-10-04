@@ -27,6 +27,7 @@ export enum ServerCode {
     switchingProtocols = 101,
     processing = 102,
     earlyHints = 103,
+    
     ok = 200,
     created = 201,
     accepted = 202,
@@ -37,6 +38,7 @@ export enum ServerCode {
     multiStatus = 207,
     alreadyReported = 208,
     imUsed = 226,
+
     multipleChoices = 300,
     movedPermanently = 301,
     found = 302,
@@ -46,6 +48,7 @@ export enum ServerCode {
     unused = 306,
     temporaryRedirect = 307,
     permanentRedirect = 308,
+
     badRequest = 400,
     unauthorized = 401,
     paymentRequired = 402,
@@ -75,6 +78,7 @@ export enum ServerCode {
     tooManyRequests = 429,
     requestHeaderFieldsTooLarge = 431,
     unavailableForLegalReasons = 451,
+
     internalServerError = 500,
     notImplemented = 501,
     badGateway = 502,

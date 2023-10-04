@@ -2,8 +2,7 @@ import { Route } from "../structure/app.ts";
 import Account from "../structure/accounts.ts";
 import { Status } from "../utilities/status.ts";
 import Role from "../structure/roles.ts";
-import { StatusId } from "../../shared/status-messages.ts";
-import { log } from "../utilities/terminal-logging.ts";
+import { StatusId, messages } from "../../shared/status-messages.ts";
 
 export const router = new Route();
 
@@ -106,17 +105,17 @@ router.post('/verify-account', Account.allowPermissions('verify'), async(req, re
 
 
 
-router.post('/reject-account', Account.allowPermissions('verify'), async(req, res) => {
+router.post('/reject-account', Account.allowPermissions('verify'), (req, res) => {
     const { username } = req.body;
 
     if (username === req.session.account?.username) return res.sendStatus('account:cannot-edit-self')
 
-    const account = await Account.fromUsername(username);
+    const account = Account.fromUsername(username);
     if (!account) return res.sendStatus('account:not-found', { username });
 
     if (account.verified) return res.sendStatus('account:cannot-reject-verified');
 
-    const status = await Account.delete(username);
+    const status = Account.delete(username);
     res.sendStatus('account:' + status as StatusId, { username });
 });
 
@@ -125,7 +124,7 @@ router.post('/reject-account', Account.allowPermissions('verify'), async(req, re
 
 
 
-router.post('/get-pending-accounts', Account.allowPermissions('verify'), async(req, res) => {
+router.post('/get-pending-accounts', Account.allowPermissions('verify'), (_req, res) => {
     const accounts = Account.unverifiedAccounts();
     res.json(accounts.map(a => a.safe({
         roles: true,
@@ -142,8 +141,8 @@ router.post('/get-pending-accounts', Account.allowPermissions('verify'), async(r
 
 
 
-router.post('/get-all', async (req, res) => {
-    const accounts = await Account.all();
+router.post('/get-all', (_req, res) => {
+    const accounts = Account.all();
     res.json(accounts.map(a => a.safe));
 });
 
@@ -171,7 +170,7 @@ router.post('/unverify-account', Account.allowPermissions('verify'), (req, res) 
 
     const a = Account.fromUsername(username);
     if (!a) return res.sendStatus('account:not-found');
-    Status.from('account.' + a.unverify() as StatusId, req, { username }).send(res);
+    Status.from('account:' + a.unverify() as StatusId, req, { username }).send(res);
 });
 
 
@@ -186,7 +185,9 @@ router.post('/add-role', Account.allowPermissions('editRoles'), (req, res) => {
     const account = Account.fromUsername(username);
     if (!account) return res.sendStatus('account:not-found', { username });
 
-    res.sendStatus('account:' + account.addRole(role)[0] as StatusId, { username, role });
+    const status = account.addRole(role);
+    if (!messages[('role:' + status) as keyof typeof messages]) return res.sendStatus('account:' + status as StatusId, { username, role });
+    res.sendStatus('role:' + status as StatusId, { username, role });
 });
 
 
@@ -202,6 +203,7 @@ router.post('/remove-role', Account.allowPermissions('editRoles'), (req, res) =>
     const account = Account.fromUsername(username);
     if (!account) return res.sendStatus('account:not-found', { username });
 
-    const [status] = account.removeRole(role);
-    Status.from('account.' + status as StatusId, req, { username, role }).send(res);
+    const status = account.removeRole(role);
+    if (!messages[('role:' + status) as keyof typeof messages]) return res.sendStatus('account:' + status as StatusId, { username, role });
+    res.sendStatus('role:' + status as StatusId, { username, role });
 });
