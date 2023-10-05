@@ -1,7 +1,7 @@
 import { Route } from "../structure/app.ts";
 import { Member } from "../structure/member.ts";
 import Account from "../structure/accounts.ts";
-import { fileStream } from "../utilities/files.ts";
+import { fileStream } from "../middleware/stream.ts";
 
 
 
@@ -160,20 +160,20 @@ router.post('/change-title', (req, res) => {
 router.post('/change-resume', fileStream({
     maxFileSize: 1000000,
     extensions: ['.pdf']
-}), async (req, res) => {
-    const { file } = req;
+}), (req, res) => {
+    const [file] = req.files;
     const { username } = req.body;
 
     if (!file) {
-        return Status.from('file.invalidFile', req).send(res);
+        res.sendStatus('files:invalid');
     }
 
-    const m = await Member.get(username);
-    if (!m) return Status.from('member.memberNotFound', req).send(res);
+    const m = Member.get(username);
+    if (!m) return res.sendStatus('member:not-member');
 
-    await m.changeResume(file.id);
+    m.changeResume(file.id);
 
-    Status.from('member.changeResume', req, { username }).send(res);
+    res.sendStatus('member:update-resume');
     req.io.emit('change-resume', username, file.id);
 });
 
