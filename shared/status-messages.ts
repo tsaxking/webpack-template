@@ -260,14 +260,38 @@ export const messages: {
     code: 200,
     instructions: ''
 },
+    'member:accepted': {
+    message: 'This member was accepted',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
     'member:add-skill': {
     message: 'Skill added',
     color: 'success',
     code: 200,
     instructions: ''
 },
+    'member:already-member': {
+    message: 'This account is already a member',
+    color: 'warning',
+    code: 400,
+    instructions: ''
+},
     'member:cannot-manage': {
     message: 'Cannot manage member',
+    color: 'danger',
+    code: 400,
+    instructions: ''
+},
+    'member:invalid-request': {
+    message: 'Please send a valid request',
+    color: 'danger',
+    code: 400,
+    instructions: ''
+},
+    'member:membership-responded': {
+    message: 'This membership request has already been responded to',
     color: 'danger',
     code: 400,
     instructions: ''
@@ -284,14 +308,32 @@ export const messages: {
     code: 400,
     instructions: 'Please try again.'
 },
+    'member:rejected': {
+    message: 'This member has been rejected',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
     'member:remove-skill': {
     message: 'Skill removed',
     color: 'success',
     code: 200,
     instructions: ''
 },
-    'member:requested-sent': {
+    'member:request-sent': {
     message: 'Request sent',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'member:revoked': {
+    message: 'This membership has been revoked',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'member:status-updated': {
+    message: 'This member has been updated',
     color: 'success',
     code: 200,
     instructions: ''
@@ -470,12 +512,19 @@ export type StatusId = 'account:already-logged-in'
 	| 'files:invalid-extension'
 	| 'files:too-large'
 	| 'files:uploaded'
+	| 'member:accepted'
 	| 'member:add-skill'
+	| 'member:already-member'
 	| 'member:cannot-manage'
+	| 'member:invalid-request'
+	| 'member:membership-responded'
 	| 'member:not-found'
 	| 'member:not-member'
+	| 'member:rejected'
 	| 'member:remove-skill'
-	| 'member:requested-sent'
+	| 'member:request-sent'
+	| 'member:revoked'
+	| 'member:status-updated'
 	| 'member:update-bio'
 	| 'member:update-resume'
 	| 'member:update-title'
@@ -524,6 +573,7 @@ export type AccountStatusId = 'already-logged-in'
 	| 'not-verified'
 	| 'password-mismatch'
 	| 'password-reset-request'
+	| 'password-reset-success'
 	| 'picture-updated'
 	| 'removed'
 	| 'role-added'
@@ -533,8 +583,7 @@ export type AccountStatusId = 'already-logged-in'
 	| 'updated'
 	| 'username-changed'
 	| 'username-taken'
-	| 'verified'
-	| 'password-reset-success';
+	| 'verified';
 
 
 export type AdminStatusId = 'invalid-key';
@@ -546,15 +595,22 @@ export type FilesStatusId = 'invalid'
 	| 'uploaded';
 
 
-export type MemberStatusId = 'add-skill'
+export type MemberStatusId = 'accepted'
+	| 'add-skill'
+	| 'already-member'
 	| 'cannot-manage'
+	| 'invalid-request'
+	| 'membership-responded'
 	| 'not-found'
 	| 'not-member'
+	| 'rejected'
 	| 'remove-skill'
-	| 'requested-sent'
+	| 'request-sent'
+	| 'status-updated'
 	| 'update-bio'
 	| 'update-resume'
-	| 'update-title';
+	| 'update-title'
+	| 'revoked';
 
 
 export type PageStatusId = 'not-found';
