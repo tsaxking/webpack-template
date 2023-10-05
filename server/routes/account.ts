@@ -276,7 +276,7 @@ router.post('/change-picture', fileStream({
     ],
     maxFileSize: 1024 * 1024 * 5
 }), async(req, res) => {
-    const { body: { username } } = req;
+    const { username } = req.body;
 
     const [file] = req.files;
 
