@@ -52,17 +52,17 @@ app.static('/uploads', path.resolve(__root, './uploads'));
 
 app.use('/*', Session.middleware());
 
-app.post('/socket-url', (req, res, next) => {
+app.post('/socket-url', (_req, res,) => {
     res.json({
         url: env.SOCKET_DOMAIN
     });
 });
 
-app.get('/favicon.ico', (req, res) => {
+app.get('/favicon.ico', (_req, res) => {
     res.sendFile(path.resolve(__root, './public/pictures/logo-square.png'));
 });
 
-app.get('/robots.txt', (req, res) => {
+app.get('/robots.txt', (_req, res) => {
     res.sendFile(path.resolve(__root, './public/pictures/robots.jpg'));
 });
 
@@ -106,7 +106,7 @@ function stripHtml(body: any) {
     return obj;
 }
 
-app.post('/*', (req, res, next) => {
+app.post('/*', (req, _res, next) => {
     req.body = stripHtml(req.body);
     console.log(req.body);
     next();
@@ -164,13 +164,6 @@ app.get('/*', (req, res, next) => {
 
 
 
-
-app.get('/home', (req, res, next) => {
-    res.sendTemplate('index');
-});
-
-
-
 // routing
 app.route('/admin', admin);
 
@@ -187,11 +180,11 @@ app.route('/admin', admin);
 
 
 
-app.get('/user/*', Account.isSignedIn,  (req, res, next) => {
+app.get('/user/*', Account.isSignedIn,  (_req, res) => {
     res.sendTemplate('entries/user');
 });
 
-app.get('/admin/*', Role.allowRoles('admin'), (req, res, next) => {
+app.get('/admin/*', Role.allowRoles('admin'), (_req, res) => {
     res.sendTemplate('entries/admin');
 });
 
