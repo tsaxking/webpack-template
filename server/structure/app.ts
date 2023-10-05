@@ -422,6 +422,12 @@ export class App {
         this.io.on('connection', (socket) => {
             log('New connection:', socket.id);
 
+            // socket.join(socket.id);
+
+            // join tab session
+            const { ssid } = parseCookie(socket.handshake.headers.get('cookie') || '');
+            if (ssid) socket.join(ssid);
+
             if (env.ENVIRONMENT === 'dev') {
                 socket.emit('reload');
             }
@@ -480,6 +486,8 @@ export class App {
 
             const req = new Req(denoReq, info, this.io);
             const res = new Res(this, req);
+
+            // log(parseCookie(denoReq.headers.get('cookie') || ''));
 
             const cookie = parseCookie(req.headers.get('cookie') || '').ssid;
             if (!cookie) {
