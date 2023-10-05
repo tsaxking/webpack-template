@@ -1,4 +1,4 @@
-import { Route } from "../structure/app.ts";
+import { Route } from "../structure/app/app.ts";
 import { Member } from "../structure/member.ts";
 import Account from "../structure/accounts.ts";
 import { fileStream } from "../middleware/stream.ts";
