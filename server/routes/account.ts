@@ -17,8 +17,8 @@ router.post('/get-account', async(req, res) => {
 
 
 // gets all roles available
-router.post('/get-roles', async(req, res) => {
-    res.json(await Role.all());
+router.post('/get-roles', (req, res) => {
+    res.json(Role.all());
 });
 
 router.get('/sign-in', (_req, res) => {
