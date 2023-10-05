@@ -117,6 +117,20 @@ type Queries = {
         [],
         Account
     ],
+    'account/change-first-name': [
+        [{
+            id: string,
+            firstName: string
+        }],
+        unknown
+    ],
+    'account/change-last-name': [
+        [{
+            id: string,
+            lastName: string
+        }],
+        unknown
+    ],
     'account/new': [
         [{
             id: string,
