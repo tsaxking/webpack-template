@@ -1,7 +1,7 @@
 import * as esbuild from 'https://deno.land/x/esbuild@v0.11.12/mod.js'
 import { log } from "./utilities/terminal-logging.ts";
 import { typescript, sveltePlugin } from "./build/esbuild-svelte.ts";
-import { EventEmitter } from "./utilities/event-listener.ts";
+import { EventEmitter } from "../shared/event-emitter.ts";
 import { getTemplateSync, saveTemplateSync } from "./utilities/files.ts";
 import path from 'node:path';
 import env, { __root, __templates } from "./utilities/env.ts";
