@@ -16,7 +16,7 @@ const port = +env.PORT || 3000;
 const domain = env.DOMAIN || `http://localhost:${port}`;
 
 
-const app = new App(port, domain, {
+export const app = new App(port, domain, {
     // onListen: () => {
         // log(`Listening on ${domain}`);
     // },

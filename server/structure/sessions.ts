@@ -1,10 +1,9 @@
 // import { Request, Response, NextFunction } from 'npm:express';
 import { uuid } from '../utilities/uuid.ts';
 import Account from './accounts.ts';
-import { parseCookie } from '../../shared/cookie.ts';
 import { DB } from "../utilities/databases.ts";
 import { Req, Res, Next, ServerFunction, CookieOptions } from "./app.ts";
-import { log } from "../utilities/terminal-logging.ts";
+import { app } from "../server.ts";
 
 
 export type SessionObj = {
@@ -175,5 +174,9 @@ export class Session {
                 created: this.created
             });
         }
+    }
+
+    emit(event: string, ...args: any[]) {
+        app.io.to(this.id).emit(event, ...args);
     }
 }
