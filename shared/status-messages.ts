@@ -38,6 +38,18 @@ export const messages: {
     code: 403,
     instructions: ''
 },
+    'account:change-first-name': {
+    message: 'First name changed',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'account:change-last-name': {
+    message: 'Last name changed',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
     'account:check-email': {
     message: 'An email was sent to the email address associated with this account',
     color: 'info',
@@ -103,6 +115,12 @@ export const messages: {
     color: 'danger',
     code: 400,
     instructions: 'Please try again.'
+},
+    'account:invalid-picture': {
+    message: 'Your picture was invalid',
+    color: 'danger',
+    code: 400,
+    instructions: ''
 },
     'account:invalid-username': {
     message: 'That username is invalid.',
@@ -481,6 +499,8 @@ export const messages: {
 export type StatusId = 'account:already-logged-in'
 	| 'account:cannot-edit-self'
 	| 'account:cannot-reject-verified'
+	| 'account:change-first-name'
+	| 'account:change-last-name'
 	| 'account:check-email'
 	| 'account:created'
 	| 'account:email-change-expired'
@@ -492,6 +512,7 @@ export type StatusId = 'account:already-logged-in'
 	| 'account:invalid-last-name'
 	| 'account:invalid-password'
 	| 'account:invalid-password-reset-key'
+	| 'account:invalid-picture'
 	| 'account:invalid-username'
 	| 'account:invalid-verification-key'
 	| 'account:logged-in'
@@ -559,6 +580,7 @@ export type StatusId = 'account:already-logged-in'
 export type AccountStatusId = 'already-logged-in'
 	| 'cannot-edit-self'
 	| 'cannot-reject-verified'
+	| 'change-first-name'
 	| 'check-email'
 	| 'created'
 	| 'email-change-expired'
@@ -570,6 +592,7 @@ export type AccountStatusId = 'already-logged-in'
 	| 'invalid-last-name'
 	| 'invalid-password'
 	| 'invalid-password-reset-key'
+	| 'invalid-picture'
 	| 'invalid-username'
 	| 'invalid-verification-key'
 	| 'logged-in'
@@ -590,7 +613,8 @@ export type AccountStatusId = 'already-logged-in'
 	| 'updated'
 	| 'username-changed'
 	| 'username-taken'
-	| 'verified';
+	| 'verified'
+	| 'change-last-name';
 
 
 export type AdminStatusId = 'invalid-key';
@@ -598,9 +622,9 @@ export type AdminStatusId = 'invalid-key';
 
 export type FilesStatusId = 'invalid'
 	| 'invalid-extension'
+	| 'no-files'
 	| 'too-large'
-	| 'uploaded'
-	| 'no-files';
+	| 'uploaded';
 
 
 export type MemberStatusId = 'accepted'

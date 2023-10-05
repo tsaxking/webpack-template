@@ -26,6 +26,7 @@ export type AccountSafe = {
     created: number;
     phoneNumber: string;
     picture?: string;
+    roles: string[];
 }
 
 export type MembershipStatus =
