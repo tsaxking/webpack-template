@@ -8,6 +8,8 @@ lerna-debug.log*
 
 */templates/entries/
 
+branch-transfer/
+
 # *.js
 # !require.js
 
