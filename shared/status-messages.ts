@@ -642,7 +642,8 @@ export type MemberStatusId = 'accepted'
 	| 'status-updated'
 	| 'update-bio'
 	| 'update-resume'
-	| 'update-title';
+	| 'update-title'
+	| 'revoked';
 
 
 export type PageStatusId = 'not-found';
