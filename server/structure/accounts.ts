@@ -22,7 +22,6 @@ export enum AccountDynamicProperty {
 }
 
 
-type AccountInfo = {};
 type DiscordLink = {
     id: string;
     username: string;
@@ -477,28 +476,24 @@ export default class Account {
     }
 
 
+    changeFirstName(firstName: string): AccountStatusId {
+        DB.run('account/change-first-name', {
+            id: this.id,
+            firstName
+        });
+        this.firstName = firstName;
 
-    change(property: AccountDynamicProperty, to: string): AccountStatusId {
-        if (property !== AccountDynamicProperty.picture &&!Account.valid(to)) {
-            switch (property) {
-                case AccountDynamicProperty.firstName:
-                    return 'invalid-first-name';
-                case AccountDynamicProperty.lastName:
-                    return 'invalid-last-name';
-            }
-        }
+        return 'change-first-name';
+    }
 
-        const query = `
-            UPDATE Accounts
-            SET ${property} = ?
-            WHERE username = ?        
-        `;
+    changeLastName(lastName: string): AccountStatusId {
+        DB.run('account/change-last-name', {
+            id: this.id,
+            lastName
+        });
+        this.lastName = lastName;
 
-        DB.unsafe.run(query, to, this.username);
-
-        this[property] = to;
-
-        return 'updated';
+        return 'change-last-name';
     }
 
 

@@ -7,7 +7,9 @@
 
     let time: string = 'Just now';
     const start = Date.now();
-    setInterval(() => {
+
+
+    const update = () => {
         const now = Date.now();
         const diff = now - start;
         const seconds = Math.floor(diff / 1000);
@@ -24,7 +26,9 @@
             const days = Math.floor(seconds / 86400);
             time = `${days} days ago`;
         }
-    }, 1000 * 30);
+    }
+
+    setInterval(update, 1000 * 30);
 
     const classes = 'toast';
 
@@ -37,7 +41,7 @@
 
 </script>
 
-<div class={show ? 'show ' + classes : classes} role="alert" aria-live="assertive" aria-atomic="true">
+<div class={show ? 'show ' + classes : classes} role="alert" aria-live="assertive" aria-atomic="true" on:mouseover={update} on:focus={update}>
     <div class="toast-header bg-dark border-0 text-{color}">
         <strong class="me-auto">{title}</strong>
         <small>{time}</small>
