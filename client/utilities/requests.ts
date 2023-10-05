@@ -18,7 +18,7 @@ export type StreamOptions = {
 
 
 
-export class ServerRequest {
+export class ServerRequest<T = any> {
     static readonly all: ServerRequest[] = [];
 
     static get last(): ServerRequest|undefined {
@@ -45,14 +45,14 @@ export class ServerRequest {
         return this.errors.length;
     }
 
-    static async post(url: string, body?: any, options?: RequestOptions): Promise<any> {
-        const r = new ServerRequest(url, 'post', body, options);
+    static async post<T>(url: string, body?: any, options?: RequestOptions): Promise<T> {
+        const r = new ServerRequest<T>(url, 'post', body, options);
         return r.send();
     }
 
 
-    static async get(url: string, options?: RequestOptions): Promise<any> {
-        const r = new ServerRequest(url, 'get', undefined, options);
+    static async get<T>(url: string, options?: RequestOptions): Promise<T> {
+        const r = new ServerRequest<T>(url, 'get', undefined, options);
         return r.send();
     }
 
@@ -153,8 +153,8 @@ export class ServerRequest {
 
 
 
-    async send(): Promise<any> {
-        return new Promise((res, rej) => {
+    async send(): Promise<T> {
+        return new Promise<T>((res, rej) => {
             try {
                 JSON.stringify(this.body);
             } catch {
@@ -200,7 +200,7 @@ export class ServerRequest {
                         await sleep(data.sleep);
                         location.href = data.redirect;
                     }
-                    res(data);
+                    res(data as T);
                 })
                 .catch((e) => {
                     this.duration = Date.now() - start;
