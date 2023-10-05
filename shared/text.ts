@@ -20,7 +20,7 @@ export const toCamelCase = (str: string): string => str.replace(/(?:^\w|[A-Z]|\b
  * @param str 
  * @returns 
  */
-export const toSnakeCase = (str: string, del: string = '_'): string => str.replace(/([A-Z])/g, (g) => `${del}${g[0].toLowerCase()}`).replace(/\s+/g, '_');
+export const toSnakeCase = (str: string, del: string = '_'): string => str.replace(/([A-Z])/g, (g) => `${del}${g[0].toLowerCase()}`).replace(/\s+/g, del).slice(1);
 
 
 /**

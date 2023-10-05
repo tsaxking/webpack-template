@@ -3,6 +3,8 @@ import Account from "../structure/accounts.ts";
 import { Status } from "../utilities/status.ts";
 import Role from "../structure/roles.ts";
 import { StatusId, messages } from "../../shared/status-messages.ts";
+import { log } from "../utilities/terminal-logging.ts";
+import { fileStream } from "../middleware/stream.ts";
 
 export const router = new Route();
 
@@ -142,8 +144,10 @@ router.post('/get-pending-accounts', Account.allowPermissions('verify'), (_req, 
 
 
 router.post('/get-all', (_req, res) => {
+    log('Getting all accounts');
+
     const accounts = Account.all();
-    res.json(accounts.map(a => a.safe));
+    res.json(accounts.map(a => a.safe()));
 });
 
 
@@ -206,4 +210,85 @@ router.post('/remove-role', Account.allowPermissions('editRoles'), (req, res) =>
     const status = account.removeRole(role);
     if (!messages[('role:' + status) as keyof typeof messages]) return res.sendStatus('account:' + status as StatusId, { username, role });
     res.sendStatus('role:' + status as StatusId, { username, role });
+});
+
+
+
+router.post('/change-username', Account.allowPermissions('editUsers'), (req, res) => {
+    const { username, newUsername } = req.body;
+
+    const account = Account.fromUsername(username);
+    if (!account) return res.sendStatus('account:not-found', { username });
+
+    const status = account.changeUsername(newUsername);
+    res.sendStatus('account:' + status as StatusId, { username, newUsername });
+    
+    if (status === 'username-changed') {
+        req.io.emit('account:change-username', username, newUsername);
+    }
+});
+
+router.post('/change-email', Account.allowPermissions('editUsers'), (req, res) => {
+    const { username, newEmail } = req.body;
+
+    const account = Account.fromUsername(username);
+    if (!account) return res.sendStatus('account:not-found', { username });
+
+    const status = account.changeEmail(newEmail);
+
+    res.sendStatus('account:' + status as StatusId, { username, newEmail });
+
+    req.io.emit('account:change-email', username, newEmail);
+});
+
+
+router.post('/change-first-name', Account.allowPermissions('editUsers'), async(req, res) => {
+    const { username, newFirstName } = req.body;
+
+    const account = await Account.fromUsername(username);
+    if (!account) return res.sendStatus('account:not-found', { username });
+
+    const status = account.changeFirstName(newFirstName);
+
+    res.sendStatus('account:' + status as StatusId, { username, newFirstName });
+
+    req.io.emit('account:change-first-name', username, newFirstName);
+});
+
+router.post('/change-last-name', Account.allowPermissions('editUsers'), async(req, res) => {
+    const { username, newLastName } = req.body;
+
+    const account = Account.fromUsername(username);
+    if (!account) return res.sendStatus('account:not-found', { username });
+
+    const status = account.changeLastName(newLastName);
+
+    res.sendStatus('account:' + status as StatusId, { username, newLastName });
+
+    req.io.emit('account:change-last-name', username, newLastName);
+});
+
+router.post('/change-picture', fileStream({
+    extensions: [
+        'png',
+        'jpg',
+        'jpeg'
+    ],
+    maxFileSize: 1024 * 1024 * 5
+}), async(req, res) => {
+    const { body: { username } } = req;
+
+    const [file] = req.files;
+
+    const id = file?.id;
+    if (!id) return res.sendStatus('account:invalid-picture');
+
+    const account = Account.fromUsername(username);
+    if (!account) return res.sendStatus('account:not-found', { username });
+
+    const status = account.changePicture(id + file.ext);
+
+    res.sendStatus('account:' + status as StatusId, { username });
+
+    req.io.emit('account:change-picture', username, id + file.ext);
 });
