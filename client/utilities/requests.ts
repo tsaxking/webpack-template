@@ -1,6 +1,6 @@
 import { sleep } from "../../shared/sleep";
-import { StatusJson } from "../../shared/status";
 import { notify } from "./notifications";
+import { EventEmitter } from '../../shared/event-emitter';
 
 export type RequestOptions = {
     headers?: {
@@ -61,79 +61,50 @@ export class ServerRequest<T = any> {
     }
 
 
-    static async stream(url: string, files: FileList, body?: any, options?: StreamOptions): Promise<void> {
-        return new Promise(async (res, rej) => {
-            if (typeof url !== 'string') 
-                return res(
-                    console.error(
-                        new Error('Url must be a string. Received ' + typeof url)));
-    
-    
-            if (!files) return console.error(new Error('No files found'));
-                
-            if (!(files instanceof FileList)) 
-                return res(
-                    console.error(
-                        new Error('fileInput must be a FileList. Received ' + files)));
-    
-            
-    
-            const streamFile = async (index: number) => {
-                const file = files[index];
-                if (!file) return res(); // last file completed
-    
-                let filename = file.name.split('.').shift() || '';
-    
-                const xhr = new XMLHttpRequest();
-                xhr.open('POST', url, true);
-                xhr.setRequestHeader('Content-Type', 'application/octet-stream');
-                xhr.setRequestHeader('X-File-Name', filename);
-                xhr.setRequestHeader('X-File-Size', file.size.toString());
-                xhr.setRequestHeader('X-File-Type', file.type);
-                xhr.setRequestHeader('X-File-Index', index.toString());
-                xhr.setRequestHeader('X-File-Count', files.length.toString());
-                xhr.setRequestHeader('X-File-Name', file.name);
-                xhr.setRequestHeader('X-File-Ext', file.name.split('.').pop() || '');
-    
-                if (options?.headers) {
-                    for (const key in options.headers) {
-                        xhr.setRequestHeader('X-Custom-' + key, options.headers[key]);
-                    }
-                }
+    static stream(url: string, files: FileList, body?: any, options?: StreamOptions): EventEmitter<'progress' | 'complete' | 'error'> {
+        const emitter = new EventEmitter<'progress' | 'complete' | 'error'>();
 
-                if (body) {
-                    xhr.setRequestHeader('X-Body', JSON.stringify(body));
-                }
-    
-                // when done, do next file
-                xhr.onload = (e) => streamFile(index + 1);
-                xhr.onerror = rej;
-    
-                xhr.upload.onprogress = (e) => {
-                    // TODO: progress bar logic
-                }
-    
-                // TODO: notification logic
-                xhr.onreadystatechange = (e) => {
-                    if (xhr.readyState == 4) {
-                        try {
-                            // get the response
-                            const response = JSON.parse(xhr.responseText);
-                            if (response.status) {
-                                // this is a notification
-                                notify(response);
-                            }
-                        } catch (e) {
-    
-                        }
-                    }
-                }
-    
-                xhr.send(file);
+        const formData = new FormData();
+        for (let i = 0; i < files.length; i++) {
+            formData.append('file', files[i]);
+        }
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', url, true);
+        xhr.setRequestHeader('Content-Type', 'multipart/form-data');
+        xhr.setRequestHeader('X-File-Count', files.length.toString());
+
+        if (options?.headers) {
+            for (const key in options.headers) {
+                xhr.setRequestHeader('X-Custom-' + key, options.headers[key]);
             }
-    
-            streamFile(0);
-        });
+        }
+
+        if (body) {
+            try {
+                JSON.stringify(body);
+            } catch {
+                throw new Error('Body must be able to be parsed as JSON');
+            }
+
+            xhr.setRequestHeader('X-Body', JSON.stringify(body));
+        }
+
+
+        xhr.upload.onprogress = (e) => {
+            emitter.emit('progress', e);
+        }
+
+        xhr.upload.onerror = (e) => {
+            emitter.emit('error', e);
+        }
+
+        xhr.upload.onload = (e) => {
+            emitter.emit('complete', e);
+        }
+
+        xhr.send(formData);
+        return emitter;
     }
 
     public response?: any;

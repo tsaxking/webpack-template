@@ -248,6 +248,12 @@ export const messages: {
     code: 400,
     instructions: 'Please try again.'
 },
+    'files:no-files': {
+    message: 'Request was empty',
+    color: 'danger',
+    code: 400,
+    instructions: ''
+},
     'files:too-large': {
     message: 'File too large',
     color: 'danger',
@@ -510,6 +516,7 @@ export type StatusId = 'account:already-logged-in'
 	| 'admin:invalid-key'
 	| 'files:invalid'
 	| 'files:invalid-extension'
+	| 'files:no-files'
 	| 'files:too-large'
 	| 'files:uploaded'
 	| 'member:accepted'
@@ -592,7 +599,8 @@ export type AdminStatusId = 'invalid-key';
 export type FilesStatusId = 'invalid'
 	| 'invalid-extension'
 	| 'too-large'
-	| 'uploaded';
+	| 'uploaded'
+	| 'no-files';
 
 
 export type MemberStatusId = 'accepted'
@@ -606,11 +614,11 @@ export type MemberStatusId = 'accepted'
 	| 'rejected'
 	| 'remove-skill'
 	| 'request-sent'
+	| 'revoked'
 	| 'status-updated'
 	| 'update-bio'
 	| 'update-resume'
-	| 'update-title'
-	| 'revoked';
+	| 'update-title';
 
 
 export type PageStatusId = 'not-found';

@@ -12,6 +12,7 @@ import { Status } from "../utilities/status.ts";
 import { getTemplateSync } from "../utilities/files.ts";
 import { parseCookie } from "../../shared/cookie.ts";
 import { deleteCookie, setCookie, getCookies } from "https://deno.land/std@0.203.0/http/cookie.ts";
+import { FileUpload } from "../middleware/stream.ts";
 
 const fileTypeHeaders = {
     js: 'application/javascript',
@@ -143,6 +144,11 @@ export class Req {
         const s = Session.get(this.cookie.ssid);
         if (!s) throw new Error('No session found for req');
         return s;
+    }
+
+    get files(): FileUpload[] {
+        if (!this.body.$$files) this.body.$$files = [];
+        return this.body.$$files;
     }
 };
 
