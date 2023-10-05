@@ -53,9 +53,9 @@ export const fileStream = (opts?: FileStreamOptions): NextFunction => {
 
         const reqBody = await req.req.formData();
         const bodyStr = req.headers.get('X-Body'); // had to put body in headers because FormData is already in there
-        let body: any;
-        if (bodyStr) body = JSON.parse(bodyStr);
-        else body = {};
+        if (bodyStr) req.body = JSON.parse(bodyStr);
+        else req.body = {};
+
 
         // forced to use any because Deno FormData is not typed accurately yet
         reqBody.getAll('file').forEach(async (file, i, a) => {
@@ -65,11 +65,11 @@ export const fileStream = (opts?: FileStreamOptions): NextFunction => {
                 const size = file.size;
     
                 if ((extensions as string[]).length && !(extensions as string[]).includes(ext)) {
-                    return sendStatus('files:invalid-extension', { name, ext, extensions, ...body });
+                    return sendStatus('files:invalid-extension', { name, ext, extensions, ...req.body });
                 }
     
                 if (size > (maxFileSize as number)) {
-                    return sendStatus('files:too-large', { name, size: formatBytes(size), maxFileSize: formatBytes(maxFileSize as number), ...body });
+                    return sendStatus('files:too-large', { name, size: formatBytes(size), maxFileSize: formatBytes(maxFileSize as number), ...req.body });
                 }
     
                 let id: string;
