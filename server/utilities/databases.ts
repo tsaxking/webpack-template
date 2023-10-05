@@ -350,6 +350,7 @@ export class DB {
 
             return MAIN.prepare(sql);
         } catch (err) {
+            log(err);
             throw new Error('Could not find query: ' + type);
         }
     }
