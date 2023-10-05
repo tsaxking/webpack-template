@@ -7,7 +7,7 @@ import { log } from "./terminal-logging.ts";
 import { SessionObj } from "../structure/sessions.ts";
 
 const dbDir = path.resolve(__root, './storage/db');
-export const MAIN = new Database(path.resolve(dbDir, './main.db'));
+export const MAIN = new Database(path.resolve(dbDir, './sfz.db'));
 
 
 type Queries = {
