@@ -624,8 +624,7 @@ export type FilesStatusId = 'invalid'
 	| 'invalid-extension'
 	| 'no-files'
 	| 'too-large'
-	| 'uploaded'
-	| 'no-files';
+	| 'uploaded';
 
 
 export type MemberStatusId = 'accepted'
