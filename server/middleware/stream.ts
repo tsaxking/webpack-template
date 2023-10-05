@@ -3,11 +3,10 @@ import { NextFunction, Request, Response } from 'npm:express';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { uuid } from '../utilities/uuid.ts';
-import { formatBytes, createUploadsFolder } from '../utilities/files.ts';
+import { formatBytes, createUploadsFolder, saveUpload } from '../utilities/files.ts';
 import { __uploads } from "../utilities/env.ts";
-
-
-
+import { Req, Res, Next } from "../structure/app.ts"
+import { StatusId } from '../../shared/status-messages.ts';
 
 /**
  * Description placeholder
@@ -19,6 +18,12 @@ type FileStreamOptions = {
     extensions?: string[];
 }
 
+export type FileUpload = {
+    name: string;
+    id: string;
+    ext: string;
+    size: number;
+}
 
 /**
  * Description placeholder
@@ -28,87 +33,59 @@ type FileStreamOptions = {
  */
 export const fileStream = (opts?: FileStreamOptions): NextFunction => {
     createUploadsFolder();
-
-    const fn = async(req: Request, res: Response, next: NextFunction) => {
+    return async(req: Req, res: Res, next: Next) => {
         let { maxFileSize, extensions } = opts || {};
         extensions = extensions?.map(e => e.toLowerCase()) || [];
-        maxFileSize = maxFileSize || 1000000;
+        maxFileSize = maxFileSize ? maxFileSize : 1024 * 1024 * 10;
 
         const generateFileId = () => {
             return uuid() + '-' + Date.now();
         }
 
-        let fileId = generateFileId();
-        let {
-            headers: {
-                'x-content-type': contentType,
-                'x-file-name': fileName,
-                'x-file-size': fileSize,
-                'x-file-type': fileType,
-                'x-file-ext': fileExt,
-                'x-body': body
+        let sent: boolean = false;
+
+        const sendStatus = (status: StatusId, data: any) => {
+            if (!sent) {
+                sent = true;
+                res.sendStatus(status, data);
             }
-        } = req;
-
-        contentType = contentType as string || '';
-        fileName = fileName as string || '';
-        fileSize = fileSize as string || '';
-        fileType = fileType as string || '';
-        fileExt = fileExt as string || '';
-
-        if (maxFileSize && +fileSize > maxFileSize) {
-            console.log('File size is too large', formatBytes(+fileSize), formatBytes(maxFileSize));
-            return Status.from('files:too-large', req).send(res);
         }
 
-        if (extensions && !extensions.includes(fileExt.toLowerCase())) {
-            console.log('File type is not allowed', fileExt, extensions);
-        }
+        const reqBody = await req.req.formData();
+        const bodyStr = req.headers.get('X-Body'); // had to put body in headers because FormData is already in there
+        let body: any;
+        if (bodyStr) body = JSON.parse(bodyStr);
+        else body = {};
 
-        if (!fileExt.startsWith('.')) fileExt = '.' + fileExt;
+        // forced to use any because Deno FormData is not typed accurately yet
+        reqBody.getAll('file').forEach(async (file, i, a) => {
+            if (file instanceof File) {
+                const name = file.name;
+                const ext = name.split('.').pop()?.toLowerCase() || '';
+                const size = file.size;
+    
+                if ((extensions as string[]).length && !(extensions as string[]).includes(ext)) {
+                    return sendStatus('files:invalid-extension', { name, ext, extensions, ...body });
+                }
+    
+                if (size > (maxFileSize as number)) {
+                    return sendStatus('files:too-large', { name, size: formatBytes(size), maxFileSize: formatBytes(maxFileSize as number), ...body });
+                }
+    
+                let id: string;
+                do {
+                    id = generateFileId();
+                } while (fs.existsSync(path.join(__uploads, id)));
 
+                const buffer = new Uint8Array(await file.arrayBuffer());
+                await saveUpload(id, buffer);
 
-        // never overwrite files
-        while (fs.existsSync(path.resolve(__uploads, fileId + fileExt))) {
-            fileId = generateFileId();
-        }
-
-        const file = fs.createWriteStream(path.resolve(__uploads, fileId + fileExt));
-
-        let total = 0;
-        req.on('data', (chunk: {
-            length: number;
-        }) => {
-            file.write(chunk);
-            total += chunk.length;
-            console.log('Uploaded', formatBytes(total).string, formatBytes(+(fileSize || '')).string, `(${Math.round(total / +(fileSize || '') * 100)}% )`);
-        });
-
-        req.on('end', () => {
-            file.end();
-
-            req.body = body ? JSON.parse(body as string) : undefined;
-
-            req.file = {
-                id: fileId,
-                name: fileName as string || '',
-                size: +(fileSize as string) || 0,
-                type: fileType as string || '',
-                ext: fileExt as string || '',
-                contentType: contentType as string || '',
-                filename: fileId + fileExt
+                req.files.push({ name, id, ext, size});
             }
-            next();
-        });
 
-        req.on('error', (err: Error) => {
-            console.log(err);
-
-            res.json({
-                error: 'Error uploading file: ' + fileName
-            });
+            if (i === a.length - 1) {
+                next();
+            }
         });
     }
-
-    return fn as unknown as NextFunction;
 }
