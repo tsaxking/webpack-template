@@ -56,7 +56,6 @@ export const fileStream = (opts?: FileStreamOptions): NextFunction => {
         if (bodyStr) req.body = JSON.parse(bodyStr);
         else req.body = {};
 
-
         // forced to use any because Deno FormData is not typed accurately yet
         reqBody.getAll('file').forEach(async (file, i, a) => {
             if (file instanceof File) {
