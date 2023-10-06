@@ -30,11 +30,11 @@ export type AccountSafe = {
 
 export type MembershipStatus =
     'pending' |
-    'twicePending' |
+    'twice-pending' |
     'accepted' |
     'rejected' |
-    'notAllowed' |
-    'notMember';
+    'not-allowed' |
+    'not-member';
 
 
 export type Member = {
