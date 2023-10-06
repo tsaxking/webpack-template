@@ -57,7 +57,7 @@ export class Member {
     }
 
 
-    static async newMember(account: Account): Promise<MembershipStatus> {
+    static newMember(account: Account): MembershipStatus {
         // if the account was rejected, they can request again.
 
         const sendEmail = (message: string) => {
@@ -69,12 +69,12 @@ export class Member {
             });
         }
 
-        const isMember = await Member.get(account.username);
+        const isMember = Member.get(account.username);
 
         if (isMember) {
             if (isMember.status === 'rejected') {
-                await DB.run('member/update-status', {
-                    status: 'twicePending',
+                DB.run('member/update-status', {
+                    status: 'twice-pending',
                     id: account.id
                 });
 
@@ -88,7 +88,7 @@ export class Member {
 
         const { id } = account;
 
-        await DB.run('member/new', {
+        DB.run('member/new', {
             id: account.id,
             status: 'pending'
         });
@@ -159,14 +159,12 @@ export class Member {
     }
 
     reject() {
-        if (this.status === 'twicePending') {
+        if (this.status === 'twice-pending') {
 
             DB.run('member/update-status', {
-                status: 'notAllowed',
+                status: 'not-allowed',
                 id: this.id
             });
-
-            this.status = 'notAllowed';
             return;
         }
         DB.run('member/update-status', {
@@ -235,45 +233,45 @@ export class Member {
     }
 
 
-    // async addSkill(...skills: { skill: string, years: number }[]): Promise<MemberReturnStatus[]> {
-    //     return Promise.all(skills.map(async(skill) => {
+    addSkill(...skills: { skill: string, years: number }[]): Promise<MemberReturnStatus[]> {
+        return Promise.all(skills.map(async(skill) => {
 
-    //         const exists = await DB.get('member/get-skill', {
-    //             id: this.id,
-    //             skill: skill.skill
-    //         });
-    //         if (exists) return MemberReturnStatus.hasSkill;
+            const exists = DB.get('member/get-skill', {
+                id: this.id,
+                skill: skill.skill
+            });
+            if (exists) return MemberReturnStatus.hasSkill;
 
-    //         await DB.run('member/add-skill', {
-    //             id: this.id,
-    //             skill: skill.skill, 
-    //             years: Math.round(skill.years * 10) / 10
-    //         });
-    //         return MemberReturnStatus.skillAdded;
-    //     }));
-    // }
+            DB.run('member/add-skill', {
+                id: this.id,
+                skill: skill.skill, 
+                years: Math.round(skill.years * 10) / 10
+            });
+            return MemberReturnStatus.skillAdded;
+        }));
+    }
 
-    // async removeSkill(...skills: string[]): Promise<MemberReturnStatus[]> {
-    //     return Promise.all(skills.map(async(skill) => {
-    //         const exists = await DB.get('member/get-skill', {
-    //             id: this.id,
-    //             skill
-    //         });
-    //         if (!exists) return MemberReturnStatus.noSkill;
+    async removeSkill(...skills: string[]): Promise<MemberReturnStatus[]> {
+        return Promise.all(skills.map(async(skill) => {
+            const exists = await DB.get('member/get-skill', {
+                id: this.id,
+                skill
+            });
+            if (!exists) return MemberReturnStatus.noSkill;
 
-    //         await DB.run('member/remove-skill', {
-    //             id: this.id,
-    //             skill
-    //         });
-    //         return MemberReturnStatus.skillRemoved;
-    //     }));
-    // }
+            await DB.run('member/remove-skill', {
+                id: this.id,
+                skill
+            });
+            return MemberReturnStatus.skillRemoved;
+        }));
+    }
 
-    // getSkills(): Skill[] {
-    //     return DB.all('member/skills', {
-    //         id: this.id
-    //     });
-    // }
+    getSkills(): Skill[] {
+        return DB.all('member/skills', {
+            id: this.id
+        });
+    }
 
     changeResume(id: string) {
         const { resume } = this;
