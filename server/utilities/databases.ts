@@ -290,7 +290,35 @@ type Queries = {
             id: string
         }],
         unknown
-    ]
+    ],
+    'member/get-skill': [
+        [{
+            id: string;
+            skill: string;
+        }],
+        Skill
+    ],
+    'member/add-skill': [
+        [{
+            id: string;
+            skill: string;
+            years: number;
+        }],
+        unknown
+    ],
+    'member/remove-skill': [
+        [{
+            id: string;
+            skill: string;
+        }],
+        unknown
+    ],
+    'member/skills': [
+        [{
+            id: string;
+        }],
+        Skill
+    ],
 };
 
 
