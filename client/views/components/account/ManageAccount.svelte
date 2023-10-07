@@ -57,9 +57,15 @@
         </div>
     </div>
 
-    <div class="row mb-3">
-        {#each roles as role} 
-            <span>{role}</span>
-        {/each}
-    </div>
+    {#if (roles.length > 0)}
+        <div class="row mb-3">
+            {#each roles as role} 
+                <span>{role}</span>
+            {/each}
+        </div>
+        {:else}
+        <div class="row mb-3">
+            <span>No roles</span>
+        </div>
+    {/if}
 </div>

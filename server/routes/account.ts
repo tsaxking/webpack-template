@@ -13,7 +13,9 @@ export const router = new Route();
 router.post('/get-account', async(req, res) => {
     const { account } = req.session;
 
-    if (account) res.json(account.safe);
+    if (account) res.json(account.safe({
+        email: true
+    }));
     else res.sendStatus('account:not-logged-in');
 });
 
