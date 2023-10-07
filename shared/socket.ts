@@ -35,5 +35,4 @@ export type SocketEvent =
 	| 'skills:added'
 	| 'skills:removed'
 	| 'test:success'
-	| 'test:test'
 ;
