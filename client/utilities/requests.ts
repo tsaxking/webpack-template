@@ -61,7 +61,7 @@ export class ServerRequest<T = any> {
     }
 
 
-    static stream(url: string, files: FileList, body?: any, options?: StreamOptions): EventEmitter<'progress' | 'complete' | 'error'> {
+    static streamFiles(url: string, files: FileList, body?: any, options?: StreamOptions): EventEmitter<'progress' | 'complete' | 'error'> {
         const emitter = new EventEmitter<'progress' | 'complete' | 'error'>();
 
         const formData = new FormData();
@@ -104,6 +104,35 @@ export class ServerRequest<T = any> {
         }
 
         xhr.send(formData);
+        return emitter;
+    }
+
+    static retrieveStream(url: string, body?: any): EventEmitter<'chunk' | 'complete' | 'error'> {
+        const emitter = new EventEmitter<'chunk' | 'complete' | 'error'>();
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body)
+        })
+            .then(r => r.body?.getReader())
+            .then(reader => {
+                if (!reader) return emitter.emit('error', new Error('No reader found'));
+
+                reader.read().then(function process({ done, value }) {
+                    if (done) {
+                        emitter.emit('complete');
+                        return;
+                    }
+
+                    emitter.emit('chunk', value);
+                    return reader.read().then(process);
+                });
+            })
+            .catch(e => emitter.emit('error', e));
+
         return emitter;
     }
 

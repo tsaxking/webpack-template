@@ -2,8 +2,7 @@ type ListenerCallback = (...args: any[]) => void;
 
 
 export class EventEmitter<allowedEvents = (string | number)> {
-    constructor() {
-    }
+    constructor() {}
 
     public readonly events: { [key: string]: ListenerCallback[] } = {};
 
@@ -19,7 +18,7 @@ export class EventEmitter<allowedEvents = (string | number)> {
     }
 
 
-    emit(event: allowedEvents, ...args: any[]) {
+    emit(event: allowedEvents, ...args: unknown[]) {
         if (typeof event !== 'string' && typeof event !== 'number') throw new Error('Event must be a string');
         if (!this.events[event]) {
             return;
