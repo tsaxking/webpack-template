@@ -1,59 +1,16 @@
 // make a class that simulates npm:express using the deno std library
 import { serve } from "https://deno.land/std@0.150.0/http/server.ts";
 import { Server } from "https://deno.land/x/socket_io@0.2.0/mod.ts";
-import env, { __root } from "../utilities/env.ts";
+import env, { __root } from "../../utilities/env.ts";
 import PATH from 'npm:path';
-import { log } from "../utilities/terminal-logging.ts";
-import { Session } from "./sessions.ts";
+import { log } from "../../utilities/terminal-logging.ts";
+import { Session } from "../sessions.ts";
 import stack from 'npm:callsite';
-import { Colors } from "../utilities/colors.ts";
-import { StatusCode, StatusId } from "../../shared/status-messages.ts";
-import { Status } from "../utilities/status.ts";
-import { getTemplateSync } from "../utilities/files.ts";
-import { parseCookie } from "../../shared/cookie.ts";
-import { deleteCookie, setCookie, getCookies } from "https://deno.land/std@0.203.0/http/cookie.ts";
-import { FileUpload } from "../middleware/stream.ts";
+import { Colors } from "../../utilities/colors.ts";
+import { parseCookie } from "../../../shared/cookie.ts";
+import { Req } from "./req.ts";
+import { Res } from "./res.ts";
 
-const fileTypeHeaders = {
-    js: 'application/javascript',
-    css: 'text/css',
-    html: 'text/html',
-    json: 'application/json',
-    png: 'image/png',
-    jpg: 'image/jpeg',
-    jpeg: 'image/jpeg',
-    gif: 'image/gif',
-    svg: 'image/svg+xml',
-    ico: 'image/x-icon',
-    ttf: 'font/ttf',
-    woff: 'font/woff',
-    woff2: 'font/woff2',
-    otf: 'font/otf',
-    eot: 'application/vnd.ms-fontobject',
-    mp4: 'video/mp4',
-    webm: 'video/webm',
-    mp3: 'audio/mpeg',
-    wav: 'audio/wav',
-    ogg: 'audio/ogg',
-    txt: 'text/plain',
-    pdf: 'application/pdf',
-    zip: 'application/zip',
-    rar: 'application/x-rar-compressed',
-    tar: 'application/x-tar',
-    '7z': 'application/x-7z-compressed',
-    xml: 'application/xml',
-    doc: 'application/msword',
-    docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    xls: 'application/vnd.ms-excel',
-    xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    ppt: 'application/vnd.ms-powerpoint',
-    pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-    avi: 'video/x-msvideo',
-    wmv: 'video/x-ms-wmv',
-    mov: 'video/quicktime',
-    mpeg: 'video/mpeg',
-    flv: 'video/x-flv'
-};
 
 export type FileType = 
     'js' | 
@@ -96,61 +53,6 @@ export type FileType =
     'flv';
 
 
-export class Req {
-    private _cookie?: {
-        [key: string]: string
-    };
-
-    public params: Record<string, string> = {};
-    body: any;
-    readonly url: string;
-    readonly method: string;
-    readonly headers: Headers;
-    readonly pathname: string;
-    readonly query: URLSearchParams;
-    readonly ip: string = 'localhost';
-    readonly start: number = Date.now();
-
-    constructor(public readonly req: Request, info: Deno.ServeHandlerInfo, public readonly io: Server) {
-        this.url = req.url;
-        this.method = req.method;
-        this.headers = req.headers;
-        this.pathname = new URL(req.url, 'http://localhost').pathname;
-        this.query = new URL(req.url, 'http://localhost').searchParams;
-        this.ip = info.remoteAddr.hostname;
-    }
-
-    get cookie(): {
-        [key: string]: string
-    } {
-        if (this._cookie) return this._cookie;
-
-        const c = parseCookie(this.headers.get('cookie') || '');
-        this._cookie = c;
-        return c;
-    }
-
-
-    addCookie(name: string, value: string) {
-        this._cookie = {
-            ...this.cookie,
-            [name]: value
-        };
-    }
-
-
-
-    get session(): Session {
-        const s = Session.get(this.cookie.ssid);
-        if (!s) throw new Error('No session found for req');
-        return s;
-    }
-
-    get files(): FileUpload[] {
-        if (!this.body.$$files) this.body.$$files = [];
-        return this.body.$$files;
-    }
-};
 
 
 export enum ResponseStatus {
@@ -160,160 +62,6 @@ export enum ResponseStatus {
 }
 
 
-export class Res {
-    public readonly promise: Promise<Response>;
-    public resolve?: (res: Response) => void;
-    public reject?: (error: string) => void;
-    public fulfilled: boolean = false;
-    public readonly trace: string[] = [];
-    private readonly app: App;
-    public _status?: StatusCode;
-    private readonly req: Req;
-
-    private _cookie: {
-        [key: string]: {
-            value: string;
-            options?: CookieOptions;
-        }
-    } = {};
-
-    constructor(app: App, req: Req) {
-        this.req = req;
-        this.app = app;
-        this.promise = new Promise((resolve, reject) => {
-            this.resolve = resolve;
-            this.reject = reject;
-        });
-    }
-
-    private isFulfilled() {
-        if (this.fulfilled) {
-            log('Response already fulfilled at:');
-            return console.log(this.trace.filter(t => t!=='null:null').map(t => {
-                t = t.replace('file://', '').replace('file:', '');
-                t = PATH.relative(__root, t);
-                t = `\n\t${Colors.FgYellow}${t}${Colors.Reset}`
-                return t;
-            }).join(''));
-        }
-        this.fulfilled = true;
-
-        this.trace.push(...stack().map((site: any) => {
-            return site.getFileName() + ':' + site.getLineNumber();
-        }));
-    }
-
-
-    json(data: any): ResponseStatus {
-        this.isFulfilled();
-        try {
-            const d = JSON.stringify(data);
-            this.resolve?.(new Response(d, {
-                status: this._status,
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            }));
-            return ResponseStatus.success;
-        } catch (e) {
-            log("Cannot stringify data", e);
-            return ResponseStatus.error;
-        };
-    }
-
-    send(data: string, filetype: FileType = 'html'): ResponseStatus {
-        this.isFulfilled();
-        const res = new Response(data, {
-            status: this._status,
-            headers: {
-                'Content-Type': fileTypeHeaders[filetype] || 'text/plain'
-            }
-        });
-        this._setCookie(res);
-        this.resolve?.(res);
-
-        return ResponseStatus.success;
-    }
-
-    private _setCookie(res: Response) {
-        for (const id in this._cookie) {
-            const c = this._cookie[id];
-            setCookie(res.headers, {
-                name: id,
-                value: c.value,
-                ...c.options
-            });
-        }
-
-        return ResponseStatus.success;
-    }
-
-    sendFile(path: string): ResponseStatus {
-        // log('Sending file', path);
-        try {
-            this.isFulfilled();
-            const extName = PATH.extname(path).replace('.', '');
-            const data = Deno.readFileSync(path);
-            const res = new Response(data, {
-                status: this._status,
-                headers: {
-                    'Content-Type': fileTypeHeaders[extName as keyof typeof fileTypeHeaders] || 'text/plain'
-                }
-            });
-            this._setCookie(res);
-            this.resolve?.(res);
-            return ResponseStatus.success;
-        } catch (e) {
-            log(e);
-            return ResponseStatus.fileNotFound;
-        }
-    }
-
-
-    status(status: StatusCode) {
-        this._status = status;
-        return this;
-    }
-
-
-    redirect(path: string): ResponseStatus {
-        path = path.startsWith('/') ? this.app.domain + path : path;
-
-        this.isFulfilled();
-        this.resolve?.(Response.redirect(path));
-        return ResponseStatus.success;
-    }
-
-
-    cookie(id: string, value: string, options?: CookieOptions) {
-        this._cookie[id] = {
-            value: value,
-            options: options
-        };
-    }
-
-
-    sendStatus(id: StatusId, data?: any): ResponseStatus {
-        try {
-            Status.from(id, this.req, data).send(this);
-            return ResponseStatus.success;
-        } catch (error) {
-            log('Error sending status', error);
-            return ResponseStatus.error;
-        }
-    };
-
-    sendTemplate(template: string, options?: any): ResponseStatus {
-        try {
-            const t = getTemplateSync(template, options);
-            this.send(t, 'html');
-            return ResponseStatus.success;
-        } catch (e) {
-            log('Error sending template', e);
-            return ResponseStatus.error;
-        }
-    }
-};
 
 export type CookieOptions = {
     maxAge?: number;

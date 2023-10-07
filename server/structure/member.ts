@@ -5,7 +5,9 @@ import { Status } from "../utilities/status.ts";
 import { io } from "../structure/socket.ts";
 import { deleteUpload } from "../utilities/files.ts";
 import { MembershipStatus, Member as MemberObj, MemberSafe, Skill } from "../../shared/db-types.ts";
-import { Req, Res, Next, ServerFunction } from "./app.ts";
+import { Next, ServerFunction } from "./app/app.ts";
+import { Req } from "./app/req.ts";
+import { Res } from "./app/res.ts";
 
 
 

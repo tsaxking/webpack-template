@@ -9,7 +9,9 @@ import { Member } from "./member.ts";
 import { Account as AccountObject, MembershipStatus, Member as MemberObj, Skill, Permission } from "../../shared/db-types.ts";
 import env from "../utilities/env.ts";
 import { deleteUpload } from "../utilities/files.ts";
-import { Req, Res, Next, ServerFunction } from './app.ts';
+import { Next, ServerFunction } from './app/app.ts';
+import { Req } from "./app/req.ts";
+import { Res } from "./app/res.ts";
 import { AccountStatusId, RolesStatusId } from "../../shared/status-messages.ts";
 
 

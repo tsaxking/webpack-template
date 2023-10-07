@@ -1,6 +1,6 @@
 import env, { __root } from "./utilities/env.ts";
 import { log } from "./utilities/terminal-logging.ts";
-import { App, ResponseStatus } from "./structure/app.ts";
+import { App, ResponseStatus } from "./structure/app/app.ts";
 import { Session } from "./structure/sessions.ts";
 import * as path from 'node:path';
 // import { emailValidation } from './middleware/spam-detection.ts';

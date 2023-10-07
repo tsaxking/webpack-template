@@ -1,4 +1,4 @@
-import { Route } from "../structure/app.ts";
+import { Route } from "../structure/app/app.ts";
 import Account from "../structure/accounts.ts";
 import { Status } from "../utilities/status.ts";
 import Role from "../structure/roles.ts";

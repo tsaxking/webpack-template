@@ -2,8 +2,10 @@
 import { uuid } from '../utilities/uuid.ts';
 import Account from './accounts.ts';
 import { DB } from "../utilities/databases.ts";
-import { Req, Res, Next, ServerFunction, CookieOptions } from "./app.ts";
+import { Next, ServerFunction, CookieOptions } from "./app/app.ts";
 import { app } from "../server.ts";
+import { Req } from "./app/req.ts";
+import { Res } from "./app/res.ts";
 
 
 export type SessionObj = {

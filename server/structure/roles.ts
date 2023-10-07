@@ -2,7 +2,9 @@ import { DB } from "../utilities/databases.ts";
 import { Status } from "../utilities/status.ts";
 import { Permission, RoleName } from "../../shared/db-types.ts";
 import { Role as RoleObject } from "../../shared/db-types.ts";
-import { Req, Res, Next, ServerFunction } from "./app.ts";
+import { Next, ServerFunction } from "./app/app.ts";
+import { Req } from "./app/req.ts";
+import { Res } from "./app/res.ts";
 
 
 
