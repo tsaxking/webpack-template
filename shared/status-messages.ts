@@ -581,6 +581,7 @@ export type AccountStatusId = 'already-logged-in'
 	| 'cannot-edit-self'
 	| 'cannot-reject-verified'
 	| 'change-first-name'
+	| 'change-last-name'
 	| 'check-email'
 	| 'created'
 	| 'email-change-expired'
@@ -613,8 +614,7 @@ export type AccountStatusId = 'already-logged-in'
 	| 'updated'
 	| 'username-changed'
 	| 'username-taken'
-	| 'verified'
-	| 'change-last-name';
+	| 'verified';
 
 
 export type AdminStatusId = 'invalid-key';
