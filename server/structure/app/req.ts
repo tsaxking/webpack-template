@@ -46,8 +46,6 @@ export class Req {
         };
     }
 
-
-
     get session(): Session {
         const s = Session.get(this.cookie.ssid);
         if (!s) throw new Error('No session found for req');

@@ -1,4 +1,5 @@
 import { ServerRequest } from "../utilities/requests";
+import { Role as R } from "../../shared/db-types";
 
 
 export class Role {
@@ -9,10 +10,10 @@ export class Role {
             return Role.roles;
         }
 
-        return ServerRequest.post('/roles/all', null, { cached: true })
-            .then((roles) => roles.map((r: any) => {
+        return await ServerRequest.post<R[]>('/roles/all', null, { cached: true })
+            .then((roles) => roles.map(r => {
                 new Role(r.name, r.description);
-            }));
+            })) as Role[];
     }
 
     constructor(

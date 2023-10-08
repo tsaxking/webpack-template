@@ -18,7 +18,7 @@ export type StreamOptions = {
 
 
 
-export class ServerRequest<T = any> {
+export class ServerRequest<T = unknown> {
     static readonly all: ServerRequest[] = [];
 
     static get last(): ServerRequest|undefined {

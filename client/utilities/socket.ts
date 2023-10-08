@@ -6,7 +6,7 @@ import { Socket } from "socket.io";
 
 
 const initialized = new Promise<void>((res) => {
-    ServerRequest.post('/socket-url').then(({ url }) => {
+    ServerRequest.post<{ url: string }>('/socket-url').then(({ url }) => {
         res();
         const s = io(url);
         s.on('disconnect', () => {

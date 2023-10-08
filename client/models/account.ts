@@ -13,6 +13,7 @@ import { ServerRequest } from "../utilities/requests";
 import { Member } from "./member";
 import { MemberSafe } from "../../shared/db-types";
 import { CBS_Modal } from "../submodules/custom-bootstrap/src/components/1-general/modal";
+import { AccountSafe as A } from "../../shared/db-types";
 
 
 
@@ -348,7 +349,7 @@ export class Account {
             return Object.values(Account.accounts);
         }
 
-        const accounts = await ServerRequest.post('/account/all', null, { cached: !!refresh })
+        const accounts = await ServerRequest.post<A[]>('/account/all', null, { cached: !!refresh })
             .then((accounts: any[]) => accounts.map(a => new Account(
                 a.username,
                 a.email,
@@ -436,7 +437,7 @@ export class Account {
     }
 
     async changePicture(files: FileList) {
-        return ServerRequest.stream('/account/change-picture', files, {
+        return ServerRequest.streamFiles('/account/change-picture', files, {
             username: this.username
         });
     }
