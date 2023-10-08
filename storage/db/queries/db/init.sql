@@ -91,3 +91,18 @@ INSERT INTO Version (
 ) VALUES (
     1
 );
+
+
+
+
+
+
+
+-- sfzMusic Tables
+
+
+
+
+
+
+-- end sfzMusic Tables
