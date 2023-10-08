@@ -1,12 +1,15 @@
 import { Status } from '../utilities/status.ts';
-import { NextFunction, Request, Response } from 'npm:express';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { uuid } from '../utilities/uuid.ts';
 import { formatBytes, createUploadsFolder, saveUpload } from '../utilities/files.ts';
 import { __uploads } from "../utilities/env.ts";
-import { Req, Res, Next } from "../structure/app.ts"
 import { StatusId } from '../../shared/status-messages.ts';
+import { ServerFunction, Next } from "../structure/app/app.ts";
+import { Req } from "../structure/app/req.ts";
+import { Res } from "../structure/app/res.ts";
+
+
 
 /**
  * Description placeholder
@@ -31,7 +34,7 @@ export type FileUpload = {
  * @param {FileStreamOptions} opts
  * @returns {(req: any, res: any, next: any) => unknown}
  */
-export const fileStream = (opts?: FileStreamOptions): NextFunction => {
+export const fileStream = (opts?: FileStreamOptions): ServerFunction => {
     createUploadsFolder();
     return async(req: Req, res: Res, next: Next) => {
         let { maxFileSize, extensions } = opts || {};
