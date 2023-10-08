@@ -5,7 +5,9 @@ import * as path from 'node:path';
 import { uuid } from '../utilities/uuid.ts';
 import { formatBytes, createUploadsFolder, saveUpload } from '../utilities/files.ts';
 import { __uploads } from "../utilities/env.ts";
-import { Req, Res, Next } from "../structure/app.ts"
+import { Next } from "../structure/app/app.ts"
+import { Req } from "../structure/app/req.ts";
+import { Res } from "../structure/app/res.ts";
 import { StatusId } from '../../shared/status-messages.ts';
 
 /**
