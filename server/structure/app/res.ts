@@ -57,6 +57,17 @@ const fileTypeHeaders = {
 };
 
 
+type StreamEventData = {
+    'error': Error;
+    'end': undefined;
+    'cancel': undefined;
+};
+
+type StreamEvent = keyof StreamEventData;
+
+
+
+
 export class Res {
     public readonly promise: Promise<Response>;
     public resolve?: (res: Response) => void;
@@ -211,10 +222,10 @@ export class Res {
         }
     }
 
-    stream(content: string[]): EventEmitter<'error' | 'end' | 'cancel'> {
+    stream(content: string[]): EventEmitter<StreamEvent> {
         let timer: number;
 
-        const em = new EventEmitter<'error' | 'end' | 'cancel'>();
+        const em = new EventEmitter<StreamEvent>();
 
         const stream = new ReadableStream({
             start(controller) {
@@ -255,7 +266,7 @@ export class Res {
         } catch (e) {
             log('Error streaming', e);
 
-            em.emit('error', e);
+            em.emit('error', new Error(e));
         }
 
         return em;

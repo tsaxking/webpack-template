@@ -17,6 +17,22 @@ export type StreamOptions = {
 };
 
 
+type SendStreamEventData = {
+    'progress': ProgressEvent<EventTarget>;
+    'complete': ProgressEvent<EventTarget>;
+    'error': ProgressEvent<EventTarget>;
+};
+
+type StreamEvent = keyof SendStreamEventData;
+
+type RetrieveStreamEventData = {
+    'chunk': Uint8Array;
+    'complete': undefined;
+    'error': Error;
+};
+
+type RetrieveStreamEvent = keyof RetrieveStreamEventData;
+
 
 export class ServerRequest<T = unknown> {
     static readonly all: ServerRequest[] = [];
@@ -61,8 +77,8 @@ export class ServerRequest<T = unknown> {
     }
 
 
-    static streamFiles(url: string, files: FileList, body?: any, options?: StreamOptions): EventEmitter<'progress' | 'complete' | 'error'> {
-        const emitter = new EventEmitter<'progress' | 'complete' | 'error'>();
+    static streamFiles(url: string, files: FileList, body?: any, options?: StreamOptions): EventEmitter<StreamEvent> {
+        const emitter = new EventEmitter<StreamEvent>();
 
         const formData = new FormData();
         for (let i = 0; i < files.length; i++) {
@@ -107,8 +123,8 @@ export class ServerRequest<T = unknown> {
         return emitter;
     }
 
-    static retrieveStream(url: string, body?: any): EventEmitter<'chunk' | 'complete' | 'error'> {
-        const emitter = new EventEmitter<'chunk' | 'complete' | 'error'>();
+    static retrieveStream(url: string, body?: any): EventEmitter<RetrieveStreamEvent> {
+        const emitter = new EventEmitter<RetrieveStreamEvent>();
 
         fetch(url, {
             method: 'POST',
@@ -131,7 +147,7 @@ export class ServerRequest<T = unknown> {
                     return reader.read().then(process);
                 });
             })
-            .catch(e => emitter.emit('error', e));
+            .catch(e => emitter.emit('error', new Error(e)));
 
         return emitter;
     }
