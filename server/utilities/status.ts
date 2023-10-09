@@ -4,7 +4,9 @@ import { Email, EmailType } from "./email.ts";
 import { Session } from "../structure/sessions.ts";
 import { Server } from "npm:socket.io";
 import { messages, StatusId, StatusCode, StatusMessage, StatusColor } from "../../shared/status-messages.ts";
-import { Req, Res, Next, ServerFunction } from "../structure/app.ts";
+import { Next, ServerFunction } from "../structure/app/app.ts";
+import { Req } from "../structure/app/req.ts";
+import { Res } from "../structure/app/res.ts";
 
 declare global {
     namespace Express {
