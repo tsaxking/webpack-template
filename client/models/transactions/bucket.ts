@@ -2,6 +2,8 @@ import { Cache } from "../cache";
 import { ServerRequest } from "../../utilities/requests";
 import { socket } from "../../utilities/socket";
 import { Bucket as BucketObj } from "../../../shared/db-types-extended";
+import { Transaction } from "./transaction";
+import { BalanceCorrection } from "./balance-correction";
 
 type BucketEvents = {
     'created': undefined;
@@ -80,6 +82,38 @@ export class Bucket extends Cache<BucketEvents> {
             ...this,
             ...data,
             id: this.id
+        });
+    }
+
+    async getBalanceAtDate(endDate: number): Promise<number> {
+        return new Promise<number>((res, rej) => {
+            let balance = 0;
+            const transactions = Transaction.search(this.id, 0, endDate);
+    
+            transactions.on('chunk', (t) => {
+                switch (t.type) {
+                    case 'withdrawal':
+                        balance -= t.amount;
+                        break;
+                    case 'deposit':
+                        balance += t.amount;
+                        break;
+                }
+            });
+
+            transactions.on('complete', async () => {
+                const corrections = (await BalanceCorrection.fromBucket(this.id)).filter((c) => c.date <= endDate);
+                balance += corrections.reduce((acc, c) => acc + c.balance, 0);
+
+                res(balance);
+            });
+        });
+    }
+
+    async getBalanceGraphData(startDate: number, endDate: number): Promise<{ date: number, balance: number }[]> {
+        let balance = await this.getBalanceAtDate(startDate);
+
+        return new Promise<{ date: number, balance: number }[]>((res, rej) => {
         });
     }
 };
