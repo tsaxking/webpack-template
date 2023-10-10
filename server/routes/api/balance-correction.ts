@@ -1,6 +1,7 @@
 import { Route } from "../../structure/app/app.ts";
 import { DB } from "../../utilities/databases.ts";
 import { uuid } from "../../utilities/uuid.ts";
+import { validate } from "../../middleware/data-type.ts";
 
 
 
@@ -14,7 +15,11 @@ router.get('/all', (_req, res) => {
     res.json(balanceCorrections);
 });
 
-router.post('/new', (req, res) => {
+router.post('/new', validate({
+    balance: (v: any) => typeof v === 'number',
+    bucketId: (v: any) => typeof v === 'string',
+    date: (v: any) => typeof v === 'number'
+}), (req, res) => {
     const {
         balance,
         bucketId,
@@ -44,7 +49,12 @@ router.post('/new', (req, res) => {
     });
 });
 
-router.post('/update', (req, res) => {
+router.post('/update', validate({
+    id: (v: any) => typeof v === 'string',
+    balance: (v: any) => typeof v === 'number',
+    bucketId: (v: any) => typeof v === 'string',
+    date: (v: any) => typeof v === 'number'
+}), (req, res) => {
     const {
         id,
         balance,
@@ -72,7 +82,9 @@ router.post('/update', (req, res) => {
     });
 });
 
-router.post('/delete', (req, res) => {
+router.post('/delete', validate({
+    id: (v: any) => typeof v === 'string'
+}), (req, res) => {
     const { id } = req.body;
 
     DB.run('balance-correction/delete', { id });

@@ -1,7 +1,7 @@
 import { Route } from "../../structure/app/app.ts";
 import { DB } from "../../utilities/databases.ts";
 import { uuid } from "../../utilities/uuid.ts";
-
+import { validate } from "../../middleware/data-type.ts";
 
 export const router = new Route();
 
@@ -16,7 +16,9 @@ router.post('/get-types', (_req, res) => {
     });
 });
 
-router.post('/new-type', (req, res) => {
+router.post('/new-type', validate({
+    name: (v: any) => typeof v === 'string'
+}), (req, res) => {
     const {
         name
     } = req.body;
@@ -41,16 +43,16 @@ router.post('/new-type', (req, res) => {
     });
 });
 
-router.post('/new-subtype', (req, res) => {
+router.post('/new-subtype', validate({
+    name: (v: any) => typeof v === 'string',
+    typeId: (v: any) => typeof v === 'string',
+    type: (v: any) => typeof v === 'string' && ['withdrawal', 'deposit'].indexOf(v) !== -1
+}), (req, res) => {
     const {
         name,
         typeId,
         type
     } = req.body;
-
-    if (['withdrawal', 'deposit'].indexOf(type) === -1) {
-        return res.sendStatus('transaction-types:invalid-type');
-    }
 
     const dateCreated = Date.now();
     const dateModified = dateCreated;
@@ -76,7 +78,10 @@ router.post('/new-subtype', (req, res) => {
     });
 });
 
-router.post('/update-type', (req, res) => {
+router.post('/update-type', validate({
+    id: (v: any) => typeof v === 'string',
+    name: (v: any) => typeof v === 'string'
+}), (req, res) => {
     const {
         id,
         name
@@ -99,7 +104,12 @@ router.post('/update-type', (req, res) => {
     });
 });
 
-router.post('/update-subtype', (req, res) => {
+router.post('/update-subtype', validate({
+    id: (v: any) => typeof v === 'string',
+    name: (v: any) => typeof v === 'string',
+    typeId: (v: any) => typeof v === 'string',
+    type: (v: any) => typeof v === 'string' && ['withdrawal', 'deposit'].indexOf(v) !== -1
+}), (req, res) => {
     const {
         id,
         name,
