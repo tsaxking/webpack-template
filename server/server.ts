@@ -10,6 +10,7 @@ import Account from "./structure/accounts.ts";
 import { builder } from "./bundler.ts";
 import { router as admin } from './routes/admin.ts';
 import { router as account } from './routes/account.ts';
+import { router as api } from './routes/api.ts';
 import Role from "./structure/roles.ts";
 
 const port = +env.PORT || 3000;
@@ -163,12 +164,7 @@ app.get('/*', (req, res, next) => {
 });
 
 
-
-
-app.get('/home', (req, res, next) => {
-    res.sendTemplate('index');
-});
-
+app.route('/api', api)
 
 
 // routing
