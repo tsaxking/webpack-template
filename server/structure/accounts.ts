@@ -13,6 +13,7 @@ import { Next, ServerFunction } from './app/app.ts';
 import { Req } from "./app/req.ts";
 import { Res } from "./app/res.ts";
 import { AccountStatusId, RolesStatusId } from "../../shared/status-messages.ts";
+import { validate } from "../middleware/data-type.ts";
 
 
 export enum AccountDynamicProperty {
@@ -31,6 +32,20 @@ type DiscordLink = {
 
 
 export default class Account {
+    static validate(type: 'id' | 'username'): ServerFunction {
+        switch (type) {
+            case 'id':
+                return validate({
+                    id: (v: any) => typeof v === 'string' && !!Account.fromId(v)
+                });
+            case 'username':
+                return validate({
+                    username: (v: any) => typeof v === 'string' && !!Account.fromUsername(v)
+                });
+        };
+    };
+
+
     static autoSignIn(username?: string): ServerFunction {
         return (req, res, next) => {
             if (!username) return next();

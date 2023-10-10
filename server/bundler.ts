@@ -40,7 +40,14 @@ let entries = [];
 
 entries = readDir('./client/entries');
 
-export const builder = new EventEmitter<'build' | 'error'>();
+type BuildEventData = {
+    'build': any;
+    'error': Error;
+};
+
+type BuildEvent = keyof BuildEventData;
+
+export const builder = new EventEmitter<BuildEvent>();
 
 const result = await esbuild.build({
     entryPoints: entries,

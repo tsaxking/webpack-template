@@ -45,4 +45,10 @@ export class EventEmitter<allowedEvents = (string | number)> {
             delete this.events[event];
         }
     }
+
+    destroy() {
+        for (const event of Object.keys(this.events)) {
+            this.off(event as allowedEvents);
+        }
+    }
 }

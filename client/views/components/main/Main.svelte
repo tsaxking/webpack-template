@@ -46,7 +46,9 @@
 
 
 <main>
-    <Navbar {title} {navItems} {accountLinks} {account}></Navbar>
+    <Navbar {title} {navItems} {accountLinks} {account}>
+        <slot name="nav"></slot>
+    </Navbar>
 
     <Offcanvas {groups} on:openPage={(e) => {openPage(e); dispatch('openPage', e.detail)}} {active}>
     </Offcanvas>
