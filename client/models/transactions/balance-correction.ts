@@ -73,7 +73,9 @@ export class BalanceCorrection extends Cache<BalanceCorrectionEvents> {
 };
 
 socket.on('balance-correction:created', (data: BalanceObj) => {
-    new BalanceCorrection(data).$emitter.emit('created');
+    const c = new BalanceCorrection(data);
+    c.$emitter.emit('created');
+    BalanceCorrection.emit('created', c);
 });
 
 socket.on('balance-correction:deleted', (id: string) => {
@@ -81,6 +83,7 @@ socket.on('balance-correction:deleted', (id: string) => {
     if (!b) return;
 
     b.$emitter.emit('deleted');
+    BalanceCorrection.emit('deleted', b);
     b.destroy();
 });
 
@@ -89,5 +92,6 @@ socket.on('balance-correction:updated', (data: BalanceObj) => {
         const b = BalanceCorrection.cache.get(data.id) as BalanceCorrection;
         Object.assign(b, data);
         b.$emitter.emit('updated');
+        BalanceCorrection.emit('updated', b);
     }
 });

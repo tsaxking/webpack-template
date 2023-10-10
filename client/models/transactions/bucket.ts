@@ -106,25 +106,28 @@ export class Bucket extends Cache<BucketEvents> {
         return balance;
     }
 
-    async getBalanceGraphData(startDate: number, endDate: number): Promise<{ date: number, balance: number }[]> {
+    async getBalanceGraphData(startDate: number, endDate: number): Promise<{ date: number, balance: number, transactions: Transaction[] }[]> {
         let balance = await this.getBalanceAtDate(startDate);
         const transactions = await Transaction.search(this.id, startDate, endDate).promise;
         const corrections = await BalanceCorrection.fromBucket(this.id, startDate, endDate);
 
-        return new Array<{ date: number, balance: number }>(startDate - endDate + 1)
-            .fill({ date: 0, balance: 0 })
+        return new Array<{ date: number, balance: number, transactions: Transaction[] }>(startDate - endDate + 1)
+            .fill({ date: 0, balance: 0, transactions: [] })
             .map((_, i) => ({
                 date: startDate + i,
                 balance: (
                     balance + Transaction.value(transactions.filter((t) => t.date <= startDate + i))
                             + BalanceCorrection.value(corrections.filter((c) => c.date <= startDate + i))
-                )
+                ),
+                transactions: transactions.filter((t) => t.date <= startDate + i && t.date >= startDate + i - 86400000),
             }));
     }
 };
 
 socket.on('buckets:created', (data: BucketObj) => {
-    new Bucket(data).$emitter.emit('created');
+    const b = new Bucket(data);
+    b.$emitter.emit('created');
+    Bucket.emit('created', b);
 });
 
 socket.on('buckets:updated', (data: BucketObj) => {
@@ -134,6 +137,7 @@ socket.on('buckets:updated', (data: BucketObj) => {
         Bucket.cache.set(data.id, b);
 
         b.$emitter.emit('updated');
+        Bucket.emit('updated', b);
     }
 });
 
@@ -144,6 +148,7 @@ socket.on('buckets:archived', (id: string) => {
         Bucket.cache.set(id, b);
 
         b.$emitter.emit('archived');
+        Bucket.emit('archived', b);
     }
 });
 
@@ -154,6 +159,7 @@ socket.on('buckets:restored', (id: string) => {
         Bucket.cache.set(id, b);
 
         b.$emitter.emit('restored');
+        Bucket.emit('restored', b);
     }
 });
 
