@@ -163,7 +163,8 @@ export class Status {
             code: this.code,
             instructions: this.instructions,
             data: JSON.parse(this.data || '{}'),
-            redirect: this.redirect
+            redirect: this.redirect,
+            color: this.color
         }
     }
 

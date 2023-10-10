@@ -1,14 +1,23 @@
 import { EventEmitter } from "./event-emitter.ts";
 
-type StateEvent = 'new' | 'next' | 'prev';
-
 type StateStackOptions = {
     max?: number;
     copy?: (data: any) => any;
 }
 
+type StateStackEventData<T> = {
+    'next': State<T>;
+    'prev': State<T>;
+    'new': State<T>;
+    'change': State<T>;
+};
+
+type StateStackEvent<T> = keyof StateStackEventData<T>;
+
+
+
 class State<T> {
-    emitter = new EventEmitter<'next' | 'prev'>();
+    emitter = new EventEmitter<StateStackEvent<T>>();
 
     constructor(public readonly data: T, private readonly stack: StateStack<T>) {};
 
@@ -22,7 +31,7 @@ class State<T> {
 };
 
 export class StateStack<T = any> {
-    private readonly emitter = new EventEmitter<StateEvent>();
+    private readonly emitter = new EventEmitter<StateStackEvent<T>>();
     public readonly states: State<T>[] = [];
     private index = -1;
     public options?: StateStackOptions;
@@ -47,6 +56,7 @@ export class StateStack<T = any> {
 
         this.states.push(s);
         this.index++;
+        this.emitter.emit('change', this.current);
 
         return s;
     }
@@ -55,6 +65,7 @@ export class StateStack<T = any> {
         if (this.index < this.states.length - 1) {
             this.index++;
             this.emitter.emit('next', this.current);
+            this.emitter.emit('change', this.current);
             return this.current;
         }
     }
@@ -63,6 +74,7 @@ export class StateStack<T = any> {
         if (this.index > 0) {
             this.index--;
             this.emitter.emit('prev', this.current);
+            this.emitter.emit('change', this.current);
             return this.current;
         }
     }
@@ -71,19 +83,30 @@ export class StateStack<T = any> {
         return this.states[this.index];
     }
 
-    on(event: StateEvent, callback: (data: any) => void): void {
+    on<K extends StateStackEvent<T>>(event: K, callback: (data: StateStackEventData<T>[K]) => void): void {
         this.emitter.on(event, callback);
     }
 
-    off(event: StateEvent, callback?: (data: any) => void): void {
+    off<K extends StateStackEvent<T>>(event: K, callback?: (data: StateStackEventData<T>[K]) => void): void {
         this.emitter.off(event, callback);
     }
 };
+
+type BranchEventData<T> = {
+    'new': StateStack<T>;
+    'switch': StateStack<T>;
+    'remove': string;
+    'duplicate': StateStack<T>;
+};
+
+type BranchEvent<T> = keyof BranchEventData<T>;
+
 
 export class BranchStack<T = any> {
     branches: Map<string, StateStack<T>> = new Map();
 
     private currentBranch?: string;
+    private emitter = new EventEmitter<BranchEvent<T>>();
     
     constructor() {};
 
@@ -128,4 +151,13 @@ export class BranchStack<T = any> {
 
         return newBranch;
     };
+
+
+    on<K extends BranchEvent<T>>(event: K, callback: (data: BranchEventData<T>[K]) => void): void {
+        this.emitter.on(event, callback);
+    }
+
+    off<K extends BranchEvent<T>>(event: K, callback?: (data: BranchEventData<T>[K]) => void): void {
+        this.emitter.off(event, callback);
+    }
 };

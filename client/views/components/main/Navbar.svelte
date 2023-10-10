@@ -46,6 +46,9 @@
             {/each}
         </ul>
     </div>
+    <div class="me-3">
+        <slot></slot>
+    </div>
 
     <a class="nav-link dropdown-toggle me-3" href="#navbarDropdown" id="navbarDropdown-link" role="button" data-bs-toggle="dropdown" aria-expanded="false">
         Hello, {account.username}&nbsp;
@@ -55,6 +58,8 @@
             <span class="material-icons">person</span>
         {/if}
     </a>
+
+
     <ul class="dropdown-menu dropdown-menu-end p-0" aria-labelledby="navbarDropdown" id="navbarDropdown">
         {#each accountLinks as link}
             {#if (link)}

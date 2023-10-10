@@ -5,6 +5,7 @@ import Role from "../structure/roles.ts";
 import { StatusId, messages } from "../../shared/status-messages.ts";
 import { log } from "../utilities/terminal-logging.ts";
 import { fileStream } from "../middleware/stream.ts";
+import { validate } from "../middleware/data-type.ts";
 
 export const router = new Route();
 
@@ -33,7 +34,10 @@ router.get('/sign-up', (_req, res) => {
     res.sendTemplate('entries/account/sign-up');
 });
 
-router.post('/sign-in', Account.notSignedIn, (req, res) => {
+router.post('/sign-in', Account.notSignedIn, validate({
+    username: (v: any) => typeof v == 'string',
+    password: (v: any) => typeof v == 'string'
+}), (req, res) => {
     const { 
         username,
         password
@@ -60,7 +64,14 @@ router.post('/sign-in', Account.notSignedIn, (req, res) => {
 
 
 
-router.post('/sign-up', Account.notSignedIn, async(req, res) => {
+router.post('/sign-up', Account.notSignedIn, validate({
+    username: (v: any) => typeof v == 'string',
+    password: (v: any) => typeof v == 'string',
+    confirmPassword: (v: any) => typeof v == 'string',
+    email: (v: any) => typeof v == 'string',
+    firstName: (v: any) => typeof v == 'string',
+    lastName: (v: any) => typeof v == 'string'
+}), async(req, res) => {
     const {
         username,
         password,
@@ -92,7 +103,9 @@ router.post('/sign-up', Account.notSignedIn, async(req, res) => {
 // req.session.account is always available when Account.allowRoles/Permissions is used
 // however, typescript doesn't know that, so we have to cast it
 
-router.post('/verify-account', Account.allowPermissions('verify'), async(req, res) => {
+router.post('/verify-account', Account.allowPermissions('verify'), validate({
+    username: (v: any) => typeof v == 'string'
+}), async(req, res) => {
     const { username } = req.body;
 
     if (username === req.session.account?.username) return res.sendStatus('account:cannot-edit-self')
@@ -109,7 +122,9 @@ router.post('/verify-account', Account.allowPermissions('verify'), async(req, re
 
 
 
-router.post('/reject-account', Account.allowPermissions('verify'), (req, res) => {
+router.post('/reject-account', Account.allowPermissions('verify'), validate({
+    username: (v: any) => typeof v == 'string'
+}), (req, res) => {
     const { username } = req.body;
 
     if (username === req.session.account?.username) return res.sendStatus('account:cannot-edit-self')
@@ -154,7 +169,9 @@ router.post('/get-all', (_req, res) => {
 
 
 
-router.post('/remove-account', Account.allowPermissions('editUsers'), (req, res) => {
+router.post('/remove-account', Account.allowPermissions('editUsers'), validate({
+    username: (v: any) => typeof v == 'string'
+}), (req, res) => {
     const { username } = req.body;
 
     if (username === req.session.account?.username) return res.sendStatus('account:cannot-edit-self', { username });
@@ -169,7 +186,9 @@ router.post('/remove-account', Account.allowPermissions('editUsers'), (req, res)
 
 
 
-router.post('/unverify-account', Account.allowPermissions('verify'), (req, res) => {
+router.post('/unverify-account', Account.allowPermissions('verify'), validate({
+    username: (v: any) => typeof v == 'string'
+}), (req, res) => {
     const { username } = req.body;
 
     if (username === req.session.account?.username) return res.sendStatus('account:cannot-edit-self', { username });
@@ -183,7 +202,10 @@ router.post('/unverify-account', Account.allowPermissions('verify'), (req, res) 
 
 
 
-router.post('/add-role', Account.allowPermissions('editRoles'), (req, res) => {
+router.post('/add-role', Account.allowPermissions('editRoles'), validate({
+    username: (v: any) => typeof v == 'string',
+    role: (v: any) => typeof v == 'string'
+}), (req, res) => {
     const { username, role } = req.body;
 
     if (username === req.session.account?.username) return res.sendStatus('account:cannot-edit-self', { username });
@@ -201,7 +223,10 @@ router.post('/add-role', Account.allowPermissions('editRoles'), (req, res) => {
 
 
 
-router.post('/remove-role', Account.allowPermissions('editRoles'), (req, res) => {
+router.post('/remove-role', Account.allowPermissions('editRoles'), validate({
+    username: (v: any) => typeof v == 'string',
+    role: (v: any) => typeof v == 'string'
+}), (req, res) => {
     const { username, role } = req.body;
 
     if (username === req.session.account?.username) return res.sendStatus('account:cannot-edit-self', { username });
