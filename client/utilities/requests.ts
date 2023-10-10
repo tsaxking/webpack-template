@@ -1,6 +1,7 @@
 import { sleep } from "../../shared/sleep";
 import { notify } from "./notifications";
 import { EventEmitter } from '../../shared/event-emitter';
+import { StatusJson } from "../../shared/status";
 
 export type RequestOptions = {
     headers?: {
@@ -204,7 +205,7 @@ export class ServerRequest<T = unknown> {
 
                     if (data?.status) {
                         // this is a notification
-                        notify(data);
+                        notify(data as StatusJson);
                     }
 
 

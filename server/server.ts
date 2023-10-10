@@ -12,6 +12,7 @@ import { router as admin } from './routes/admin.ts';
 import { router as account } from './routes/account.ts';
 import { router as api } from './routes/api.ts';
 import Role from "./structure/roles.ts";
+import { validate } from "./middleware/data-type.ts";
 
 const port = +env.PORT || 3000;
 const domain = env.DOMAIN || `http://localhost:${port}`;
@@ -38,6 +39,17 @@ builder.on('error', (e) => log('Build error:', e));
 
 
 app.post('/test', (req, res, next) => {
+    res.sendStatus('test:success');
+});
+
+app.post('/test-validation', validate({
+    username: (v: any) => v === 'fail',
+    password: (v: any) => v === 'test'
+}, {
+    onspam: (req, res, next) => {
+        res.sendStatus('test:fail');
+    }
+}), (req, res, next) => {
     res.sendStatus('test:success');
 });
 
@@ -206,8 +218,6 @@ app.get('/admin/*', Role.allowRoles('admin'), (req, res, next) => {
 
 
 app.final((req, res) => {
-    log('Final function');
-
     req.session.save();
 
     serverLog('request', {
