@@ -1,11 +1,12 @@
 <script lang="ts">
-    let picture: string | undefined;
-    let title: string;
-    let footer: boolean = false;
+    export let picture: string | undefined;
+    export let title: string;
+    export let footer: boolean = false;
+    export let classes: string = '';
 </script>
 
 
-<div class="card" style="width: 18rem;">
+<div class="card {classes}">
     <div class="card-header">
         <h5 class="card-title">{title}</h5>
     </div>

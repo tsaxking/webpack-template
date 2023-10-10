@@ -1,0 +1,1 @@
+SELECT * FROM Transaction WHERE bucket = :bucket AND archived = 0;

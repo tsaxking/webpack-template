@@ -1,0 +1,1 @@
+DELETE FROM BalanceCorrection WHERE id = ?;

@@ -1,0 +1,1 @@
+SELECT * FROM Subscriptions WHERE archived = 1;

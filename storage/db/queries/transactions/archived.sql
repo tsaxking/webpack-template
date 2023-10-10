@@ -1,0 +1,1 @@
+SELECT * FROM Transactions WHERE archived = 1;

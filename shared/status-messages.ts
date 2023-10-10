@@ -236,6 +236,60 @@ export const messages: {
     code: 400,
     instructions: ''
 },
+    'balance-correction:created': {
+    message: 'Balance correction created',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'balance-correction:deleted': {
+    message: 'Balance correction deleted',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'balance-correction:updated': {
+    message: 'Balance correction updated',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'buckets:archived': {
+    message: 'Bucket archived',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'buckets:created': {
+    message: 'Bucket created',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'buckets:invalid-id': {
+    message: 'Invalid bucket id',
+    color: 'danger',
+    code: 404,
+    instructions: ''
+},
+    'buckets:invalid-type': {
+    message: 'Invalid bucket type, only \'debit\', \'credit\', and \'savings\' are allowed',
+    color: 'danger',
+    code: 404,
+    instructions: ''
+},
+    'buckets:unarchived': {
+    message: 'Bucket unarchived',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'buckets:updated': {
+    message: 'Bucket update successful',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
     'files:invalid': {
     message: 'Invalid file',
     color: 'danger',
@@ -362,6 +416,36 @@ export const messages: {
     code: 200,
     instructions: ''
 },
+    'miles:archived': {
+    message: 'Miles archived',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'miles:created': {
+    message: 'Miles created',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'miles:invalid-id': {
+    message: 'Invalid miles id',
+    color: 'danger',
+    code: 404,
+    instructions: ''
+},
+    'miles:restored': {
+    message: 'Miles restored',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'miles:updated': {
+    message: 'Miles updated',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
     'page:not-found': {
     message: 'Page not found',
     color: 'danger',
@@ -470,6 +554,60 @@ export const messages: {
     code: 200,
     instructions: ''
 },
+    'transaction-types:created': {
+    message: 'Transaction type created',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'transaction-types:invalid-type': {
+    message: 'Invalid transaction type, only \'withdrawal\' and \'deposit\' are allowed',
+    color: 'danger',
+    code: 404,
+    instructions: ''
+},
+    'transaction-types:subtype-updated': {
+    message: 'Transaction subtype updated',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'transaction-types:type-updated': {
+    message: 'Transaction type updated',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'transactions:archived': {
+    message: 'Transaction archived',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'transactions:created': {
+    message: 'Transaction created',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'transactions:invalid-type': {
+    message: 'Invalid transaction type, only \'withdrawal\' and \'deposit\' are allowed',
+    color: 'danger',
+    code: 404,
+    instructions: ''
+},
+    'transactions:unarchived': {
+    message: 'Transaction unarchived',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'transactions:updated': {
+    message: 'Transaction updated',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
     'unknown:error': {
     message: 'Unknown error',
     color: 'danger',
@@ -514,6 +652,15 @@ export type StatusId = 'account:already-logged-in'
 	| 'account:username-taken'
 	| 'account:verified'
 	| 'admin:invalid-key'
+	| 'balance-correction:created'
+	| 'balance-correction:deleted'
+	| 'balance-correction:updated'
+	| 'buckets:archived'
+	| 'buckets:created'
+	| 'buckets:invalid-id'
+	| 'buckets:invalid-type'
+	| 'buckets:unarchived'
+	| 'buckets:updated'
 	| 'files:invalid'
 	| 'files:invalid-extension'
 	| 'files:no-files'
@@ -535,6 +682,11 @@ export type StatusId = 'account:already-logged-in'
 	| 'member:update-bio'
 	| 'member:update-resume'
 	| 'member:update-title'
+	| 'miles:archived'
+	| 'miles:created'
+	| 'miles:invalid-id'
+	| 'miles:restored'
+	| 'miles:updated'
 	| 'page:not-found'
 	| 'permissions:error'
 	| 'permissions:forbidden'
@@ -553,6 +705,15 @@ export type StatusId = 'account:already-logged-in'
 	| 'spam:detected'
 	| 'test:fail'
 	| 'test:success'
+	| 'transaction-types:created'
+	| 'transaction-types:invalid-type'
+	| 'transaction-types:subtype-updated'
+	| 'transaction-types:type-updated'
+	| 'transactions:archived'
+	| 'transactions:created'
+	| 'transactions:invalid-type'
+	| 'transactions:unarchived'
+	| 'transactions:updated'
 	| 'unknown:error'
 ;
 
@@ -596,11 +757,24 @@ export type AccountStatusId = 'already-logged-in'
 export type AdminStatusId = 'invalid-key';
 
 
+export type BalancecorrectionStatusId = 'created'
+	| 'deleted'
+	| 'updated';
+
+
+export type BucketsStatusId = 'archived'
+	| 'created'
+	| 'invalid-id'
+	| 'invalid-type'
+	| 'unarchived'
+	| 'updated';
+
+
 export type FilesStatusId = 'invalid'
 	| 'invalid-extension'
+	| 'no-files'
 	| 'too-large'
-	| 'uploaded'
-	| 'no-files';
+	| 'uploaded';
 
 
 export type MemberStatusId = 'accepted'
@@ -619,6 +793,13 @@ export type MemberStatusId = 'accepted'
 	| 'update-bio'
 	| 'update-resume'
 	| 'update-title';
+
+
+export type MilesStatusId = 'archived'
+	| 'created'
+	| 'restored'
+	| 'updated'
+	| 'invalid-id';
 
 
 export type PageStatusId = 'not-found';
@@ -651,6 +832,19 @@ export type SpamStatusId = 'detected';
 
 export type TestStatusId = 'fail'
 	| 'success';
+
+
+export type TransactiontypesStatusId = 'created'
+	| 'invalid-type'
+	| 'subtype-updated'
+	| 'type-updated';
+
+
+export type TransactionsStatusId = 'archived'
+	| 'created'
+	| 'invalid-type'
+	| 'unarchived'
+	| 'updated';
 
 
 export type UnknownStatusId = 'error';

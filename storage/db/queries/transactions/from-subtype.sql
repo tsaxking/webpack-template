@@ -1,0 +1,1 @@
+SELECT * FROM Transactions WHERE subtypeId = :subtypeId AND archived = 0;
