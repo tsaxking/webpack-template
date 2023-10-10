@@ -1,7 +1,7 @@
 import { StatusJson } from "../../shared/status";
 import ToastContainer from '../views/components/bootstrap/ToastContainer.svelte';
 import Toast from "../views/components/bootstrap/Toast.svelte";
-import { fromCamelCase, capitalize } from "../../shared/text";
+import { fromCamelCase, capitalize, fromSnakeCase } from "../../shared/text";
 import Modal from "../views/components/bootstrap/Modal.svelte";
 import Button from "../views/components/bootstrap/Button.svelte";
 
@@ -13,9 +13,9 @@ const container = new ToastContainer({
 
 
 export const notify = (data: StatusJson) => {
-    const status = capitalize(fromCamelCase(data.title));
+    const status = capitalize(fromSnakeCase(fromCamelCase(data.title), '-'));
 
-    let message = `${status}: ${data.message}`;
+    let message = `${status}: ${capitalize(fromSnakeCase(fromCamelCase(data.status), '-'))}`;
 
     if(data.data) {
         for (const [key, value] of Object.entries(data.data)) {
@@ -26,10 +26,10 @@ export const notify = (data: StatusJson) => {
     const t = new Toast({
         target: document.createElement('div'),
         props: {
-            title: status,
+            title: message,
             message: data.message,
             show: true,
-            color: 'danger',
+            color: data.color,
             bodyTextColor: 'white'
         }
     });
