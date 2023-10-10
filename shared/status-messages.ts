@@ -422,6 +422,12 @@ export const messages: {
     code: 200,
     instructions: ''
 },
+    'server:invalid-data': {
+    message: 'Invalid data types received',
+    color: 'danger',
+    code: 400,
+    instructions: ''
+},
     'skills:added': {
     message: 'Skill added',
     color: 'success',
@@ -545,6 +551,7 @@ export type StatusId = 'account:already-logged-in'
 	| 'roles:invalid-role'
 	| 'roles:not-found'
 	| 'roles:removed'
+	| 'server:invalid-data'
 	| 'skills:added'
 	| 'skills:has-skill'
 	| 'skills:invalid-skill'
@@ -598,9 +605,9 @@ export type AdminStatusId = 'invalid-key';
 
 export type FilesStatusId = 'invalid'
 	| 'invalid-extension'
+	| 'no-files'
 	| 'too-large'
-	| 'uploaded'
-	| 'no-files';
+	| 'uploaded';
 
 
 export type MemberStatusId = 'accepted'
@@ -654,3 +661,6 @@ export type TestStatusId = 'fail'
 
 
 export type UnknownStatusId = 'error';
+
+
+export type ServerStatusId = 'invalid-data';
