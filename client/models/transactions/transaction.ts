@@ -2,6 +2,7 @@ import { Cache } from "../cache";
 import { Transaction as TransactionObj } from "../../../shared/db-types-extended";
 import { ServerRequest } from '../../utilities/requests';
 import { socket } from '../../utilities/socket';
+import { RetrieveStreamEventEmitter } from "../../utilities/requests";
 
 
 
@@ -20,10 +21,31 @@ type TransactionEvents = {
 export class Transaction extends Cache<TransactionEvents> {
     static readonly cache: Map<string, Transaction> = new Map<string, Transaction>();
     static search(bucket: string, from: number, to: number) {
-        const em = ServerRequest.retrieveStream<TransactionObj>('')
+        if (from > to) throw new Error('From date must be before to date');
+
+        if (Transaction.cache.size > 0) {
+            const items = Array.from(Transaction.cache.values()).filter((t) => t.bucketId === bucket && t.date >= from && t.date <= to);
+
+            const em = new RetrieveStreamEventEmitter<Transaction>();
+
+            items.forEach(t => em.emit('chunk', t));
+            em.emit('complete', items);
+
+            return em;
+        }
+
+
+        const em = ServerRequest
+            .retrieveStream<Transaction>('/api/transactions/search', {
+                    bucket,
+                    from,
+                    to
+                },
+                (data) => new Transaction(JSON.parse(data))
+            );
+
+        return em;
     };
-
-
 
     public readonly id: string;
     public amount: number;
@@ -56,10 +78,30 @@ export class Transaction extends Cache<TransactionEvents> {
         }
     };
 
-    change(data: 'amount' | 'type' | 'status' | 'date' | 'bucketId' | 'description' | 'subtypeId' | 'taxDeductible' | 'archived' | 'picture', value: any) {
+    update(data: Partial<TransactionObj>) {
+        if (data.id) {
+            throw new Error('Cannot update ID');
+        }
         return ServerRequest.post('/api/transactions/update', {
             ...this,
-            [data]: value
+            ...data,
+            id: this.id
+        });
+    }
+
+    archive() {
+        if (this.archived) return;
+        return ServerRequest.post('/api/transactions/change-transaction-archive-status', {
+            id: this.id,
+            archive: true
+        });
+    }
+
+    restore() {
+        if (!this.archived) return;
+        return ServerRequest.post('/api/transactions/change-transaction-archive-status', {
+            id: this.id,
+            archive: false
         });
     }
 };
@@ -67,22 +109,12 @@ export class Transaction extends Cache<TransactionEvents> {
 socket.on('transactions:updated', (data: TransactionObj) => {
     const t = Transaction.cache.get(data.id);
     if (t) {
-        t.amount = data.amount;
-        t.type = data.type;
-        t.status = data.status;
-        t.date = data.date;
-        t.bucketId = data.bucketId;
-        t.description = data.description;
-        t.subtypeId = data.subtypeId;
-        t.taxDeductible = data.taxDeductible;
-        t.archived = data.archived;
-        t.picture = data.picture;
+        Object.assign(t, data);
         Transaction.cache.set(data.id, t);
 
         t.$emitter.emit('update');
     }
 });
-
 
 socket.on('transactions:archived', (id: string) => {
     const t = Transaction.cache.get(id);
@@ -94,8 +126,6 @@ socket.on('transactions:archived', (id: string) => {
     }
 });
 
-
-
 socket.on('transactions:restored', (id: string) => {
     const t = Transaction.cache.get(id);
     if (t) {
@@ -105,9 +135,6 @@ socket.on('transactions:restored', (id: string) => {
         t.$emitter.emit('restored');
     }
 });
-
-
-
 
 socket.on('transactions:created', (data: TransactionObj) => {
     const t = new Transaction(data);

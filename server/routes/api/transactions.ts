@@ -25,7 +25,7 @@ router.post('/search', validate({
     res.stream(transactions.map(t => JSON.stringify(t)));
 });
 
-router.post('/new-transaction', validate({
+router.post('/new', validate({
     amount: (v: any) => typeof v === 'number',
     type: (v: any) => typeof v === 'string' && ['withdrawal', 'deposit'].indexOf(v) !== -1,
     status: (v: any) => typeof v === 'string',
@@ -78,7 +78,7 @@ router.post('/new-transaction', validate({
     });
 });
 
-router.post('/update-transaction', validate({
+router.post('/update', validate({
     id: (v: any) => typeof v === 'string',
     amount: (v: any) => typeof v === 'number',
     type: (v: any) => typeof v === 'string' && ['withdrawal', 'deposit'].indexOf(v) !== -1,

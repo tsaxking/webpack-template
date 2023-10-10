@@ -614,7 +614,14 @@ export type Queries = {
         ],
         Subscription
     ],
-
+    'subscriptions/from-id': [
+        [
+            {
+                id: string;
+            }
+        ],
+        Subscription
+    ],
 
 
 

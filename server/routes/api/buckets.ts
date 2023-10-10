@@ -24,7 +24,7 @@ router.post('/archived', (_req, res) => {
 router.post('/new', validate({
     name: (v: any) => typeof v === 'string',
     description: (v: any) => typeof v === 'string',
-    type: (v: any) => typeof v === 'string'
+    type: (v: any) => [ 'debit', 'credit', 'savings' ].indexOf(v) > -1
 }), (req, res) => {
     const {
         name,
@@ -32,9 +32,6 @@ router.post('/new', validate({
         type
     } = req.body;
 
-    if ([ 'debit', 'credit', 'savings' ].indexOf(type) === -1) {
-        return res.sendStatus('buckets:invalid-type');
-    }
 
     const created = Date.now();
     const id = uuid();
@@ -96,9 +93,9 @@ router.post('/update', validate({
 
 router.post('/set-archive-status', validate({
     bucketId: (v: any) => typeof v === 'string',
-    status: (v: any) => typeof v === 'boolean'
+    archived: (v: any) => typeof v === 'boolean'
 }), (req, res) => {
-    const { bucketId, status } = req.body;
+    const { bucketId, archived } = req.body;
 
     const b = DB.get('buckets/from-id', { id: bucketId });
 
@@ -108,10 +105,10 @@ router.post('/set-archive-status', validate({
 
     DB.run('buckets/set-archive', {
         id: bucketId,
-        archived: status ? 1 : 0
+        archived: archived ? 1 : 0
     });
 
-    if (status) {
+    if (archived) {
         res.sendStatus('buckets:archived');
         req.io.emit('buckets:archived', { bucketId });
     } else {

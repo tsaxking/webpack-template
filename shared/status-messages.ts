@@ -548,6 +548,36 @@ export const messages: {
     code: 400,
     instructions: 'Please try again.'
 },
+    'subscriptions:archived': {
+    message: 'Subscription archived',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'subscriptions:created': {
+    message: 'Subscription created successfully',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'subscriptions:invalid-id': {
+    message: 'Invalid subscription id',
+    color: 'danger',
+    code: 400,
+    instructions: ''
+},
+    'subscriptions:restored': {
+    message: 'Subscription restored',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'subscriptions:updated': {
+    message: 'Subscription updated',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
     'test:fail': {
     message: 'This test failed',
     color: 'danger',
@@ -572,8 +602,20 @@ export const messages: {
     code: 404,
     instructions: ''
 },
+    'transaction-types:subtype-created': {
+    message: 'Created subtype',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
     'transaction-types:subtype-updated': {
     message: 'Transaction subtype updated',
+    color: 'success',
+    code: 200,
+    instructions: ''
+},
+    'transaction-types:type-created': {
+    message: 'Created type',
     color: 'success',
     code: 200,
     instructions: ''
@@ -710,11 +752,18 @@ export type StatusId = 'account:already-logged-in'
 	| 'skills:not-found'
 	| 'skills:removed'
 	| 'spam:detected'
+	| 'subscriptions:archived'
+	| 'subscriptions:created'
+	| 'subscriptions:invalid-id'
+	| 'subscriptions:restored'
+	| 'subscriptions:updated'
 	| 'test:fail'
 	| 'test:success'
 	| 'transaction-types:created'
 	| 'transaction-types:invalid-type'
+	| 'transaction-types:subtype-created'
 	| 'transaction-types:subtype-updated'
+	| 'transaction-types:type-created'
 	| 'transaction-types:type-updated'
 	| 'transactions:archived'
 	| 'transactions:created'
@@ -804,9 +853,9 @@ export type MemberStatusId = 'accepted'
 
 export type MilesStatusId = 'archived'
 	| 'created'
+	| 'invalid-id'
 	| 'restored'
-	| 'updated'
-	| 'invalid-id';
+	| 'updated';
 
 
 export type PageStatusId = 'not-found';
@@ -827,6 +876,9 @@ export type RolesStatusId = 'added'
 	| 'removed';
 
 
+export type ServerStatusId = 'invalid-data';
+
+
 export type SkillsStatusId = 'added'
 	| 'has-skill'
 	| 'invalid-skill'
@@ -837,13 +889,22 @@ export type SkillsStatusId = 'added'
 export type SpamStatusId = 'detected';
 
 
+export type SubscriptionsStatusId = 'archived'
+	| 'created'
+	| 'restored'
+	| 'updated'
+	| 'invalid-id';
+
+
 export type TestStatusId = 'fail'
 	| 'success';
 
 
 export type TransactiontypesStatusId = 'created'
 	| 'invalid-type'
+	| 'subtype-created'
 	| 'subtype-updated'
+	| 'type-created'
 	| 'type-updated';
 
 
@@ -855,6 +916,3 @@ export type TransactionsStatusId = 'archived'
 
 
 export type UnknownStatusId = 'error';
-
-
-export type ServerStatusId = 'invalid-data';
