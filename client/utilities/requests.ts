@@ -26,13 +26,38 @@ type SendStreamEventData = {
 
 type StreamEvent = keyof SendStreamEventData;
 
-type RetrieveStreamEventData = {
-    'chunk': Uint8Array;
-    'complete': undefined;
+type RetrieveStreamEventData<T> = {
+    'chunk': T;
+    'complete': T[];
     'error': Error;
 };
 
-type RetrieveStreamEvent = keyof RetrieveStreamEventData;
+type RetrieveStreamEvent<T> = keyof RetrieveStreamEventData<T>;
+
+
+
+
+
+export class RetrieveStreamEventEmitter<T = string> extends EventEmitter<RetrieveStreamEvent<T>> {
+    constructor() {
+        super();
+    }
+
+    on<K extends RetrieveStreamEvent<T>>(event: K, callback: (data: RetrieveStreamEventData<T>[K]) => void): void {
+        super.on(event, callback);
+    }
+
+    emit<K extends RetrieveStreamEvent<T>>(event: K, data: RetrieveStreamEventData<T>[K]): void {
+        super.emit(event, data);
+    }
+
+    off<K extends RetrieveStreamEvent<T>>(event: K, callback: (data: RetrieveStreamEventData<T>[K]) => void): void {
+        super.off(event, callback);
+    }
+}
+
+
+
 
 
 export class ServerRequest<T = unknown> {
@@ -124,8 +149,10 @@ export class ServerRequest<T = unknown> {
         return emitter;
     }
 
-    static retrieveStream(url: string, body?: any): EventEmitter<RetrieveStreamEvent> {
-        const emitter = new EventEmitter<RetrieveStreamEvent>();
+    static retrieveStream<K = string>(url: string, body?: any, parser?: (data: string) => K): RetrieveStreamEventEmitter<K> {
+        const output: K[] = [];
+
+        const emitter = new RetrieveStreamEventEmitter<K>();
 
         fetch(url, {
             method: 'POST',
@@ -140,11 +167,20 @@ export class ServerRequest<T = unknown> {
 
                 reader.read().then(function process({ done, value }) {
                     if (done) {
-                        emitter.emit('complete');
+                        emitter.emit('complete', output);
                         return;
                     }
 
-                    emitter.emit('chunk', value);
+                    if (value) {
+                        const d = new TextDecoder().decode(value);
+                        if (parser) {
+                            output.push(parser(d));
+                            emitter.emit('chunk', parser(d));
+                        } else {
+                            output.push(d as K);
+                            emitter.emit('chunk', d as K);
+                        }
+                    }
                     return reader.read().then(process);
                 });
             })
