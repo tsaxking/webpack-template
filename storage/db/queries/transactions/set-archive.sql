@@ -1,0 +1,1 @@
+UPDATE Transactions SET archived = :archived WHERE id = :id;

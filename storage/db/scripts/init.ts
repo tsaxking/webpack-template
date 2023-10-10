@@ -7,7 +7,7 @@ const filePath = path.resolve(__root, './storage/db/queries/db/init.sql');
 
 
 const db = new Database(
-    path.resolve(__root, './storage/db/main.db')
+    path.resolve(__root, './storage/db/budget.db')
 );
 
 const query = Deno.readTextFileSync(filePath);

@@ -2,6 +2,7 @@
 import { __root } from "./env.ts";
 import { MembershipStatus, Account, Member, Role, AccountRole, RolePermission, Skill } from "../../shared/db-types.ts";
 import { SessionObj } from "../structure/sessions.ts";
+import { Transaction, Bucket, BalanceCorrection, Miles, Subscription, Subtype, TransactionType } from "../../shared/db-types-extended.ts";
 
 export type Queries = {
     'sessions/delete': [
@@ -282,6 +283,405 @@ export type Queries = {
         [{
             id: string
         }],
+        unknown
+    ],
+
+
+
+
+    // ▀█▀ █▀▄ ▄▀▄ █▄ █ ▄▀▀ ▄▀▄ ▄▀▀ ▀█▀ █ ▄▀▄ █▄ █ ▄▀▀ 
+    //  █  █▀▄ █▀█ █ ▀█ ▄█▀ █▀█ ▀▄▄  █  █ ▀▄▀ █ ▀█ ▄█▀ 
+    'transactions/archived': [
+        [],
+        Transaction
+    ],
+    'transactions/deposits': [
+        [
+            [],
+            Transaction
+        ]
+    ],
+    'transactions/from-bucket': [
+        [{
+            bucket: string
+        }],
+        Transaction
+    ],
+    'transactions/from-status': [
+        [
+            {
+                status: 'pending' | 'completed' | 'failed'
+            }
+        ],
+        Transaction
+    ],
+    'transactions/from-subtype': [
+        [
+            {
+                subtypeId: string;
+            }
+        ],
+        Transaction
+    ],
+    'transactions/from-tax-deductible': [
+        [
+            {
+                taxDeductible: 0 | 1;
+            }
+        ],
+        Transaction
+    ],
+    'transactions/from-type': [
+        [
+            {
+                typeId: string;
+            }
+        ],
+        Transaction
+    ],
+    'transactions/new': [
+        [
+            {
+                id: string;
+                amount: number;
+                type: 'withdrawal' | 'deposit';
+                status: 'pending' | 'completed' | 'failed';
+                date: number;
+                bucketId: string;
+                description: string;
+                subtypeId: string;
+                taxDeductible: 0 | 1;
+                picture: string|null;
+            }
+        ],
+        unknown
+    ],
+    'transactions/set-archive': [
+        [
+            {
+                id: string;
+                archived: 0 | 1;
+            }
+        ],
+        unknown
+    ],
+    'transactions/update': [
+        [
+            {
+                id: string;
+                amount: number;
+                type: 'withdrawal' | 'deposit';
+                status: 'pending' | 'completed' | 'failed';
+                date: number;
+                bucketId: string;
+                description: string;
+                subtypeId: string;
+                taxDeductible: 0 | 1;
+                picture: string|null;
+            }
+        ],
+        unknown
+    ],
+    'transactions/withdrawals': [
+        [],
+        Transaction
+    ],
+    'transactions/between': [
+        [{
+            from: number;
+            to: number;
+            bucketId: string;
+        }],
+        Transaction
+    ],
+
+
+
+
+
+    // ██▄ █ █ ▄▀▀ █▄▀ ██▀ ▀█▀ ▄▀▀ 
+    // █▄█ ▀▄█ ▀▄▄ █ █ █▄▄  █  ▄█▀ 
+    'buckets/all': [
+        [],
+        Bucket
+    ],
+    'buckets/archived': [
+        [],
+        Bucket
+    ],
+    'buckets/from-id': [
+        [
+            {
+                id: string
+            }
+        ],
+        Bucket
+    ],
+    'buckets/new': [
+        [
+            {
+                id: string;
+                description: string;
+                created: number;
+                type: 'debit' | 'credit' | 'savings';
+                name: string;
+            }
+        ],
+        unknown
+    ],
+    'buckets/set-archive': [
+        [
+            {
+                id: string;
+                archived: 0 | 1;
+            }
+        ],
+        unknown
+    ],
+    'buckets/update': [
+        [
+            {
+                id: string;
+                description: string;
+                created: number;
+                type: 'debit' | 'credit' | 'savings';
+                name: string;
+            }
+        ],
+        unknown
+    ],
+
+
+
+
+
+
+
+    // ██▄ ▄▀▄ █   ▄▀▄ █▄ █ ▄▀▀ ██▀    ▄▀▀ ▄▀▄ █▀▄ █▀▄ ██▀ ▄▀▀ ▀█▀ █ ▄▀▄ █▄ █ 
+    // █▄█ █▀█ █▄▄ █▀█ █ ▀█ ▀▄▄ █▄▄    ▀▄▄ ▀▄▀ █▀▄ █▀▄ █▄▄ ▀▄▄  █  █ ▀▄▀ █ ▀█ 
+
+    'balance-correction/all': [
+        [],
+        BalanceCorrection
+    ],
+    'balance-correction/delete': [
+        [
+            {
+                id: string;
+            }
+        ],
+        unknown
+    ],
+    'balance-correction/new': [
+        [
+            {
+                id: string;
+                date: number;
+                balance: number;
+                bucketId: string;
+            }
+        ],
+        unknown
+    ],
+    'balance-correction/update': [
+        [
+            {
+                id: string;
+                date: number;
+                balance: number;
+                bucketId: string;
+            }
+        ],
+        unknown
+    ],
+
+
+
+
+
+    // █▄ ▄█ █ █   ██▀ ▄▀▀ 
+    // █ ▀ █ █ █▄▄ █▄▄ ▄█▀ 
+    'miles/active': [
+        [],
+        Miles
+    ],
+    'miles/archived': [
+        [],
+        Miles
+    ],
+    'miles/from-id': [
+        [
+            {
+                id: string;
+            }
+        ],
+        Miles
+    ],
+    'miles/new': [
+        [
+            {
+                id: string;
+                amount: number;
+                date: number;
+            }
+        ],
+        unknown
+    ],
+    'miles/set-archive': [
+        [
+            {
+                id: string;
+                archived: 0 | 1;
+            }
+        ],
+        unknown
+    ],
+    'miles/update': [
+        [
+            {
+                id: string;
+                amount: number;
+                date: number;
+            }
+        ],
+        unknown
+    ],
+
+
+
+
+
+    // ▄▀▀ █ █ ██▄ ▄▀▀ ▄▀▀ █▀▄ █ █▀▄ ▀█▀ █ ▄▀▄ █▄ █ ▄▀▀ 
+    // ▄█▀ ▀▄█ █▄█ ▄█▀ ▀▄▄ █▀▄ █ █▀   █  █ ▀▄▀ █ ▀█ ▄█▀ 
+    'subscriptions/active': [
+        [],
+        Subscription
+    ],
+    'subscriptions/archived': [
+        [],
+        Subscription
+    ],
+    'subscriptions/new': [
+        [
+            {
+                id: string;
+                name: string;
+                startDate: number;
+                endDate: number|null;
+                interval: number;
+                bucketId: string;
+                amount: number;
+                subtypeId: string;
+                description: string;
+                picture: string|null;
+                taxDeductible: 0 | 1;
+            }
+        ],
+        unknown
+    ],
+    'subscriptions/set-archive': [
+        [
+            {
+                id: string;
+                archived: 0 | 1;
+            }
+        ],
+        unknown
+    ],
+    'subscriptions/update': [
+        [
+            {
+                id: string;
+                name: string;
+                startDate: number;
+                endDate: number|null;
+                interval: number;
+                bucketId: string;
+                amount: number;
+                subtypeId: string;
+                description: string;
+                picture: string|null;
+                taxDeductible: 0 | 1;
+            }
+        ],
+        unknown
+    ],
+    'subscriptions/from-bucket': [
+        [
+            {
+                bucketId: string;
+            }
+        ],
+        Subscription
+    ],
+
+
+
+
+    // ▀█▀ █▀▄ ▄▀▄ █▄ █ ▄▀▀ ▄▀▄ ▄▀▀ ▀█▀ █ ▄▀▄ █▄ █    ▀█▀ ▀▄▀ █▀▄ ██▀ ▄▀▀ 
+    //  █  █▀▄ █▀█ █ ▀█ ▄█▀ █▀█ ▀▄▄  █  █ ▀▄▀ █ ▀█     █   █  █▀  █▄▄ ▄█▀ 
+    'types/all-subtypes': [
+        [],
+        Subtype
+    ],
+    'types/all-types': [
+        [],
+        TransactionType
+    ],
+    'types/new-subtype': [
+        [
+            {
+                id: string;
+                name: string;
+                dateCreated: number;
+                dateModified: number;
+                type: 'withdrawal' | 'deposit';
+                typeId: string;
+            }
+        ],
+        unknown
+    ],
+    'types/new-type': [
+        [
+            {
+                id: string;
+                name: string;
+                dateCreated: number;
+                dateModified: number;
+            }
+        ],
+        unknown
+    ],
+    'types/subtype-from-type': [
+        [
+            {
+                typeId: string;
+            }
+        ],
+        Subtype
+    ],
+    'types/update-subtype': [
+        [
+            {
+                name: string;
+                dateCreated: number;
+                dateModified: number;
+                type: 'withdrawal' | 'deposit';
+                typeId: string;
+                id: string;
+            }
+        ],
+        unknown
+    ],
+    'types/update-type': [
+        [
+            {
+                name: string;
+                dateCreated: number;
+                dateModified: number;
+                id: string;
+            }
+        ],
         unknown
     ]
 };

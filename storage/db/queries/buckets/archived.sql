@@ -1,0 +1,1 @@
+SELECT * FROM Buckets WHERE archived = 1;

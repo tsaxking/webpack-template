@@ -1,0 +1,1 @@
+SELECT * FROM Transactions WHERE type = 'withdrawal' AND archived = 0;

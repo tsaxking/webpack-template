@@ -1,0 +1,1 @@
+SELECT * FROM Subtypes WHERE typeId = :typeId;
