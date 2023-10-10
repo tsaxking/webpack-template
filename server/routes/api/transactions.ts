@@ -28,12 +28,13 @@ router.post('/search', validate({
 router.post('/new', validate({
     amount: (v: any) => typeof v === 'number',
     type: (v: any) => typeof v === 'string' && ['withdrawal', 'deposit'].indexOf(v) !== -1,
-    status: (v: any) => typeof v === 'string',
+    status: (v: any) => ['pending' , 'completed', 'failed'].indexOf(v) !== -1,
     date: (v: any) => typeof v === 'number',
     bucketId: (v: any) => typeof v === 'string',
     description: (v: any) => typeof v === 'string',
     subtypeId: (v: any) => typeof v === 'string',
-    taxDeductible: (v: any) => typeof v === 'boolean'
+    taxDeductible: (v: any) => typeof v === 'boolean',
+    picture: (v: any) => typeof v === 'string' || v === null
 }), (req, res) => {
     const { 
         amount,
@@ -82,12 +83,13 @@ router.post('/update', validate({
     id: (v: any) => typeof v === 'string',
     amount: (v: any) => typeof v === 'number',
     type: (v: any) => typeof v === 'string' && ['withdrawal', 'deposit'].indexOf(v) !== -1,
-    status: (v: any) => typeof v === 'string',
+    status: (v: any) => ['pending' , 'completed', 'failed'].indexOf(v) !== -1,
     date: (v: any) => typeof v === 'number',
     bucketId: (v: any) => typeof v === 'string',
     description: (v: any) => typeof v === 'string',
     subtypeId: (v: any) => typeof v === 'string',
-    taxDeductible: (v: any) => typeof v === 'boolean'
+    taxDeductible: (v: any) => typeof v === 'boolean',
+    picture: (v: any) => typeof v === 'string' || v === null
 }),  (req, res) => {
     const { 
         id,

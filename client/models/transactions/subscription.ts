@@ -52,16 +52,16 @@ export class Subscription extends Cache<SubscriptionEvents> {
     }
 
     static async fromBucket(bucketId: string): Promise<Subscription[]> {
-        if (Subscription.cache.size > 0) {
-            return Array.from(Subscription.cache.values()).filter((s) => s.bucketId === bucketId);
-        }
-
-        return ServerRequest.post<SubscriptionObj[]>('/api/subscriptions/from-bucket', {
-            bucketId
-        }).then((subs) => {
-            return subs.map((s) => new Subscription(s));
-        });
+        const subs = await this.getAll();
+        return subs.filter(s => s.bucketId === bucketId);
     }
+
+    static value(subs: Subscription[], from: number, to: number) {
+        return subs.reduce((acc, s) => {
+            if (s.startDate > to || (s.endDate && s.endDate < from)) return acc;
+            return acc + s.amount;
+        }, 0);
+    };
 
     public readonly id: string;
     public name: string;
@@ -101,7 +101,7 @@ export class Subscription extends Cache<SubscriptionEvents> {
         if (data.id) {
             throw new Error('Cannot update ID');
         }
-        return ServerRequest.post('/update', {
+        return ServerRequest.post('/api/subscriptions/update', {
             ...this,
             ...data,
             id: this.id
@@ -123,6 +123,8 @@ export class Subscription extends Cache<SubscriptionEvents> {
             archive: false
         });
     }
+
+    
 };
 
 

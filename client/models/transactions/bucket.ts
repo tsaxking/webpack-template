@@ -4,6 +4,7 @@ import { socket } from "../../utilities/socket";
 import { Bucket as BucketObj } from "../../../shared/db-types-extended";
 import { Transaction } from "./transaction";
 import { BalanceCorrection } from "./balance-correction";
+import { Subscription } from "./subscription";
 
 type BucketEvents = {
     'created': undefined;
@@ -86,35 +87,39 @@ export class Bucket extends Cache<BucketEvents> {
     }
 
     async getBalanceAtDate(endDate: number): Promise<number> {
-        return new Promise<number>((res, rej) => {
-            let balance = 0;
-            const transactions = Transaction.search(this.id, 0, endDate);
-    
-            transactions.on('chunk', (t) => {
-                switch (t.type) {
-                    case 'withdrawal':
-                        balance -= t.amount;
-                        break;
-                    case 'deposit':
-                        balance += t.amount;
-                        break;
-                }
-            });
+        let balance = 0;
 
-            transactions.on('complete', async () => {
-                const corrections = (await BalanceCorrection.fromBucket(this.id)).filter((c) => c.date <= endDate);
-                balance += corrections.reduce((acc, c) => acc + c.balance, 0);
+        const [
+            transactions, 
+            corrections,
+            subscriptions
+        ] = await Promise.all([
+            Transaction.search(this.id, 0, endDate).promise,
+            BalanceCorrection.fromBucket(this.id, 0, endDate),
+            Subscription.fromBucket(this.id)
+        ]);
 
-                res(balance);
-            });
-        });
+        balance += Transaction.value(transactions);
+        balance += BalanceCorrection.value(corrections);
+        balance += Subscription.value(subscriptions, 0, endDate);
+
+        return balance;
     }
 
     async getBalanceGraphData(startDate: number, endDate: number): Promise<{ date: number, balance: number }[]> {
         let balance = await this.getBalanceAtDate(startDate);
+        const transactions = await Transaction.search(this.id, startDate, endDate).promise;
+        const corrections = await BalanceCorrection.fromBucket(this.id, startDate, endDate);
 
-        return new Promise<{ date: number, balance: number }[]>((res, rej) => {
-        });
+        return new Array<{ date: number, balance: number }>(startDate - endDate + 1)
+            .fill({ date: 0, balance: 0 })
+            .map((_, i) => ({
+                date: startDate + i,
+                balance: (
+                    balance + Transaction.value(transactions.filter((t) => t.date <= startDate + i))
+                            + BalanceCorrection.value(corrections.filter((c) => c.date <= startDate + i))
+                )
+            }));
     }
 };
 
