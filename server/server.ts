@@ -43,7 +43,7 @@ app.post('/test', (req, res, next) => {
 });
 
 app.post('/test-validation', validate({
-    username: (v: any) => v === 'fail',
+    username: (v: any) => v === 'test',
     password: (v: any) => v === 'test'
 }, {
     onspam: (req, res, next) => {
