@@ -54,6 +54,12 @@ export class RetrieveStreamEventEmitter<T = string> extends EventEmitter<Retriev
     off<K extends RetrieveStreamEvent<T>>(event: K, callback: (data: RetrieveStreamEventData<T>[K]) => void): void {
         super.off(event, callback);
     }
+
+    get promise() {
+        return new Promise<T[]>((res, rej) => {
+            this.on('complete', res);
+        });
+    }
 }
 
 
