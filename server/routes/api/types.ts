@@ -34,8 +34,8 @@ router.post('/new-type', validate({
         dateModified
     });
 
-    res.sendStatus('transaction-types:created');
-    req.io.emit('transaction-type:created', {
+    res.sendStatus('transaction-types:type-created');
+    req.io.emit('transaction-type:type-created', {
         id,
         name,
         dateCreated,
@@ -67,8 +67,8 @@ router.post('/new-subtype', validate({
         type
     });
 
-    res.sendStatus('transaction-types:created');
-    req.io.emit('transaction-type:created', {
+    res.sendStatus('transaction-types:subtype-created');
+    req.io.emit('transaction-type:subtype-created', {
         id,
         name,
         typeId,
@@ -97,7 +97,7 @@ router.post('/update-type', validate({
     });
 
     res.sendStatus('transaction-types:type-updated');
-    req.io.emit('transaction-type:updated', {
+    req.io.emit('transaction-types:type-updated', {
         id,
         name,
         dateModified
@@ -133,7 +133,7 @@ router.post('/update-subtype', validate({
     });
 
     res.sendStatus('transaction-types:subtype-updated');
-    req.io.emit('transaction-type:updated', {
+    req.io.emit('transaction-type:subtype-updated', {
         id,
         name,
         typeId,

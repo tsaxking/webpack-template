@@ -7,7 +7,7 @@ export const router = new Route();
 
 
 
-router.get('/all', (_req, res) => {
+router.get('/active', (_req, res) => {
     const miles = DB.all('miles/active');
 
     res.json(miles);
