@@ -278,8 +278,8 @@ export const messages: {
     code: 404,
     instructions: ''
 },
-    'buckets:unarchived': {
-    message: 'Bucket unarchived',
+    'buckets:restored': {
+    message: 'Bucket restored',
     color: 'success',
     code: 200,
     instructions: ''
@@ -602,8 +602,8 @@ export const messages: {
     code: 404,
     instructions: ''
 },
-    'transactions:unarchived': {
-    message: 'Transaction unarchived',
+    'transactions:restored': {
+    message: 'Transaction restored',
     color: 'success',
     code: 200,
     instructions: ''
@@ -665,7 +665,7 @@ export type StatusId = 'account:already-logged-in'
 	| 'buckets:created'
 	| 'buckets:invalid-id'
 	| 'buckets:invalid-type'
-	| 'buckets:unarchived'
+	| 'buckets:restored'
 	| 'buckets:updated'
 	| 'files:invalid'
 	| 'files:invalid-extension'
@@ -719,7 +719,7 @@ export type StatusId = 'account:already-logged-in'
 	| 'transactions:archived'
 	| 'transactions:created'
 	| 'transactions:invalid-type'
-	| 'transactions:unarchived'
+	| 'transactions:restored'
 	| 'transactions:updated'
 	| 'unknown:error'
 ;
@@ -773,7 +773,7 @@ export type BucketsStatusId = 'archived'
 	| 'created'
 	| 'invalid-id'
 	| 'invalid-type'
-	| 'unarchived'
+	| 'restored'
 	| 'updated';
 
 
@@ -850,7 +850,7 @@ export type TransactiontypesStatusId = 'created'
 export type TransactionsStatusId = 'archived'
 	| 'created'
 	| 'invalid-type'
-	| 'unarchived'
+	| 'restored'
 	| 'updated';
 
 

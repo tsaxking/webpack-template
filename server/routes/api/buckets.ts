@@ -115,7 +115,7 @@ router.post('/set-archive-status', validate({
         res.sendStatus('buckets:archived');
         req.io.emit('buckets:archived', { bucketId });
     } else {
-        res.sendStatus('buckets:unarchived');
-        req.io.emit('buckets:unarchived', { bucketId });
+        res.sendStatus('buckets:restored');
+        req.io.emit('buckets:restored', { bucketId });
     }
 });
