@@ -1,7 +1,7 @@
 import { validCodes } from "../shared/status.ts";
 import { messages, StatusCode, StatusColor, StatusId } from "../shared/status-messages.ts";
 import { Colors } from "../server/utilities/colors.ts";
-import { capitalize, fromSnakeCase } from "../shared/text.ts";
+import { capitalize, fromSnakeCase, toCamelCase } from "../shared/text.ts";
 import Filter from 'npm:bad-words';
 
 
@@ -124,7 +124,7 @@ ${str}
 export type StatusId = ${ids.join('\n\t| ')}\n;
 
 ${Object.keys(groups).map(key => {
-        return `export type ${capitalize(fromSnakeCase(key))}StatusId = ${groups[key].map((i: string) => `'${i}'`).join('\n\t| ')};`
+        return `export type ${capitalize(toCamelCase(fromSnakeCase(key, '-')))}StatusId = ${groups[key].map((i: string) => `'${i}'`).join('\n\t| ')};`
     }
 ).join('\n\n\n')}
 `;
