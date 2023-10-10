@@ -1,3 +1,4 @@
+import { validate } from "../../middleware/data-type.ts";
 import { Route } from "../../structure/app/app.ts";
 import { DB } from "../../utilities/databases.ts";
 import { uuid } from "../../utilities/uuid.ts";
@@ -20,7 +21,11 @@ router.post('/archived', (_req, res) => {
     res.json(buckets);
 });
 
-router.post('/new', (req, res) => {
+router.post('/new', validate({
+    name: (v: any) => typeof v === 'string',
+    description: (v: any) => typeof v === 'string',
+    type: (v: any) => typeof v === 'string'
+}), (req, res) => {
     const {
         name,
         description,
@@ -52,17 +57,18 @@ router.post('/new', (req, res) => {
     });
 });
 
-router.post('/update', (req, res) => {
+router.post('/update', validate({
+    id: (v: any) => typeof v === 'string',
+    name: (v: any) => typeof v === 'string',
+    description: (v: any) => typeof v === 'string',
+    type: (v: any) => [ 'debit', 'credit', 'savings' ].indexOf(v) > -1
+}), (req, res) => {
     const {
         id,
         name,
         description,
         type
     } = req.body;
-
-    if ([ 'debit', 'credit', 'savings' ].indexOf(type) === -1) {
-        return res.sendStatus('buckets:invalid-type');
-    }
 
     const b = DB.get('buckets/from-id', { id });
 
@@ -88,7 +94,10 @@ router.post('/update', (req, res) => {
     });
 });
 
-router.post('/set-archive-status', (req, res) => {
+router.post('/set-archive-status', validate({
+    bucketId: (v: any) => typeof v === 'string',
+    status: (v: any) => typeof v === 'boolean'
+}), (req, res) => {
     const { bucketId, status } = req.body;
 
     const b = DB.get('buckets/from-id', { id: bucketId });

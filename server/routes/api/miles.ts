@@ -1,3 +1,4 @@
+import { validate } from "../../middleware/data-type.ts";
 import { Route } from "../../structure/app/app.ts";
 import { DB } from "../../utilities/databases.ts";
 import { uuid } from "../../utilities/uuid.ts";
@@ -18,7 +19,10 @@ router.post('/archived', (_req, res) => {
     res.json(miles);
 });
 
-router.post('/new', (req, res) => {
+router.post('/new', validate({
+    amount: (v: any) => typeof v === 'number',
+    date: (v: any) => typeof v === 'number'
+}), (req, res) => {
     const { amount, date } = req.body;
 
     const id = uuid();
@@ -37,7 +41,11 @@ router.post('/new', (req, res) => {
     });
 });
 
-router.post('/miles-update', (req, res) => {
+router.post('/miles-update', validate({
+    amount: (v: any) => typeof v === 'number',
+    date: (v: any) => typeof v === 'number',
+    id: (v: any) => typeof v === 'string'
+}), (req, res) => {
     const { id, amount, date } = req.body;
 
 
@@ -58,18 +66,21 @@ router.post('/miles-update', (req, res) => {
     });
 });
 
-router.post('/set-archive', (req, res) => {
-    const { id, archived } = req.body;
+router.post('/set-archive',validate({
+    id: (v: any) => typeof v === 'string',
+    archive: (v: any) => typeof v === 'boolean'
+}), (req, res) => {
+    const { id, archive } = req.body;
 
     const m = DB.get('miles/from-id', { id });
     if (!m) return res.sendStatus('miles:invalid-id');
 
     DB.run('miles/set-archive', {
         id,
-        archived: archived ? 1 : 0
+        archived: archive ? 1 : 0
     });
 
-    if (archived) {
+    if (archive) {
         res.sendStatus('miles:archived');
         req.io.emit('miles:archived', { id });
     } else {
