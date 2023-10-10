@@ -3,6 +3,7 @@ import { Transaction as TransactionObj } from "../../../shared/db-types-extended
 import { ServerRequest } from '../../utilities/requests';
 import { socket } from '../../utilities/socket';
 import { RetrieveStreamEventEmitter } from "../../utilities/requests";
+import { Subtype, TransactionType } from "./types";
 
 
 
@@ -46,6 +47,40 @@ export class Transaction extends Cache<TransactionEvents> {
 
         return em;
     };
+
+    static async taxDeductible(bucket: string, from: number, to: number) {
+        const transactions = await Transaction.search(bucket, from, to).promise;
+        return transactions.filter(t => t.taxDeductible);
+    }
+
+    static async archived(bucket: string, from: number, to: number) {
+        const transactions = await Transaction.search(bucket, from, to).promise;
+        return transactions.filter(t => t.archived);
+    }
+
+    static value(transactions: Transaction[]) {
+        return transactions.reduce((acc, t) => {
+            if (t.type === 'deposit') {
+                return acc + t.amount;
+            } else {
+                return acc - t.amount;
+            }
+        }, 0);
+    }
+
+    static newTransaction(data: {
+        amount: number;
+        type: 'withdrawal' | 'deposit';
+        status: 'pending' | 'completed' | 'failed';
+        date: number;
+        bucketId: string;
+        description: string;
+        subtypeId: string;
+        taxDeductible: 0 | 1;
+        picture: string|null;
+    }) {
+        return ServerRequest.post('/api/transactions/new', data);
+    }
 
     public readonly id: string;
     public amount: number;
@@ -103,6 +138,26 @@ export class Transaction extends Cache<TransactionEvents> {
             id: this.id,
             archive: false
         });
+    }
+
+    async getTypeInfo(): Promise<{ type: TransactionType|null, subtype: Subtype|null }> {
+        const { types, subtypes } = await TransactionType.getTypes();
+
+        const subtype = subtypes.find(s => s.id === this.subtypeId);
+        if (!subtype) return {
+            type: null,
+            subtype: null
+        }
+        const type = types.find(t => t.id === subtype.typeId);
+        if (!type) return {
+            type: null,
+            subtype: subtype
+        }
+
+        return {
+            type,
+            subtype
+        }
     }
 };
 

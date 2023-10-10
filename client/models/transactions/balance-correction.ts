@@ -24,8 +24,8 @@ export class BalanceCorrection extends Cache<BalanceCorrectionEvents> {
             });
     }
 
-    static async fromBucket(bucketId: string): Promise<BalanceCorrection[]> {
-        return this.getAll().then((balances) => balances.filter(b => b.bucketId === bucketId));
+    static async fromBucket(bucketId: string, from: number, to: number): Promise<BalanceCorrection[]> {
+        return this.getAll().then((balances) => balances.filter(b => b.bucketId === bucketId && b.date >= from && b.date <= to));
     }
 
     static async newBalanceCorrection(data: {
@@ -33,6 +33,10 @@ export class BalanceCorrection extends Cache<BalanceCorrectionEvents> {
         date: number;
     }) {
         return ServerRequest.post('/api/balance-corrections/new', data);
+    }
+
+    static value(balances: BalanceCorrection[]): number {
+        return balances.reduce((acc, b) => acc + b.balance, 0);
     }
 
     public readonly id: string;

@@ -36,7 +36,7 @@
 
 
 
-<Main title="Team Tators" {groups} on:openPage={openPage} {active} {navItems} {accountLinks}>
+<Main title="Budgeting" {groups} on:openPage={openPage} {active} {navItems} {accountLinks}>
     <Page {active} {domain} title='dashboard'><Dashboard></Dashboard></Page>
-    <Page {active} {domain} title='account'><Account></Account></Page>
+    <!-- <Page {active} {domain} title='account'><Account></Account></Page> -->
 </Main>
