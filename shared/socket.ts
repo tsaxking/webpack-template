@@ -22,7 +22,7 @@ export type SocketEvent =
 	| 'balance-correction:updated'
 	| 'buckets:archived'
 	| 'buckets:created'
-	| 'buckets:unarchived'
+	| 'buckets:restored'
 	| 'buckets:updated'
 	| 'member:accepted'
 	| 'member:add-skill'
@@ -50,6 +50,6 @@ export type SocketEvent =
 	| 'transaction-types:type-updated'
 	| 'transactions:archived'
 	| 'transactions:created'
-	| 'transactions:unarchived'
+	| 'transactions:restored'
 	| 'transactions:updated'
 ;

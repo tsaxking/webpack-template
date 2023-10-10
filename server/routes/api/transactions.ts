@@ -9,7 +9,7 @@ export const router = new Route();
 
 
 
-router.post('/transactions', validate({
+router.post('/search', validate({
     bucket: (v: any) => typeof v === 'string',
     from: (v: any) => typeof v === 'number',
     to: (v: any) => typeof v === 'number'
@@ -22,7 +22,7 @@ router.post('/transactions', validate({
         to
     });
 
-    res.json(transactions);
+    res.stream(transactions.map(t => JSON.stringify(t)));
 });
 
 router.post('/new-transaction', validate({
@@ -144,7 +144,7 @@ router.post('/change-transaction-archive-status', validate({
         res.sendStatus('transactions:archived');
         req.io.emit('transactions:archived', id);
     } else {
-        res.sendStatus('transactions:unarchived');
-        req.io.emit('transactions:unarchived', id);
+        res.sendStatus('transactions:restored');
+        req.io.emit('transactions:restored', id);
     }
 });
