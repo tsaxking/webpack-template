@@ -52,7 +52,7 @@ export const builder = new EventEmitter<BuildEvent>();
 const result = await esbuild.build({
     entryPoints: entries,
     bundle: true,
-    // minify: true,
+    minify: env.ENVIRONMENT === 'production',
     outdir: './dist',
     mainFields: ["svelte", "browser", "module", "main"],
     conditions: ["svelte", "browser"],

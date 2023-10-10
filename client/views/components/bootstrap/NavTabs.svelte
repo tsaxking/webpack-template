@@ -13,7 +13,7 @@
 <ul class="nav nav-tabs">
     {#each tabs as tab}
         <li class="nav-item">
-            <a class="nav-link {tab === active ? 'active' : ''}" href="javascript:void(0)" on:click={() => dispatch('change', tab)
+            <a class="nav-link {tab === active ? 'active' : ''}" href={null} on:click|preventDefault={() => dispatch('change', tab)
             }>{tab}</a>
         </li>
     {/each}

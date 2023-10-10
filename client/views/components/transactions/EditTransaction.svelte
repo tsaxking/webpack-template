@@ -3,6 +3,6 @@
     import TransactionForm from "./TransactionForm.svelte";
 </script>
 
-<Modal title="New Transaction">
+<Modal title="Edit Transaction">
     <TransactionForm />
 </Modal>

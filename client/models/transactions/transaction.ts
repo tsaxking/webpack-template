@@ -4,12 +4,13 @@ import { ServerRequest } from '../../utilities/requests';
 import { socket } from '../../utilities/socket';
 import { RetrieveStreamEventEmitter } from "../../utilities/requests";
 import { Subtype, TransactionType } from "./types";
+import { Bucket } from "./bucket";
 
 
 
 
 type TransactionEvents = {
-    'update': undefined;
+    'updated': undefined;
     'archived': undefined;
     'restored': undefined;
     'created': undefined;
@@ -159,6 +160,32 @@ export class Transaction extends Cache<TransactionEvents> {
             subtype
         }
     }
+
+    async getBucketName(): Promise<string|null> {
+        const b = Bucket.cache.get(this.bucketId);
+        if (!b) return null;
+        return b.name;
+    }
+
+    async getTableData() {
+        const typeInfo = await this.getTypeInfo();
+        return {
+            amount: this.amountString,
+            type: typeInfo.type?.name ?? '',
+            subtype: typeInfo.subtype?.name ?? '',
+            bucket: await this.getBucketName(),
+            date: new Date(this.date).toLocaleTimeString(),
+            transaction: this,
+            id: this.id
+        }
+    }
+
+    get amountString() {
+        return this.amount.toLocaleString('en-US', {
+            style: 'currency',
+            currency: 'USD'
+        });
+    }
 };
 
 socket.on('transactions:updated', (data: TransactionObj) => {
@@ -167,7 +194,8 @@ socket.on('transactions:updated', (data: TransactionObj) => {
         Object.assign(t, data);
         Transaction.cache.set(data.id, t);
 
-        t.$emitter.emit('update');
+        t.$emitter.emit('updated');
+        Transaction.emit('updated', t);
     }
 });
 
@@ -178,6 +206,7 @@ socket.on('transactions:archived', (id: string) => {
         Transaction.cache.set(id, t);
 
         t.$emitter.emit('archived');
+        Transaction.emit('archived', t);
     }
 });
 
@@ -188,10 +217,12 @@ socket.on('transactions:restored', (id: string) => {
         Transaction.cache.set(id, t);
 
         t.$emitter.emit('restored');
+        Transaction.emit('restored', t);
     }
 });
 
 socket.on('transactions:created', (data: TransactionObj) => {
     const t = new Transaction(data);
     t.$emitter.emit('created');
+    Transaction.emit('created', t);
 });
