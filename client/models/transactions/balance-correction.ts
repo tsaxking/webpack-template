@@ -24,6 +24,10 @@ export class BalanceCorrection extends Cache<BalanceCorrectionEvents> {
             });
     }
 
+    static async fromBucket(bucketId: string): Promise<BalanceCorrection[]> {
+        return this.getAll().then((balances) => balances.filter(b => b.bucketId === bucketId));
+    }
+
     static async newBalanceCorrection(data: {
         amount: number;
         date: number;
