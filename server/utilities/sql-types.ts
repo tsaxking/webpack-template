@@ -296,10 +296,8 @@ export type Queries = {
         Transaction
     ],
     'transactions/deposits': [
-        [
-            [],
-            Transaction
-        ]
+        [],
+        Transaction
     ],
     'transactions/from-bucket': [
         [{
@@ -351,7 +349,6 @@ export type Queries = {
                 description: string;
                 subtypeId: string;
                 taxDeductible: 0 | 1;
-                picture: string|null;
             }
         ],
         unknown
@@ -377,7 +374,6 @@ export type Queries = {
                 description: string;
                 subtypeId: string;
                 taxDeductible: 0 | 1;
-                picture: string|null;
             }
         ],
         unknown
@@ -394,8 +390,19 @@ export type Queries = {
         }],
         Transaction
     ],
-
-
+    'transactions/update-picture': [
+        [{
+            id: string;
+            picture: string;
+        }],
+        unknown
+    ],
+    'transactions/from-id': [
+        [{
+            id: string;
+        }],
+        Transaction
+    ],
 
 
 

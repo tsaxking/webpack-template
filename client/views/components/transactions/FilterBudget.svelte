@@ -4,9 +4,8 @@
     import EditBucket from "../buckets/EditBucket.svelte";
     import { createEventDispatcher } from "svelte";
     import { months, currentMonth, currentYear } from "../../../utilities/clock";
-    import Button from "../bootstrap/Button.svelte";
     import { Bucket } from "../../../models/transactions/bucket";
-    import $ from 'jquery';
+    import { confirm } from "../../../utilities/notifications";
 
 
     const dispatch = createEventDispatcher();
@@ -43,15 +42,30 @@
 
 </script>
 
-<div class="container">
+<div class="container-fluid">
     <div class="row">
         <div class="col-9">
             <NavTabs bind:tabs={buckets} bind:active={active} on:change={() => dispatch('changeBucket', active)}/>
         </div>
         <div class="col-3">
-            <Button on:click={() => $('#new-bucket').modal('open')}>
-                <i class="material-icons">add_box</i>
-            </Button>
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#new-bucket">
+                    <i class="material-icons">add_box</i>
+                </button>
+                <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#new-bucket">
+                    <i class="material-icons">edit</i>
+                </button>
+                <button type="button" class="btn btn-outline-danger" on:click={() => confirm('Are you sure you want to delete this bucket?').then((data) => {
+                    if (data) {
+                        const b = Bucket.cache.get(active);
+                        if (b) {
+                            b.archive();
+                        }
+                    }
+                })}>
+                    <i class="material-icons">delete</i>
+                </button>
+            </div>
         </div>
     </div>
     <div class="row">
@@ -60,9 +74,9 @@
         </div>
         <div class="col-md-4">
             <div class="input-group">
-                <input type="date" name="from" bind:value={from} on:change={emitSearch}>
-                <input type="date" name="to" bind:value={to} on:change={emitSearch}>
-                <select name="set-from-to" bind:value={fromTo} on:change={setFromTo}>
+                <input type="date" name="from" class="form-control" bind:value={from} on:change={emitSearch}>
+                <input type="date" name="to" class="form-control" bind:value={to} on:change={emitSearch}>
+                <select name="set-from-to" class="form-select" bind:value={fromTo} on:change={setFromTo}>
                     {#each years as year}
                         <option value="-{year}">{year}</option>
                         {#each months as month}
@@ -77,5 +91,5 @@
     </div>
 </div>
 
-<NewBucket id={"new-bucket"}/>
+<NewBucket id="new-bucket"/>
 <EditBucket id="edit-bucket" bucket={Bucket.cache.get(active)}/>

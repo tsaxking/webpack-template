@@ -1,28 +1,26 @@
 <script lang="ts">
-    import Modal from "../bootstrap/Modal.svelte";
-    import { Transaction } from "../../../models/transactions/transaction";
-    import { Bucket } from "../../../models/transactions/bucket";
     import { TransactionType, Subtype } from "../../../models/transactions/types";
-
+    import { Bucket } from "../../../models/transactions/bucket";
+    import { Transaction } from "../../../models/transactions/transaction";
+    import Modal from "../bootstrap/Modal.svelte";
     export let id: string;
-    export let transaction: Transaction;
 
-    let amount: number = transaction.amount;
-    let type: 'deposit' | 'withdrawal' = transaction.type;
-    let date: string = new Date(transaction.date).toString();
-    let description: string = transaction.description;
-    let taxDeductible: boolean = !!transaction.taxDeductible;
-    let bucketId: string = transaction.bucketId;
-    let archived: boolean = !!transaction.archived;
-    let status = transaction.status;
-
-
-    
-    let setTypes: TransactionType[] = [];
-    let setSubtypes: Subtype[] = [];
+    let amount: number = 0;
+    let type: 'deposit' | 'withdrawal' | 'transfer' = 'deposit';
+    let status: 'completed' | 'pending' | 'failed' = 'completed';
+    let date: string = new Date().toString();
+    let description: string = '';
+    let taxDeductible: boolean = false;
     let typeId: string = '';
+    let bucket1Id: string = '';
+    let bucket2Id: string = '';
+
     let typeName: string = '';
     let subtypeName: string = '';
+
+
+    let setTypes: TransactionType[] = [];
+    let setSubtypes: Subtype[] = [];
 
     const change = async () => {
         const { types, subtypes } = await TransactionType.getTypes();
@@ -33,36 +31,72 @@
 
     change();
 
-    
+
     const submit = async () => {
         const t = await TransactionType.newType(typeName);
-        const s = await t.newSubtype(subtypeName, type);
+        const s = await t.newSubtype(subtypeName, type === 'transfer' ? 'withdrawal' : type);
 
-        return transaction.update({
-            amount,
-            status,
-            date: new Date(date).getTime(),
-            description,
-            taxDeductible: taxDeductible ? 1 : 0,
-            subtypeId: s.id,
-            bucketId
-        });
+        if (type === 'transfer') {
+            await Transaction.newTransfer({
+                amount,
+                status,
+                date: new Date(date).getTime(),
+                description,
+                taxDeductible: taxDeductible ? 1 : 0,
+                subtypeId: s.id,
+                fromBucketId: bucket1Id,
+                toBucketId: bucket2Id
+            });
+        } else {
+            await Transaction.newTransaction({
+                amount,
+                status,
+                date: new Date(date).getTime(),
+                description,
+                taxDeductible: taxDeductible ? 1 : 0,
+                subtypeId: s.id,
+                bucketId: bucket1Id,
+                type
+            });
+        }
+
+        // reset
+        amount = 0;
+        type = 'deposit';
+        status = 'completed';
+        date = new Date().toString();
+        description = '';
+        taxDeductible = false;
+        typeId = '';
+        bucket1Id = '';
+        bucket2Id = '';
+
+        typeName = '';
+        subtypeName = '';
+
+        change();
     };
 
-    const buckets: Promise<Bucket[]> = Bucket.getAll();
+    let typeInput: string;
+
+    const changeInput = () => {
+        if (typeInput === 'transfer') type = 'withdrawal';
+        else type = typeInput as 'deposit' | 'withdrawal';
+    }
+
+    let buckets: Promise<Bucket[]> = Bucket.getAll();
 </script>
 
-<Modal {id} title="Edit Transaction">
+<Modal {id} title="New Transaction">
     <form on:submit|preventDefault={submit}>
         <div class="input-group mb-3">
-            <input type="checkbox" class="btn-check" id="archived" autocomplete="off" bind:checked={archived}>
-            <label class="btn btn-outline-danger" for="archived">Archived</label>
-            <select name="type" id="type" bind:value={type}>
+            <select name="type" id="type" bind:value={typeInput} on:change={changeInput}>
                 <option value="deposit">Deposit</option>
                 <option value="withdrawal">Withdrawal</option>
+                <option value="transfer">Transfer</option>
             </select>
             <label for="type" class="input-group">{type === 'withdrawal' ? 'From' : 'Into'}</label>
-            <select name="bucket" id="from-bucket" bind:value={bucketId}>
+            <select name="bucket" id="from-bucket" bind:value={bucket1Id}>
                 <option value="" disabled>Select Bucket</option>
                 {#await buckets}
                     <option value="none" disabled>Loading...</option>
@@ -72,6 +106,19 @@
                     {/each}
                 {/await}
             </select>
+            {#if typeInput === 'transfer'}
+                <label for="to-bucket" class="input-group">Into</label>
+                <select name="bucket" id="bucket" bind:value={bucket2Id}>
+                    <option value="" disabled>Select Bucket</option>
+                    {#await buckets}
+                        <option value="none" disabled>Loading...</option>
+                    {:then buckets} 
+                        {#each buckets as bucket}
+                            <option value={bucket.id}>{bucket.name}</option>
+                        {/each}
+                    {/await}
+                </select>
+            {/if}
         </div>
 
         <div class="mb-3">
@@ -124,6 +171,6 @@
             </datalist>
         </div>
 
-        <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Submit</button>
+        <button type="submit" class="btn btn-primary">Submit</button>
     </form>
 </Modal>

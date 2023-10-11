@@ -1,7 +1,7 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
 
-    export let type: 'text' | 'textarea' | 'select' = 'text';
+    export let type: 'text' | 'textarea' | 'select' | 'number' = 'text';
     export let placeholder: string = '';
     export let label: string;
     export let value: any;

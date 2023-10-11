@@ -638,10 +638,22 @@ export const messages: {
     code: 200,
     instructions: ''
 },
+    'transactions:invalid-id': {
+    message: 'Invalid transaction id',
+    color: 'danger',
+    code: 400,
+    instructions: ''
+},
     'transactions:invalid-type': {
     message: 'Invalid transaction type, only \'withdrawal\' and \'deposit\' are allowed',
     color: 'danger',
     code: 404,
+    instructions: ''
+},
+    'transactions:picture-updated': {
+    message: 'Transaction picture updated',
+    color: 'success',
+    code: 200,
     instructions: ''
 },
     'transactions:restored': {
@@ -767,7 +779,9 @@ export type StatusId = 'account:already-logged-in'
 	| 'transaction-types:type-updated'
 	| 'transactions:archived'
 	| 'transactions:created'
+	| 'transactions:invalid-id'
 	| 'transactions:invalid-type'
+	| 'transactions:picture-updated'
 	| 'transactions:restored'
 	| 'transactions:updated'
 	| 'unknown:error'
@@ -891,9 +905,9 @@ export type SpamStatusId = 'detected';
 
 export type SubscriptionsStatusId = 'archived'
 	| 'created'
+	| 'invalid-id'
 	| 'restored'
-	| 'updated'
-	| 'invalid-id';
+	| 'updated';
 
 
 export type TestStatusId = 'fail'
@@ -911,8 +925,10 @@ export type TransactiontypesStatusId = 'created'
 export type TransactionsStatusId = 'archived'
 	| 'created'
 	| 'invalid-type'
+	| 'picture-updated'
 	| 'restored'
-	| 'updated';
+	| 'updated'
+	| 'invalid-id';
 
 
 export type UnknownStatusId = 'error';

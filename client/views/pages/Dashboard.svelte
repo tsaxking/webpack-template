@@ -2,7 +2,7 @@
     import FilterBudget from "../components/transactions/FilterBudget.svelte";
     import { Transaction } from '../../models/transactions/transaction';
     import TransactionChart from "../components/transactions/TransactionChart.svelte";
-    import NewTransaction from "../components/transactions/NewTransaction.svelte";
+    import NewTransaction from "../components/transactions/NewTransactionForm.svelte";
     import EditTransaction from "../components/transactions/EditTransaction.svelte";
 
 
@@ -16,7 +16,11 @@
         return Promise.all(transactions.map(t => t.getTableData()));
     }
 
-    const openTransaction = (t: Transaction) => {}
+    let openedTransaction: Transaction;
+
+    const openTransaction = (t: Transaction) => {
+        openedTransaction = t;
+    }
 
     const onFilter = (e: CustomEvent) => {
         transactions = [];
@@ -34,7 +38,12 @@
 <div class="container-fluid">
     <div class="row mb-3">
         <div class="col-12">
-            <FilterBudget bind:activeBucket={bucketId} bind:from={from} bind:to={to} on:search={onFilter} on:changeBucket={({ detail }) => bucketId = detail}></FilterBudget>
+            <FilterBudget bind:active={bucketId} bind:from={from} bind:to={to} on:search={onFilter} on:changeBucket={({ detail }) => bucketId = detail}></FilterBudget>
+        </div>
+        <div class="col-12 p-2">
+            <button type="button" class="btn btn-success w-100" data-bs-toggle="modal" data-bs-target="#new-transaction">
+                <i class="material-icons">add_box</i>&nbsp;Transaction
+            </button>
         </div>
     </div>
     
@@ -57,17 +66,24 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {#each await transactionInfo() as t}
-                        <tr on:click={() => {
-                            openTransaction(t.transaction);
-                        }}>
-                            <td>{t.date}</td>
-                            <td>{t.type}</td>
-                            <td>{t.subtype}</td>
-                            <td>{t.bucket}</td>
-                            <td>{t.amount}</td>
-                        </tr>
-                    {/each}
+                    {#await transactionInfo()}
+                        <p>Loading...</p>
+                    {:then tInfo}
+                        {#each tInfo as t}
+                            <tr on:click={() => {
+                                openTransaction(t.transaction);
+                            }}>
+                                <td>{t.date}</td>
+                                <td>{t.type}</td>
+                                <td>{t.subtype}</td>
+                                <td>{t.bucket}</td>
+                                <td>{t.amount}</td>
+                            </tr>
+                        {/each}
+
+                    {:catch error}
+                        <p>Error loading transaction info</p>
+                    {/await}
                 </tbody>
             </table>
         </div>
@@ -76,5 +92,5 @@
 
 
 
-<EditTransaction />
-<NewTransaction />
+<!-- <EditTransaction id="edit-transaction" transaction={openedTransaction}/> -->
+<!-- <NewTransaction id="new-transaction" /> -->

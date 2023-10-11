@@ -56,6 +56,7 @@ export type SocketEvent =
 	| 'transaction-types:type-updated'
 	| 'transactions:archived'
 	| 'transactions:created'
+	| 'transactions:picture-updated'
 	| 'transactions:restored'
 	| 'transactions:updated'
 ;

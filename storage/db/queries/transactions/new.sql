@@ -7,8 +7,7 @@ INSERT INTO Transactions (
     bucketId,
     description,
     subtypeId,
-    taxDeductible,
-    picture
+    taxDeductible
 ) VALUES (
     :id,
     :amount,
@@ -18,6 +17,5 @@ INSERT INTO Transactions (
     :bucketId,
     :description,
     :subtypeId,
-    :taxDeductible,
-    :picture
+    :taxDeductible
 );
