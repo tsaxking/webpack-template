@@ -92,7 +92,7 @@ socket.on('miles:archived', (id: string) => {
     if (m) {
         m.archived = 1;
         m.$emitter.emit('archived');
-        Miles.emit('archived', m);
+        Miles.emit('archive', m);
     }
 });
 
@@ -101,7 +101,7 @@ socket.on('miles:restored', (id: string) => {
     if (m) {
         m.archived = 0;
         m.$emitter.emit('restored');
-        Miles.emit('restored', m);
+        Miles.emit('restore', m);
     }
 });
 
@@ -109,7 +109,7 @@ socket.on('miles:created', (data: MilesObj) => {
     if (!Miles.cache.has(data.id)) {
         const m = new Miles(data);
         m.$emitter.emit('created');
-        Miles.emit('created', m);
+        Miles.emit('create', m);
     }
 });
 
@@ -118,6 +118,6 @@ socket.on('miles:updated', (data: MilesObj) => {
         const m = Miles.cache.get(data.id) as Miles;
         Object.assign(m, data);
         m.$emitter.emit('updated');
-        Miles.emit('updated', m);
+        Miles.emit('update', m);
     }
 });

@@ -133,7 +133,7 @@ socket.on('subscriptions:archived', (id: string) => {
     if (s) {
         s.archived = 1;
         s.$emitter.emit('archived');
-        Subscription.emit('archived', s);
+        Subscription.emit('archive', s);
     }
 });
 
@@ -142,7 +142,7 @@ socket.on('subscriptions:restored', (id: string) => {
     if (s) {
         s.archived = 0;
         s.$emitter.emit('restored');
-        Subscription.emit('restored', s);
+        Subscription.emit('restore', s);
     }
 });
 
@@ -150,7 +150,7 @@ socket.on('subscriptions:created', (data: SubscriptionObj) => {
     if (!Subscription.cache.has(data.id)) {
         const s = new Subscription(data);
         s.$emitter.emit('created');
-        Subscription.emit('created', s);
+        Subscription.emit('create', s);
     }
 });
 
@@ -159,6 +159,6 @@ socket.on('subscriptions:updated', (data: SubscriptionObj) => {
         const s = Subscription.cache.get(data.id) as Subscription;
         Object.assign(s, data);
         s.$emitter.emit('updated');
-        Subscription.emit('updated', s);
+        Subscription.emit('update', s);
     }
 });

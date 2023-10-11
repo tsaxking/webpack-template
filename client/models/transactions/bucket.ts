@@ -130,7 +130,7 @@ export class Bucket extends Cache<BucketEvents> {
 socket.on('buckets:created', (data: BucketObj) => {
     const b = new Bucket(data);
     b.$emitter.emit('created');
-    Bucket.emit('created', b);
+    Bucket.emit('create', b);
 });
 
 socket.on('buckets:updated', (data: BucketObj) => {
@@ -140,7 +140,7 @@ socket.on('buckets:updated', (data: BucketObj) => {
         Bucket.cache.set(data.id, b);
 
         b.$emitter.emit('updated');
-        Bucket.emit('updated', b);
+        Bucket.emit('update', b);
     }
 });
 
@@ -151,7 +151,7 @@ socket.on('buckets:archived', (id: string) => {
         Bucket.cache.set(id, b);
 
         b.$emitter.emit('archived');
-        Bucket.emit('archived', b);
+        Bucket.emit('archive', b);
     }
 });
 
@@ -162,7 +162,7 @@ socket.on('buckets:restored', (id: string) => {
         Bucket.cache.set(id, b);
 
         b.$emitter.emit('restored');
-        Bucket.emit('restored', b);
+        Bucket.emit('restore', b);
     }
 });
 

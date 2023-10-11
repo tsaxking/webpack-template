@@ -2,22 +2,22 @@ import { EventEmitter } from '../../shared/event-emitter';
 
 
 
-type CacheTypes = 'created' | 'updated' | 'deleted' | 'archived' | 'restored';
+type Updates = 'create' | 'update' | 'delete' | 'archive' | 'restore' | '*';
 
 export class Cache<ObjEmit = {}> {
-    private static readonly $emitter: EventEmitter<CacheTypes> = new EventEmitter<CacheTypes>();
-    static emit<K extends CacheTypes>(event: K, data: any): void {
-        Cache.$emitter.emit(event, data);
-    }
+    private static readonly $emitter: EventEmitter<Updates> = new EventEmitter<Updates>();
 
-    static on<K extends CacheTypes>(event: K, callback: (data: any) => void): void {
+    public static on<K extends Updates>(event: K, callback: (data: any) => void): void {
         Cache.$emitter.on(event, callback);
     }
 
-    static off<K extends CacheTypes>(event: K, callback?: (data: any) => void): void {
+    public static off<K extends Updates>(event: K, callback?: (data: any) => void): void {
         Cache.$emitter.off(event, callback);
     }
 
+    public static emit<K extends Updates>(event: K, data: any): void {
+        Cache.$emitter.emit(event, data);
+    }
 
     readonly $cache: Map<string, any> = new Map<string, any>();
     readonly $emitter: EventEmitter<keyof ObjEmit> = new EventEmitter<keyof ObjEmit>();
