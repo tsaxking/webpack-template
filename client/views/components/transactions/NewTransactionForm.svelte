@@ -3,6 +3,9 @@
     import { Bucket } from "../../../models/transactions/bucket";
     import { Transaction } from "../../../models/transactions/transaction";
     import Modal from "../bootstrap/Modal.svelte";
+    import { notify } from "../../../utilities/notifications";
+    import TransactionChart from "./TransactionChart.svelte";
+
     export let id: string;
 
     $: tempTransaction = {
@@ -42,29 +45,18 @@
         const t = await TransactionType.newType(typeInfo.typeName);
         const s = await t.newSubtype(typeInfo.subtypeName, tempTransaction.type === 'transfer' ? 'withdrawal' : tempTransaction.type as 'deposit' | 'withdrawal');
 
-        if (tempTransaction.type === 'transfer') {
-            await Transaction.newTransfer({
-                amount: tempTransaction.amount,
-                status: tempTransaction.status === 'completed' ? 'completed' : 'pending',
-                date: new Date(tempTransaction.date).getTime(),
-                description: tempTransaction.description,
-                taxDeductible: tempTransaction.taxDeductible ? 1 : 0,
-                subtypeId: s.id,
-                fromBucketId: tempTransaction.bucket1Id,
-                toBucketId: tempTransaction.bucket2Id
-            });
-        } else {
-            await Transaction.newTransaction({
-                amount: tempTransaction.amount,
-                status: tempTransaction.status === 'completed' ? 'completed' : 'pending',
-                date: new Date(tempTransaction.date).getTime(),
-                description: tempTransaction.description,
-                taxDeductible: tempTransaction.taxDeductible ? 1 : 0,
-                subtypeId: s.id,
-                bucketId: tempTransaction.bucket1Id,
-                type: tempTransaction.type as 'deposit' | 'withdrawal'
-            });
-        }
+        // handles transfers
+        Transaction.newTransaction({
+            transfer: tempTransaction.type === 'transfer' ? tempTransaction.bucket2Id : undefined,
+            amount: tempTransaction.amount,
+            type: tempTransaction.type === 'transfer' ? 'withdrawal' : tempTransaction.type as 'deposit' | 'withdrawal',
+            date: new Date(tempTransaction.date).getTime(),
+            description: tempTransaction.description,
+            taxDeductible: tempTransaction.taxDeductible,
+            bucketId: tempTransaction.bucket1Id,
+            status: tempTransaction.status as 'completed' | 'pending' | 'failed',
+            subtypeId: s.id
+        });
 
         // reset
         tempTransaction.amount = 0;
@@ -94,13 +86,15 @@
 <Modal {id} title="New Transaction">
     <form on:submit|preventDefault={submit}>
         <div class="input-group mb-3">
-            <select name="type" id="type" class="form-select" bind:value={tempTransaction.typeInput} on:change={changeInput}>
+            <select name="type" id="type" class="form-control" bind:value={tempTransaction.typeInput} on:change={changeInput} required>
                 <option value="deposit">Deposit</option>
                 <option value="withdrawal">Withdrawal</option>
                 <option value="transfer">Transfer</option>
             </select>
-            <label for="type" class="input-group">{tempTransaction.type === 'withdrawal' ? 'From' : 'Into'}</label>
-            <select name="bucket" id="from-bucket" class="form-select" bind:value={tempTransaction.bucket1Id}>
+
+
+            <label for="type" class="input-group-text bg-{tempTransaction.typeInput === 'deposit' ? 'success' : 'danger'} text-light">{tempTransaction.typeInput === 'deposit' ? 'Into' : 'From'}</label>
+            <select name="bucket" id="from-bucket" class="form-control" bind:value={tempTransaction.bucket1Id} required>
                 <option value="" disabled>Select Bucket</option>
                 {#await buckets}
                     <option value="none" disabled>Loading...</option>
@@ -111,8 +105,8 @@
                 {/await}
             </select>
             {#if tempTransaction.typeInput === 'transfer'}
-                <label for="to-bucket" class="input-group">Into</label>
-                <select name="bucket" class="form-select" id="to-bucket" bind:value={tempTransaction.bucket2Id}>
+                <label for="to-bucket" class="input-group-text bg-success text-light">Into</label>
+                <select name="bucket" class="form-control" id="to-bucket" bind:value={tempTransaction.bucket2Id}>
                     <option value="" disabled>Select Bucket</option>
                     {#await buckets}
                         <option value="none" disabled>Loading...</option>

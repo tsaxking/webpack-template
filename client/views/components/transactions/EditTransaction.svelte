@@ -3,6 +3,7 @@
     import { Transaction } from "../../../models/transactions/transaction";
     import { Bucket } from "../../../models/transactions/bucket";
     import { TransactionType, Subtype } from "../../../models/transactions/types";
+    import { notify } from "../../../utilities/notifications";
 
     export let id: string;
     export let transaction: Transaction|undefined;
@@ -36,9 +37,27 @@
     change();
 
     
+
+    // const fail = (needed: string) => notify({
+    //     message: 'Please fill in the ' + needed + ' field.',
+    //     title: 'Invalid Input',
+    //     color: 'danger',
+    //     status: needed + ' is required.',
+    //     code: 400,
+    //     instructions: ''
+    // });
+
+    
     const submit = async () => {
         const t = await TransactionType.newType(typeName);
         const s = await t.newSubtype(subtypeName, tempTransaction.type);
+
+        // if (!tempTransaction.amount) return fail('amount');
+        // if (!typeId) return fail('type');
+        // if (!tempTransaction.bucketId) return fail('bucket');
+        // if (!tempTransaction.status) return fail('status');
+        // if (!tempTransaction.date) return fail('date');
+        // if (!tempTransaction.description) return fail('description');
 
         return transaction.update({
             amount: tempTransaction.amount,

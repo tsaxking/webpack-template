@@ -50,7 +50,7 @@ export class Bucket extends Cache<BucketEvents> {
     public created: number;
     public name: string;
     public description: string;
-    public archived: 0 | 1;
+    public archived: boolean;
     public type: 'debit' | 'credit' | 'savings';
 
     constructor(data: BucketObj) {
@@ -60,7 +60,7 @@ export class Bucket extends Cache<BucketEvents> {
         this.created = data.created;
         this.name = data.name;
         this.description = data.description;
-        this.archived = data.archived;
+        this.archived = !!data.archived;
         this.type = data.type;
 
         Bucket.cache.set(this.id, this);
@@ -147,7 +147,7 @@ socket.on('buckets:updated', (data: BucketObj) => {
 socket.on('buckets:archived', (id: string) => {
     const b = Bucket.cache.get(id);
     if (b) {
-        b.archived = 1;
+        b.archived = true;
         Bucket.cache.set(id, b);
 
         b.$emitter.emit('archived');
@@ -158,11 +158,10 @@ socket.on('buckets:archived', (id: string) => {
 socket.on('buckets:restored', (id: string) => {
     const b = Bucket.cache.get(id);
     if (b) {
-        b.archived = 0;
+        b.archived = false;
         Bucket.cache.set(id, b);
 
         b.$emitter.emit('restored');
         Bucket.emit('restore', b);
     }
 });
-
