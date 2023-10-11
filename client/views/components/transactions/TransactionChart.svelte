@@ -4,8 +4,8 @@
     import { Bucket } from '../../../models/transactions/bucket';
     import { Transaction } from '../../../models/transactions/transaction';
 
-    export let from: number;
-    export let to: number;
+    export let from: string;
+    export let to: string;
     export let bucketId: string;
 
     const b = Bucket.cache.get(bucketId);
@@ -17,7 +17,7 @@
             const ctx = canvas.getContext('2d');
             let chart: Chart;
 
-            b.getBalanceGraphData(from, to).then(data => {
+            b.getBalanceGraphData(new Date(from).getTime(), new Date(to).getTime()).then(data => {
                 if (chart) chart.destroy();
                 chart = new Chart(ctx, {
                     type: 'line',
@@ -45,12 +45,12 @@
 
     generate();
 
-    Bucket.on('updated', generate);
-    Transaction.on('updated', generate);
-    Transaction.on('created', generate);
-    Transaction.on('deleted', generate);
-    Transaction.on('restored', generate);
-    Transaction.on('archived', generate);
+    Bucket.on('update', generate);
+    Transaction.on('update', generate);
+    Transaction.on('create', generate);
+    Transaction.on('delete', generate);
+    Transaction.on('restore', generate);
+    Transaction.on('archive', generate);
 </script>
 
 <canvas {id}></canvas>

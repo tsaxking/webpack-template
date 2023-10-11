@@ -6,9 +6,10 @@
     import EditTransaction from "../components/transactions/EditTransaction.svelte";
 
 
-    export let from: number;
-    export let to: number;
+    export let from: string;
+    export let to: string;
     export let bucketId: string;
+    export let search: string = '';
 
     export let transactions: Transaction[] = [];
 
@@ -22,17 +23,32 @@
         openedTransaction = t;
     }
 
-    const onFilter = (e: CustomEvent) => {
+    const filter = () => {
         transactions = [];
-        const { search, from, to } = e.detail;
-        console.log(search, from, to);
-
-        const em = Transaction.search(bucketId, from, to);
+        const em = Transaction.search(bucketId, new Date(from).getTime(), new Date(to).getTime());
 
         em.on('chunk', (t: Transaction) => {
             transactions = [...transactions, t];
         });
     }
+
+    const onFilter = (e: CustomEvent) => {
+        console.log(e.detail);
+
+        transactions = [];
+        const { search: s, from: f, to: t } = e.detail;
+
+        search = s;
+        from = new Date(s).toLocaleDateString().split('/').reverse().join('-');
+        to = new Date(s).toLocaleDateString().split('/').reverse().join('-');
+
+        filter();
+    }
+
+    Transaction.on('*', () => {
+        transactions = [];
+        filter();
+    });
 </script>
 
 <div class="container-fluid">

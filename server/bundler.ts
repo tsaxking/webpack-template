@@ -40,6 +40,8 @@ let entries = [];
 
 entries = readDir('./client/entries');
 
+// console.log(entries);
+
 type BuildEventData = {
     'build': any;
     'error': Error;
@@ -49,7 +51,7 @@ type BuildEvent = keyof BuildEventData;
 
 export const builder = new EventEmitter<BuildEvent>();
 
-const result = await esbuild.build({
+await esbuild.build({
     entryPoints: entries,
     bundle: true,
     minify: env.ENVIRONMENT === 'production',
@@ -58,7 +60,6 @@ const result = await esbuild.build({
     conditions: ["svelte", "browser"],
     watch: {
         onRebuild(error: Error, result: any) {
-
             if (error) builder.emit('error', error);
             else builder.emit('build', result);
         }

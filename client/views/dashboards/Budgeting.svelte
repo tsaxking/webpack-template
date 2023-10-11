@@ -35,8 +35,8 @@
     let toDate: Date = new Date();
     toDate.setMonth(toDate.getMonth() + 1);
 
-    $: from = new Date(fromDate).getTime();
-    $: to = new Date(toDate).getTime();
+    $: from = new Date(fromDate).toLocaleDateString().split('/').reverse().join('-');
+    $: to = new Date(toDate).toLocaleDateString().split('/').reverse().join('-');
 </script>
 
 

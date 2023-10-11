@@ -243,7 +243,7 @@ export class ServerRequest<T = unknown> {
             })
                 .then((r) => r.json())
                 .then(async (data) => {
-                    console.log(data);
+                    console.log('Server Response:', data);
 
                     if (data?.status) {
                         // this is a notification

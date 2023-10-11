@@ -13,8 +13,8 @@
     export let buckets: string[] = [];
     export let active: string = '';
     export let search: string = '';
-    export let from: number;
-    export let to: number;
+    export let from: string;
+    export let to: string;
 
     export let fromTo: string = '';
 
@@ -22,11 +22,11 @@
         const [month, year] = fromTo.split('-');
 
         if (!month) {
-            from = new Date(+year, 0, 1).getTime();
-            to = new Date(+year, 11, 31).getTime();
+            from = new Date(+year, 0, 1).toLocaleDateString().split('/').reverse().join('-');
+            to = new Date(+year, 11, 31).toLocaleDateString().split('/').reverse().join('-');
         } else {
-            from = new Date(+year, months.indexOf(month), 1).getTime();
-            to = new Date(+year, months.indexOf(month) + 1, 0).getTime();
+            from = new Date(+year, months.indexOf(month), 1).toLocaleDateString().split('/').reverse().join('-');
+            to = new Date(+year, months.indexOf(month) + 1, 0).toLocaleDateString().split('/').reverse().join('-');
         }
 
         emitSearch();
@@ -40,13 +40,19 @@
 
     const emitSearch = () => dispatch('search', { search, from, to });
 
-    Bucket.on('created', (bucket: Bucket) => {
-        buckets = [...buckets, bucket.name];
-    });
+    const getAll = () => {
+        Bucket.getAll().then((b) => {
+            buckets = b.map((bucket) => bucket.name);
 
-    Bucket.getAll().then((b) => {
-        buckets = b.map((bucket) => bucket.name);
-    });
+            if (!active) {
+                active = buckets[0];
+            }
+        });
+    };
+
+    Bucket.on('*', getAll);
+
+    getAll();
 </script>
 
 <div class="container-fluid">

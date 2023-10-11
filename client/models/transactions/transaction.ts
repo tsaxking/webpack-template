@@ -5,6 +5,7 @@ import { socket } from '../../utilities/socket';
 import { RetrieveStreamEventEmitter } from "../../utilities/requests";
 import { Subtype, TransactionType } from "./types";
 import { Bucket } from "./bucket";
+import { notify } from "../../utilities/notifications";
 
 
 
@@ -76,13 +77,14 @@ export class Transaction extends Cache<TransactionEvents> {
         toBucketId: string;
         description: string;
         subtypeId: string;
-        taxDeductible: 0 | 1;
+        taxDeductible: boolean;
         status: 'pending' | 'completed' | 'failed';
     }) {
         return ServerRequest.post('/api/transactions/transfer', data);
     }
 
-    static newTransaction(data: {
+    static async newTransaction(data: {
+        transfer?: string, // bucket id
         amount: number;
         type: 'withdrawal' | 'deposit';
         status: 'pending' | 'completed' | 'failed';
@@ -90,9 +92,33 @@ export class Transaction extends Cache<TransactionEvents> {
         bucketId: string;
         description: string;
         subtypeId: string;
-        taxDeductible: 0 | 1;
+        taxDeductible: boolean;
     }) {
-        return ServerRequest.post('/api/transactions/new', data);
+
+        const fail = (needed: string) => notify({
+            message: 'Please fill in the ' + needed + ' field.',
+            title: 'Invalid Input',
+            color: 'danger',
+            status: needed + ' is required.',
+            code: 400,
+            instructions: ''
+        });
+
+
+        if (data.transfer) {
+            return Transaction.newTransfer({
+                amount: data.amount,
+                date: data.date,
+                fromBucketId: data.bucketId,
+                toBucketId: data.transfer,
+                description: data.description,
+                subtypeId: data.subtypeId,
+                taxDeductible: data.taxDeductible,
+                status: data.status
+            });
+        } else {
+            return ServerRequest.post('/api/transactions/new', data);
+        }
     }
 
     public readonly id: string;
