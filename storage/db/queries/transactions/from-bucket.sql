@@ -1,1 +1,1 @@
-SELECT * FROM Transaction WHERE bucket = :bucket AND archived = 0;
+SELECT * FROM Transactions WHERE bucketId = :bucket AND archived = 0;

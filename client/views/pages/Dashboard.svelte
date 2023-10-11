@@ -5,12 +5,13 @@
     import NewTransaction from "../components/transactions/NewTransactionForm.svelte";
     import EditTransaction from "../components/transactions/EditTransaction.svelte";
     import { formatDate } from "../../utilities/clock";
+    import { Bucket } from "../../models/transactions/bucket";
 
     const formatter = formatDate('YYYY-MM-DD');
 
     export let from: string;
     export let to: string;
-    export let bucketId: string;
+    export let active: string;
     export let search: string = '';
 
     export let transactions: Transaction[] = [];
@@ -25,9 +26,12 @@
         openedTransaction = t;
     }
 
-    const filter = () => {
+    const filter = async () => {
         transactions = [];
-        const em = Transaction.search(bucketId, new Date(from).getTime() - 1, new Date(to).getTime() + 1);
+        const bucket = (await Bucket.getAll()).find(b => b.name === active);
+        if (!bucket) return;
+
+        const em = Transaction.search(bucket.id, new Date(from).getTime() - 1, new Date(to).getTime() + 1);
 
         em.on('chunk', (t: Transaction) => {
             transactions = [...transactions, t];
@@ -56,7 +60,7 @@
 <div class="container-fluid">
     <div class="row mb-3">
         <div class="col-12">
-            <FilterBudget bind:active={bucketId} bind:from={from} bind:to={to} on:search={onFilter} on:changeBucket={({ detail }) => bucketId = detail}></FilterBudget>
+            <FilterBudget bind:active={active} bind:from={from} bind:to={to} on:search={onFilter} on:changeBucket={({ detail }) => active = detail}></FilterBudget>
         </div>
         <div class="col-12 p-2">
             <button type="button" class="btn btn-success w-100" data-bs-toggle="modal" data-bs-target="#new-transaction">
@@ -67,7 +71,7 @@
     
     <div class="row mb-3">
         <div class="col-lg-3 col-md-6 col-sm-12">
-            <TransactionChart bind:from={from} bind:to={to} bind:bucketId={bucketId}/>
+            <TransactionChart bind:from={from} bind:to={to} bind:bucketId={active}/>
         </div>
     </div>
 
