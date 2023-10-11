@@ -121,7 +121,18 @@ function stripHtml(body: any) {
 
 app.post('/*', (req, res, next) => {
     req.body = stripHtml(req.body);
-    console.log(req.body);
+
+    try {
+        const b = JSON.parse(JSON.stringify(req.body)); // remove deep references
+        delete b.password;
+        delete b.confirmPassword;
+        delete b.files;
+        console.log(b);
+    } catch {
+        console.log(req.body);
+    }
+
+
     next();
 });
 
@@ -176,7 +187,13 @@ app.get('/*', (req, res, next) => {
 });
 
 
-app.route('/api', api)
+
+
+app.route('/api', api);
+
+
+
+
 
 
 // routing
