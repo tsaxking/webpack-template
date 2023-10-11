@@ -58,6 +58,8 @@ app.use('/*', (req, res, next) => {
     next();
 });
 
+
+
 app.static('/client', path.resolve(__root, './client'));
 app.static('/public', path.resolve(__root, './public'));
 app.static('/dist', path.resolve(__root, './dist'));
