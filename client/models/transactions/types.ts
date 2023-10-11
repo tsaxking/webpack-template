@@ -57,7 +57,7 @@ export class TransactionType extends Cache<TransactionTypeEvents> {
         if (!TransactionType.cache.has(data.id)) {
             const t = new TransactionType(data);
             t.$emitter.emit('created');
-            TransactionType.emit('created', t);
+            TransactionType.emit('create', t);
             return t;
         }
 
@@ -99,7 +99,7 @@ export class TransactionType extends Cache<TransactionTypeEvents> {
         if (!Subtype.cache.has(data.id)) {
             const s = new Subtype(data);
             s.$emitter.emit('created');
-            Subtype.emit('created', s);
+            Subtype.emit('create', s);
             return s;
         }
 
@@ -122,7 +122,7 @@ socket.on('transaction-types:type-created', (data: TransactionTypeObj) => {
     if (!TransactionType.cache.has(data.id)) {
         const t = new TransactionType(data);
         t.$emitter.emit('created');
-        TransactionType.emit('created', t);
+        TransactionType.emit('create', t);
     }
 });
 socket.on('transaction-types:type-updated', (data: TransactionTypeObj) => {
@@ -130,7 +130,7 @@ socket.on('transaction-types:type-updated', (data: TransactionTypeObj) => {
         const t = TransactionType.cache.get(data.id) as TransactionType;
         Object.assign(t, data);
         t.$emitter.emit('updated');
-        TransactionType.emit('updated', t);
+        TransactionType.emit('update', t);
     }
 });
 
@@ -194,7 +194,7 @@ socket.on('transaction-types:subtype-created', (data: SubtypeObj) => {
     if (!Subtype.cache.has(data.id)) {
         const s = new Subtype(data);
         s.$emitter.emit('created');
-        Subtype.emit('created', s);
+        Subtype.emit('create', s);
     }
 });
 
@@ -206,6 +206,6 @@ socket.on('transaction-types:subtype-updated', (data: SubtypeObj) => {
         const s = Subtype.cache.get(data.id) as Subtype;
         Object.assign(s, data);
         s.$emitter.emit('updated');
-        Subtype.emit('updated', s);
+        Subtype.emit('update', s);
     }
 });

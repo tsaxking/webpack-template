@@ -215,7 +215,7 @@ socket.on('transactions:updated', (data: TransactionObj) => {
         Transaction.cache.set(data.id, t);
 
         t.$emitter.emit('updated');
-        Transaction.emit('updated', t);
+        Transaction.emit('update', t);
     }
 });
 
@@ -226,7 +226,7 @@ socket.on('transactions:archived', (id: string) => {
         Transaction.cache.set(id, t);
 
         t.$emitter.emit('archived');
-        Transaction.emit('archived', t);
+        Transaction.emit('archive', t);
     }
 });
 
@@ -237,14 +237,14 @@ socket.on('transactions:restored', (id: string) => {
         Transaction.cache.set(id, t);
 
         t.$emitter.emit('restored');
-        Transaction.emit('restored', t);
+        Transaction.emit('restore', t);
     }
 });
 
 socket.on('transactions:created', (data: TransactionObj) => {
     const t = new Transaction(data);
     t.$emitter.emit('created');
-    Transaction.emit('created', t);
+    Transaction.emit('create', t);
 });
 
 socket.on('transactions:picture-updated', ({ id, picture }) => {
@@ -254,6 +254,6 @@ socket.on('transactions:picture-updated', ({ id, picture }) => {
         Transaction.cache.set(id, t);
 
         t.$emitter.emit('updated');
-        Transaction.emit('updated', t);
+        Transaction.emit('update', t);
     }
 });
