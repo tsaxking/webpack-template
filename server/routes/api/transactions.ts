@@ -17,13 +17,15 @@ router.post('/search', validate({
 }), (req, res) => {
     const { bucket, from, to } = req.body;
 
-    const transactions = DB.all('transactions/between', {
-        bucketId: bucket,
-        from,
-        to
+    const transactions = DB.all('transactions/from-bucket', {
+        bucket
     });
 
-    res.stream(transactions.map(t => JSON.stringify(t)));
+    console.log(transactions);
+
+    res.stream(transactions.filter(t => {
+        return t.date >= from && t.date <= to;
+    }).map(t => JSON.stringify(t)));
 });
 
 router.post('/new', validate({

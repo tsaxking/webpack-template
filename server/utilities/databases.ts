@@ -16,11 +16,17 @@ export class DB {
     private static prepare<T extends keyof Queries>(type: T): Statement {
         try {
             const data = Deno.readFileSync(path.resolve(__root, './storage/db/queries/', type + '.sql'));
+
+            if (!data) {
+                throw new Error('Could not find query: ' + type);
+            }
+
             const sql = new TextDecoder('utf-8').decode(data);
 
             return MAIN.prepare(sql);
         } catch (err) {
-            throw new Error('Could not find query: ' + type);
+            console.log(err);
+            throw new Error('Could not prepare query: ' + type);
         }
     }
 
