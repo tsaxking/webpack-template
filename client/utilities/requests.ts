@@ -171,6 +171,8 @@ export class ServerRequest<T = unknown> {
             .then(reader => {
                 if (!reader) return emitter.emit('error', new Error('No reader found'));
 
+                console.log('Stream started...');
+
                 reader.read().then(function process({ done, value }) {
                     if (done) {
                         emitter.emit('complete', output);
