@@ -104,6 +104,15 @@ export class Transaction extends Cache<TransactionEvents> {
             instructions: ''
         });
 
+        if (!data.amount) return fail('amount');
+        if (!data.date) return fail('date');
+        if (!data.bucketId) return fail('bucket');
+        if (!data.description) return fail('description');
+        if (!data.subtypeId) return fail('subtype');
+        if (data.taxDeductible === undefined) return fail('tax deductible');
+        if (!data.type) return fail('type');
+        if (!data.status) return fail('status');
+
 
         if (data.transfer) {
             return Transaction.newTransfer({

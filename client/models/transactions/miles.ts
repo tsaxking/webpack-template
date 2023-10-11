@@ -20,7 +20,9 @@ export class Miles extends Cache<MilesEvents> {
             return Array.from(Miles.cache.values()).filter((m) => !m.archived);
         }
 
-        return ServerRequest.post<MilesObj[]>('/api/miles/active')
+        return ServerRequest.post<MilesObj[]>('/api/miles/active', null, {
+            cached: true
+        })
             .then((miles) => {
                 return miles.map((m) => new Miles(m));
             });
@@ -28,10 +30,13 @@ export class Miles extends Cache<MilesEvents> {
 
     static async getArchived(): Promise<Miles[]> {
         if (Miles.cache.size > 0) {
-            return Array.from(Miles.cache.values()).filter((m) => m.archived);
+            const res = Array.from(Miles.cache.values()).filter((m) => m.archived);
+            if (res.length) return res;
         }
 
-        return ServerRequest.post<MilesObj[]>('/api/miles/archived')
+        return ServerRequest.post<MilesObj[]>('/api/miles/archived', null, {
+            cached: true
+        })
             .then((miles) => {
                 return miles.map((m) => new Miles(m));
             });

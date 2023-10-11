@@ -19,7 +19,9 @@ export class Subscription extends Cache<SubscriptionEvents> {
             return Array.from(Subscription.cache.values()).filter((s) => !s.archived);
         }
 
-        return ServerRequest.post<SubscriptionObj[]>('/api/subscriptions/get-all')
+        return ServerRequest.post<SubscriptionObj[]>('/api/subscriptions/get-all', null, {
+            cached: true
+        })
             .then((subs) => {
                 return subs.map((s) => new Subscription(s));
             });
@@ -27,10 +29,13 @@ export class Subscription extends Cache<SubscriptionEvents> {
 
     static async getArchived(): Promise<Subscription[]> {
         if (Subscription.cache.size > 0) {
-            return Array.from(Subscription.cache.values()).filter((s) => s.archived);
+            const res = Array.from(Subscription.cache.values()).filter((s) => s.archived);
+            if (res.length) return res;
         }
 
-        return ServerRequest.post<SubscriptionObj[]>('/api/subscriptions/get-archived')
+        return ServerRequest.post<SubscriptionObj[]>('/api/subscriptions/get-archived', null, {
+            cached: true
+        })
             .then((subs) => {
                 return subs.map((s) =>  new Subscription(s));
             });
