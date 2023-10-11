@@ -15,3 +15,25 @@ export const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
 export const currentMonth = () => months[new Date().getMonth()];
 export const currentYear = () => new Date().getFullYear();
 export const currentDay = () => days[new Date().getDay()];
+
+
+export const formatDate = (str: string) => (date: Date) => {
+    const parse = {
+        'YYYY': date.getFullYear().toString(),
+        'MM': (date.getMonth() + 1).toString().length === 1 ? `0${date.getMonth() + 1}` : date.getMonth() + 1,
+        'DD': date.getDate().toString().length === 1 ? `0${date.getDate()}` : date.getDate(),
+        'HH': date.getHours().toString().length === 1 ? `0${date.getHours()}` : date.getHours(),
+        'mm': date.getMinutes().toString().length === 1 ? `0${date.getMinutes()}` : date.getMinutes(),
+        'ss': date.getSeconds().toString().length === 1 ? `0${date.getSeconds()}` : date.getSeconds(),
+        'Month': months[date.getMonth()],
+        'Day': days[date.getDay()]
+    };
+
+    let formatted = str;
+
+    for (const key in parse) {
+        formatted = formatted.replace(new RegExp(key, 'g'), parse[key]);
+    }
+
+    return formatted;
+}

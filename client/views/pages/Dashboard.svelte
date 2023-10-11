@@ -4,7 +4,9 @@
     import TransactionChart from "../components/transactions/TransactionChart.svelte";
     import NewTransaction from "../components/transactions/NewTransactionForm.svelte";
     import EditTransaction from "../components/transactions/EditTransaction.svelte";
+    import { formatDate } from "../../utilities/clock";
 
+    const formatter = formatDate('YYYY-MM-DD');
 
     export let from: string;
     export let to: string;
@@ -25,7 +27,7 @@
 
     const filter = () => {
         transactions = [];
-        const em = Transaction.search(bucketId, new Date(from).getTime(), new Date(to).getTime());
+        const em = Transaction.search(bucketId, new Date(from).getTime() - 1, new Date(to).getTime() + 1);
 
         em.on('chunk', (t: Transaction) => {
             transactions = [...transactions, t];
@@ -33,14 +35,12 @@
     }
 
     const onFilter = (e: CustomEvent) => {
-        console.log(e.detail);
-
         transactions = [];
         const { search: s, from: f, to: t } = e.detail;
 
         search = s;
-        from = new Date(s).toLocaleDateString().split('/').reverse().join('-');
-        to = new Date(s).toLocaleDateString().split('/').reverse().join('-');
+        from = formatter(new Date(f));
+        to = formatter(new Date(t));
 
         filter();
     }
@@ -49,6 +49,8 @@
         transactions = [];
         filter();
     });
+
+    filter();
 </script>
 
 <div class="container-fluid">
