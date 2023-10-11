@@ -200,6 +200,7 @@ export class ServerRequest<T = unknown> {
     public error?: Error;
     public sent: boolean = false;
     public duration?: number;
+    public promise?: Promise<T>;
 
     constructor(
         public readonly url: string,
@@ -213,7 +214,7 @@ export class ServerRequest<T = unknown> {
 
 
     async send(): Promise<T> {
-        return new Promise<T>((res, rej) => {
+        this.promise = new Promise<T>((res, rej) => {
             try {
                 JSON.stringify(this.body);
             } catch {
@@ -228,7 +229,7 @@ export class ServerRequest<T = unknown> {
                 if (req) {
                     this.duration = Date.now() - start;
                     this.response = req.response;
-                    return res(req.response);
+                    req.promise?.then((r) => res(r as T));
                 }
             }
 
@@ -267,5 +268,7 @@ export class ServerRequest<T = unknown> {
                     rej(e);
                 });
         });
+
+        return this.promise;
     }
 }
