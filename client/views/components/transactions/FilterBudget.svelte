@@ -3,12 +3,13 @@
     import NewBucket from "../buckets/NewBucket.svelte";
     import EditBucket from "../buckets/EditBucket.svelte";
     import { createEventDispatcher } from "svelte";
-    import { months, currentMonth, currentYear } from "../../../utilities/clock";
+    import { months, currentMonth, currentYear, formatDate } from "../../../utilities/clock";
     import { Bucket } from "../../../models/transactions/bucket";
     import { confirm } from "../../../utilities/notifications";
 
 
     const dispatch = createEventDispatcher();
+    const formatter = formatDate('YYYY-MM-DD');
 
     export let buckets: string[] = [];
     export let active: string = '';
@@ -22,11 +23,11 @@
         const [month, year] = fromTo.split('-');
 
         if (!month) {
-            from = new Date(+year, 0, 1).toLocaleDateString().split('/').reverse().join('-');
-            to = new Date(+year, 11, 31).toLocaleDateString().split('/').reverse().join('-');
+            from = formatter(new Date(+year, 0, 1));
+            to = formatter(new Date(+year, 11, 31));
         } else {
-            from = new Date(+year, months.indexOf(month), 1).toLocaleDateString().split('/').reverse().join('-');
-            to = new Date(+year, months.indexOf(month) + 1, 0).toLocaleDateString().split('/').reverse().join('-');
+            from = formatter(new Date(+year, months.indexOf(month), 1));
+            to = formatter(new Date(+year, months.indexOf(month) + 1, 0));
         }
 
         emitSearch();

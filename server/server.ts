@@ -13,6 +13,7 @@ import { router as account } from './routes/account.ts';
 import { router as api } from './routes/api.ts';
 import Role from "./structure/roles.ts";
 import { validate } from "./middleware/data-type.ts";
+import { uuid } from "./utilities/uuid.ts";
 
 const port = +env.PORT || 3000;
 const domain = env.DOMAIN || `http://localhost:${port}`;
@@ -37,13 +38,17 @@ builder.on('build', () => {
 
 builder.on('error', (e) => log('Build error:', e));
 
+app.post('/test-stream', (req, res) => {
+    res.stream(new Array(100).fill('').map(() => uuid()));
+});
+
 
 app.post('/test', (req, res, next) => {
     res.sendStatus('test:success');
 });
 
 app.post('/test-validation', validate({
-    username: (v: any) => v === 'fail',
+    username: (v: any) => v === 'fail', 
     password: (v: any) => v === 'test'
 }, {
     onspam: (req, res, next) => {
@@ -57,8 +62,6 @@ app.use('/*', (req, res, next) => {
     log(`[${req.method}] ${req.url}`);
     next();
 });
-
-
 
 app.static('/client', path.resolve(__root, './client'));
 app.static('/public', path.resolve(__root, './public'));
