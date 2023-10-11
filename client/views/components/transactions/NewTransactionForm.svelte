@@ -3,15 +3,16 @@
     import { Bucket } from "../../../models/transactions/bucket";
     import { Transaction } from "../../../models/transactions/transaction";
     import Modal from "../bootstrap/Modal.svelte";
-    import { notify } from "../../../utilities/notifications";
-    import TransactionChart from "./TransactionChart.svelte";
+    import { formatDate } from "../../../utilities/clock";
+
+    const formatter = formatDate('YYYY-MM-DD');
 
     export let id: string;
 
     $: tempTransaction = {
         amount: 0,
         type: 'deposit',
-        date: new Date().toLocaleDateString().split('/').reverse().join('-'),
+        date: formatter(new Date()),
         description: '',
         taxDeductible: false,
         bucket1Id: '',
@@ -46,11 +47,11 @@
         const s = await t.newSubtype(typeInfo.subtypeName, tempTransaction.type === 'transfer' ? 'withdrawal' : tempTransaction.type as 'deposit' | 'withdrawal');
 
         // handles transfers
-        Transaction.newTransaction({
+        const result = await Transaction.newTransaction({
             transfer: tempTransaction.type === 'transfer' ? tempTransaction.bucket2Id : undefined,
             amount: tempTransaction.amount,
             type: tempTransaction.type === 'transfer' ? 'withdrawal' : tempTransaction.type as 'deposit' | 'withdrawal',
-            date: new Date(tempTransaction.date).getTime(),
+            date: new Date(tempTransaction.date).getTime().toString(),
             description: tempTransaction.description,
             taxDeductible: tempTransaction.taxDeductible,
             bucketId: tempTransaction.bucket1Id,
@@ -58,11 +59,13 @@
             subtypeId: s.id
         });
 
+        if (!result) return; // failed to create transaction due to incomplete fields
+
         // reset
         tempTransaction.amount = 0;
         tempTransaction.type = 'deposit';
         tempTransaction.status = 'completed';
-        tempTransaction.date = new Date().toString();
+        tempTransaction.date = formatter(new Date());
         tempTransaction.description = '';
         tempTransaction.taxDeductible = false;
         tempTransaction.typeId = '';
@@ -162,11 +165,7 @@
 
             <label for="subtype" class="form-label">Transaction Subtype</label>
             <input type="text" class="form-control" name="transaction-subtype" id="transaction-subtype" list="transaction-subtypes" bind:value={typeInfo.subtypeName} required on:input={change}>
-            <datalist id="transaction-subtypes">
-                {#each setSubtypes as subtype}
-                    <option value={subtype.name}>{subtype.name}</option>
-                {/each}
-            </datalist>
+            
         </div>
 
         <button type="submit" class="btn btn-primary">Submit</button>

@@ -6,6 +6,7 @@
     import EditTransaction from "../components/transactions/EditTransaction.svelte";
     import { formatDate } from "../../utilities/clock";
     import { Bucket } from "../../models/transactions/bucket";
+    import { openModal } from "../../utilities/modals";
 
     const formatter = formatDate('YYYY-MM-DD');
 
@@ -16,14 +17,11 @@
 
     export let transactions: Transaction[] = [];
 
-    const transactionInfo = () => {
-        return Promise.all(transactions.map(t => t.getTableData()));
-    }
-
     let openedTransaction: Transaction;
 
     const openTransaction = (t: Transaction) => {
         openedTransaction = t;
+        openModal('edit-transaction');
     }
 
     const filter = async () => {
@@ -33,7 +31,10 @@
 
         const em = Transaction.search(bucket.id, new Date(from).getTime() - 1, new Date(to).getTime() + 1);
 
+        console.log(em);
+
         em.on('chunk', (t: Transaction) => {
+            console.log(transactions);
             transactions = [...transactions, t];
         });
     }
@@ -64,7 +65,7 @@
         </div>
         <div class="col-12 p-2">
             <button type="button" class="btn btn-success w-100" data-bs-toggle="modal" data-bs-target="#new-transaction">
-                <i class="material-icons">add_box</i>&nbsp;Transaction
+                <i class="material-icons">add</i>&nbsp;Transaction
             </button>
         </div>
     </div>
@@ -88,10 +89,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {#await transactionInfo()}
-                        <p>Loading...</p>
-                    {:then tInfo}
-                        {#each tInfo as t}
+                    {#each transactions as t}
+                        {#await t.getTableData()}
+                            <td colspan="5">
+                                Loading...
+                            </td>
+                        {:then t} 
                             <tr on:click={() => {
                                 openTransaction(t.transaction);
                             }}>
@@ -101,11 +104,8 @@
                                 <td>{t.bucket}</td>
                                 <td>{t.amount}</td>
                             </tr>
-                        {/each}
-
-                    {:catch error}
-                        <p>Error loading transaction info</p>
-                    {/await}
+                        {/await}
+                    {/each}
                 </tbody>
             </table>
         </div>

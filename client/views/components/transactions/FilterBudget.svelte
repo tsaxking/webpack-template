@@ -35,9 +35,9 @@
 
     const startYear = 2020;
     const endMonth = currentMonth();
-    const endYear = currentYear();
+    const endYear = currentYear() + 1;
 
-    const years = Array.from({length: endYear - startYear + 1}, (_, i) => startYear + i);
+    const years = Array.from({length: endYear - startYear}, (_, i) => startYear + i);
 
     const emitSearch = () => dispatch('search', { search, from, to });
 
@@ -48,6 +48,7 @@
             if (!active) {
                 active = buckets[0];
             }
+            dispatch('search', { search, from, to });
         });
     };
 
@@ -94,9 +95,9 @@
                 <input type="date" name="from" class="form-control" bind:value={from} on:change={emitSearch}>
                 <input type="date" name="to" class="form-control" bind:value={to} on:change={emitSearch}>
                 <select name="set-from-to" class="form-select" bind:value={fromTo} on:change={setFromTo}>
-                    {#each years as year}
+                    {#each years.slice().reverse() as year}
                         <option value="-{year}">{year}</option>
-                        {#each months as month}
+                        {#each months.slice().reverse() as month}
                             {#if (year !== endYear && months.indexOf(month) <= months.indexOf(endMonth))}
                                 <option value={month + '-' + year}>{month + ' ' + year}</option>
                             {/if}

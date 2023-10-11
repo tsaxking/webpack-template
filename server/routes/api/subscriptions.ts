@@ -38,8 +38,8 @@ router.post('/new', validate({
     taxDeductible: (v: any) => typeof v === 'boolean',
     description: (v: any) => typeof v === 'string',
     picture: (v: any) => typeof v === 'string',
-    startDate: (v: any) => typeof v === 'number',
-    endDate: (v: any) => typeof v === 'number',
+    startDate: (v: any) => typeof v === 'string',
+    endDate: (v: any) => typeof v === 'string',
     subtypeId: (v: any) => typeof v === 'string'
 }), (req, res) => {
     const {
@@ -123,8 +123,8 @@ router.post('/update', validate({
     taxDeductible: (v: any) => typeof v === 'boolean',
     description: (v: any) => typeof v === 'string',
     picture: (v: any) => typeof v === 'string',
-    startDate: (v: any) => typeof v === 'number',
-    endDate: (v: any) => typeof v === 'number',
+    startDate: (v: any) => typeof v === 'string',
+    endDate: (v: any) => typeof v === 'string',
     subtypeId: (v: any) => typeof v === 'string',
     bucketId: (v: any) => typeof v === 'string'
 }), (req, res) => {

@@ -172,9 +172,11 @@ export class ServerRequest<T = unknown> {
                 if (!reader) return emitter.emit('error', new Error('No reader found'));
 
                 console.log('Stream started...');
+                let i = 0;
 
                 reader.read().then(function process({ done, value }) {
                     if (done) {
+                        console.log('Stream complete, received', i, 'chunks');
                         emitter.emit('complete', output);
                         return;
                     }
@@ -189,6 +191,7 @@ export class ServerRequest<T = unknown> {
                             emitter.emit('chunk', d as K);
                         }
                     }
+                    i++;
                     return reader.read().then(process);
                 });
             })

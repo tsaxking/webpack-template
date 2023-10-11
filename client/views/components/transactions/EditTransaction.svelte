@@ -3,7 +3,9 @@
     import { Transaction } from "../../../models/transactions/transaction";
     import { Bucket } from "../../../models/transactions/bucket";
     import { TransactionType, Subtype } from "../../../models/transactions/types";
-    import { notify } from "../../../utilities/notifications";
+    import { formatDate } from "../../../utilities/clock";
+
+    const formatter = formatDate('YYYY-MM-DD');
 
     export let id: string;
     export let transaction: Transaction|undefined;
@@ -11,7 +13,7 @@
     $: tempTransaction = {
         amount: transaction?.amount,
         type: transaction?.type,
-        date: new Date(transaction?.date).toLocaleDateString().split('/').reverse().join('-'),
+        date: formatter(new Date(transaction?.date)),
         description: transaction?.description,
         taxDeductible: !!transaction?.taxDeductible,
         bucketId: transaction?.bucketId,
@@ -62,7 +64,7 @@
         return transaction.update({
             amount: tempTransaction.amount,
             status: tempTransaction.status,
-            date: new Date(tempTransaction.date).getTime(),
+            date: new Date(tempTransaction.date).getTime().toString(),
             description: tempTransaction.description,
             taxDeductible: tempTransaction.taxDeductible ? 1 : 0,
             subtypeId: s.id,
