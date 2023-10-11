@@ -229,19 +229,19 @@ export class Res {
 
         const stream = new ReadableStream({
             start(controller) {
-                const send = (i: number) => {
-                    if (i >= content.length) {
+                const send = (n: number) => {
+                    if (n >= content.length) {
                         em.emit('end');
                         controller.close();
                         clearInterval(timer);
                         return;
                     }
-
-                    controller.enqueue(new TextEncoder().encode(content[i]));
+                    controller.enqueue(new TextEncoder().encode(content[n]));
+                    i++;
                 } 
 
                 let i = 0;
-                timer = setInterval(() => send(i), 100)
+                timer = setInterval(() => send(i), 10);
             },
 
             cancel() {

@@ -39,7 +39,9 @@ builder.on('build', () => {
 builder.on('error', (e) => log('Build error:', e));
 
 app.post('/test-stream', (req, res) => {
-    res.stream(new Array(100).fill('').map(() => uuid()));
+    const data = new Array(100).fill('').map(uuid);
+    // console.log('Streaming', data);
+    res.stream(data);
 });
 
 
