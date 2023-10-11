@@ -21,7 +21,9 @@ export class Bucket extends Cache<BucketEvents> {
             return Array.from(Bucket.cache.values()).filter((b) => !b.archived);
         }
 
-        return ServerRequest.post<BucketObj[]>('/api/buckets/all')
+        return ServerRequest.post<BucketObj[]>('/api/buckets/all', null, {
+            cached: true
+        })
             .then((buckets) => {
                 return buckets.map((b) => new Bucket(b));
             });
@@ -29,10 +31,13 @@ export class Bucket extends Cache<BucketEvents> {
 
     static async getArchived(): Promise<Bucket[]> {
         if (Bucket.cache.size > 0) {
-            return Array.from(Bucket.cache.values()).filter((b) => b.archived);
+            const res = Array.from(Bucket.cache.values()).filter((b) => b.archived);
+            if (res.length) return res;
         }
 
-        return ServerRequest.post<BucketObj[]>('/api/buckets/archived')
+        return ServerRequest.post<BucketObj[]>('/api/buckets/archived', null, {
+            cached: true
+        })
             .then((buckets) => {
                 return buckets.map((b) => new Bucket(b));
             });

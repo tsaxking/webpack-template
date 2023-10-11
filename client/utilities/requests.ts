@@ -201,6 +201,7 @@ export class ServerRequest<T = unknown> {
     public sent: boolean = false;
     public duration?: number;
     public promise?: Promise<T>;
+    private cached: boolean = false;
 
     constructor(
         public readonly url: string,
@@ -227,6 +228,7 @@ export class ServerRequest<T = unknown> {
                 const reqs = ServerRequest.all.filter((r) => r.url == this.url);
                 const req = reqs[reqs.length - 1];
                 if (req) {
+                    this.cached = true;
                     this.duration = Date.now() - start;
                     this.response = req.response;
                     req.promise?.then((r) => res(r as T));
@@ -244,7 +246,8 @@ export class ServerRequest<T = unknown> {
             })
                 .then((r) => r.json())
                 .then(async (data) => {
-                    console.log('Server Response:', data);
+                    if (this.cached) console.log(data, '(cached)'); 
+                    else console.log(data);
 
                     if (data?.status) {
                         // this is a notification
