@@ -62,7 +62,7 @@ export const alert = async (message: string): Promise<void> => {
             $(modal).modal('hide');
         });
 
-        $(modal).modal();
+        $(modal).modal('show');
 
         $(modal).on('hidden.bs.modal', () => {
             m.$destroy();
@@ -103,7 +103,7 @@ export const confirm = async (prompt: string): Promise<boolean> => {
             res(false);
         });
 
-        $(modal).modal();
+        $(modal).modal('show');
     });
 };
 
@@ -157,6 +157,6 @@ export const prompt = async (question: string): Promise<string|null> => {
             res(null);
         });
 
-        $(modal).modal();
+        $(modal).modal('show');
     });
 };
