@@ -40,12 +40,22 @@
 
     const emitSearch = () => dispatch('search', { search, from, to });
 
+    Bucket.on('created', (bucket: Bucket) => {
+        buckets = [...buckets, bucket.name];
+    });
+
+    Bucket.getAll().then((b) => {
+        buckets = b.map((bucket) => bucket.name);
+    });
 </script>
 
 <div class="container-fluid">
     <div class="row">
         <div class="col-9">
-            <NavTabs bind:tabs={buckets} bind:active={active} on:change={() => dispatch('changeBucket', active)}/>
+            <NavTabs bind:tabs={buckets} bind:active={active} on:change={({ detail }) => {
+                active = detail;
+                dispatch('changeBucket', active);
+            }}/>
         </div>
         <div class="col-3">
             <div class="btn-group">

@@ -21,7 +21,7 @@ export class Bucket extends Cache<BucketEvents> {
             return Array.from(Bucket.cache.values()).filter((b) => !b.archived);
         }
 
-        return ServerRequest.post<BucketObj[]>('/api/buckets/get-all')
+        return ServerRequest.post<BucketObj[]>('/api/buckets/all')
             .then((buckets) => {
                 return buckets.map((b) => new Bucket(b));
             });
@@ -32,13 +32,16 @@ export class Bucket extends Cache<BucketEvents> {
             return Array.from(Bucket.cache.values()).filter((b) => b.archived);
         }
 
-        return ServerRequest.post<BucketObj[]>('/api/buckets/get-archived')
+        return ServerRequest.post<BucketObj[]>('/api/buckets/archived')
             .then((buckets) => {
                 return buckets.map((b) => new Bucket(b));
             });
     }
 
     static async newBucket(data: {
+        name: string;
+        description: string;
+        type: 'debit' | 'credit' | 'savings';
     }) {
         return ServerRequest.post('/api/buckets/new', data);
     }

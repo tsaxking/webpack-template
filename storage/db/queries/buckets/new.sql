@@ -2,12 +2,12 @@ INSERT INTO Buckets (
     id,
     description,
     created,
-    archived,
-    type
+    type,
+    name
 ) VALUES (
     :id,
     :description,
     :created,
-    0,
-    :type
+    :type,
+    :name
 );
