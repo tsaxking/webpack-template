@@ -1,7 +1,7 @@
 type ListenerCallback = (...args: any[]) => void;
 
 
-export class EventEmitter<allowedEvents = (string | number)> {
+export class EventEmitter<allowedEvents = (string | number | '*')> {
     constructor() {}
 
     public readonly events: { [key: string]: ListenerCallback[] } = {};
@@ -26,6 +26,10 @@ export class EventEmitter<allowedEvents = (string | number)> {
 
         this.events[event].forEach(callback => {
             callback(...args);
+        });
+
+        this.events['*']?.forEach(callback => {
+            callback(event, ...args);
         });
     }
 
