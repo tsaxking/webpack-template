@@ -5,16 +5,18 @@
     import { TransactionType, Subtype } from "../../../models/transactions/types";
 
     export let id: string;
-    export let transaction: Transaction;
+    export let transaction: Transaction|undefined;
 
-    let amount: number = transaction.amount;
-    let type: 'deposit' | 'withdrawal' = transaction.type;
-    let date: string = new Date(transaction.date).toString();
-    let description: string = transaction.description;
-    let taxDeductible: boolean = !!transaction.taxDeductible;
-    let bucketId: string = transaction.bucketId;
-    let archived: boolean = !!transaction.archived;
-    let status = transaction.status;
+    $: tempTransaction = {
+        amount: transaction?.amount,
+        type: transaction?.type,
+        date: new Date(transaction?.date).toLocaleDateString().split('/').reverse().join('-'),
+        description: transaction?.description,
+        taxDeductible: !!transaction?.taxDeductible,
+        bucketId: transaction?.bucketId,
+        archived: !!transaction?.archived,
+        status: transaction?.status
+    };
 
 
     
@@ -28,7 +30,7 @@
         const { types, subtypes } = await TransactionType.getTypes();
         setTypes = types;
 
-        setSubtypes = subtypes.filter(subtype => subtype.typeId === typeId && subtype.type === type);
+        setSubtypes = subtypes.filter(subtype => subtype.typeId === typeId && subtype.type === tempTransaction.type);
     };
 
     change();
@@ -36,16 +38,16 @@
     
     const submit = async () => {
         const t = await TransactionType.newType(typeName);
-        const s = await t.newSubtype(subtypeName, type);
+        const s = await t.newSubtype(subtypeName, tempTransaction.type);
 
         return transaction.update({
-            amount,
-            status,
-            date: new Date(date).getTime(),
-            description,
-            taxDeductible: taxDeductible ? 1 : 0,
+            amount: tempTransaction.amount,
+            status: tempTransaction.status,
+            date: new Date(tempTransaction.date).getTime(),
+            description: tempTransaction.description,
+            taxDeductible: tempTransaction.taxDeductible ? 1 : 0,
             subtypeId: s.id,
-            bucketId
+            bucketId: tempTransaction.bucketId
         });
     };
 
@@ -55,14 +57,14 @@
 <Modal {id} title="Edit Transaction">
     <form on:submit|preventDefault={submit}>
         <div class="input-group mb-3">
-            <input type="checkbox" class="btn-check" id="archived" autocomplete="off" bind:checked={archived}>
+            <input type="checkbox" class="btn-check" id="archived" autocomplete="off" bind:checked={tempTransaction.archived}>
             <label class="btn btn-outline-danger" for="archived">Archived</label>
-            <select name="type" id="type" bind:value={type}>
+            <select name="type" id="type" bind:value={tempTransaction.type}>
                 <option value="deposit">Deposit</option>
                 <option value="withdrawal">Withdrawal</option>
             </select>
-            <label for="type" class="input-group">{type === 'withdrawal' ? 'From' : 'Into'}</label>
-            <select name="bucket" id="from-bucket" bind:value={bucketId}>
+            <label for="type" class="input-group">{tempTransaction.type === 'withdrawal' ? 'From' : 'Into'}</label>
+            <select name="bucket" id="from-bucket" bind:value={tempTransaction.bucketId}>
                 <option value="" disabled>Select Bucket</option>
                 {#await buckets}
                     <option value="none" disabled>Loading...</option>
@@ -78,9 +80,9 @@
             <label for="amount" class="form-label">Amount</label>
             <div class="input-group">
                 <span class="input-group-text">₱</span>
-                <input type="number" name="amount" id="amount" bind:value={amount} required>
-                {#if type === 'withdrawal'}
-                    <input type="checkbox" class="btn-check" id="tax-deductible" autocomplete="off" bind:checked={taxDeductible}>
+                <input type="number" name="amount" id="amount" bind:value={tempTransaction.amount} required>
+                {#if tempTransaction.type === 'withdrawal'}
+                    <input type="checkbox" class="btn-check" id="tax-deductible" autocomplete="off" bind:checked={tempTransaction.taxDeductible}>
                     <label class="btn btn-outline-primary" for="tax-deductible">Tax Deductible</label>
                 {/if}
             </div>
@@ -88,7 +90,7 @@
 
         <div class="mb-3">
             <label for="status" class="form-label">Status</label>
-            <select name="status" id="status" required bind:value={status}>
+            <select name="status" id="status" required bind:value={tempTransaction.status}>
                 <option value="completed">Completed</option>
                 <option value="pending">Pending</option>
                 <option value="failed">Failed</option>
@@ -97,13 +99,13 @@
 
         <div class="mb-3">
             <label for="date" class="form-label">Date</label>
-            <input type="date" name="date" id="date" required bind:value={date}>
+            <input type="date" name="date" id="date" required bind:value={tempTransaction.date}>
         </div>
 
         
         <div class="mb-3">
             <label for="amount" class="form-label">Description</label>
-            <textarea name="description" id="description" cols="30" rows="10" bind:value={description}></textarea>
+            <textarea name="description" id="description" cols="30" rows="10" bind:value={tempTransaction.description}></textarea>
         </div>
 
         <div class="mb-3">

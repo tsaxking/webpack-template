@@ -18,6 +18,12 @@ export const validate = (data: {
         const { body } = req;
 
         for (const key in data) {
+            if (body[key] === undefined) {
+                if (options?.onMissing) options.onMissing(key);
+                else console.log('Missing data:', key, body[key]);
+                continue;
+            }
+
             if (!data[key](body[key])) {
                 if (options?.onInvalid) options.onInvalid(key, body[key])
                 if (options?.onMissing && body[key] === undefined) options.onMissing(key);

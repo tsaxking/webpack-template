@@ -92,5 +92,5 @@
 
 
 
-<!-- <EditTransaction id="edit-transaction" transaction={openedTransaction}/> -->
-<!-- <NewTransaction id="new-transaction" /> -->
+<EditTransaction id="edit-transaction" transaction={openedTransaction}/>
+<NewTransaction id="new-transaction" />

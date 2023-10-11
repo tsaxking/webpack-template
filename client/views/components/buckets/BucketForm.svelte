@@ -18,12 +18,18 @@
 </script>
 
 <form on:submit|preventDefault={submit}>
-    <FloatingInput label="Name" bind:value={name}></FloatingInput>
-    <FloatingInput label="Description" bind:value={description}></FloatingInput>
-    <select bind:value={type}>
-        <option value="debit" selected>Debit</option>
-        <option value="credit">Credit</option>
-        <option value="savings">Savings</option>
-    </select>
+    <div class="mb-3">
+        <FloatingInput label="Name" bind:value={name}></FloatingInput>
+    </div>
+    <div class="mb-3">
+        <FloatingInput label="Description" bind:value={description}></FloatingInput>
+    </div>
+    <div class="mb-3">
+        <select bind:value={type} class="form-select">
+            <option value="debit" selected>Debit</option>
+            <option value="credit">Credit</option>
+            <option value="savings">Savings</option>
+        </select>
+    </div>
     <input type="submit" value="Submit" class="btn btn-primary">
 </form>
