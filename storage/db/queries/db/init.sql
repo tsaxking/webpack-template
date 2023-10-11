@@ -96,7 +96,7 @@ CREATE TABLE IF NOT EXISTS Transactions (
     amount INTEGER NOT NULL, -- in cents
     type TEXT NOT NULL, -- 'withdrawal', 'deposit'
     status TEXT NOT NULL, -- 'pending', 'completed', 'failed'
-    date INTEGER NOT NULL, -- timestamp
+    date TEXT NOT NULL, -- timestamp
     bucketId TEXT NOT NULL,
     description TEXT NOT NULL,
     subtypeId TEXT NOT NULL, -- used to identify the subtype of the transaction
@@ -111,14 +111,14 @@ CREATE TABLE IF NOT EXISTS Buckets (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     description TEXT NOT NULL,
-    created INTEGER NOT NULL, -- timestamp
+    created TEXT NOT NULL, -- timestamp
     archived INTEGER NOT NULL DEFAULT 0, -- 0 or 1
     type TEXT NOT NULL -- 'debit', 'credit', 'savings'
 );
 
 CREATE TABLE IF NOT EXISTS BalanceCorrection (
     id TEXT PRIMARY KEY,
-    date INTEGER NOT NULL, -- timestamp
+    date TEXT NOT NULL, -- timestamp
     balance INTEGER NOT NULL, -- in cents
     bucketId TEXT NOT NULL,
 
@@ -128,15 +128,15 @@ CREATE TABLE IF NOT EXISTS BalanceCorrection (
 CREATE TABLE IF NOT EXISTS Miles (
     id TEXT PRIMARY KEY,
     amount INTEGER NOT NULL, -- in miles
-    date INTEGER NOT NULL, -- timestamp
+    date TEXT NOT NULL, -- timestamp
     archived INTEGER NOT NULL DEFAULT 0 -- 0 or 1
 );
 
 CREATE TABLE IF NOT EXISTS Subscriptions (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
-    startDate INTEGER NOT NULL, -- timestamp
-    endDate INTEGER, -- timestamp
+    startDate TEXT NOT NULL, -- timestamp
+    endDate TEXT, -- timestamp
     interval INTEGER NOT NULL, -- in ms
     bucketId TEXT NOT NULL,
     subtypeId TEXT NOT NULL, -- used to identify the subtype of the subscription
@@ -152,15 +152,15 @@ CREATE TABLE IF NOT EXISTS Subscriptions (
 CREATE TABLE IF NOT EXISTS TransactionTypes (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
-    dateCreated INTEGER NOT NULL, -- timestamp
-    dateModified INTEGER NOT NULL -- timestamp
+    dateCreated TEXT NOT NULL, -- timestamp
+    dateModified TEXT NOT NULL -- timestamp
 );
 
 CREATE TABLE IF NOT EXISTS Subtypes (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
-    dateCreated INTEGER NOT NULL, -- timestamp
-    dateModified INTEGER NOT NULL, -- timestamp
+    dateCreated TEXT NOT NULL, -- timestamp
+    dateModified TEXT NOT NULL, -- timestamp
     type TEXT NOT NULL, -- 'withdrawal', 'deposit'
     typeId TEXT NOT NULL, -- used to identify the type of the subtype
 

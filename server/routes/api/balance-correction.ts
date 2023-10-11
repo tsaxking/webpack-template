@@ -18,7 +18,7 @@ router.get('/all', (_req, res) => {
 router.post('/new', validate({
     balance: (v: any) => typeof v === 'number',
     bucketId: (v: any) => typeof v === 'string',
-    date: (v: any) => typeof v === 'number'
+    date: (v: any) => typeof v === 'string'
 }), (req, res) => {
     const {
         balance,
@@ -53,7 +53,7 @@ router.post('/update', validate({
     id: (v: any) => typeof v === 'string',
     balance: (v: any) => typeof v === 'number',
     bucketId: (v: any) => typeof v === 'string',
-    date: (v: any) => typeof v === 'number'
+    date: (v: any) => typeof v === 'string'
 }), (req, res) => {
     const {
         id,

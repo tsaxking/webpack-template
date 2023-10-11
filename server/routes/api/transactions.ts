@@ -12,8 +12,8 @@ export const router = new Route();
 
 router.post('/search', validate({
     bucket: (v: any) => typeof v === 'string',
-    from: (v: any) => typeof v === 'number',
-    to: (v: any) => typeof v === 'number'
+    from: (v: any) => typeof v === 'string',
+    to: (v: any) => typeof v === 'string'
 }), (req, res) => {
     const { bucket, from, to } = req.body;
 
@@ -21,18 +21,18 @@ router.post('/search', validate({
         bucket
     });
 
-    console.log(transactions);
+    const filtered = transactions.filter(t => {
+        return +t.date >= +from && +t.date <= +to;
+    });
 
-    res.stream(transactions.filter(t => {
-        return t.date >= from && t.date <= to;
-    }).map(t => JSON.stringify(t)));
+    res.stream(filtered.map(t => JSON.stringify(t)));
 });
 
 router.post('/new', validate({
     amount: (v: any) => typeof v === 'number',
     type: (v: any) => typeof v === 'string' && ['withdrawal', 'deposit'].indexOf(v) !== -1,
     status: (v: any) => ['pending' , 'completed', 'failed'].indexOf(v) !== -1,
-    date: (v: any) => typeof v === 'number',
+    date: (v: any) => typeof v === 'string',
     bucketId: (v: any) => typeof v === 'string',
     description: (v: any) => typeof v === 'string',
     subtypeId: (v: any) => typeof v === 'string',
@@ -84,7 +84,7 @@ router.post('/update', validate({
     amount: (v: any) => typeof v === 'number',
     type: (v: any) => typeof v === 'string' && ['withdrawal', 'deposit'].indexOf(v) !== -1,
     status: (v: any) => ['pending' , 'completed', 'failed'].indexOf(v) !== -1,
-    date: (v: any) => typeof v === 'number',
+    date: (v: any) => typeof v === 'string',
     bucketId: (v: any) => typeof v === 'string',
     description: (v: any) => typeof v === 'string',
     subtypeId: (v: any) => typeof v === 'string',

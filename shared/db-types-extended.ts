@@ -3,7 +3,7 @@ export type Transaction = {
     amount: number;
     type: 'withdrawal' | 'deposit';
     status: 'pending' | 'completed' | 'failed';
-    date: number;
+    date: string;
     bucketId: string;
     description: string;
     subtypeId: string;

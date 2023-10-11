@@ -27,12 +27,22 @@ export class Transaction extends Cache<TransactionEvents> {
         if (from > to) throw new Error('From date must be before to date');
 
         if (Transaction.cache.size > 0) {
-            const items = Array.from(Transaction.cache.values()).filter((t) => t.bucketId === bucket && t.date >= from && t.date <= to);
+            const items = Array.from(Transaction.cache.values());
+
+            const filtered = items.filter(t => {
+                return t.bucketId === bucket && +t.date >= from && +t.date <= to;
+            });
 
             const em = new RetrieveStreamEventEmitter<Transaction>();
 
-            items.forEach(t => em.emit('chunk', t));
-            em.emit('complete', items);
+            // wait for next opening in event loop
+            setTimeout(() => {
+                filtered.forEach(t => {
+                    console.log('emitting chunk', t);
+                    em.emit('chunk', t);
+                });
+                em.emit('complete', filtered);
+            });
 
             return em;
         }
@@ -41,8 +51,8 @@ export class Transaction extends Cache<TransactionEvents> {
         const em = ServerRequest
             .retrieveStream<Transaction>('/api/transactions/search', {
                     bucket,
-                    from,
-                    to
+                    from: from.toString(),
+                    to: to.toString()
                 },
                 (data) => new Transaction(JSON.parse(data))
             );
@@ -72,7 +82,7 @@ export class Transaction extends Cache<TransactionEvents> {
 
     static async newTransfer(data: {
         amount: number;
-        date: number;
+        date: string;
         fromBucketId: string;
         toBucketId: string;
         description: string;
@@ -88,26 +98,29 @@ export class Transaction extends Cache<TransactionEvents> {
         amount: number;
         type: 'withdrawal' | 'deposit';
         status: 'pending' | 'completed' | 'failed';
-        date: number;
+        date: string;
         bucketId: string;
         description: string;
         subtypeId: string;
         taxDeductible: boolean;
-    }) {
+    }): Promise<boolean> {
 
-        const fail = (needed: string) => notify({
-            message: 'Please fill in the ' + needed + ' field.',
-            title: 'Invalid Input',
-            color: 'danger',
-            status: needed + ' is required.',
-            code: 400,
-            instructions: ''
-        });
+        const fail = (needed: string) => {
+            notify({
+                message: 'Please fill in the ' + needed + ' field.',
+                title: 'Invalid Input',
+                color: 'danger',
+                status: needed + ' is required.',
+                code: 400,
+                instructions: ''
+            });
+            return false;
+        }
 
         if (!data.amount) return fail('amount');
         if (!data.date) return fail('date');
         if (!data.bucketId) return fail('bucket');
-        if (!data.description) return fail('description');
+        // if (!data.description) return fail('description');
         if (!data.subtypeId) return fail('subtype');
         if (data.taxDeductible === undefined) return fail('tax deductible');
         if (!data.type) return fail('type');
@@ -115,7 +128,7 @@ export class Transaction extends Cache<TransactionEvents> {
 
 
         if (data.transfer) {
-            return Transaction.newTransfer({
+            Transaction.newTransfer({
                 amount: data.amount,
                 date: data.date,
                 fromBucketId: data.bucketId,
@@ -125,8 +138,10 @@ export class Transaction extends Cache<TransactionEvents> {
                 taxDeductible: data.taxDeductible,
                 status: data.status
             });
+            return true;
         } else {
-            return ServerRequest.post('/api/transactions/new', data);
+            ServerRequest.post('/api/transactions/new', data);
+            return true;
         }
     }
 
@@ -134,7 +149,7 @@ export class Transaction extends Cache<TransactionEvents> {
     public amount: number;
     public type: 'withdrawal' | 'deposit';
     public status: 'pending' | 'completed' | 'failed';
-    public date: number;
+    public date: string;
     public bucketId: string;
     public description: string;
     public subtypeId: string;
@@ -221,7 +236,7 @@ export class Transaction extends Cache<TransactionEvents> {
             type: typeInfo.type?.name ?? '',
             subtype: typeInfo.subtype?.name ?? '',
             bucket: await this.getBucketName(),
-            date: new Date(this.date).toLocaleTimeString(),
+            date: new Date(+this.date).toTimeString(),
             transaction: this,
             id: this.id
         }
