@@ -22,11 +22,14 @@ export const formatDate = (str: string) => (date: Date) => {
         'YYYY': date.getFullYear().toString(),
         'MM': (date.getMonth() + 1).toString().length === 1 ? `0${date.getMonth() + 1}` : date.getMonth() + 1,
         'DD': date.getDate().toString().length === 1 ? `0${date.getDate()}` : date.getDate(),
+        'HH12': date.getHours() > 12 ? date.getHours() - 12 : date.getHours(),
+        'HH24': date.getHours().toString().length === 1 ? `0${date.getHours()}` : date.getHours(),
         'HH': date.getHours().toString().length === 1 ? `0${date.getHours()}` : date.getHours(),
         'mm': date.getMinutes().toString().length === 1 ? `0${date.getMinutes()}` : date.getMinutes(),
         'ss': date.getSeconds().toString().length === 1 ? `0${date.getSeconds()}` : date.getSeconds(),
         'Month': months[date.getMonth()],
-        'Day': days[date.getDay()]
+        'Day': days[date.getDay()],
+        'ap': date.getHours() > 12 ? 'PM' : 'AM'
     };
 
     let formatted = str;
