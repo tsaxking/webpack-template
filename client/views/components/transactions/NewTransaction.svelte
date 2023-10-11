@@ -1,8 +1,0 @@
-<script lang="ts">
-    import Modal from "../bootstrap/Modal.svelte";
-    import TransactionForm from "./TransactionForm.svelte";
-</script>
-
-<Modal title="New Transaction">
-    <TransactionForm />
-</Modal>

@@ -69,6 +69,19 @@ export class Transaction extends Cache<TransactionEvents> {
         }, 0);
     }
 
+    static async newTransfer(data: {
+        amount: number;
+        date: number;
+        fromBucketId: string;
+        toBucketId: string;
+        description: string;
+        subtypeId: string;
+        taxDeductible: 0 | 1;
+        status: 'pending' | 'completed' | 'failed';
+    }) {
+        return ServerRequest.post('/api/transactions/transfer', data);
+    }
+
     static newTransaction(data: {
         amount: number;
         type: 'withdrawal' | 'deposit';
@@ -78,7 +91,6 @@ export class Transaction extends Cache<TransactionEvents> {
         description: string;
         subtypeId: string;
         taxDeductible: 0 | 1;
-        picture: string|null;
     }) {
         return ServerRequest.post('/api/transactions/new', data);
     }
@@ -186,6 +198,14 @@ export class Transaction extends Cache<TransactionEvents> {
             currency: 'USD'
         });
     }
+
+    changePicture(pictures: FileList) {
+        if (pictures.length > 1) throw new Error('Cannot upload more than one picture');
+
+        ServerRequest.streamFiles('/api/transactions/change-picture', pictures, {
+            id: this.id
+        });
+    }
 };
 
 socket.on('transactions:updated', (data: TransactionObj) => {
@@ -225,4 +245,15 @@ socket.on('transactions:created', (data: TransactionObj) => {
     const t = new Transaction(data);
     t.$emitter.emit('created');
     Transaction.emit('created', t);
+});
+
+socket.on('transactions:picture-updated', ({ id, picture }) => {
+    const t = Transaction.cache.get(id);
+    if (t) {
+        t.picture = picture;
+        Transaction.cache.set(id, t);
+
+        t.$emitter.emit('updated');
+        Transaction.emit('updated', t);
+    }
 });

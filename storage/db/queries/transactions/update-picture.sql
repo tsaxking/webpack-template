@@ -1,0 +1,1 @@
+UPDATE Transactions SET picture = :picture WHERE id = :id;

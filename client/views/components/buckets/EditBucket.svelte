@@ -4,7 +4,7 @@
     import { Bucket } from "../../../models/transactions/bucket";
 
 
-    export let bucket: Bucket;
+    export let bucket: Bucket|undefined;
 
     const editBucket = (e: CustomEvent) => {
         bucket.update(e.detail);
@@ -14,5 +14,5 @@
 </script>
 
 <Modal {id} title="Edit Bucket">
-    <BucketForm name={bucket.name} description={bucket.description} type={bucket.type} on:submit={editBucket}/>
+    <BucketForm name={bucket?.name} description={bucket?.description} type={bucket?.type} on:submit={editBucket}/>
 </Modal>

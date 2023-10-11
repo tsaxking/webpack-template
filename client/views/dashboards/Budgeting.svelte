@@ -10,9 +10,6 @@
         pages: [{
             name: 'dashboard',
             icon: 'home'
-        },{
-            name: 'account',
-            icon: 'person'
         }]
     }];
 

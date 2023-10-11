@@ -46,10 +46,26 @@ export class TransactionType extends Cache<TransactionTypeEvents> {
         }
     }
 
-    static async newType(name: string) {
-        return ServerRequest.post('/api/types/new-type', {
+    static async newType(name: string): Promise<TransactionType> {
+        const t = await this.fromName(name);
+        if (t) return t;
+
+        const data = await ServerRequest.post<TransactionTypeObj>('/api/types/new-type', {
             name
         });
+
+        if (!TransactionType.cache.has(data.id)) {
+            const t = new TransactionType(data);
+            t.$emitter.emit('created');
+            TransactionType.emit('created', t);
+            return t;
+        }
+
+        return TransactionType.cache.get(data.id) as TransactionType;
+    }
+
+    static async fromName(name: string): Promise<TransactionType|undefined> {
+        return this.getTypes().then(({ types }) => types.find(t => t.name === name));
     }
 
     public readonly id: string;
@@ -71,12 +87,23 @@ export class TransactionType extends Cache<TransactionTypeEvents> {
 
 
 
-    async newSubtype(name: string, type: 'withdrawal' | 'deposit') {
-        return ServerRequest.post('/api/types/new-subtype', {
+    async newSubtype(name: string, type: 'withdrawal' | 'deposit'): Promise<Subtype> {
+        const s = this.getSubtype(name, type);
+        if (s) return s;
+        const data = await ServerRequest.post<SubtypeObj>('/api/types/new-subtype', {
             name,
             typeId: this.id,
             type
         });
+
+        if (!Subtype.cache.has(data.id)) {
+            const s = new Subtype(data);
+            s.$emitter.emit('created');
+            Subtype.emit('created', s);
+            return s;
+        }
+
+        return Subtype.cache.get(data.id) as Subtype;
     }
 
     async update(name: string) {
@@ -84,6 +111,10 @@ export class TransactionType extends Cache<TransactionTypeEvents> {
             id: this.id,
             name
         });
+    }
+
+    getSubtype(name: string, type: 'withdrawal' | 'deposit') {
+        return Array.from(Subtype.cache.values()).find(s => s.name === name && s.typeId === this.id && s.type === type);
     }
 };
 
@@ -107,6 +138,14 @@ socket.on('transaction-types:type-updated', (data: TransactionTypeObj) => {
 
 export class Subtype extends Cache<TransactionTypeEvents> {
     static readonly cache: Map<string, Subtype> = new Map<string, Subtype>();
+
+    static async newFromType(typeId: string, name: string, type: 'withdrawal' | 'deposit') {
+        return ServerRequest.post('/api/types/new-subtype', {
+            name,
+            typeId,
+            type
+        });
+    }
 
     public readonly id: string;
     public name: string;

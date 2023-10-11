@@ -2,6 +2,7 @@ import { validate } from "../../middleware/data-type.ts";
 import { Route } from "../../structure/app/app.ts";
 import { DB } from "../../utilities/databases.ts";
 import { uuid } from "../../utilities/uuid.ts";
+import { fileStream } from '../../middleware/stream.ts'
 
 export const router = new Route();
 
@@ -33,8 +34,7 @@ router.post('/new', validate({
     bucketId: (v: any) => typeof v === 'string',
     description: (v: any) => typeof v === 'string',
     subtypeId: (v: any) => typeof v === 'string',
-    taxDeductible: (v: any) => typeof v === 'boolean',
-    picture: (v: any) => typeof v === 'string' || v === null
+    taxDeductible: (v: any) => typeof v === 'boolean'
 }), (req, res) => {
     const { 
         amount,
@@ -59,8 +59,7 @@ router.post('/new', validate({
         bucketId,
         description,
         subtypeId,
-        taxDeductible,
-        picture: null
+        taxDeductible
     });
 
     res.sendStatus('transactions:created');
@@ -74,8 +73,7 @@ router.post('/new', validate({
         bucketId,
         description,
         subtypeId,
-        taxDeductible,
-        picture: null
+        taxDeductible
     });
 });
 
@@ -88,8 +86,7 @@ router.post('/update', validate({
     bucketId: (v: any) => typeof v === 'string',
     description: (v: any) => typeof v === 'string',
     subtypeId: (v: any) => typeof v === 'string',
-    taxDeductible: (v: any) => typeof v === 'boolean',
-    picture: (v: any) => typeof v === 'string' || v === null
+    taxDeductible: (v: any) => typeof v === 'boolean'
 }),  (req, res) => {
     const { 
         id,
@@ -103,6 +100,13 @@ router.post('/update', validate({
         taxDeductible
     } = req.body;
 
+    
+    const t = DB.get('transactions/from-id', { id });
+
+    if (!t) {
+        return res.sendStatus('transactions:invalid-id');
+    }
+
     DB.run('transactions/update', {
         id,
         amount,
@@ -112,8 +116,7 @@ router.post('/update', validate({
         bucketId,
         description,
         subtypeId,
-        taxDeductible,
-        picture: null
+        taxDeductible
     });
 
     res.sendStatus('transactions:updated');
@@ -137,6 +140,12 @@ router.post('/change-transaction-archive-status', validate({
 }), (req, res) => {
     const { id, archive } = req.body;
 
+    const t = DB.get('transactions/from-id', { id });
+
+    if (!t) {
+        return res.sendStatus('transactions:invalid-id');
+    }
+
     DB.run('transactions/set-archive', {
         id,
         archived: archive ? 1 : 0
@@ -149,4 +158,107 @@ router.post('/change-transaction-archive-status', validate({
         res.sendStatus('transactions:restored');
         req.io.emit('transactions:restored', id);
     }
+});
+
+router.post('/change-picture', validate({
+    id: (v: any) => typeof v === 'string'
+}), fileStream({
+    extensions: ['png', 'jpg', 'jpeg'],
+    maxFileSize: 1024 * 1024 * 5 // 5MB
+}), (req, res) => {
+    const [file] = req.files;
+
+    if (!file) return res.sendStatus('files:no-files');
+
+    const { id: fileId } = file;
+    const { id: transactionId } = req.body;
+
+    const t = DB.get('transactions/from-id', { id: transactionId });
+
+    if (!t) {
+        return res.sendStatus('transactions:invalid-id');
+    }
+
+    DB.run('transactions/update-picture', {
+        id: transactionId,
+        picture: fileId
+    });
+
+    res.sendStatus('transactions:picture-updated');
+    req.io.emit('transactions:picture-updated', {
+        id: transactionId,
+        picture: fileId
+    });
+});
+
+router.post('/transfer', validate({
+    amount: (v: any) => typeof v === 'number',
+    status: (v: any) => ['pending' , 'completed', 'failed'].indexOf(v) !== -1,
+    date: (v: any) => typeof v === 'number',
+    from: (v: any) => typeof v === 'string',
+    to: (v: any) => typeof v === 'string',
+    description: (v: any) => typeof v === 'string',
+    subtypeId: (v: any) => typeof v === 'string',
+    taxDeductible: (v: any) => typeof v === 'boolean'
+}), (req, res) => {
+    const { 
+        amount,
+        status,
+        date,
+        from,
+        to,
+        description,
+        subtypeId,
+        taxDeductible
+    } = req.body;
+
+    const fromId = uuid();
+    const toId = uuid();
+
+    DB.run('transactions/new', {
+        amount: amount,
+        type: 'withdrawal',
+        status,
+        date,
+        bucketId: from,
+        description,
+        subtypeId,
+        taxDeductible,
+        id: fromId
+    });
+    DB.run('transactions/new', {
+        amount: amount,
+        type: 'withdrawal',
+        status,
+        date,
+        bucketId: from,
+        description,
+        subtypeId,
+        taxDeductible,
+        id: toId
+    });
+
+    res.sendStatus('transactions:created');
+    req.io.emit('transactions:created', {
+        amount: amount,
+        type: 'withdrawal',
+        status,
+        date,
+        bucketId: from,
+        description,
+        subtypeId,
+        taxDeductible,
+        id: fromId
+    });
+    req.io.emit('transactions:created', {
+        amount: amount,
+        type: 'withdrawal',
+        status,
+        date,
+        bucketId: from,
+        description,
+        subtypeId,
+        taxDeductible,
+        id: toId
+    });
 });
