@@ -11,3 +11,6 @@ import 'material-icons/iconfont/material-icons.css';
 
 // socket
 import './socket';
+
+// bootstrap cdn
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
