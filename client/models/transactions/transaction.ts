@@ -6,8 +6,10 @@ import { RetrieveStreamEventEmitter } from "../../utilities/requests";
 import { Subtype, TransactionType } from "./types";
 import { Bucket } from "./bucket";
 import { notify } from "../../utilities/notifications";
+import { formatDate } from "../../utilities/clock";
 
 
+const formatter = formatDate('MM/DD/YYYY HH12:mm ap');
 
 
 type TransactionEvents = {
@@ -23,10 +25,10 @@ type TransactionEvents = {
 
 export class Transaction extends Cache<TransactionEvents> {
     static readonly cache: Map<string, Transaction> = new Map<string, Transaction>();
-    static search(bucket: string, from: number, to: number) {
+    static search(bucket: string, from: number, to: number, cached: boolean = false) {
         if (from > to) throw new Error('From date must be before to date');
 
-        if (Transaction.cache.size > 0) {
+        if (Transaction.cache.size > 0 && cached) {
             const items = Array.from(Transaction.cache.values());
 
             const filtered = items.filter(t => {
@@ -35,14 +37,17 @@ export class Transaction extends Cache<TransactionEvents> {
 
             const em = new RetrieveStreamEventEmitter<Transaction>();
 
-            // wait for next opening in event loop
-            setTimeout(() => {
-                filtered.forEach(t => {
-                    console.log('emitting chunk', t);
-                    em.emit('chunk', t);
-                });
-                em.emit('complete', filtered);
-            });
+            const emit = (i: number) => em.emit('chunk', filtered[i]);
+
+            const interval = setInterval(() => {
+                if (filtered.length <= 0) {
+                    clearInterval(interval);
+                    return em.emit('complete', filtered);
+                }
+
+                emit(0);
+                filtered.splice(0, 1);
+            }, 5);
 
             return em;
         }
@@ -236,7 +241,7 @@ export class Transaction extends Cache<TransactionEvents> {
             type: typeInfo.type?.name ?? '',
             subtype: typeInfo.subtype?.name ?? '',
             bucket: await this.getBucketName(),
-            date: new Date(+this.date).toTimeString(),
+            date: formatter(new Date(+this.date)),
             transaction: this,
             id: this.id
         }

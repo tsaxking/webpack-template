@@ -31,10 +31,7 @@
 
         const em = Transaction.search(bucket.id, new Date(from).getTime() - 1, new Date(to).getTime() + 1);
 
-        console.log(em);
-
         em.on('chunk', (t: Transaction) => {
-            console.log(transactions);
             transactions = [...transactions, t];
         });
     }
