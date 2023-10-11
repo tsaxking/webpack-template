@@ -42,7 +42,6 @@ app.post('/test', (req, res, next) => {
     res.sendStatus('test:success');
 });
 
-
 app.post('/test-validation', validate({
     username: (v: any) => v === 'fail',
     password: (v: any) => v === 'test'
