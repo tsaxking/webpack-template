@@ -1,0 +1,1 @@
+DELETE FROM Calendars WHERE id = :id;

@@ -1,0 +1,1 @@
+SELECT * FROM Calendars WHERE id = :id;
