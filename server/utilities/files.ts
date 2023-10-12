@@ -6,6 +6,10 @@ import { log as terminalLog } from "./terminal-logging.ts";
 import { __root, __uploads, __logs, __templates } from "./env.ts";
 import fs from 'node:fs';
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:24:47 PM
+ */
 const makeFolder = (folder: string) => {
     const dirs = folder.split('/');
 
@@ -22,6 +26,10 @@ const makeFolder = (folder: string) => {
 };
 
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:24:47 PM
+ */
 const filePathBuilder = (file: string, ext: string, parentFolder: string) => {
     let output: string;
     if (!file.endsWith(ext)) file += ext;
@@ -40,6 +48,10 @@ const filePathBuilder = (file: string, ext: string, parentFolder: string) => {
     return output;
 }
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:24:47 PM
+ */
 const removeComments = (content: string) => {
     // remove all /* */ comments
     content = content.replace(/\/\*[\s\S]*?\*\//g, '');
@@ -52,6 +64,15 @@ const removeComments = (content: string) => {
 
 
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:24:47 PM
+ *
+ * @export
+ * @template [type=unknown]
+ * @param {string} file
+ * @returns {type}
+ */
 export function getJSONSync<type = unknown>(file: string): type {
     const filePath = filePathBuilder(file, '.json', './storage/jsons/');
     const data = Deno.readFileSync(filePath);
@@ -63,6 +84,15 @@ export function getJSONSync<type = unknown>(file: string): type {
 }
 
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:24:47 PM
+ *
+ * @export
+ * @template [type=unknown]
+ * @param {string} file
+ * @returns {Promise<type>}
+ */
 export function getJSON<type = unknown>(file: string): Promise<type> {
     return new Promise<type>((res, rej) => {
         const filePath = filePathBuilder(file, '.json', './storage/jsons/');
@@ -78,6 +108,14 @@ export function getJSON<type = unknown>(file: string): Promise<type> {
     });
 }
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:24:47 PM
+ *
+ * @export
+ * @param {string} file
+ * @param {*} data
+ */
 export function saveJSONSync(file: string, data: any) {
     const p = filePathBuilder(file, '.json', './storage/jsons/');
 
@@ -90,6 +128,15 @@ export function saveJSONSync(file: string, data: any) {
     Deno.writeFileSync(p, data);
 }
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:24:47 PM
+ *
+ * @export
+ * @param {string} file
+ * @param {*} data
+ * @returns {*}
+ */
 export function saveJSON(file: string, data: any) {
     return new Promise<void>((res, rej) => {
         const p = filePathBuilder(file, '.json', './storage/jsons/');
@@ -107,6 +154,15 @@ export function saveJSON(file: string, data: any) {
 }
 
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:24:47 PM
+ *
+ * @export
+ * @param {string} file
+ * @param {?{ [key: string]: any }} [options]
+ * @returns {string}
+ */
 export function getTemplateSync(file: string, options?: { [key: string]: any }): string {
     const p = filePathBuilder(file, '.html', './public/templates/');
 
@@ -116,6 +172,15 @@ export function getTemplateSync(file: string, options?: { [key: string]: any }):
     return options ? render(decoder.decode(data), options) : decoder.decode(data);
 }
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:24:47 PM
+ *
+ * @export
+ * @param {string} file
+ * @param {?{ [key: string]: any }} [options]
+ * @returns {Promise<string>}
+ */
 export function getTemplate(file: string, options?: { [key: string]: any }): Promise<string> {
     return new Promise<string>((res, rej) => {
         const p = filePathBuilder(file, '.html', './public/templates/');
@@ -131,6 +196,15 @@ export function getTemplate(file: string, options?: { [key: string]: any }): Pro
     });
 }
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:24:47 PM
+ *
+ * @export
+ * @param {string} file
+ * @param {string} data
+ * @returns {*}
+ */
 export function saveTemplateSync(file: string, data: string) {
     const p = filePathBuilder(file, '.html', './public/templates/');
 
@@ -139,6 +213,15 @@ export function saveTemplateSync(file: string, data: string) {
     return Deno.writeFileSync(p, new TextEncoder().encode(data));
 }
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:24:47 PM
+ *
+ * @export
+ * @param {string} file
+ * @param {string} data
+ * @returns {*}
+ */
 export function saveTemplate(file: string, data: string) {
     const p = filePathBuilder(file, '.html', './public/templates/');
 
@@ -149,6 +232,10 @@ export function saveTemplate(file: string, data: string) {
 
 
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:24:47 PM
+ */
 export const createUploadsFolder = () => {
     if (!fs.existsSync(__uploads)) {
         terminalLog('Creating uploads folder');
@@ -156,6 +243,10 @@ export const createUploadsFolder = () => {
     }
 };
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:24:47 PM
+ */
 export const createLogsFolder = () => {
     if (!fs.existsSync(__logs)) {
         terminalLog('Creating logs folder');
@@ -167,6 +258,15 @@ export const createLogsFolder = () => {
 
 
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:24:47 PM
+ *
+ * @export
+ * @param {string} filename
+ * @param {Uint8Array} data
+ * @returns {*}
+ */
 export function saveUpload(filename: string, data: Uint8Array) {
     createUploadsFolder();
     const p = filePathBuilder(filename, '', __uploads);
@@ -174,6 +274,14 @@ export function saveUpload(filename: string, data: Uint8Array) {
     return Deno.writeFile(p, data);
 }
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:24:47 PM
+ *
+ * @export
+ * @param {string} filename
+ * @returns {*}
+ */
 export function getUpload(filename: string) {
     createUploadsFolder();
     const p = filePathBuilder(filename, '', __uploads);
@@ -185,6 +293,14 @@ export function getUpload(filename: string) {
 }
 
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:24:47 PM
+ *
+ * @export
+ * @param {string} filename
+ * @returns {*}
+ */
 export function getUploadSync(filename: string) {
     createUploadsFolder();
     const p = filePathBuilder(filename, '', __uploads);
@@ -195,6 +311,14 @@ export function getUploadSync(filename: string) {
     }
 }
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:24:47 PM
+ *
+ * @export
+ * @param {string} filename
+ * @returns {*}
+ */
 export function deleteUpload(filename: string) {
     createUploadsFolder();
     const p = filePathBuilder(filename, '', __uploads);
@@ -206,8 +330,23 @@ export function deleteUpload(filename: string) {
 }
 
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:24:47 PM
+ *
+ * @typedef {Bytes}
+ */
 type Bytes = 'Bytes' | 'KB' | 'MB' | 'GB' | 'TB' | 'PB' | 'EB' | 'ZB' | 'YB';
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:24:47 PM
+ *
+ * @export
+ * @param {number} bytes
+ * @param {number} [decimals=2]
+ * @returns {{ string: string, type: Bytes }}
+ */
 export function formatBytes(bytes: number, decimals: number = 2): { string: string, type: Bytes } {
     if (bytes === 0) return {
         string: '0 Bytes',
@@ -227,14 +366,37 @@ export function formatBytes(bytes: number, decimals: number = 2): { string: stri
 }
 
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:24:47 PM
+ *
+ * @export
+ * @typedef {LogType}
+ */
 export type LogType = 'request' | 'error' | 'debugger' | 'status';
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:24:47 PM
+ *
+ * @export
+ * @typedef {LogObj}
+ */
 export type LogObj = {
     [key: string]: string|number|boolean|undefined|null;
 }
 
 
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:24:47 PM
+ *
+ * @export
+ * @param {LogType} type
+ * @param {LogObj} dataObj
+ * @returns {*}
+ */
 export function log(type: LogType, dataObj: LogObj) {
     createLogsFolder();
     return new ObjectsToCsv([dataObj]).toDisk(

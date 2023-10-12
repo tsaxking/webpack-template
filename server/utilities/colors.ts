@@ -1,3 +1,10 @@
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:24:15 PM
+ *
+ * @export
+ * @enum {number}
+ */
 export enum Colors {
     Reset = '\x1b[0m',
     Bright = '\x1b[1m',

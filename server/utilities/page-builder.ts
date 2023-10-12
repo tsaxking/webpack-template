@@ -30,6 +30,14 @@ declare global {
 }
 
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:25:12 PM
+ *
+ * @type {{
+    [key: string]: (req?: Request) => Promise<string>;
+}}
+ */
 const builds: {
     [key: string]: (req?: Request) => Promise<string>;
 } = {
@@ -50,6 +58,12 @@ const builds: {
 };
 
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:25:12 PM
+ *
+ * @async
+ */
 export const builder = async (req: Request, res: Response, next: NextFunction) => {
     const { url } = req;
     if (builds[url]) {
@@ -59,6 +73,12 @@ export const builder = async (req: Request, res: Response, next: NextFunction) =
     }
 };
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:25:12 PM
+ *
+ * @async
+ */
 export const homeBuilder = async (url: string) => {
     return await getTemplate('home/index', {
         pageTitle: capitalize(fromSnakeCase(url, '-')).slice(1),
@@ -70,6 +90,12 @@ export const homeBuilder = async (url: string) => {
     });
 };
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:25:12 PM
+ *
+ * @async
+ */
 export const navBuilder = async (url: string, offcanvas: boolean) => {
     return await getTemplate('components/navbar', {
         offcanvas: {
