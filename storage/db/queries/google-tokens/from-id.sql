@@ -1,0 +1,1 @@
+SELECT * FROM GoogleTokens WHERE id = :id;

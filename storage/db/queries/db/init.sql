@@ -86,3 +86,29 @@ INSERT INTO Version (
 ) VALUES (
     1
 );
+
+
+
+-- Google Calendar
+
+-- 1-1 relationship with Accounts
+CREATE TABLE IF NOT EXISTS GoogleTokens (
+    id TEXT PRIMARY KEY,
+    token TEXT NOT NULL,
+    refreshToken TEXT,
+    created TEXT NOT NULL,
+
+    FOREIGN KEY (id) REFERENCES Accounts(id)
+);
+
+-- 1 to many relationship with Accounts
+CREATE TABLE IF NOT EXISTS Calendars (
+    id TEXT PRIMARY KEY,
+    accountId TEXT NOT NULL,
+    name TEXT NOT NULL,
+    alias TEXT NOT NULL UNIQUE, -- used for url
+    authenticated INTEGER NOT NULL DEFAULT 0,
+    googleId TEXT,
+
+    FOREIGN KEY (accountId) REFERENCES Accounts(id)
+);

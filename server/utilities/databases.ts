@@ -6,7 +6,7 @@ import { log } from "./terminal-logging.ts";
 import { Queries } from "./sql-types.ts";
 
 const dbDir = path.resolve(__root, './storage/db');
-export const MAIN = new Database(path.resolve(dbDir, './main.db'));
+export const MAIN = new Database(path.resolve(dbDir, './calendar.db'));
 
 
 

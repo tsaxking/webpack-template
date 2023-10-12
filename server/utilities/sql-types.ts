@@ -3,6 +3,24 @@ import { __root } from "./env.ts";
 import { MembershipStatus, Account, Member, Role, AccountRole, RolePermission, Skill } from "../../shared/db-types.ts";
 import { SessionObj } from "../structure/sessions.ts";
 
+
+type GoogleToken = {
+    id: string;
+    token: string;
+    created: string;
+};
+
+type Calendar = {
+    id: string;
+    name: string;
+    accountId: string;
+    alias: string;
+    authenticated: 0 | 1;
+    googleId: string | null;
+};
+
+
+
 export type Queries = {
     'sessions/delete': [
         [{
@@ -281,6 +299,97 @@ export type Queries = {
     'member/remove-from-board': [
         [{
             id: string
+        }],
+        unknown
+    ],
+
+
+
+
+
+
+
+    'google/from-id': [
+        [{
+            id: string;
+        }],
+        GoogleToken
+    ],
+    'google/new': [
+        [{
+            id: string;
+            token: string;
+            created: string;
+        }],
+        unknown
+    ],
+    'google/delete': [
+        [{
+            id: string;
+        }],
+        unknown
+    ],
+    'google/update': [
+        [{
+            token: string;
+            refreshToken: string;
+            id: string;
+        }],
+        unknown
+    ],
+
+
+
+
+    'calendars/from-id': [
+        [{
+            id: string;
+        }],
+        Calendar
+    ],
+    'calendars/delete': [
+        [{
+            id: string;
+        }],
+        unknown
+    ],
+    'calendars/new': [
+        [{
+            id: string;
+            name: string;
+            accountId: string;
+            alias: string;
+            authenticated: 0 | 1;
+            googleId: string | null;
+        }],
+        unknown
+    ],
+    'calendars/update': [
+        [{
+            id: string;
+            name: string;
+            alias: string;
+            authenticated: 0 | 1;
+            googleId: string | null;
+        }],
+        unknown
+    ],
+    'calendars/from-account': [
+        [{
+            accountId: string;
+        }],
+        Calendar
+    ],
+    'calendars/from-google': [
+        [{
+            googleId: string;
+        }],
+        Calendar
+    ],
+    'calendars/set-authentication': [
+        [{
+            id: string;
+            authenticated: 0 | 1;
         }],
         unknown
     ]
