@@ -18,7 +18,7 @@ const dbDir = path.resolve(__root, './storage/db');
  *
  * @type {*}
  */
-export const MAIN = new Database(path.resolve(dbDir, './main.db'));
+export const MAIN = new Database(path.resolve(dbDir, './minecraft.db'));
 
 
 
