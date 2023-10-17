@@ -446,6 +446,7 @@ export class App {
                         await fn.callback(req, res, next);
                     } catch (e) {
                         log(`Error on callback [${req.method}] ${req.url}`, e);
+                        if (res.fulfilled) res.sendStatus('unknown:error');
                     }
                     if (!ranNext && !res.fulfilled && fns[i + 1]) {
                         const site = stack().map((site: any) => {
@@ -454,7 +455,7 @@ export class App {
                         const str = site.filter((t: string) => t!=='null:null').map((t: string) => {
                             t = t.replace('file://', '').replace('file:', '');
                             t = PATH.relative(__root, t);
-                            t = `\n\t${Colors.FgYellow}${t}${Colors.Reset}`
+                            t = `\n\t${Colors.FgYellow}${t}${Colors.Reset}`;
                             return t;
                         }).join('');
 
