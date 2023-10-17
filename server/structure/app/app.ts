@@ -111,7 +111,7 @@ export class Route {
      * @readonly
      * @type {ServerFunctionHandler[]}
      */
-    public readonly serverFunctions: ServerFunctionHandler[] = [];
+    public readonly serverFunctions: ServerFunctionHandler<any>[] = [];
     /**
      * These are all of the final functions that are grouped together (run at the end of the request)
      * @date 10/12/2023 - 2:49:37 PM
@@ -120,7 +120,7 @@ export class Route {
      * @readonly
      * @type {FinalFunction[]}
      */
-    public readonly finalFunctions: FinalFunction[] = [];
+    public readonly finalFunctions: FinalFunction<any>[] = [];
 
     /**
      * Adds a get middleware function to the route
@@ -130,7 +130,7 @@ export class Route {
      * @param {...ServerFunction[]} callbacks
      * @returns {this}
      */
-    get(path: string, ...callbacks: ServerFunction[]): this {
+    get(path: string, ...callbacks: ServerFunction<null>[]): this {
         this.serverFunctions.push(...callbacks.map(cb => ({
             path: path,
             callback: cb,
@@ -148,12 +148,12 @@ export class Route {
      * @param {...ServerFunction[]} callbacks
      * @returns {this}
      */
-    post(path: string, ...callbacks: ServerFunction[]): this {
+    post<T>(path: string, ...callbacks: ServerFunction<T>[]): this {
         this.serverFunctions.push(...callbacks.map(cb => ({
             path: path,
             callback: cb,
             method: RequestMethod.POST
-        })));
+        } as ServerFunctionHandler<T>)));
 
         return this;
     }
@@ -167,7 +167,7 @@ export class Route {
      * @param {...ServerFunction[]} callbacks
      * @returns {this}
      */
-    use(path: string, ...callbacks: ServerFunction[]): this {
+    use(path: string, ...callbacks: ServerFunction<any>[]): this {
         this.serverFunctions.push(...callbacks.map(cb => ({
             path: path,
             callback: cb,
@@ -203,7 +203,7 @@ export class Route {
      * @param {FinalFunction} callback
      * @returns {this}
      */
-    final(callback: FinalFunction): this {
+    final(callback: FinalFunction<any>): this {
         this.finalFunctions.push(callback);
         return this;
     }
@@ -238,7 +238,7 @@ export type Next = () => void;
  * @export
  * @typedef {ServerFunction}
  */
-export type ServerFunction = (req: Req, res: Res, next: Next) => any;
+export type ServerFunction<T> = (req: Req<T>, res: Res, next: Next) => any;
 /**
  * Final function that is called at the end of a request
  * @date 10/12/2023 - 2:49:37 PM
@@ -246,7 +246,7 @@ export type ServerFunction = (req: Req, res: Res, next: Next) => any;
  * @export
  * @typedef {FinalFunction}
  */
-export type FinalFunction = (req: Req, res: Res) => any;
+export type FinalFunction<T> = (req: Req<T>, res: Res) => any;
 
 /**
  * Object that contains the path and callback for a server function
@@ -256,9 +256,9 @@ export type FinalFunction = (req: Req, res: Res) => any;
  *
  * @typedef {ServerFunctionHandler}
  */
-type ServerFunctionHandler = {
+type ServerFunctionHandler<T> = {
     path: string;
-    callback: ServerFunction;
+    callback: ServerFunction<T>;
     method: RequestMethod;
 }
 
@@ -386,7 +386,7 @@ export class App {
                 // if (pathParts.length !== urlParts.length) return false;
 
 
-                const test = pathParts.every((part, i) => {
+                const test = pathParts.every((part: string, i: number) => {
                     // log(part, urlParts[i]);
 
                     if (part === '*') return true;
@@ -413,13 +413,15 @@ export class App {
                 Session.get(cookie) || Session.newSession(req, res);
             }
 
-            req.body = await req.req.json().catch(() => {});
+            req.body = await req.req.json().catch(() => {}) as {
+                [key: string]: any
+            } || {}
 
             const runFn = async (i: number) => {
                 return new Promise<void>(async (resolve) => {
                     // log('Running fn', i +'/'+ fns.length);
 
-                    const fn = fns[i] as ServerFunctionHandler | undefined;
+                    const fn = fns[i] as ServerFunctionHandler<any> | undefined;
 
                     if (!fn) {
                         if (!res.fulfilled) {
@@ -496,7 +498,7 @@ export class App {
      * @readonly
      * @type {ServerFunctionHandler[]}
      */
-    private readonly serverFunctions: ServerFunctionHandler[] = [];
+    private readonly serverFunctions: ServerFunctionHandler<any>[] = [];
     /**
      * All of the final functions that are grouped together (run at the end of the request)
      * @date 10/12/2023 - 2:49:37 PM
@@ -505,7 +507,7 @@ export class App {
      * @readonly
      * @type {FinalFunction[]}
      */
-    private readonly finalFunctions: FinalFunction[] = [];
+    private readonly finalFunctions: FinalFunction<any>[] = [];
 
 
     /**
@@ -532,7 +534,7 @@ export class App {
      * @param {...ServerFunction[]} callbacks
      * @returns {App}
      */
-    get(path: string, ...callbacks: ServerFunction[]): App {
+    get(path: string, ...callbacks: ServerFunction<null>[]): App {
         this.serverFunctions.push(...callbacks.map(cb => ({
             path: path,
             callback: cb,
@@ -551,7 +553,7 @@ export class App {
      * @param {...ServerFunction[]} callback
      * @returns {App}
      */
-    use(path: string, ...callback: ServerFunction[]): App {
+    use(path: string, ...callback: ServerFunction<any>[]): App {
         this.serverFunctions.push(...callback.map(cb => ({
             path: path,
             callback: cb,
@@ -568,12 +570,12 @@ export class App {
      * @param {...ServerFunction[]} callback
      * @returns {App}
      */
-    post(path: string, ...callback: ServerFunction[]): App {
+    post<T>(path: string, ...callback: ServerFunction<T>[]): App {
         this.serverFunctions.push(...callback.map(cb => ({
             path: path,
             callback: cb,
             method: RequestMethod.POST
-        })));
+        } as ServerFunctionHandler<T>)));
 
         return this;
     }
@@ -605,8 +607,8 @@ export class App {
      * @param {FinalFunction} callback
      * @returns {App}
      */
-    final(callback: FinalFunction): App {
-        this.finalFunctions.push(callback);
+    final<T>(callback: FinalFunction<T>): App {
+        this.finalFunctions.push(callback as FinalFunction<T>);
         return this;
     }
 }

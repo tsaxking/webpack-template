@@ -6,7 +6,8 @@
     "init": "deno run --allow-all --unstable ./storage/db/scripts/init.ts",
     "entry": "deno run --allow-all ./scripts/add-entry.ts prompt",
     "status": "deno run --allow-all ./scripts/add-status.ts status",
-    "socket": "deno run --allow-all ./scripts/add-status.ts socket"
+    "socket": "deno run --allow-all ./scripts/add-status.ts socket",
+    "type-route": "deno run --allow-all ./scripts/type-route.ts"
   },
   "compilerOptions": {
     // "noexplicitAny": false,

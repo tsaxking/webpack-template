@@ -14,6 +14,7 @@ import { router as api } from './routes/api.ts';
 import Role from "./structure/roles.ts";
 import { validate } from "./middleware/data-type.ts";
 import { uuid } from "./utilities/uuid.ts";
+import 'npm:@total-typescript/ts-reset';
 
 const port = +env.PORT || 3000;
 const domain = env.DOMAIN || `http://localhost:${port}`;
@@ -130,10 +131,14 @@ app.post('/*', (req, res, next) => {
     req.body = stripHtml(req.body);
 
     try {
-        const b = JSON.parse(JSON.stringify(req.body)); // remove deep references
-        delete b.password;
-        delete b.confirmPassword;
-        delete b.files;
+        const b = JSON.parse(JSON.stringify(req.body)) as {
+            $$files?: any;
+            password?: string;
+            confirmPassword?: string;
+        }; // remove deep references
+        delete b?.password;
+        delete b?.confirmPassword;
+        delete b?.$$files;
         console.log(b);
     } catch {
         console.log(req.body);
@@ -235,7 +240,11 @@ app.get('/admin/*', Role.allowRoles('admin'), (req, res, next) => {
 
 
 
-app.final((req, res) => {
+app.final<{
+    $$files?: any;
+    password?: string;
+    confirmPassword?: string;
+}>((req, res) => {
     req.session.save();
 
     serverLog('request', {
@@ -248,10 +257,14 @@ app.final((req, res) => {
         userAgent: req.headers.get('user-agent') || '',
         body: req.method == 'post' ? JSON.stringify((() => {
             let { body } = req;
-            body = JSON.parse(JSON.stringify(body));
-            delete body.password;
-            delete body.confirmPassword;
-            delete body.files;
+            body = JSON.parse(JSON.stringify(body)) as {
+    $$files?: any;
+    password?: string;
+    confirmPassword?: string;
+};
+            delete body?.password;
+            delete body?.confirmPassword;
+            delete body?.$$files;
             return body;
         })()) : '',
         params: JSON.stringify(req.params),

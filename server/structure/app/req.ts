@@ -4,6 +4,10 @@ import { Session } from "../sessions.ts";
 import { parseCookie } from "../../../shared/cookie.ts";
 import { FileUpload } from "../../middleware/stream.ts";
 
+type FileBody = {
+    $$files: FileUpload[]
+}
+
 /**
  * This class represents a request
  * @date 10/12/2023 - 3:02:56 PM
@@ -12,7 +16,9 @@ import { FileUpload } from "../../middleware/stream.ts";
  * @class Req
  * @typedef {Req}
  */
-export class Req {
+export class Req<T = {
+    [key: string]: any
+}> {
     /**
      * The cookie object
      * @date 10/12/2023 - 3:02:56 PM
@@ -40,7 +46,7 @@ export class Req {
      *
      * @type {*}
      */
-    public body: any;
+    public body: T = {} as T;
     /**
      * The url of the request (this includes the domain)
      * @date 10/12/2023 - 3:02:56 PM
@@ -171,7 +177,7 @@ export class Req {
      * @type {FileUpload[]}
      */
     get files(): FileUpload[] {
-        if (!this.body.$$files) this.body.$$files = [];
-        return this.body.$$files;
+        if (!(this.body as FileBody).$$files) (this.body as FileBody).$$files = [];
+        return (this.body as FileBody).$$files;
     }
 };

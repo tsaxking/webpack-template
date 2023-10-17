@@ -1,7 +1,7 @@
-import callsite from 'npm:callsite';
 import path from 'npm:path';
 import { __root } from "./env.ts";
 import { Colors } from "./colors.ts";
+import * as blog from "https://deno.land/x/blog@0.3.3/deps.ts";
 
 
 /**
@@ -9,10 +9,10 @@ import { Colors } from "./colors.ts";
  * @date 10/12/2023 - 3:26:33 PM
  */
 const getSite = () => {
-    const site = callsite()[2];
+    const site = blog.callsites()[2];
     return {
-        filePath: './' + path.relative(__root, site.getFileName().replace('file:', '')),
-        lineNumber: site.getLineNumber(),
+        filePath: './' + path.relative(__root, site.getFileName()?.replace('file:', '')),
+        lineNumber: (site.getLineNumber() || 0) + 1,
         fn: site.getFunctionName() + '()' || 'Global | Unnamed'
     }
 }

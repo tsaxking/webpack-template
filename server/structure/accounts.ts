@@ -33,7 +33,7 @@ type DiscordLink = {
 
 
 export default class Account {
-    static validate(type: 'id' | 'username'): ServerFunction {
+    static validate(type: 'id' | 'username'): ServerFunction<any> {
         switch (type) {
             case 'id':
                 return validate({
@@ -47,7 +47,7 @@ export default class Account {
     };
 
 
-    static autoSignIn(username?: string): ServerFunction {
+    static autoSignIn(username?: string): ServerFunction<any> {
         return (req, res, next) => {
             if (!username) return next();
             const a = req.session?.accountId;
@@ -107,7 +107,7 @@ export default class Account {
         return new Account(data);
     }
 
-    static allowPermissions(...permission: string[]): ServerFunction {
+    static allowPermissions(...permission: string[]): ServerFunction<any> {
         return (req: Req, res: Res, next: Next) => {
             const { session } = req;
             const { account } = session;
@@ -119,7 +119,7 @@ export default class Account {
         }
     }
 
-    static isSignedIn(req: Req, res: Res, next: Next) {
+    static isSignedIn(req: Req<null>, res: Res, next: Next) {
         const { session: { account } } = req;
 
         if (!account) {

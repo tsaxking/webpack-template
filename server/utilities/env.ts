@@ -53,7 +53,7 @@ export const __templates = path.resolve(__root, './storage/templates/');
 /**
  * Description placeholder
  * @date 10/12/2023 - 3:24:39 PM
- *
+ */
 export const dirname = () => {
     const site = callsite()[2];
     return './' + path.relative(__root, site.getFileName().replace('file:', ''));
