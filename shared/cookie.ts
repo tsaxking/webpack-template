@@ -1,3 +1,7 @@
+/**
+ * Parses cookie string into object
+ * @date 10/12/2023 - 1:45:45 PM
+ */
 export const parseCookie = (cookie: string) => {
     var list: { [key: string]: string } = {};
 

@@ -21,7 +21,24 @@ declare global {
 
 
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:26:23 PM
+ *
+ * @export
+ * @class Status
+ * @typedef {Status}
+ */
 export class Status {
+    /**
+     * Description placeholder
+     * @date 10/12/2023 - 3:26:23 PM
+     *
+     * @static
+     * @param {StatusId} id
+     * @param {(session: Session) => boolean} test
+     * @returns {ServerFunction}
+     */
     static middleware(id: StatusId, test: (session: Session) => boolean): ServerFunction {
         return (req: Req, res: Res, next: Next) => {
             if (test(req.session)) {
@@ -38,6 +55,16 @@ export class Status {
 
 
 
+    /**
+     * Description placeholder
+     * @date 10/12/2023 - 3:26:23 PM
+     *
+     * @static
+     * @param {StatusId} id
+     * @param {Req} req
+     * @param {?*} [data]
+     * @returns {Status}
+     */
     static from(id: StatusId, req: Req, data?: any): Status {
         try {
             data = JSON.stringify(data);
@@ -85,16 +112,83 @@ export class Status {
 
 
 
+    /**
+     * Description placeholder
+     * @date 10/12/2023 - 3:26:23 PM
+     *
+     * @public
+     * @readonly
+     * @type {string}
+     */
     public readonly message: string;
+    /**
+     * Description placeholder
+     * @date 10/12/2023 - 3:26:23 PM
+     *
+     * @public
+     * @readonly
+     * @type {StatusColor}
+     */
     public readonly color: StatusColor;
+    /**
+     * Description placeholder
+     * @date 10/12/2023 - 3:26:23 PM
+     *
+     * @public
+     * @readonly
+     * @type {StatusCode}
+     */
     public readonly code: StatusCode;
+    /**
+     * Description placeholder
+     * @date 10/12/2023 - 3:26:23 PM
+     *
+     * @public
+     * @readonly
+     * @type {string}
+     */
     public readonly instructions: string;
+    /**
+     * Description placeholder
+     * @date 10/12/2023 - 3:26:23 PM
+     *
+     * @public
+     * @readonly
+     * @type {string}
+     */
     public readonly data: string;
+    /**
+     * Description placeholder
+     * @date 10/12/2023 - 3:26:23 PM
+     *
+     * @public
+     * @readonly
+     * @type {?string}
+     */
     public readonly redirect?: string;
+    /**
+     * Description placeholder
+     * @date 10/12/2023 - 3:26:23 PM
+     *
+     * @public
+     * @readonly
+     * @type {Req}
+     */
     public readonly request: Req;
 
 
 
+    /**
+     * Creates an instance of Status.
+     * @date 10/12/2023 - 3:26:23 PM
+     *
+     * @constructor
+     * @param {StatusMessage} message
+     * @param {string} title
+     * @param {string} status
+     * @param {*} data
+     * @param {Req} req
+     */
     constructor(
         message: StatusMessage,
         public readonly title: string,
@@ -148,6 +242,13 @@ export class Status {
         // }
     }
 
+    /**
+     * Description placeholder
+     * @date 10/12/2023 - 3:26:23 PM
+     *
+     * @readonly
+     * @type {string}
+     */
     get html() {
         return getTemplateSync('status', {
             ...this,
@@ -155,6 +256,13 @@ export class Status {
         });
     }
 
+    /**
+     * Description placeholder
+     * @date 10/12/2023 - 3:26:23 PM
+     *
+     * @readonly
+     * @type {{ title: string; status: string; message: string; code: StatusCode; instructions: string; data: any; redirect: string; color: StatusColor; }}
+     */
     get json() {
         return {
             title: this.title,
@@ -168,6 +276,12 @@ export class Status {
         }
     }
 
+    /**
+     * Description placeholder
+     * @date 10/12/2023 - 3:26:23 PM
+     *
+     * @param {Res} res
+     */
     send(res: Res) {
         switch (this.request.method) {
             case 'GET':
