@@ -130,13 +130,20 @@ export class Route {
      * @param {...ServerFunction[]} callbacks
      * @returns {this}
      */
-    get(path: string, ...callbacks: ServerFunction<null>[]): this {
-        this.serverFunctions.push(...callbacks.map(cb => ({
-            path: path,
-            callback: cb,
-            method: RequestMethod.GET
-        })));
-
+    get(path: string | ServerFunction<null>, ...callbacks: ServerFunction<null>[]): this {
+        if (typeof path === 'string') {
+            this.serverFunctions.push(...callbacks.map(cb => ({
+                path: path,
+                callback: cb,
+                method: RequestMethod.GET
+            })));
+        } else {
+            this.serverFunctions.push(...[path, ...callbacks].map(cb => ({
+                path: '/*',
+                callback: cb,
+                method: RequestMethod.GET
+            })));
+        }
         return this;
     }
 
@@ -148,13 +155,20 @@ export class Route {
      * @param {...ServerFunction[]} callbacks
      * @returns {this}
      */
-    post<T>(path: string, ...callbacks: ServerFunction<T>[]): this {
-        this.serverFunctions.push(...callbacks.map(cb => ({
-            path: path,
-            callback: cb,
-            method: RequestMethod.POST
-        } as ServerFunctionHandler<T>)));
-
+    post<T>(path: string | ServerFunction<T>, ...callbacks: ServerFunction<T>[]): this {
+        if (typeof path === 'string') {
+            this.serverFunctions.push(...callbacks.map(cb => ({
+                path: path,
+                callback: cb,
+                method: RequestMethod.POST
+            } as ServerFunctionHandler<T>)));
+        } else {
+            this.serverFunctions.push(...[path, ...callbacks].map(cb => ({
+                path: '/*',
+                callback: cb,
+                method: RequestMethod.POST
+            } as ServerFunctionHandler<T>)));
+        }
         return this;
     }
 
@@ -167,13 +181,20 @@ export class Route {
      * @param {...ServerFunction[]} callbacks
      * @returns {this}
      */
-    use(path: string, ...callbacks: ServerFunction<any>[]): this {
-        this.serverFunctions.push(...callbacks.map(cb => ({
-            path: path,
-            callback: cb,
-            method: RequestMethod.GET
-        })));
-
+    use(path: string | ServerFunction<any>, ...callbacks: ServerFunction<any>[]): this {
+        if (typeof path === 'string') {
+            this.serverFunctions.push(...callbacks.map(cb => ({
+                path: path,
+                callback: cb,
+                method: RequestMethod.GET
+            })));
+        } else {
+            this.serverFunctions.push(...[path, ...callbacks].map(cb => ({
+                path: '/*',
+                callback: cb,
+                method: RequestMethod.GET
+            })));
+        }
         return this;
     }
 
@@ -199,6 +220,7 @@ export class Route {
     /**
      * Adds a final function to the route
      * @date 10/12/2023 - 2:49:37 PM
+     * @deprecated Use App.final instead
      *
      * @param {FinalFunction} callback
      * @returns {this}
@@ -534,13 +556,20 @@ export class App {
      * @param {...ServerFunction[]} callbacks
      * @returns {App}
      */
-    get(path: string, ...callbacks: ServerFunction<null>[]): App {
-        this.serverFunctions.push(...callbacks.map(cb => ({
-            path: path,
-            callback: cb,
-            method: RequestMethod.GET
-        })));
-
+    get(path: string | ServerFunction<null>, ...callbacks: ServerFunction<null>[]): App {
+        if (typeof path === 'string') {
+            this.serverFunctions.push(...callbacks.map(cb => ({
+                path: path,
+                callback: cb,
+                method: RequestMethod.GET
+            })));
+        } else {
+            this.serverFunctions.push(...[path, ...callbacks].map(cb => ({
+                path: '/*',
+                callback: cb,
+                method: RequestMethod.GET
+            })));
+        }
         return this;
     }
 
@@ -553,12 +582,20 @@ export class App {
      * @param {...ServerFunction[]} callback
      * @returns {App}
      */
-    use(path: string, ...callback: ServerFunction<any>[]): App {
-        this.serverFunctions.push(...callback.map(cb => ({
-            path: path,
-            callback: cb,
-            method: RequestMethod.GET
-        })));
+    use(path: string | ServerFunction<any>, ...callback: ServerFunction<any>[]): App {
+        if (typeof path === 'string') {
+            this.serverFunctions.push(...callback.map(cb => ({
+                path: path,
+                callback: cb,
+                method: RequestMethod.GET
+            })));
+        } else {
+            this.serverFunctions.push(...[path, ...callback].map(cb => ({
+                path: '/*',
+                callback: cb,
+                method: RequestMethod.GET
+            })));
+        }
         return this;
     }
 
@@ -570,13 +607,20 @@ export class App {
      * @param {...ServerFunction[]} callback
      * @returns {App}
      */
-    post<T>(path: string, ...callback: ServerFunction<T>[]): App {
-        this.serverFunctions.push(...callback.map(cb => ({
-            path: path,
-            callback: cb,
-            method: RequestMethod.POST
-        } as ServerFunctionHandler<T>)));
-
+    post<T>(path: string | ServerFunction<T>, ...callback: ServerFunction<T>[]): App {
+        if (typeof path === 'string') {
+            this.serverFunctions.push(...callback.map(cb => ({
+                path: path,
+                callback: cb,
+                method: RequestMethod.POST
+            } as ServerFunctionHandler<T>)));
+        } else {
+            this.serverFunctions.push(...[path, ...callback].map(cb => ({
+                path: '/*',
+                callback: cb,
+                method: RequestMethod.POST
+            } as ServerFunctionHandler<T>)));
+        }
         return this;
     }
 
