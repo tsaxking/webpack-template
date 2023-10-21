@@ -1,3 +1,5 @@
+// These imports are for all client side views
+
 import '../styles/animate.css';
 import '../styles/bootstrap-colors-extended.css';
 import '../styles/global.css';
@@ -11,3 +13,6 @@ import 'material-icons/iconfont/material-icons.css';
 
 // socket
 import './socket';
+
+// bootstrap cdn
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';

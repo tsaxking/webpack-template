@@ -34,7 +34,10 @@ router.get('/sign-up', (_req, res) => {
     res.sendTemplate('entries/account/sign-up');
 });
 
-router.post('/sign-in', Account.notSignedIn, validate({
+router.post<{
+    username: string;
+    password: string;
+}>('/sign-in', Account.notSignedIn, validate({
     username: (v: any) => typeof v == 'string',
     password: (v: any) => typeof v == 'string'
 }), (req, res) => {
@@ -64,7 +67,14 @@ router.post('/sign-in', Account.notSignedIn, validate({
 
 
 
-router.post('/sign-up', Account.notSignedIn, validate({
+router.post<{
+    username: string;
+    password: string;
+    confirmPassword: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+}>('/sign-up', Account.notSignedIn, validate({
     username: (v: any) => typeof v == 'string',
     password: (v: any) => typeof v == 'string',
     confirmPassword: (v: any) => typeof v == 'string',
@@ -103,7 +113,9 @@ router.post('/sign-up', Account.notSignedIn, validate({
 // req.session.account is always available when Account.allowRoles/Permissions is used
 // however, typescript doesn't know that, so we have to cast it
 
-router.post('/verify-account', Account.allowPermissions('verify'), validate({
+router.post<{
+    username: string;
+}>('/verify-account', Account.allowPermissions('verify'), validate({
     username: (v: any) => typeof v == 'string'
 }), async(req, res) => {
     const { username } = req.body;
@@ -122,7 +134,9 @@ router.post('/verify-account', Account.allowPermissions('verify'), validate({
 
 
 
-router.post('/reject-account', Account.allowPermissions('verify'), validate({
+router.post<{
+    username: string;
+}>('/reject-account', Account.allowPermissions('verify'), validate({
     username: (v: any) => typeof v == 'string'
 }), (req, res) => {
     const { username } = req.body;
@@ -169,7 +183,9 @@ router.post('/get-all', (_req, res) => {
 
 
 
-router.post('/remove-account', Account.allowPermissions('editUsers'), validate({
+router.post<{
+    username: string;
+}>('/remove-account', Account.allowPermissions('editUsers'), validate({
     username: (v: any) => typeof v == 'string'
 }), (req, res) => {
     const { username } = req.body;
@@ -186,7 +202,9 @@ router.post('/remove-account', Account.allowPermissions('editUsers'), validate({
 
 
 
-router.post('/unverify-account', Account.allowPermissions('verify'), validate({
+router.post<{
+    username: string;
+}>('/unverify-account', Account.allowPermissions('verify'), validate({
     username: (v: any) => typeof v == 'string'
 }), (req, res) => {
     const { username } = req.body;
@@ -202,7 +220,10 @@ router.post('/unverify-account', Account.allowPermissions('verify'), validate({
 
 
 
-router.post('/add-role', Account.allowPermissions('editRoles'), validate({
+router.post<{
+    username: string;
+    role: string;
+}>('/add-role', Account.allowPermissions('editRoles'), validate({
     username: (v: any) => typeof v == 'string',
     role: (v: any) => typeof v == 'string'
 }), (req, res) => {
@@ -223,7 +244,10 @@ router.post('/add-role', Account.allowPermissions('editRoles'), validate({
 
 
 
-router.post('/remove-role', Account.allowPermissions('editRoles'), validate({
+router.post<{
+    username: string;
+    role: string;
+}>('/remove-role', Account.allowPermissions('editRoles'), validate({
     username: (v: any) => typeof v == 'string',
     role: (v: any) => typeof v == 'string'
 }), (req, res) => {

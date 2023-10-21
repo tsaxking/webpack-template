@@ -5,14 +5,44 @@ import { Database, Statement } from "https://deno.land/x/sqlite3@0.9.1/mod.ts";
 import { log } from "./terminal-logging.ts";
 import { Queries } from "./sql-types.ts";
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:24:19 PM
+ *
+ * @type {*}
+ */
 const dbDir = path.resolve(__root, './storage/db');
 export const MAIN = new Database(path.resolve(dbDir, './sfz.db'));
 
 
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:24:19 PM
+ *
+ * @typedef {Parameter}
+ */
 type Parameter = string | number | boolean | null;
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:24:19 PM
+ *
+ * @export
+ * @class DB
+ * @typedef {DB}
+ */
 export class DB {
+    /**
+     * Description placeholder
+     * @date 10/12/2023 - 3:24:19 PM
+     *
+     * @private
+     * @static
+     * @template {keyof Queries} T
+     * @param {T} type
+     * @returns {Statement}
+     */
     private static prepare<T extends keyof Queries>(type: T): Statement {
         try {
             const data = Deno.readFileSync(path.resolve(__root, './storage/db/queries/', type + '.sql'));
@@ -26,10 +56,28 @@ export class DB {
     }
 
 
+    /**
+     * Description placeholder
+     * @date 10/12/2023 - 3:24:19 PM
+     *
+     * @static
+     * @readonly
+     * @type {*}
+     */
     static get path() {
         return path.resolve(dbDir, './main.db');
     }
 
+    /**
+     * Description placeholder
+     * @date 10/12/2023 - 3:24:19 PM
+     *
+     * @static
+     * @template {keyof Queries} T
+     * @param {T} type
+     * @param {...Queries[T][0]} args
+     * @returns {number}
+     */
     static run<T extends keyof Queries>(type: T, ...args: Queries[T][0]): number {
         const q = DB.prepare(type);
         let d: number;
@@ -43,6 +91,16 @@ export class DB {
         return d;
     }
 
+    /**
+     * Description placeholder
+     * @date 10/12/2023 - 3:24:19 PM
+     *
+     * @static
+     * @template {keyof Queries} T
+     * @param {T} type
+     * @param {...Queries[T][0]} args
+     * @returns {(Queries[T][1] | undefined)}
+     */
     static get<T extends keyof Queries>(type: T, ...args: Queries[T][0]): Queries[T][1] | undefined {
         const q = DB.prepare(type);
         let d: Queries[T][1] | undefined;
@@ -55,6 +113,16 @@ export class DB {
         return d;
     }
 
+    /**
+     * Description placeholder
+     * @date 10/12/2023 - 3:24:19 PM
+     *
+     * @static
+     * @template {keyof Queries} T
+     * @param {T} type
+     * @param {...Queries[T][0]} args
+     * @returns {Queries[T][1][]}
+     */
     static all<T extends keyof Queries>(type: T, ...args: Queries[T][0]): Queries[T][1][] {
         const q = DB.prepare(type);
         let d: Queries[T][1][];
@@ -70,6 +138,14 @@ export class DB {
 
 
 
+    /**
+     * Description placeholder
+     * @date 10/12/2023 - 3:24:19 PM
+     *
+     * @static
+     * @readonly
+     * @type {{ run: (query: string, ...args: {}) => number; get: <type = unknown>(query: string, ...args: {}) => any; all: <type>(query: string, ...args: {}) => {}; }}
+     */
     static get unsafe() {
         return {
             run: (query: string, ...args: Parameter[]): number => {

@@ -3,6 +3,13 @@ import { notify } from "./notifications";
 import { EventEmitter } from '../../shared/event-emitter';
 import { StatusJson } from "../../shared/status";
 
+/**
+ * These are optional options for a request
+ * @date 10/12/2023 - 1:19:15 PM
+ *
+ * @export
+ * @typedef {RequestOptions}
+ */
 export type RequestOptions = {
     headers?: {
         [key: string]: string;
@@ -11,6 +18,13 @@ export type RequestOptions = {
     cached: boolean;
 };
 
+/**
+ * These are optional options for a stream
+ * @date 10/12/2023 - 1:19:15 PM
+ *
+ * @export
+ * @typedef {StreamOptions}
+ */
 export type StreamOptions = {
     headers?: {
         [key: string]: string;
@@ -18,68 +32,265 @@ export type StreamOptions = {
 };
 
 
+/**
+ * These are the possible updates that can be emitted from a stream emitter
+ * @date 10/12/2023 - 1:19:15 PM
+ *
+ * @typedef {SendStreamEventData}
+ */
 type SendStreamEventData = {
     'progress': ProgressEvent<EventTarget>;
     'complete': ProgressEvent<EventTarget>;
     'error': ProgressEvent<EventTarget>;
 };
 
-type StreamEvent = keyof SendStreamEventData;
 
-type RetrieveStreamEventData = {
-    'chunk': Uint8Array;
-    'complete': undefined;
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 1:19:15 PM
+ *
+ * @typedef {RetrieveStreamEventData}
+ * @template T
+ */
+type RetrieveStreamEventData<T> = {
+    'chunk': T;
+    'complete': T[];
     'error': Error;
 };
 
-type RetrieveStreamEvent = keyof RetrieveStreamEventData;
 
 
+
+
+/**
+ * Event emitter for retrieving a stream
+ * @date 10/12/2023 - 1:19:15 PM
+ *
+ * @export
+ * @class RetrieveStreamEventEmitter
+ * @typedef {RetrieveStreamEventEmitter}
+ * @template [T=string]
+ * @extends {EventEmitter<RetrieveStreamEvent<T>>}
+ */
+export class RetrieveStreamEventEmitter<T = string> extends EventEmitter<keyof RetrieveStreamEventData<T>> {
+    /**
+     * Creates an instance of RetrieveStreamEventEmitter.
+     * @date 10/12/2023 - 1:19:15 PM
+     *
+     * @constructor
+     */
+    constructor() {
+        super();
+    }
+
+    /**
+     * Adds an event listener
+     * @date 10/12/2023 - 1:19:15 PM
+     *
+     * @template {RetrieveStreamEvent<T>} K
+     * @param {K} event
+     * @param {(data: RetrieveStreamEventData<T>[K]) => void} callback
+     */
+    on<K extends keyof RetrieveStreamEventData<T>>(event: K, callback: (data: RetrieveStreamEventData<T>[K]) => void): void {
+        super.on(event, callback);
+    }
+
+    /**
+     * Emits an event
+     * @date 10/12/2023 - 1:19:15 PM
+     *
+     * @template {RetrieveStreamEvent<T>} K
+     * @param {K} event
+     * @param {RetrieveStreamEventData<T>[K]} data
+     */
+    emit<K extends keyof RetrieveStreamEventData<T>>(event: K, data: RetrieveStreamEventData<T>[K]): void {
+        super.emit(event, data);
+    }
+
+    /**
+     * Removes an event listener
+     * @date 10/12/2023 - 1:19:15 PM
+     *
+     * @template {RetrieveStreamEvent<T>} K
+     * @param {K} event
+     * @param {(data: RetrieveStreamEventData<T>[K]) => void} callback
+     */
+    off<K extends keyof RetrieveStreamEventData<T>>(event: K, callback: (data: RetrieveStreamEventData<T>[K]) => void): void {
+        super.off(event, callback);
+    }
+
+    /**
+     * Returns a promise that resolves when the stream is complete
+     * @date 10/12/2023 - 1:19:15 PM
+     *
+     * @readonly
+     * @type {*}
+     * @returns {Promise<T[]>}
+     */
+    get promise() {
+        return new Promise<T[]>((res, rej) => {
+            this.on('complete', res);
+        });
+    }
+}
+
+
+
+
+
+/**
+ * This class is meant for the purpose of sending requests to the hosted server using fetch and xhr requests
+ * @date 10/12/2023 - 1:19:15 PM
+ *
+ * @export
+ * @class ServerRequest
+ * @typedef {ServerRequest}
+ * @template [T=unknown]
+ */
 export class ServerRequest<T = unknown> {
+    /**
+     * List of all requests (for caching, debugging, and statistics)
+     * @date 10/12/2023 - 1:19:15 PM
+     *
+     * @static
+     * @readonly
+     * @type {ServerRequest[]}
+     */
     static readonly all: ServerRequest[] = [];
 
+    /**
+     * Retrieves the last request sent
+     * @date 10/12/2023 - 1:19:15 PM
+     *
+     * @static
+     * @readonly
+     * @type {(ServerRequest|undefined)}
+     */
     static get last(): ServerRequest|undefined {
         return this.all[this.all.length - 1];
     }
 
+    /**
+     * Retrieves all requests that failed
+     * @date 10/12/2023 - 1:19:15 PM
+     *
+     * @static
+     * @readonly
+     * @type {ServerRequest[]}
+     */
     static get errors(): ServerRequest[] {
         return this.all.filter((r) => r.error);
     }
 
+    /**
+     * Retrieves all requests that succeeded
+     * @date 10/12/2023 - 1:19:15 PM
+     *
+     * @static
+     * @readonly
+     * @type {ServerRequest[]}
+     */
     static get successes(): ServerRequest[] {
         return this.all.filter((r) => !r.error);
     }
 
+    /**
+     * Average duration of all requests that succeeded
+     * @date 10/12/2023 - 1:19:15 PM
+     *
+     * @static
+     * @readonly
+     * @type {number}
+     */
     static get averageDuration(): number {
         return this.totalDuration / this.all.length;
     }
 
+    /**
+     * Total duration of all requests that succeeded
+     * @date 10/12/2023 - 1:19:15 PM
+     *
+     * @static
+     * @readonly
+     * @type {number}
+     */
     static get totalDuration(): number {
-        return this.all.reduce((a, b) => a + (b.duration || 0), 0);
+        return this.successes.reduce((a, b) => a + (b.duration || 0), 0);
     }
 
+    /**
+     * Total number of requests that failed
+     * @date 10/12/2023 - 1:19:15 PM
+     *
+     * @static
+     * @readonly
+     * @type {number}
+     */
     static get totalErrors(): number {
         return this.errors.length;
     }
 
+    /**
+     * Send a post request to the server that returns a promise with a generic type
+     * @date 10/12/2023 - 1:19:15 PM
+     *
+     * @static
+     * @async
+     * @template T
+     * @param {string} url
+     * @param {?*} [body]
+     * @param {?RequestOptions} [options]
+     * @returns {Promise<T>}
+     */
     static async post<T>(url: string, body?: any, options?: RequestOptions): Promise<T> {
         const r = new ServerRequest<T>(url, 'post', body, options);
         return r.send();
     }
 
 
+    /**
+     * Send a get request to the server that returns a promise with a generic type
+     * @date 10/12/2023 - 1:19:15 PM
+     *
+     * @static
+     * @async
+     * @template T
+     * @param {string} url
+     * @param {?RequestOptions} [options]
+     * @returns {Promise<T>}
+     */
     static async get<T>(url: string, options?: RequestOptions): Promise<T> {
         const r = new ServerRequest<T>(url, 'get', undefined, options);
         return r.send();
     }
 
+    /**
+     * Send multiple requests at once, returns a promise with an array of generic types
+     * @date 10/12/2023 - 1:19:15 PM
+     *
+     * @static
+     * @async
+     * @param {ServerRequest[]} requests
+     * @returns {Promise<any[]>}
+     */
     static async multiple(requests: ServerRequest[]): Promise<any[]> {
         return Promise.all(requests.map((r) => r.send()));
     }
 
 
-    static streamFiles(url: string, files: FileList, body?: any, options?: StreamOptions): EventEmitter<StreamEvent> {
-        const emitter = new EventEmitter<StreamEvent>();
+    /**
+     * Sends a stream of files to the server, the back end must use the built in stream handler to receive the files
+     * @date 10/12/2023 - 1:19:15 PM
+     *
+     * @static
+     * @param {string} url
+     * @param {FileList} files
+     * @param {?*} [body]
+     * @param {?StreamOptions} [options]
+     * @returns {EventEmitter<keyof SendStreamEventData>}
+     */
+    static streamFiles(url: string, files: FileList, body?: any, options?: StreamOptions): EventEmitter<keyof SendStreamEventData> {
+        const emitter = new EventEmitter<keyof SendStreamEventData>();
 
         const formData = new FormData();
         for (let i = 0; i < files.length; i++) {
@@ -124,8 +335,21 @@ export class ServerRequest<T = unknown> {
         return emitter;
     }
 
-    static retrieveStream(url: string, body?: any): EventEmitter<RetrieveStreamEvent> {
-        const emitter = new EventEmitter<RetrieveStreamEvent>();
+    /**
+     * If the server is sending a stream of data, this method will retrieve it, server must use res.stream(string[])
+     * @date 10/12/2023 - 1:19:15 PM
+     *
+     * @static
+     * @template [K=string]
+     * @param {string} url
+     * @param {?*} [body]
+     * @param {?(data: string) => K} [parser]
+     * @returns {RetrieveStreamEventEmitter<K>}
+     */
+    static retrieveStream<K = string>(url: string, body?: any, parser?: (data: string) => K): RetrieveStreamEventEmitter<K> {
+        const output: K[] = [];
+
+        const emitter = new RetrieveStreamEventEmitter<K>();
 
         fetch(url, {
             method: 'POST',
@@ -138,13 +362,24 @@ export class ServerRequest<T = unknown> {
             .then(reader => {
                 if (!reader) return emitter.emit('error', new Error('No reader found'));
 
+                console.log('Stream started...');
+
                 reader.read().then(function process({ done, value }) {
                     if (done) {
-                        emitter.emit('complete');
+                        emitter.emit('complete', output);
                         return;
                     }
 
-                    emitter.emit('chunk', value);
+                    if (value) {
+                        const d = new TextDecoder().decode(value);
+                        if (parser) {
+                            output.push(parser(d));
+                            emitter.emit('chunk', parser(d));
+                        } else {
+                            output.push(d as K);
+                            emitter.emit('chunk', d as K);
+                        }
+                    }
                     return reader.read().then(process);
                 });
             })
@@ -153,12 +388,73 @@ export class ServerRequest<T = unknown> {
         return emitter;
     }
 
-    public response?: any;
+    /**
+     * Server response
+     * @date 10/12/2023 - 1:19:15 PM
+     *
+     * @public
+     * @type {?*}
+     */
+    public response?: T;
+    /**
+     * Time the request was initialized
+     * @date 10/12/2023 - 1:19:15 PM
+     *
+     * @public
+     * @type {number}
+     */
     public initTime: number = Date.now();
+    /**
+     * Error that occurred (if any)
+     * @date 10/12/2023 - 1:19:15 PM
+     *
+     * @public
+     * @type {?Error}
+     */
     public error?: Error;
+    /**
+     * Whether or not the request has been sent
+     * @date 10/12/2023 - 1:19:15 PM
+     *
+     * @public
+     * @type {boolean}
+     */
     public sent: boolean = false;
+    /**
+     *  Duration of the request
+     * @date 10/12/2023 - 1:19:15 PM
+     *
+     * @public
+     * @type {?number}
+     */
     public duration?: number;
+    /**
+     * Promise that resolves when the request is complete
+     * @date 10/12/2023 - 1:19:15 PM
+     *
+     * @public
+     * @type {?Promise<T>}
+     */
+    public promise?: Promise<T>;
+    /**
+     * Whether or not the request was cached
+     * @date 10/12/2023 - 1:19:15 PM
+     *
+     * @private
+     * @type {boolean}
+     */
+    private cached: boolean = false;
 
+    /**
+     * Creates an instance of ServerRequest.
+     * @date 10/12/2023 - 1:19:15 PM
+     *
+     * @constructor
+     * @param {string} url
+     * @param {('get' | 'post')} [method='post']
+     * @param {?*} [body]
+     * @param {?RequestOptions} [options]
+     */
     constructor(
         public readonly url: string,
         public readonly method: 'get' | 'post' = 'post',
@@ -170,8 +466,15 @@ export class ServerRequest<T = unknown> {
 
 
 
+    /**
+     * Sends the request to the server and returns a promise with a generic type
+     * @date 10/12/2023 - 1:19:15 PM
+     *
+     * @async
+     * @returns {Promise<T>}
+     */
     async send(): Promise<T> {
-        return new Promise<T>((res, rej) => {
+        this.promise = new Promise<T>((res, rej) => {
             try {
                 JSON.stringify(this.body);
             } catch {
@@ -184,9 +487,10 @@ export class ServerRequest<T = unknown> {
                 const reqs = ServerRequest.all.filter((r) => r.url == this.url);
                 const req = reqs[reqs.length - 1];
                 if (req) {
+                    this.cached = true;
                     this.duration = Date.now() - start;
-                    this.response = req.response;
-                    return res(req.response);
+                    this.response = req.response as T;
+                    req.promise?.then((r) => res(r as T));
                 }
             }
 
@@ -201,7 +505,8 @@ export class ServerRequest<T = unknown> {
             })
                 .then((r) => r.json())
                 .then(async (data) => {
-                    console.log(data);
+                    if (this.cached) console.log(data, '(cached)'); 
+                    else console.log(data);
 
                     if (data?.status) {
                         // this is a notification
@@ -225,5 +530,7 @@ export class ServerRequest<T = unknown> {
                     rej(e);
                 });
         });
+
+        return this.promise;
     }
 }

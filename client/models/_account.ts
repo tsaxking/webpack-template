@@ -348,7 +348,7 @@ export class Account {
             return Object.values(Account.accounts);
         }
 
-        const accounts = await ServerRequest.post('/account/all', null, { cached: !!refresh })
+        const accounts = await ServerRequest.post<Account[]>('/account/all', null, { cached: !!refresh })
             .then((accounts: any[]) => accounts.map(a => new Account(
                 a.username,
                 a.email,

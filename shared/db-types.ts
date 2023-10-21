@@ -1,3 +1,5 @@
+// this file contains all the types that are used in the database for sending/receiving data to/from the server
+
 export type Account = {
     id: string;
     username: string;

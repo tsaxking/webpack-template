@@ -1,3 +1,7 @@
+// This file is used to typesafe queries to the database
+// The array is the parameters for the query, and the second parameter is the return type
+
+
 
 import { __root } from "./env.ts";
 import { MembershipStatus, Account, Member, Role, AccountRole, RolePermission, Skill } from "../../shared/db-types.ts";

@@ -6,6 +6,12 @@ import env from './env.ts';
 
 config();
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:24:32 PM
+ *
+ * @type {*}
+ */
 const transporter = nodemailer.createTransport(sgTransport({
         service: 'gmail',
         auth: {
@@ -16,6 +22,13 @@ const transporter = nodemailer.createTransport(sgTransport({
 
 
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:24:32 PM
+ *
+ * @export
+ * @typedef {EmailOptions}
+ */
 export type EmailOptions = {
     attachments?: {
         filename: string,
@@ -32,13 +45,38 @@ export type EmailOptions = {
 
 
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:24:32 PM
+ *
+ * @export
+ * @enum {number}
+ */
 export enum EmailType {
     link,
     text,
     error
 }
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:24:32 PM
+ *
+ * @export
+ * @class Email
+ * @typedef {Email}
+ */
 export class Email {
+    /**
+     * Creates an instance of Email.
+     * @date 10/12/2023 - 3:24:32 PM
+     *
+     * @constructor
+     * @param {(string | string[])} to
+     * @param {string} subject
+     * @param {EmailType} type
+     * @param {EmailOptions} options
+     */
     constructor(
         public to: string | string[],
         public subject: string,
@@ -47,6 +85,12 @@ export class Email {
     ) {}
 
 
+    /**
+     * Description placeholder
+     * @date 10/12/2023 - 3:24:32 PM
+     *
+     * @returns {*}
+     */
     send() {
         const { to, subject, type, options } = this;
         let { attachments, constructor } = options;

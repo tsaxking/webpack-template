@@ -6,12 +6,24 @@ import env from "./env.ts";
 
 
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:26:42 PM
+ *
+ * @type {*}
+ */
 const {
     ID_GENERATION_KEY,
     ID_GENERATION_LINK
 } = env;
 
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:26:42 PM
+ *
+ * @async
+ */
 const getIds = async (n: number = 10): Promise<string[]> => {
     if (ID_GENERATION_KEY && ID_GENERATION_LINK) {
         ids.push(...(await axios.post(ID_GENERATION_LINK + '/uuid', {
@@ -26,6 +38,12 @@ const getIds = async (n: number = 10): Promise<string[]> => {
     return new Array(Math.round(n)).fill('').map(() => uuidv4());
 }
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:26:42 PM
+ *
+ * @type {string[]}
+ */
 let ids: string[] = [];
 (async () => {
     if (fs.existsSync('./ids.txt')) {
@@ -37,12 +55,22 @@ let ids: string[] = [];
 })();
 
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:26:42 PM
+ *
+ * @typedef {uuidOptions}
+ */
 type uuidOptions = {
     letters?: boolean;
     length?: number;
 };
 
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:26:42 PM
+ */
 const getId = (): string => {
     if (ids.length) {
         const id = ids.shift();

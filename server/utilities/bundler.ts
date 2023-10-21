@@ -7,6 +7,12 @@ import { Bundle } from "https://deno.land/x/bundler@0.9.0/plugins/plugin.ts";
 
 
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:24:05 PM
+ *
+ * @async
+ */
 export const bundle = async (path: string): Promise<Bundle> => {
     const inputs = [path];
     const outputMap = { [path]: "index.html" };

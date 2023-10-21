@@ -4,6 +4,7 @@
     const dispatch = createEventDispatcher();
 
     export let title: string;
+    export let autoHide: number = 0;
 
     let time: string = 'Just now';
     const start = Date.now();
@@ -29,6 +30,12 @@
     }
 
     setInterval(update, 1000 * 30);
+
+    if (autoHide) {
+        setTimeout(() => {
+            dispatch('hide.bs.toast');
+        }, autoHide);
+    }
 
     const classes = 'toast';
 

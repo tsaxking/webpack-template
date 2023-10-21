@@ -13,6 +13,8 @@ import { router as account } from './routes/account.ts';
 import { router as api } from './routes/api.ts';
 import Role from "./structure/roles.ts";
 import { validate } from "./middleware/data-type.ts";
+import { uuid } from "./utilities/uuid.ts";
+import 'npm:@total-typescript/ts-reset';
 
 const port = +env.PORT || 3000;
 const domain = env.DOMAIN || `http://localhost:${port}`;
@@ -37,13 +39,19 @@ builder.on('build', () => {
 
 builder.on('error', (e) => log('Build error:', e));
 
+app.post('/test-stream', (req, res) => {
+    const data = new Array(100).fill('').map(uuid);
+    // console.log('Streaming', data);
+    res.stream(data);
+});
+
 
 app.post('/test', (req, res, next) => {
     res.sendStatus('test:success');
 });
 
 app.post('/test-validation', validate({
-    username: (v: any) => v === 'fail',
+    username: (v: any) => v === 'fail', 
     password: (v: any) => v === 'test'
 }, {
     onspam: (req, res, next) => {
@@ -121,7 +129,22 @@ function stripHtml(body: any) {
 
 app.post('/*', (req, _res, next) => {
     req.body = stripHtml(req.body);
-    console.log(req.body);
+
+    try {
+        const b = JSON.parse(JSON.stringify(req.body)) as {
+            $$files?: any;
+            password?: string;
+            confirmPassword?: string;
+        }; // remove deep references
+        delete b?.password;
+        delete b?.confirmPassword;
+        delete b?.$$files;
+        console.log(b);
+    } catch {
+        console.log(req.body);
+    }
+
+
     next();
 });
 
@@ -176,7 +199,17 @@ app.get('/*', (req, res, next) => {
 });
 
 
+<<<<<<< HEAD
 app.route('/api', api);
+=======
+
+
+app.route('/api', api);
+
+
+
+
+>>>>>>> main
 
 
 // routing
@@ -211,7 +244,11 @@ app.get('/admin/*', Role.allowRoles('admin'), (_req, res) => {
 
 
 
-app.final((req, res) => {
+app.final<{
+    $$files?: any;
+    password?: string;
+    confirmPassword?: string;
+}>((req, res) => {
     req.session.save();
 
     serverLog('request', {
@@ -224,10 +261,14 @@ app.final((req, res) => {
         userAgent: req.headers.get('user-agent') || '',
         body: req.method == 'post' ? JSON.stringify((() => {
             let { body } = req;
-            body = JSON.parse(JSON.stringify(body));
-            delete body.password;
-            delete body.confirmPassword;
-            delete body.files;
+            body = JSON.parse(JSON.stringify(body)) as {
+    $$files?: any;
+    password?: string;
+    confirmPassword?: string;
+};
+            delete body?.password;
+            delete body?.confirmPassword;
+            delete body?.$$files;
             return body;
         })()) : '',
         params: JSON.stringify(req.params),
