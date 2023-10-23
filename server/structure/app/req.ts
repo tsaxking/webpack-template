@@ -39,7 +39,9 @@ export class Req<T = {
      * @public
      * @type {Record<string, string>}
      */
-    public params: Record<string, string> = {};
+    public params: {
+        [key: string]: string | undefined
+    } = {};
     /**
      * The body of the request
      * @date 10/12/2023 - 3:02:56 PM
