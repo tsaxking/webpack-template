@@ -108,6 +108,10 @@ export function getJSON<type = unknown>(file: string): Promise<type> {
     });
 }
 
+export function JSONPath (file: string): string {
+    return filePathBuilder(file, '.json', './storage/jsons/');
+}
+
 /**
  * Description placeholder
  * @date 10/12/2023 - 3:24:47 PM

@@ -7,7 +7,8 @@
     "entry": "deno run --allow-all ./scripts/add-entry.ts prompt",
     "status": "deno run --allow-all ./scripts/add-status.ts status",
     "socket": "deno run --allow-all ./scripts/add-status.ts socket",
-    "type-route": "deno run --allow-all ./scripts/type-route.ts"
+    "type-route": "deno run --allow-all ./scripts/type-route.ts",
+    "discord": "deno run --allow-all --unstable ./server/utilities/discord/discord.ts"
   },
   "compilerOptions": {
     // "noexplicitAny": false,

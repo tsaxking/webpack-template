@@ -8,7 +8,9 @@ import { Colors } from "./colors.ts";
  *
  * @type {*}
  */
-const env = Deno.env.toObject();
+const env: {
+    [key: string]: string | undefined;
+} = Deno.env.toObject();
 
 if (Object.keys(env).length === 55) {
     console.error(Colors.BgRed, 'Environment variables not loaded', Colors.Reset, 'You may need to restart by saving an application file or create a ".env" file');

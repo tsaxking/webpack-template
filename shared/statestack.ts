@@ -38,8 +38,7 @@ type StateStackEventData<T> = {
  * @typedef {State}
  * @template T
  */
-class State<T> {
-
+export class State<T> {
     /**
      * Creates an instance of State.
      * @date 10/12/2023 - 2:31:40 PM
