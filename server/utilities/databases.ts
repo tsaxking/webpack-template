@@ -16,7 +16,7 @@ const dbDir = path.resolve(__root, './storage/db');
  * Description placeholder
  * @date 10/12/2023 - 3:24:19 PM
  *
- * @type {*}
+ * @type {Database}
  */
 export const MAIN = new Database(path.resolve(dbDir, './main.db'));
 
@@ -60,19 +60,6 @@ export class DB {
         }
     }
 
-
-    /**
-     * Description placeholder
-     * @date 10/12/2023 - 3:24:19 PM
-     *
-     * @static
-     * @readonly
-     * @type {*}
-     */
-    static get path() {
-        return path.resolve(dbDir, './main.db');
-    }
-
     /**
      * Description placeholder
      * @date 10/12/2023 - 3:24:19 PM
@@ -92,7 +79,7 @@ export class DB {
             log('Error in query', type);
             throw e;
         }
-        q.finalize();
+        // q.finalize();
         return d;
     }
 
@@ -115,6 +102,7 @@ export class DB {
             log('Error in query', type);
             throw e;
         }
+        // q.finalize();
         return d;
     }
 
@@ -137,7 +125,7 @@ export class DB {
             log('Error in query', type);
             throw e;
         }
-        q.finalize();
+        // q.finalize();
         return d;
     }
 
@@ -162,7 +150,7 @@ export class DB {
                     log('Error in query', query);
                     throw e;
                 }
-                q.finalize();
+                // q.finalize();
                 return d;
             },
             get: <type = unknown>(query: string, ...args: Parameter[]) => {
@@ -174,7 +162,7 @@ export class DB {
                     log('Error in query', query);
                     throw e;
                 }
-                q.finalize();
+                // q.finalize();
                 return d;
             },
             all: <type>(query: string, ...args: Parameter[]) => {
@@ -186,7 +174,7 @@ export class DB {
                     log('Error in query', query);
                     throw e;
                 }
-                q.finalize();
+                // q.finalize();
                 return d;
             }
         }
