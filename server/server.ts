@@ -156,20 +156,20 @@ app.post('/*', (req, res, next) => {
 // }));
 
 
-const homePages = getJSONSync('pages/home') as string[];
+// const homePages = getJSONSync('pages/home') as string[];
 
 app.get('/', (req, res, next) => {
     res.redirect('/home');
 });
 
-app.get('/*', async (req, res, next) => {
-    if (homePages.includes(req.url.slice(1))) {
-        return res.send(
-            await homeBuilder(req.url)
-        );
-    }
-    next();
-});
+// app.get('/*', async (req, res, next) => {
+//     if (homePages.includes(req.url.slice(1))) {
+//         return res.send(
+//             await homeBuilder(req.url)
+//         );
+//     }
+//     next();
+// });
 
 app.get('/test/:page', (req, res, next) => {
     if (env.ENVIRONMENT !== 'dev') return next();
@@ -185,7 +185,9 @@ app.route('/account', account);
 app.use('/*', Account.autoSignIn(env.AUTO_SIGN_IN));
 
 app.get('/*', (req, res, next) => {
-    if (!req.session?.accountId) {
+    log('Testing if logged in...');
+    if (!req.session.account) {
+        log('Not logged in, redirecting...');
         req.session!.prevUrl = req.url;
         return res.redirect('/account/sign-in');
     }

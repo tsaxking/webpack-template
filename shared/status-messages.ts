@@ -13,6 +13,7 @@ export type StatusMessage = {
     code: StatusCode;
     instructions: string;
     redirect?: string;
+    sleep?: number;
 }
 
 
@@ -120,7 +121,9 @@ export const messages: {
     message: 'You have been logged in.',
     color: 'success',
     code: 200,
-    instructions: 'You will be redirected to the home page.'
+    instructions: 'You will be redirected to the home page.',
+    redirect: '/home',
+    sleep: 3000
 },
     'account:logged-out': {
     message: 'You have been logged out.',

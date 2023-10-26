@@ -6,7 +6,9 @@
     "init": "deno run --allow-all --unstable ./storage/db/scripts/init.ts",
     "entry": "deno run --allow-all ./scripts/add-entry.ts prompt",
     "status": "deno run --allow-all ./scripts/add-status.ts status",
-    "socket": "deno run --allow-all ./scripts/add-status.ts socket"
+    "socket": "deno run --allow-all ./scripts/add-status.ts socket",
+    "verify": "deno run --allow-all --unstable ./scripts/verify.ts",
+    "view": "deno run --allow-all --unstable ./scripts/view-table.ts"
   },
   "compilerOptions": {
     // "noexplicitAny": false,
