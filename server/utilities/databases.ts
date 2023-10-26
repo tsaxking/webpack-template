@@ -18,7 +18,7 @@ const dbDir = path.resolve(__root, './storage/db');
  *
  * @type {Database}
  */
-export const MAIN = new Database(path.resolve(dbDir, './main.db'));
+export const MAIN = new Database(path.resolve(dbDir, './budgeting.db'));
 
 
 
