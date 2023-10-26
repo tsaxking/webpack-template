@@ -8,12 +8,12 @@ type ValidateOptions = {
     onInvalid?: (key: string, value: any) => void
     onMissing?: (key: string) => void
     
-    onspam?: ServerFunction
+    onspam?: ServerFunction<any>
 }
 
 export const validate = (data: {
     [key: string]: (value: any) => boolean
-}, options?: ValidateOptions): ServerFunction => {
+}, options?: ValidateOptions): ServerFunction<any> => {
     return (req: Req, res: Res, next: Next) => {
         const { body } = req;
 

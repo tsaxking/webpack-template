@@ -8,7 +8,10 @@
     "status": "deno run --allow-all ./scripts/add-status.ts status",
     "socket": "deno run --allow-all ./scripts/add-status.ts socket",
     "verify": "deno run --allow-all --unstable ./scripts/verify.ts",
-    "view": "deno run --allow-all --unstable ./scripts/view-table.ts"
+    "view": "deno run --allow-all --unstable ./scripts/view-table.ts",
+    "type-route": "deno run --allow-all ./scripts/type-route.ts",
+    "discord": "deno run --allow-all --unstable ./server/utilities/discord/discord.ts",
+    "db-test": "deno run --allow-all --unstable ./scripts/db-speed-test.ts"
   },
   "compilerOptions": {
     // "noexplicitAny": false,

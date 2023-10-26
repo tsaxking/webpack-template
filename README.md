@@ -38,34 +38,8 @@ Here is a small summary of what is included in this template
 
 ### Server Side:
 
-- [x] A simple [Express](https://expressjs.com/) server
-- [x] [TypeScript](https://www.typescriptlang.org/) support
-- [x] [sqlite3](https://www.npmjs.com/package/sqlite3) database
-- [x] Automatic database (^) building and updating
-- [x] [dotenv](https://www.npmjs.com/package/dotenv) for environment variables
-- [x] Three environemnts: development, test, and production
-- [x] Script building and minifying
-- [x] Page building with [node-html-construcotr](https://www.npmjs.com/package/node-html-constructor)
-- [x] sync/async JSON, HTML, and Upload file reading/writing (./server-functions/get-file.ts) (JSON works with comments)
-- [x] Sessions with custom session class
-- [x] [socket.io](https://socket.io/) support
-- [x] [nodemailer](https://nodemailer.com/about/) support
-- [x] On start, runs npm i
-- [x] Spawns 4 processes: Update, Build, Git, and Server
-- [x] Logs all requests to ./logs.csv (ignored) and resets them every day at 12am
-- [x] Email and message spam protection
 
 ### Client Side:
-- [x] [TypeScript](https://www.typescriptlang.org/) support
-- [x] [Color](https://github.com/tsaxking/colors.git)
-- [x] [CustomBootstrap](https://github.com/tsaxking/custom-bootstrap.git)
-- [x] [Canvas](https://github.com/tsaxking/canvas.git)
-- [x] Automatic minifying and building
-- [x] You can save sets of scripts and stylesheets to be used on different templates
-- [x] [scss](https://sass-lang.com/) support
-- [x] [socket.io](https://socket.io/) support
-- [x] [animate.css](https://animate.style/) support (with some customization)
-- [x] Bootstrap Colors Extended
 
 
 
