@@ -4,5 +4,6 @@ UPDATE Sessions SET
     latestActivity = :latestActivity,
     requests = :requests,
     ip = :ip,
-    prevUrl = :prevUrl
+    prevUrl = :prevUrl,
+    created = :created
 WHERE id = :id;

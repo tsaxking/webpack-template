@@ -60,6 +60,7 @@ export class Session {
         session.latestActivity = s.latestActivity;
         session.prevUrl = s.prevUrl;
         session.userAgent = s.userAgent;
+        session.accountId = s.accountId || undefined;
         return session;
     }
 
@@ -135,7 +136,9 @@ export class Session {
     }
 
     signIn(account: Account) {
+        // console.log('Signing in: ', account);
         this.accountId = account.id;
+        // console.log('Signed in: ', this);
         this.save();
     }
 
@@ -149,6 +152,7 @@ export class Session {
     }
 
     save() {
+        console.log('saving: ', this);
         this.account?.save();
 
         const s = DB.get('sessions/get', { id: this.id });
