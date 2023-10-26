@@ -123,6 +123,7 @@ export class Session {
         session.latestActivity = s.latestActivity;
         session.prevUrl = s.prevUrl;
         session.userAgent = s.userAgent;
+        session.accountId = s.accountId || undefined;
         return session;
     }
 
@@ -163,7 +164,7 @@ export class Session {
      * @param {?SessionOptions} [options]
      * @returns {ServerFunction}
      */
-    static middleware(options?: SessionOptions): ServerFunction {
+    static middleware(options?: SessionOptions): ServerFunction<any> {
         if (options) {
             if (options.request) {
                 Session.requestsInfo = options.request;
@@ -197,7 +198,7 @@ export class Session {
      *
      * @type {string}
      */
-    public readonly id: string;
+    public id: string;
     /**
      * Account id, if the user is signed in
      * @date 10/12/2023 - 3:13:58 PM
