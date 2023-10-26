@@ -32,6 +32,7 @@
     "socket.io": "^4.7.2",
     "socket.io-client": "^4.7.2",
     "svelte": "^3.39.0",
-    "vite-plugin-svelte-monorepo": "github:sveltejs/vite-plugin-svelte"
+    "vite-plugin-svelte-monorepo": "github:sveltejs/vite-plugin-svelte",
+    "webcam-easy": "^1.1.1"
   }
 }

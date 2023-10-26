@@ -15,7 +15,15 @@ import { FileType } from "./app.ts";
 import { EventEmitter } from "../../../shared/event-emitter.ts";
 
 
-const fileTypeHeaders = {
+/**
+ * All filetype headers (used for sending files, this is not a complete list)
+ * @date 10/12/2023 - 3:06:02 PM
+ *
+ * @type {{ js: string; css: string; html: string; json: string; png: string; jpg: string; jpeg: string; gif: string; svg: string; ico: string; ttf: string; woff: string; woff2: string; otf: string; eot: string; mp4: string; ... 21 more ...; flv: string; }}
+ */
+const fileTypeHeaders: {
+    [key: string]: string;
+} = {
     js: 'application/javascript',
     css: 'text/css',
     html: 'text/html',
@@ -57,27 +65,112 @@ const fileTypeHeaders = {
 };
 
 
+/**
+ * The event types for the stream
+ * @date 10/12/2023 - 3:06:02 PM
+ *
+ * @typedef {StreamEventData}
+ */
 type StreamEventData = {
     'error': Error;
     'end': undefined;
     'cancel': undefined;
 };
 
-type StreamEvent = keyof StreamEventData;
 
-
-
-
+/**
+ * This is the response object, resembling the express response object
+ * @date 10/12/2023 - 3:06:02 PM
+ *
+ * @export
+ * @class Res
+ * @typedef {Res}
+ */
 export class Res {
+    /**
+     * This is resolved when the response is sent
+     * Only to be use internally
+     * @date 10/12/2023 - 3:06:02 PM
+     *
+     * @public
+     * @readonly
+     * @type {Promise<Response>}
+     */
     public readonly promise: Promise<Response>;
+    /**
+     * The resolve function for the promise
+     * Only to be use internally
+     * @date 10/12/2023 - 3:06:02 PM
+     *
+     * @public
+     * @type {?(res: Response) => void}
+     */
     public resolve?: (res: Response) => void;
+    /**
+     * The reject function for the promise
+     * Only to be use internally
+     * @date 10/12/2023 - 3:06:02 PM
+     *
+     * @public
+     * @type {?(error: string) => void}
+     */
     public reject?: (error: string) => void;
+    /**
+     * Whether or not the response has been fulfilled
+     * @date 10/12/2023 - 3:06:02 PM
+     *
+     * @public
+     * @type {boolean}
+     */
     public fulfilled: boolean = false;
+    /**
+     * The trace of the response (uses npm:callsite)
+     * @date 10/12/2023 - 3:06:02 PM
+     *
+     * @public
+     * @readonly
+     * @type {string[]}
+     */
     public readonly trace: string[] = [];
+    /**
+     * The application object
+     * @date 10/12/2023 - 3:06:02 PM
+     *
+     * @private
+     * @readonly
+     * @type {App}
+     */
     private readonly app: App;
+    /**
+     * The status code of the response (defaults to 200)
+     * @date 10/12/2023 - 3:06:02 PM
+     *
+     * @public
+     * @type {?StatusCode}
+     */
     public _status?: StatusCode;
+    /**
+     * The request object
+     * @date 10/12/2023 - 3:06:02 PM
+     *
+     * @private
+     * @readonly
+     * @type {Req}
+     */
     private readonly req: Req;
 
+    /**
+     * The cookie object
+     * @date 10/12/2023 - 3:06:02 PM
+     *
+     * @private
+     * @type {{
+            [key: string]: {
+                value: string;
+                options?: CookieOptions;
+            }
+        }}
+     */
     private _cookie: {
         [key: string]: {
             value: string;
@@ -85,6 +178,14 @@ export class Res {
         }
     } = {};
 
+    /**
+     * Creates an instance of Res.
+     * @date 10/12/2023 - 3:06:02 PM
+     *
+     * @constructor
+     * @param {App} app
+     * @param {Req} req
+     */
     constructor(app: App, req: Req) {
         this.req = req;
         this.app = app;
@@ -94,7 +195,14 @@ export class Res {
         });
     }
 
-    private isFulfilled() {
+    /**
+     * Tests whether or not the response has been fulfilled, if it has, it will log the trace
+     * @date 10/12/2023 - 3:06:02 PM
+     *
+     * @private
+     * @returns {*}
+     */
+    private isFulfilled(): void|undefined {
         if (this.fulfilled) {
             log('Response already fulfilled at:');
             return console.log(this.trace.filter(t => t!=='null:null').map(t => {
@@ -112,6 +220,13 @@ export class Res {
     }
 
 
+    /**
+     * Responds in json format
+     * @date 10/12/2023 - 3:06:02 PM
+     *
+     * @param {*} data
+     * @returns {ResponseStatus}
+     */
     json(data: any): ResponseStatus {
         this.isFulfilled();
         try {
@@ -129,6 +244,15 @@ export class Res {
         };
     }
 
+    /**
+     * Sends data to the client
+     * Fulfils the response
+     * @date 10/12/2023 - 3:06:02 PM
+     *
+     * @param {string} data
+     * @param {FileType} [filetype='html']
+     * @returns {ResponseStatus}
+     */
     send(data: string, filetype: FileType = 'html'): ResponseStatus {
         this.isFulfilled();
         const res = new Response(data, {
@@ -143,6 +267,14 @@ export class Res {
         return ResponseStatus.success;
     }
 
+    /**
+     * Sets the cookie for the response
+     * @date 10/12/2023 - 3:06:01 PM
+     *
+     * @private
+     * @param {Response} res
+     * @returns {ResponseStatus}
+     */
     private _setCookie(res: Response) {
         for (const id in this._cookie) {
             const c = this._cookie[id];
@@ -156,6 +288,14 @@ export class Res {
         return ResponseStatus.success;
     }
 
+    /**
+     * Sends a file to the client
+     * Fulfils the response
+     * @date 10/12/2023 - 3:06:01 PM
+     *
+     * @param {string} path
+     * @returns {ResponseStatus}
+     */
     sendFile(path: string): ResponseStatus {
         // log('Sending file', path);
         try {
@@ -178,12 +318,27 @@ export class Res {
     }
 
 
-    status(status: StatusCode) {
+    /**
+     * Sets the status code of the response
+     * @date 10/12/2023 - 3:06:01 PM
+     *
+     * @param {StatusCode} status
+     * @returns {this}
+     */
+    status(status: StatusCode): this {
         this._status = status;
         return this;
     }
 
 
+    /**
+     * Redirects the client to the given path 
+     * Fulfils the response
+     * @date 10/12/2023 - 3:06:01 PM
+     *
+     * @param {string} path
+     * @returns {ResponseStatus}
+     */
     redirect(path: string): ResponseStatus {
         path = path.startsWith('/') ? this.app.domain + path : path;
 
@@ -193,14 +348,33 @@ export class Res {
     }
 
 
-    cookie(id: string, value: string, options?: CookieOptions) {
+    /**
+     * Adds a cookie to the response
+     * @date 10/12/2023 - 3:06:01 PM
+     *
+     * @param {string} id
+     * @param {string} value
+     * @param {?CookieOptions} [options]
+     * @returns {this}
+     */
+    cookie(id: string, value: string, options?: CookieOptions): this {
         this._cookie[id] = {
             value: value,
             options: options
         };
+
+        return this;
     }
 
 
+    /**
+     * Sends a status to the client (using the StatusMessages in shared/status-messages.ts)
+     * @date 10/12/2023 - 3:06:01 PM
+     *
+     * @param {StatusId} id
+     * @param {?*} [data]
+     * @returns {ResponseStatus}
+     */
     sendStatus(id: StatusId, data?: any): ResponseStatus {
         try {
             Status.from(id, this.req, data).send(this);
@@ -209,8 +383,16 @@ export class Res {
             log('Error sending status', error);
             return ResponseStatus.error;
         }
-    };
+    }
 
+    /**
+     * Sends a template to the client (utilizes node-html-constructor to build the template)
+     * @date 10/12/2023 - 3:06:01 PM
+     *
+     * @param {string} template
+     * @param {?*} [options]
+     * @returns {ResponseStatus}
+     */
     sendTemplate(template: string, options?: any): ResponseStatus {
         try {
             const t = getTemplateSync(template, options);
@@ -222,10 +404,17 @@ export class Res {
         }
     }
 
-    stream(content: string[]): EventEmitter<StreamEvent> {
+    /**
+     * Streams the given content to the client
+     * @date 10/12/2023 - 3:06:01 PM
+     *
+     * @param {string[]} content
+     * @returns {EventEmitter<keyof StreamEventData>}
+     */
+    stream(content: string[]): EventEmitter<keyof StreamEventData> {
         let timer: number;
 
-        const em = new EventEmitter<StreamEvent>();
+        const em = new EventEmitter<keyof StreamEventData>();
 
         const stream = new ReadableStream({
             start(controller) {

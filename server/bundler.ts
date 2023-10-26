@@ -10,6 +10,10 @@ log('Deno version:', Deno.version.deno);
 log('Typescript version:', Deno.version.typescript);
 log('V8 version:', Deno.version.v8);
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:26:56 PM
+ */
 const readDir = (dirPath: string): string[] => {
     const entries = Array.from(Deno.readDirSync(dirPath));
     return entries.flatMap(e => {
@@ -36,22 +40,50 @@ const readDir = (dirPath: string): string[] => {
     });
 }
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:26:56 PM
+ *
+ * @type {{}}
+ */
 let entries = [];
 
 entries = readDir('./client/entries');
 
-// console.log(entries);
-
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:26:56 PM
+ *
+ * @typedef {BuildEventData}
+ */
 type BuildEventData = {
     'build': any;
     'error': Error;
 };
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:26:55 PM
+ *
+ * @typedef {BuildEvent}
+ */
 type BuildEvent = keyof BuildEventData;
 
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:26:55 PM
+ *
+ * @type {EventEmitter<keyof BuildEventData>}
+ */
 export const builder = new EventEmitter<BuildEvent>();
 
-await esbuild.build({
+/**
+ * Description placeholder
+ * @date 10/12/2023 - 3:26:55 PM
+ *
+ * @type {*}
+ */
+const result = await esbuild.build({
     entryPoints: entries,
     bundle: true,
     minify: env.ENVIRONMENT === 'production',

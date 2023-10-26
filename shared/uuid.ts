@@ -1,3 +1,7 @@
+/**
+ * generates a pseudorandom string
+ * @date 10/12/2023 - 2:45:26 PM
+ */
 export const random = (options?: {
     length?: number;
     charset?: string;
