@@ -184,7 +184,7 @@ app.get('/test/:page', (req, res, next) => {
     }
 });
 
-
+app.route('/api', api);
 app.route('/account', account);
 
 app.use('/*', Account.autoSignIn(env.AUTO_SIGN_IN));
@@ -200,15 +200,6 @@ app.get('/*', (req, res, next) => {
 
 
 
-
-app.route('/api', api);
-
-
-
-
-
-
-// routing
 app.route('/admin', admin);
 
 
