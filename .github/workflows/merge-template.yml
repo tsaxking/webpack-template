@@ -60,7 +60,7 @@ jobs:
 
             echo "Creating a pull request"
             git checkout main
-            git request-pull origin/main origin/template-$template # -m "Merge template-$template into main" 
+            git request-pull main template-$template # -m "Merge template-$template into main" 
 
             echo "Deleting branch template-$template"
             git branch -D template-$template
