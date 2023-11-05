@@ -29,7 +29,7 @@ jobs:
             # remove origin
             git remote rm origin
             # add template as remote
-            git remote add git@github.com:tsaxking/template-$template.git
+            git remote add origin git@github.com:tsaxking/template-$template.git
             # git fetch
             # git add .
             git commit -am "Merge main into $template"
