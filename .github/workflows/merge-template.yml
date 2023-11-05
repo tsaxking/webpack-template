@@ -46,7 +46,7 @@ jobs:
             
             git status
 
-            git pull origin main --no-edit
+            # git pull origin main --no-edit
             git push --set-upstream origin template-$template
 
             done
