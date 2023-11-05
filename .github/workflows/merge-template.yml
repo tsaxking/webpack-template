@@ -65,8 +65,8 @@ jobs:
             git push --set-upstream origin merge-template-$template
 
             echo "Creating a pull request"
-            # git checkout main
-            # git request-pull main git@github.com:tsaxking/template-$template.git
+            git checkout main
+            git request-pull main git@github.com:tsaxking/template-$template.git
 
             echo "Deleting branch template-$template"
             git branch -D merge-template-$template
