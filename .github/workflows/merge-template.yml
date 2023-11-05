@@ -43,6 +43,9 @@ jobs:
           git clone git@github.com:tsaxking/template-${{ matrix.templates }}.git
           cd ./webpack-template
 
+          git checkout -b merge-${{ matrix.templates }}
+          git pull origin main
+
       - name: 'List files'
         run: |
           ls -la
@@ -68,8 +71,8 @@ jobs:
           labels: |
             merge-template
             auto-merge
-          # base: main
           draft: false
+          base: merge-${{ matrix.templates }}
           reviewers: tsaxking
           assignees: tsaxking
           path: ../template-${{ matrix.templates }}
