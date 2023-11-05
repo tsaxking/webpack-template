@@ -51,7 +51,7 @@ jobs:
             git remote add origin git@github.com:tsaxking/template-$template.git
             
             echo "Creating branch template-$template"
-            git checkout -b template-$template
+            git checkout -b merge-template-$template
             
             git status
 
@@ -60,7 +60,7 @@ jobs:
 
             echo "Creating a pull request"
             git checkout main
-            git request-pull main template-$template # -m "Merge template-$template into main" 
+            git request-pull main git@github.com:tsaxking/template-$template.git/merge-template-$template
 
             echo "Deleting branch template-$template"
             git branch -D template-$template
