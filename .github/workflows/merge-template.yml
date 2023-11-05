@@ -36,34 +36,27 @@ jobs:
           for template in budgeting sfz scouting-app tators-dashboard minecraft; do
             echo "Merging template $template"
 
-            # remove origin
-            git remote remove origin
-            echo "Removed origin"
-            # add template as remote
-            echo "Adding $template as remote to git@github.com:tsaxking/template-$template.git"
+            echo "Adding remote origin"
+            git remote rename origin upstream
             git remote add origin git@github.com:tsaxking/template-$template.git
-            echo "Added $template as remote"
+            git fetch origin
 
-            echo "Switching to new branch template-merge-$template"
-            git checkout -b template-merge-$template
-            echo "Switched to new branch"
-            echo "Merging main into $template"
-            git status
-            git merge main
-            echo "Merged main into $template"
+            echo "Merging upstream/main into origin/main"
+            git checkout -b merge-template
+            git merge upstream/main --no-edit
 
-            echo "Pushing to template-merge-$template"
-            git push origin --set-upstream template-merge-$template
-            echo "Pushed to template-merge-$template"
+            echo "Pushing to origin"
+            git push origin merge-template
 
-            echo "Creating PR"
-            # create PR
-            gh pr create --title "Merge main into $template" --body "This PR was automatically created by the Tators Bot. Please review and merge." --base main --head $template:template-merge-$template
-            echo "Created PR"
-
-            echo "Deleting temporary branch template-merge-$template"
+            echo "Creating pull request"
             git checkout main
-            git branch -D template-merge-$template
-            echo "Deleted branch template-merge-$template"
-            echo "Done merging template $template"
+            git branch -D merge-template
+            gh pr create --fill --base main --head merge-template --title "Merge template $template" --body "Merging template $template"
+            
+
+            echo "Removing remote origin"
+            git remote remove origin
+            git remote rename upstream origin
+
+            echo "Finished merging template $template"
             done
