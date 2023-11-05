@@ -45,6 +45,9 @@ jobs:
             git checkout -b merge-template
             # git merge upstream/main --no-edit
 
+            git gc
+            git fsck
+
             echo "Pushing to origin"
             git push -u origin merge-template
 
