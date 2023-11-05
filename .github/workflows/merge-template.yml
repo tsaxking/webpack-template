@@ -67,7 +67,7 @@ jobs:
             # git request-pull main git@github.com:tsaxking/template-$template.git
 
             echo "Deleting branch template-$template"
-            git branch -D template-$template
+            git branch -D merge-template-$template
 
             echo "Switching origin back to main"
             git remote remove origin
