@@ -68,7 +68,7 @@ jobs:
           labels: |
             merge-template
             auto-merge
-          base: ${{ github.head_ref }}
+          base: merge-template
           draft: false
           reviewers: tsaxking
           assignees: tsaxking
