@@ -77,3 +77,6 @@ jobs:
             git remote remove origin
             git remote add origin git@github.com:tsaxking/webpack-template.git
             done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.html_url }}
