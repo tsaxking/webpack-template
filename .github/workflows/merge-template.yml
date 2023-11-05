@@ -40,7 +40,7 @@ jobs:
             git clone git@github.com:tsaxking/template-$template.git
             cd template-$template
             git checkout -b merge-template
-            git merge --no-edit main
+            # git merge --no-edit main
             git push origin merge-template
 
             cd ..
