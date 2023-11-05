@@ -28,17 +28,34 @@ jobs:
             git config --global user.email "tatorscout@gmail.com"
             # remove origin
             git remote rm origin
+            echo "Removed origin"
             # add template as remote
+            echo "Adding $template as remote to git@github.com:tsaxking/template-$template.git"
             git remote add origin git@github.com:tsaxking/template-$template.git
+            echo "Added $template as remote"
             # git fetch
             # git add .
             # git commit -am "Merge main into $template"
+            echo "Switching to new branch template-merge-$template"
             git checkout -b template-merge-$template
+            echo "Switched to new branch"
+            echo "Merging main into $template"
+            git fetch origin
             git merge main
+            echo "Merged main into $template"
+            echo "Pushing to template-merge-$template"
             git push $template --set-upstream template-merge-$template
+            echo "Pushed to template-merge-$template"
+            echo "Creating PR"
             # create PR
             gh pr create --title "Merge main into $template" --body "This PR was automatically created by the Tators Bot. Please review and merge." --base main --head $template:template-merge-$template
-          done
+            echo "Created PR"
+            echo "Deleting branch template-merge-$template"
+            git checkout main
+            git branch -D template-merge-$template
+            echo "Deleted branch template-merge-$template"
+            echo "Done merging template $template"
+            done
           # I don't think I need to do any of these
           # git remote rm origin
           # git remote add git@github.com:tsaxking/webpack-template.git
