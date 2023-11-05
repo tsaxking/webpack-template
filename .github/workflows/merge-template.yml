@@ -1,1 +1,46 @@
+---
+name: 'Merge Template'
 
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  push:
+    branches:
+      - main
+
+jobs:
+  merge-template:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+
+      # loop through templates, merge main of this into tsaxking/template-${ templateName }
+
+      - name: Merge Template
+        run: |
+          # Set list all repositories here:
+          for template in budgeting sfz scouting-app tators-dashboard minecraft; do
+            echo "Merging template $template"
+            git config --global user.name "Tators Bot"
+            git config --global user.email "tatorscout@gmail.com"
+            # remove origin
+            git remote rm origin
+            # add template as remote
+            git remote add git@github.com:tsaxking/template-$template.git
+            # git fetch
+            # git add .
+            git commit -am "Merge main into $template"
+            git checkout -b template-merge-$template
+            git merge main
+            git push $template --set-upstream template-merge-$template
+            # create PR
+            gh pr create --title "Merge main into $template" --body "This PR was automatically created by the Tators Bot. Please review and merge." --base main --head $template:template-merge-$template
+          done
+          # I don't think I need to do any of these
+          # git remote rm origin
+          # git remote add git@github.com:tsaxking/webpack-template.git
+          # git fetch origin
+          # git checkout main
