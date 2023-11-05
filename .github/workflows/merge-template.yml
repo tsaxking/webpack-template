@@ -44,7 +44,7 @@ jobs:
 
 
           # Set list all repositories here:
-          for template in budgeting sfz scouting-app tators-dashboard minecraft; do
+          for template in budgeting; do
             echo "Merging template $template"
 
             echo "Switching origin to template-$template"
@@ -52,26 +52,26 @@ jobs:
             git remote add origin git@github.com:tsaxking/template-$template.git
             
             echo "Creating branch template-$template"
-            git checkout -b merge-template-$template
+            git checkout -b merge-template
             git fetch
             git pull origin main --no-edit
 
             rm -rf ./.github/workflows/merge-template.yml
-            # git pull origin merge-template-$template
+            # git pull origin merge-template
             git commit -am "Remove merge-template.yml"
             
             git status
 
             # git pull origin main --no-edit
-            git push --set-upstream origin merge-template-$template
+            git push --set-upstream origin merge-template
 
             echo "Creating a pull request"
             # rm -rf ./.github/workflows/merge-template.yml
             git checkout origin/main
-            git request-pull merge-template-$template git@github.com:tsaxking/template-$template.git
+            git request-pull merge-template git@github.com:tsaxking/template-$template.git
 
             echo "Deleting branch template-$template"
-            git branch -D merge-template-$template
+            git branch -D merge-template
 
             echo "Switching origin back to main"
             git remote remove origin
