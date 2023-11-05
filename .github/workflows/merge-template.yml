@@ -43,43 +43,55 @@ jobs:
 
           cd ..
           git clone git@github.com:tsaxking/template-${{ matrix.templates }}.git
-          cd ./template-${{ matrix.templates }}
-          echo "Creating merge-template branch"
-          git checkout -b merge-template
-          echo "Copying files from ../webpack-template"
-          cp -r ../webpack-template/. ./
-          echo "Adding files to git"
-          git add .
-          git commit -am "Merge template"
-          # echo "Pushing to github"
-          # git status
-          # git push --set-upstream origin merge-template
-          echo "Creating pull request"
-          gh pr create --title "Merge template-${{ matrix.templates }}" --body "Merging template-${{ matrix.templates }}, this was created by the merge-template.yml workflow. Please review and merge asap as it may have security updates." --head merge-template --base main --label merge-template --label auto-merge --assignee tsaxking --reviewer tsaxking
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ISSUE: ${{ github.event.issue.html_url }}
+          cd ./webpack-template
 
-      # - name: 'List files'
+      - name: 'List files'
+        run: |
+          ls -la
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'Merge template'
+          title: 'Merge template'
+          body: 'Merging template, this was created by the merge-template.yml workflow. Please review and merge asap as it may have security updates.'
+          branch: merge-template
+          author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
+          delete-branch: true
+          branch-suffix: timestamp
+          labels: |
+            merge-template
+            auto-merge
+          base: main
+          draft: false
+          reviewers: tsaxking
+          assignees: tsaxking
+          path: ../template-${{ matrix.templates }}
+    
+
+      # - name: 'Setup git config'
       #   run: |
-      #     ls -la
+      #     git config --local user.name "Webpack Bot"
+      #     git config --local user.email "github-actions[bot]@users.noreply.github.com"
+      #     git config --global core.compression 0
+      #     rm -rf ./.github/workflows/merge-template.yml
 
-      # - name: Create Pull Request
-      #   uses: peter-evans/create-pull-request@v5
-      #   with:
-      #     token: ${{ secrets.GITHUB_TOKEN }}
-      #     commit-message: 'Merge template'
-      #     title: 'Merge template'
-      #     body: 'Merging template, this was created by the merge-template.yml workflow. Please review and merge asap as it may have security updates.'
-      #     branch: merge-template
-      #     author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
-      #     delete-branch: true
-      #     branch-suffix: timestamp
-      #     labels: |
-      #       merge-template
-      #       auto-merge
-      #     base: main
-      #     draft: false
-      #     reviewers: tsaxking
-      #     assignees: tsaxking
-      #     path: ../template-${{ matrix.templates }}
+      #     cd ..
+      #     git clone git@github.com:tsaxking/template-${{ matrix.templates }}.git
+      #     cd ./template-${{ matrix.templates }}
+      #     echo "Creating merge-template branch"
+      #     git checkout -b merge-template
+      #     echo "Copying files from ../webpack-template"
+      #     cp -r ../webpack-template/. ./
+      #     echo "Adding files to git"
+      #     git add .
+      #     git commit -am "Merge template"
+      #     # echo "Pushing to github"
+      #     # git status
+      #     # git push --set-upstream origin merge-template
+      #     echo "Creating pull request"
+      #     gh pr create --title "Merge template-${{ matrix.templates }}" --body "Merging template-${{ matrix.templates }}, this was created by the merge-template.yml workflow. Please review and merge asap as it may have security updates." --head merge-template --base main --label merge-template --label auto-merge --assignee tsaxking --reviewer tsaxking
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     ISSUE: ${{ github.event.issue.html_url }}
