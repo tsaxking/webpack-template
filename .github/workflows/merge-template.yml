@@ -41,6 +41,10 @@ jobs:
           git config --global core.compression 0
           git clone git@github.com:tsaxking/template-${{ matrix.templates }}.git
 
+      - name: 'List files'
+        run: |
+          ls -la
+
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
