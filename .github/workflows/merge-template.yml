@@ -48,7 +48,6 @@ jobs:
             git checkout -b template-merge-$template
             echo "Switched to new branch"
             echo "Merging main into $template"
-            git fetch origin
             git merge main
             echo "Merged main into $template"
 
