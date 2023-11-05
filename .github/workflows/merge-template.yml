@@ -15,8 +15,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-        # with:
-        #   fetch-depth: 0
+        with:
+          fetch-depth: 0
         #   ref: ${{ github.head_ref }}
 
       - name: 'Setup ssh-agent'
@@ -31,35 +31,20 @@ jobs:
         run: |
           git config --local user.name "Webpack Bot"
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global core.compression 0
 
           # Set list all repositories here:
           for template in budgeting sfz scouting-app tators-dashboard minecraft; do
             echo "Merging template $template"
 
-            echo "Adding remote origin"
-            git remote rename origin upstream
-            git remote add origin git@github.com:tsaxking/template-$template.git
-            git fetch origin
-
-            echo "Merging upstream/main into origin/main"
+            git clone git@github.com:tsaxking/template-$template.git
+            cd template-$template
             git checkout -b merge-template
-            # git merge upstream/main --no-edit
+            git merge --no-edit main
+            git push origin merge-template
 
-            git gc
-            git fsck
+            cd ..
+            rm -rf template-$template
 
-            echo "Pushing to origin"
-            git push -u origin merge-template
-
-            echo "Creating pull request"
-            git checkout main
-            git branch -D merge-template
-            gh pr create --fill --base main --head merge-template --title "Merge template $template" --body "Merging template $template"
-
-
-            echo "Removing remote origin"
-            git remote remove origin
-            git remote rename upstream origin
-
-            echo "Finished merging template $template"
+            echo "Merged template $template"
             done
