@@ -56,7 +56,7 @@ jobs:
           echo "Creating pull request"
           gh pr create --title "Merge template-${{ matrix.templates }}" --body "Merging template-${{ matrix.templates }}, this was created by the merge-template.yml workflow. Please review and merge asap as it may have security updates." 
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           ISSUE: ${{ github.event.issue.html_url }}
 
       # - name: 'List files'
