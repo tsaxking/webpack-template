@@ -37,7 +37,7 @@ jobs:
             echo "Merging template $template"
 
             # remove origin
-            git remote rm origin
+            git remote remove origin
             echo "Removed origin"
             # add template as remote
             echo "Adding $template as remote to git@github.com:tsaxking/template-$template.git"
@@ -52,7 +52,7 @@ jobs:
             echo "Merged main into $template"
 
             echo "Pushing to template-merge-$template"
-            git push $template --set-upstream template-merge-$template
+            git push origin --set-upstream template-merge-$template
             echo "Pushed to template-merge-$template"
 
             echo "Creating PR"
