@@ -37,6 +37,11 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --global core.compression 0
 
+          git checkout main
+          # git pull origin main --no-edit
+          # git commit --allow-empty -m "trigger-merge"
+          # git push origin main
+
           # Set list all repositories here:
           for template in budgeting sfz scouting-app tators-dashboard minecraft; do
             echo "Merging template $template"
@@ -55,7 +60,7 @@ jobs:
 
             echo "Creating a pull request"
             git checkout main
-            git request-pull template-$template
+            git request-pull origin/main origin/template-$template -m "Merge template-$template into main" 
 
             echo "Deleting branch template-$template"
             git branch -D template-$template
