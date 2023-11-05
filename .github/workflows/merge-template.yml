@@ -43,14 +43,14 @@ jobs:
 
           cd ..
           git clone git@github.com:tsaxking/template-${{ matrix.templates }}.git
-          cd template-${{ matrix.templates }}
+          cd ./template-${{ matrix.templates }}
           git checkout main
-          git pull origin main --no-edit
-          cd ../webpack-template
+          ls -lsa
 
+          
       - name: 'Create Pull Request'
         run: |
-          gh pr create --title "Merge template-${{ matrix.templates }}" --body "Merging template-${{ matrix.templates }}, this was created by the merge-template.yml workflow. Please review and merge asap as it may have security updates." --base main --head merge-template --repo tsaxking/template-${{ matrix.templates }}
+          gh pr create --title "Merge template-${{ matrix.templates }}" --body "Merging template-${{ matrix.templates }}, this was created by the merge-template.yml workflow. Please review and merge asap as it may have security updates." 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE: ${{ github.event.issue.html_url }}
