@@ -14,7 +14,7 @@ import { router as api } from './routes/api.ts';
 import Role from "./structure/roles.ts";
 import { validate } from "./middleware/data-type.ts";
 import { uuid } from "./utilities/uuid.ts";
-import 'npm:@total-typescript/ts-reset';
+// import 'npm:@total-typescript/ts-reset';
 
 const port = +env.PORT || 3000;
 const domain = env.DOMAIN || `http://localhost:${port}`;
