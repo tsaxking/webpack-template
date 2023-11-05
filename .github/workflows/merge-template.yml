@@ -44,13 +44,16 @@ jobs:
           cd ..
           git clone git@github.com:tsaxking/template-${{ matrix.templates }}.git
           cd ./template-${{ matrix.templates }}
+          echo "Creating merge-template branch"
           git checkout -b merge-template
-          ls -lsa
           echo "Copying files from ../webpack-template"
           cp -r ../webpack-template/. ./
+          echo "Adding files to git"
           git add .
           git commit -am "Merge template"
+          echo "Pushing to github"
           git push --set-upstream origin merge-template
+          echo "Creating pull request"
           gh pr create --title "Merge template-${{ matrix.templates }}" --body "Merging template-${{ matrix.templates }}, this was created by the merge-template.yml workflow. Please review and merge asap as it may have security updates." 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -79,61 +82,3 @@ jobs:
       #     reviewers: tsaxking
       #     assignees: tsaxking
       #     path: ../template-${{ matrix.templates }}
-
-
-
-
-
-
-
-                # loop through templates, merge main of this into tsaxking/template-${ templateName }
-
-      # - name: Merge Template
-      #   run: |
-      #     git config --local user.name "Webpack Bot"
-      #     git config --local user.email "github-actions[bot]@users.noreply.github.com"
-      #     git config --global core.compression 0
-
-      #     # git pull origin main --no-edit
-      #     # git commit --allow-empty -m "trigger-merge"
-      #     # git push origin main
-
-
-      #     # Set list all repositories here:
-      #     for template in budgeting; do
-      #       echo "------------------------------------"
-      #       echo "Merging template $template"
-
-      #       echo "Switching origin to template-$template"
-      #       git remote remove origin
-      #       git remote add origin git@github.com:tsaxking/template-$template.git
-            
-      #       echo "Creating branch template-$template"
-      #       git checkout -b merge-template
-      #       git fetch
-      #       git pull origin main --no-edit
-
-      #       rm -rf ./.github/workflows/merge-template.yml
-      #       # git pull origin merge-template
-      #       git commit -am "Remove merge-template.yml"
-            
-      #       git status
-
-      #       # git pull origin main --no-edit
-      #       git push --set-upstream origin merge-template
-
-      #       echo "Creating a pull request"
-      #       gh pr create --title "Merge template-$template" --body "Merging template-$template, this was created by the merge-template.yml workflow. Please review and merge asap as it may have security updates." --base main --head merge-template --repo tsaxking/template-$template
-
-            
-      #       git checkout origin/main
-      #       git branch -D merge-template
-      #       git push origin --delete merge-template
-
-      #       echo "Switching origin back to main"
-      #       git remote remove origin
-      #       git remote add origin git@github.com:tsaxking/webpack-template.git
-      #       done
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #     ISSUE: ${{ github.event.issue.html_url }}
