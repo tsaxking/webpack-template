@@ -32,7 +32,7 @@ jobs:
             git remote add origin git@github.com:tsaxking/template-$template.git
             # git fetch
             # git add .
-            git commit -am "Merge main into $template"
+            # git commit -am "Merge main into $template"
             git checkout -b template-merge-$template
             git merge main
             git push $template --set-upstream template-merge-$template
