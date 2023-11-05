@@ -54,7 +54,7 @@ jobs:
             echo "Creating branch template-$template"
             git checkout -b merge-template-$template
 
-            git rm -cached ./.github/workflows/merge-template.yml
+            git rm --cached ./.github/workflows/merge-template.yml
             git commit -m "Remove merge-template.yml"
             
             git status
