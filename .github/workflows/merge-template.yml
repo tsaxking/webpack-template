@@ -46,7 +46,7 @@ jobs:
             # git merge upstream/main --no-edit
 
             echo "Pushing to origin"
-            git push --no-thin --force origin merge-template
+            git push -u origin merge-template
 
             echo "Creating pull request"
             git checkout main
