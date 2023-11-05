@@ -22,7 +22,7 @@ jobs:
       - name: 'Setup ssh-agent'
         uses: 'webfactory/ssh-agent@v0.5.0'
         with:
-          ssh-private-key: ${{ secrets.PRIVATE }}
+          ssh-private-key: ${{ secrets.SSH_PRIVATE }}
 
 
       # loop through templates, merge main of this into tsaxking/template-${ templateName }
