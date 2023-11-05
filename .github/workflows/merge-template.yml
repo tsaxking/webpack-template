@@ -14,15 +14,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
+
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
         #   ref: ${{ github.head_ref }}
+      
 
       - name: 'Setup ssh-agent'
         uses: 'webfactory/ssh-agent@v0.5.0'
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE }}
+
 
 
       # loop through templates, merge main of this into tsaxking/template-${ templateName }
@@ -50,7 +54,8 @@ jobs:
             git push --set-upstream origin template-$template
 
             echo "Creating a pull request"
-            gh pr create --title "Merge main into template-$template" --body "This pull request was automatically created by the Webpack Bot. Please review and merge." --base main --head template-$template --repo tsaxking/template-$template --web
+            git checkout main
+            git request-pull template-$template
 
             echo "Deleting branch template-$template"
             git branch -D template-$template
