@@ -37,14 +37,16 @@ jobs:
           for template in budgeting sfz scouting-app tators-dashboard minecraft; do
             echo "Merging template $template"
 
-            git clone git@github.com:tsaxking/template-$template.git
-            cd template-$template
-            git checkout -b merge-template
-            # git merge --no-edit main
-            git push --set-upstream origin merge-template
+            git origin add tsaxking/template-$template
+            git fetch origin
+            git checkout -b $template origin/template-$template
+            git merge main
+            git push origin $template
 
-            cd ..
-            rm -rf template-$template
+            git checkout main
+            git branch -D $template
+
+            git origin remove tsaxking/template-$template
 
             echo "Merged template $template"
             done
