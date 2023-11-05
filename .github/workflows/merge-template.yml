@@ -52,8 +52,8 @@ jobs:
             git remote add origin git@github.com:tsaxking/template-$template.git
             
             echo "Creating branch template-$template"
-            git checkout -b merge-template-$template
-            git branch --delete
+            # git checkout -b merge-template-$template
+            git branch --delete template-$template
             # git fetch
             # # git pull origin main --no-edit
             # git pull origin main --no-edit
