@@ -52,6 +52,7 @@ jobs:
           git add .
           git commit -am "Merge template"
           echo "Pushing to github"
+          git status
           git push --set-upstream origin merge-template
           echo "Creating pull request"
           gh pr create --title "Merge template-${{ matrix.templates }}" --body "Merging template-${{ matrix.templates }}, this was created by the merge-template.yml workflow. Please review and merge asap as it may have security updates." 
