@@ -16,7 +16,7 @@ import { validate } from "./middleware/data-type.ts";
 import { uuid } from "./utilities/uuid.ts";
 // import 'npm:@total-typescript/ts-reset';
 
-const port = +env.PORT || 3000;
+const port = +(env.PORT || 3000);
 const domain = env.DOMAIN || `http://localhost:${port}`;
 
 
@@ -27,7 +27,7 @@ export const app = new App(port, domain, {
     // onConnection: (socket) => {
         // log('New connection:', socket.id);
     // },
-    ioPort: +env.SOCKET_PORT || port + 1
+    ioPort: +(env.SOCKET_PORT || port + 1)
 });
 
 
