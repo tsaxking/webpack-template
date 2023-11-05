@@ -37,7 +37,7 @@ jobs:
           for template in budgeting sfz scouting-app tators-dashboard minecraft; do
             echo "Merging template $template"
 
-            git remote origin add tsaxking/template-$template
+            git remote add tsaxking/template-$template
             git fetch origin
             git checkout -b $template origin/template-$template
             git merge main
