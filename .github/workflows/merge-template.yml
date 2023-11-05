@@ -44,15 +44,14 @@ jobs:
           cd ./template-${{ matrix.templates }}
 
           git checkout -b merge-template
-          git push --set-upstream origin merge-template
+          # git push --set-upstream origin merge-template
 
           cp -r ../webpack-template/. ./
 
           # cd ../webpack-template
 
-          git add .
           git commit -am "Merge template"
-          git push
+          git push --set-upstream origin merge-template
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE: ${{ github.event.issue.html_url }}
