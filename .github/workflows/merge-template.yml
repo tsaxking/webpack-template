@@ -55,7 +55,7 @@ jobs:
           # git status
           # git push --set-upstream origin merge-template
           echo "Creating pull request"
-          gh pr create --title "Merge template-${{ matrix.templates }}" --body "Merging template-${{ matrix.templates }}, this was created by the merge-template.yml workflow. Please review and merge asap as it may have security updates." --head merge-template --base main --repo tsaxking/template-${{ matrix.templates }} --label merge-template --label auto-merge --assignee tsaxking --reviewer tsaxking --draft false
+          gh pr create --title "Merge template-${{ matrix.templates }}" --body "Merging template-${{ matrix.templates }}, this was created by the merge-template.yml workflow. Please review and merge asap as it may have security updates." --head merge-template --base main --repo tsaxking/template-${{ matrix.templates }} --label merge-template --label auto-merge --assignee tsaxking --reviewer tsaxking
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE: ${{ github.event.issue.html_url }}
