@@ -49,4 +49,13 @@ jobs:
             # git pull origin main --no-edit
             git push --set-upstream origin template-$template
 
+            echo "Creating a pull request"
+            gh pr create --title "Merge main into template-$template" --body "This pull request was automatically created by the Webpack Bot. Please review and merge." --base main --head template-$template --repo tsaxking/template-$template --web
+
+            echo "Deleting branch template-$template"
+            git branch -D template-$template
+
+            echo "Switching origin back to main"
+            git remote remove origin
+            git remote add origin git@github.com:tsaxking/webpack-template.git
             done
