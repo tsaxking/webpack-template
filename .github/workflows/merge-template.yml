@@ -64,7 +64,7 @@ jobs:
           reviewers: tsaxking
           assignees: tsaxking
           milestone: 1
-          path: ../tsaxking/template-${{ matrix.templates }}
+          path: ./template-${{ matrix.templates }}
 
 
 
