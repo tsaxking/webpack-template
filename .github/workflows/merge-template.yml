@@ -53,7 +53,7 @@ jobs:
             
             echo "Creating branch template-$template"
             git checkout -b merge-template-$template
-            git branch -delete
+            git branch --delete
             # git fetch
             # # git pull origin main --no-edit
             # git pull origin main --no-edit
