@@ -42,6 +42,7 @@ jobs:
           # git commit --allow-empty -m "trigger-merge"
           # git push origin main
 
+
           # Set list all repositories here:
           for template in budgeting sfz scouting-app tators-dashboard minecraft; do
             echo "Merging template $template"
@@ -52,6 +53,9 @@ jobs:
             
             echo "Creating branch template-$template"
             git checkout -b merge-template-$template
+
+            git rm -cached ./.github/workflows/merge-template.yml
+            git commit -m "Remove merge-template.yml"
             
             git status
 
@@ -59,8 +63,8 @@ jobs:
             git push --set-upstream origin merge-template-$template
 
             echo "Creating a pull request"
-            git checkout main
-            git request-pull main git@github.com:tsaxking/template-$template.git
+            # git checkout main
+            # git request-pull main git@github.com:tsaxking/template-$template.git
 
             echo "Deleting branch template-$template"
             git branch -D template-$template
