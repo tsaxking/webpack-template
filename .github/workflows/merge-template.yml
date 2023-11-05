@@ -41,7 +41,7 @@ jobs:
             cd template-$template
             git checkout -b merge-template
             # git merge --no-edit main
-            git push origin merge-template
+            git push --set-upstream origin merge-template
 
             cd ..
             rm -rf template-$template
