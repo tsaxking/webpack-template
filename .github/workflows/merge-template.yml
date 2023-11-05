@@ -45,6 +45,9 @@ jobs:
 
           git checkout -b merge-${{ matrix.templates }}
           git push --set-upstream origin merge-${{ matrix.templates }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.html_url }}
 
       - name: 'List files'
         run: |
