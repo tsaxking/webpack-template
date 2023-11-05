@@ -44,7 +44,7 @@ jobs:
           cd ./webpack-template
 
           git checkout -b merge-${{ matrix.templates }}
-          git pull origin main
+          git push --set-upstream origin merge-${{ matrix.templates }}
 
       - name: 'List files'
         run: |
