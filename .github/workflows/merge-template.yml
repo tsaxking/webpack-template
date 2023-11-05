@@ -48,29 +48,36 @@ jobs:
           git pull origin main --no-edit
           cd ../webpack-template
 
-      - name: 'List files'
+      - name: 'Create Pull Request'
         run: |
-          ls -la
+          gh pr create --title "Merge template-${{ matrix.templates }}" --body "Merging template-${{ matrix.templates }}, this was created by the merge-template.yml workflow. Please review and merge asap as it may have security updates." --base main --head merge-template --repo tsaxking/template-${{ matrix.templates }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.html_url }}
 
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: 'Merge template'
-          title: 'Merge template'
-          body: 'Merging template, this was created by the merge-template.yml workflow. Please review and merge asap as it may have security updates.'
-          branch: merge-template
-          author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
-          delete-branch: true
-          branch-suffix: timestamp
-          labels: |
-            merge-template
-            auto-merge
-          base: main
-          draft: false
-          reviewers: tsaxking
-          assignees: tsaxking
-          path: ../template-${{ matrix.templates }}
+      # - name: 'List files'
+      #   run: |
+      #     ls -la
+
+      # - name: Create Pull Request
+      #   uses: peter-evans/create-pull-request@v5
+      #   with:
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      #     commit-message: 'Merge template'
+      #     title: 'Merge template'
+      #     body: 'Merging template, this was created by the merge-template.yml workflow. Please review and merge asap as it may have security updates.'
+      #     branch: merge-template
+      #     author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
+      #     delete-branch: true
+      #     branch-suffix: timestamp
+      #     labels: |
+      #       merge-template
+      #       auto-merge
+      #     base: main
+      #     draft: false
+      #     reviewers: tsaxking
+      #     assignees: tsaxking
+      #     path: ../template-${{ matrix.templates }}
 
 
 
