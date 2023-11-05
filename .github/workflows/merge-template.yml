@@ -68,7 +68,7 @@ jobs:
             echo "Creating a pull request"
             # rm -rf ./.github/workflows/merge-template.yml
             git checkout origin/main
-            gh pr create --title "Merge template-$template" --body "Merging template-$template" --base main --head merge-template --repo git@github.com:tsaxking/template-$template --draft
+            gh pr create --title "Merge template-$template" --body "Merging template-$template, this was created by the merge-template.yml workflow. Please review and merge asap as it may have security updates."
 
             git branch -D merge-template
             git push origin --delete merge-template
