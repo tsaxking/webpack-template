@@ -57,7 +57,7 @@ jobs:
             git pull origin main --no-edit
 
             git rm --cached ./.github/workflows/merge-template.yml
-            git pull origin merge-template-$template
+            # git pull origin merge-template-$template
             git commit -am "Remove merge-template.yml"
             
             git status
