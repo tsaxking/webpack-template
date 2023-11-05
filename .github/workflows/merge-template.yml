@@ -53,27 +53,28 @@ jobs:
             
             echo "Creating branch template-$template"
             git checkout -b merge-template-$template
-            git fetch
+            git branch -delete
+            # git fetch
+            # # git pull origin main --no-edit
             # git pull origin main --no-edit
-            git pull origin main --no-edit
-            git pull origin merge-template-$template --no-edit
+            # git pull origin merge-template-$template --no-edit
 
-            git rm --cached ./.github/workflows/merge-template.yml
-            git commit -m "Remove merge-template.yml"
+            # git rm --cached ./.github/workflows/merge-template.yml
+            # git commit -m "Remove merge-template.yml"
             
-            git status
+            # git status
 
-            # git pull origin main --no-edit
-            git push --set-upstream origin merge-template-$template
+            # # git pull origin main --no-edit
+            # git push --set-upstream origin merge-template-$template
 
-            echo "Creating a pull request"
-            # git checkout main
-            # git request-pull main git@github.com:tsaxking/template-$template.git
+            # echo "Creating a pull request"
+            # # git checkout main
+            # # git request-pull main git@github.com:tsaxking/template-$template.git
 
-            echo "Deleting branch template-$template"
-            git branch -D merge-template-$template
+            # echo "Deleting branch template-$template"
+            # git branch -D merge-template-$template
 
-            echo "Switching origin back to main"
-            git remote remove origin
-            git remote add origin git@github.com:tsaxking/webpack-template.git
+            # echo "Switching origin back to main"
+            # git remote remove origin
+            # git remote add origin git@github.com:tsaxking/webpack-template.git
             done
