@@ -68,7 +68,7 @@ jobs:
             echo "Creating a pull request"
             # rm -rf ./.github/workflows/merge-template.yml
             git checkout origin/main
-            git request-pull merge-template-$template origin/main
+            git request-pull merge-template-$template git@github.com:tsaxking/template-$template.git
 
             echo "Deleting branch template-$template"
             git branch -D merge-template-$template
