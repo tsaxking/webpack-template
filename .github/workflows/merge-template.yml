@@ -46,13 +46,13 @@ jobs:
             git merge upstream/main --no-edit
 
             echo "Pushing to origin"
-            git push origin merge-template
+            git push origin merge-template --no-thin --force
 
             echo "Creating pull request"
             git checkout main
             git branch -D merge-template
             gh pr create --fill --base main --head merge-template --title "Merge template $template" --body "Merging template $template"
-            
+
 
             echo "Removing remote origin"
             git remote remove origin
