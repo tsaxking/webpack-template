@@ -21,13 +21,19 @@ jobs:
         ]
 
     steps:
-      - name: Checkout Code
+      - name: Retrieve git dependencies
         uses: actions/checkout@v2
         with:
           fetch-depth: 0 # Checkout everything to get access to the tags
           ref: ${{github.event.pull_request.head.ref}}
           repository: ${{github.event.pull_request.head.repo.full_name}}
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      
+      - name: 'Setup ssh-agent'
+        uses: 'webfactory/ssh-agent@v0.5.0'
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE }}
 
       - name: Send pull-request
         run: |
@@ -47,7 +53,7 @@ jobs:
           git clone \
             --depth=1 \
             --branch=main \
-            https://tsaxking:${{ secrets.GITHUB_TOKEN }}@github.com/$REPOSITORY.git \
+            git@github.com:tsaxking/template-${{ matrix.templates }}.git \
             $FOLDER
 
           echo "Changing directory: $FOLDER"
