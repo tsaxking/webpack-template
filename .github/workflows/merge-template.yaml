@@ -59,6 +59,9 @@ jobs:
           echo "Changing directory: $FOLDER"
           cd $FOLDER
 
+          echo "Listi files"
+          ls -lsa
+
           echo "Setting up identity"
           # Setup the committers identity.
           git config user.email "github-actions[bot]@users.noreply.github.com"
