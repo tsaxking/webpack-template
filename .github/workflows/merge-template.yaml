@@ -14,11 +14,11 @@ jobs:
       fail-fast: false
       matrix:
         templates: [
-          budgeting,
-          sfz,
-          minecraft,
-          scouting-app,
-          tators-dashboard
+          # budgeting,
+          # sfz,
+          # minecraft,
+          scouting-app #,
+          # tators-dashboard
         ]
 
     steps:
@@ -62,7 +62,7 @@ jobs:
 
           echo "Setting up identity"
           # Setup the committers identity.
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.email "taylorking206@u.boisestate.edu"
           git config user.name "Webpack Bot"
 
           # echo "Setting up origin"
