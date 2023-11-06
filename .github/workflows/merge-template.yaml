@@ -31,17 +31,22 @@ jobs:
 
       - name: Send pull-request
         run: |
+          echo "Creating variables"
           LATEST_TAG=$(git describe --tags --always --abbrev=0)
           REPOSITORY="tsaxking/template-${{ matrix.templates }}"
           FOLDER="bin/$REPOSITORY"
           BRANCH_NAME="chore-update-scripts-to-$LATEST_TAG"
+          echo  latest tag: $LATEST_TAG
+          echo  repository: $REPSOITORY
+          echo      folder: $FOLDER
+          echo branch name: $BRANCH_NAME
 
           # Clone the remote repository and change working directory to the
           # folder it was cloned to.
           git clone \
             --depth=1 \
             --branch=main \
-            https://some-user:${{ secrets.GITHUB_TOKEN }}@github.com/$REPOSITORY \
+            https://tsaxking:${{ secrets.GITHUB_TOKEN }}@github.com/$REPOSITORY \
             $FOLDER
 
           cd $FOLDER
