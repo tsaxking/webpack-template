@@ -8,7 +8,7 @@ on:
       - main
 
 jobs:
-  merge-template:
+  push-to-servers:
     runs-on: ubuntu-latest
 
     steps:
