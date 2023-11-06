@@ -32,7 +32,7 @@ jobs:
       - name: Send pull-request
         run: |
           LATEST_TAG=$(git describe --tags --always --abbrev=0)
-          REPOSITORY="tsaxking/template${{ matrix.templates }}"
+          REPOSITORY="tsaxking/template-${{ matrix.templates }}"
           FOLDER="bin/$REPOSITORY"
           BRANCH_NAME="chore-update-scripts-to-$LATEST_TAG"
 
