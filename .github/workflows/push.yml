@@ -11,4 +11,8 @@ jobs:
   merge-template:
     runs-on: ubuntu-latest
 
+    steps:
+      - name: 'Do nothing'
+        run: echo "This is a template."
+
     # Connect to servers and run commands
