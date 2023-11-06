@@ -73,6 +73,10 @@ jobs:
       #     reviewers: tsaxking
       #     assignees: tsaxking
       #     path: ../template-${{ matrix.templates }}
+
+      - name: 'View Path Variable'
+        run: |
+          echo $PATH
     
 
       - name: 'Setup git config'
