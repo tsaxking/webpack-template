@@ -59,9 +59,6 @@ jobs:
           echo "Changing directory: $FOLDER"
           cd $FOLDER
 
-          echo "Listi files"
-          ls -lsa
-
           echo "Setting up identity"
           # Setup the committers identity.
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -70,9 +67,6 @@ jobs:
           # echo "Setting up origin"
           # git remote rm origin
           # git remote add origin git@github.com:tsaxking/template-${{ matrix.templates }}.git
-
-          echo "Viewing origin"
-          git remote -v
 
           echo "Checking out Branch: $BRANCH_NAME"
           # Create a new feature branch for the changes.
