@@ -1,0 +1,14 @@
+---
+name: 'Merge Template'
+
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  merge-template:
+    runs-on: ubuntu-latest
+
+    # Connect to servers and run commands
