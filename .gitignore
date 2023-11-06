@@ -27,6 +27,7 @@ static/build/
 ignore-list.txt
 */logs/*.csv
 *.db
+*.db-journal
 
 # package.json
 # package-lock.json

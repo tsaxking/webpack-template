@@ -1,9 +1,11 @@
 
-import { __root } from "./env.ts";
+import env, { __root } from "./env.ts";
 import path from 'node:path';
 import { Database, Statement } from "https://deno.land/x/sqlite3@0.9.1/mod.ts";
 import { log } from "./terminal-logging.ts";
 import { Queries } from "./sql-types.ts";
+
+const { DATABASE_LINK } = env;
 
 /**
  * Description placeholder
@@ -18,7 +20,7 @@ const dbDir = path.resolve(__root, './storage/db');
  *
  * @type {Database}
  */
-export const MAIN = new Database(path.resolve(dbDir, './main.db'));
+export const MAIN = new Database(path.resolve(dbDir, DATABASE_LINK + '.db'));
 
 
 

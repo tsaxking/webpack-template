@@ -1,15 +1,15 @@
 {
   "tasks": {
-    "start": "deno run --allow-all --unstable ./server/server.ts prod",
-    "dev": "deno task build & deno run --allow-all --unstable --watch ./server/server.ts dev",
+    "start": "deno run --allow-all --unstable ./server/server.ts",
+    "dev": "deno run --allow-all --unstable --watch ./server/server.ts",
     "build": "deno run --allow-all ./server/bundler.ts",
-    "init": "deno run --allow-all --unstable ./storage/db/scripts/init.ts",
+    "init": "deno run --allow-all --unstable ./scripts/init.ts",
     "entry": "deno run --allow-all ./scripts/add-entry.ts prompt",
     "status": "deno run --allow-all ./scripts/add-status.ts status",
     "socket": "deno run --allow-all ./scripts/add-status.ts socket",
     "type-route": "deno run --allow-all ./scripts/type-route.ts",
     "discord": "deno run --allow-all --unstable ./server/utilities/discord/discord.ts",
-    "db-test": "deno run --allow-all --unstable ./scripts/db-speed-test.ts"
+    "test": "deno test --allow-all --unstable --no-check ./scripts/test.ts -- --default"
   },
   "compilerOptions": {
     // "noexplicitAny": false,

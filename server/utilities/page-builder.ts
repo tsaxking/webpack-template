@@ -1,12 +1,11 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
 import { getJSON, getTemplate } from './files.ts';
-import { NextFunction, Request, Response } from 'npm:express';
-import { MAIN } from './databases.ts';
-import { fromSnakeCase, capitalize, toSnakeCase } from '../../shared/text.ts';
+import { fromSnakeCase, capitalize } from '../../shared/text.ts';
 import { Server } from 'npm:socket.io';
 import { Session } from '../structure/sessions.ts';
 import { SocketWrapper } from '../structure/socket.ts';
+import { Req } from "../structure/app/req.ts";
+import { Res } from "../structure/app/res.ts";
+import { Next, ServerFunction } from "../structure/app/app.ts";
 
 
 declare global {
@@ -39,7 +38,7 @@ declare global {
 }}
  */
 const builds: {
-    [key: string]: (req?: Request) => Promise<string>;
+    [key: string]: (req?: Req) => Promise<string>;
 } = {
     // put your pages here:
     /*
@@ -64,7 +63,7 @@ const builds: {
  *
  * @async
  */
-export const builder = async (req: Request, res: Response, next: NextFunction) => {
+export const builder = async (req: Req, res: Res, next: Next) => {
     const { url } = req;
     if (builds[url]) {
         res.send(await builds[url](req));

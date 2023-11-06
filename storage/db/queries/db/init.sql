@@ -81,6 +81,10 @@ CREATE TABLE IF NOT EXISTS Sessions (
 
 
 
+-- Reset the version number
+DELETE FROM Version;
+
+
 INSERT INTO Version (
     version
 ) VALUES (

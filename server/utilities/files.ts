@@ -1,10 +1,12 @@
 import path from 'node:path';
 import callsite from 'npm:callsite';
-import { v4 as render } from 'npm:node-html-constructor';
+import * as htmlConstructor from 'npm:node-html-constructor';
 import ObjectsToCsv from 'npm:objects-to-csv';
 import { log as terminalLog } from "./terminal-logging.ts";
 import { __root, __uploads, __logs, __templates } from "./env.ts";
 import fs from 'node:fs';
+
+const render = htmlConstructor.v4;
 
 /**
  * Description placeholder

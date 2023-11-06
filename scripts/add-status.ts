@@ -3,6 +3,7 @@ import { messages, StatusCode, StatusColor, StatusId } from "../shared/status-me
 import { Colors } from "../server/utilities/colors.ts";
 import { capitalize, fromSnakeCase, toCamelCase } from "../shared/text.ts";
 import Filter from 'npm:bad-words';
+import { repeatPrompt } from "./prompt.ts";
 
 
 
@@ -135,14 +136,6 @@ ${Object.keys(groups).map(key => {
         addSocket(value);
     }
 };
-
-const repeatPrompt = (message: string, original?: string, validate?: (data: string) => boolean): string => {
-    if (!original) original = message;
-    const i = prompt(message + ':');
-    if (!i) return repeatPrompt('Please enter value (' + original + ')', original, validate);
-    if (validate && !validate(i)) return repeatPrompt('Invalid value (' + original + ')', original, validate);
-    return i;
-}
 
 
 export const addStatusPrompt = () => {
