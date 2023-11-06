@@ -47,7 +47,7 @@ jobs:
           git clone \
             --depth=1 \
             --branch=main \
-            https://tsaxking:${{ secrets.GITHUB_TOKEN }}@github.com/$REPOSITORY \
+            https://tsaxking:${{ secrets.GITHUB_TOKEN }}@github.com/$REPOSITORY.git \
             $FOLDER
 
           echo "Changing directory: $FOLDER"
