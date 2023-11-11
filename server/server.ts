@@ -50,6 +50,10 @@ app.post('/test', (req, res, next) => {
     res.sendStatus('test:success');
 });
 
+app.post('/ping', (req, res) => {
+    res.send('pong');
+});
+
 app.post('/test-validation', validate({
     username: (v: any) => v === 'fail', 
     password: (v: any) => v === 'test'
