@@ -46,7 +46,7 @@ const readDir = (dirPath: string): string[] => {
  *
  * @type {{}}
  */
-let entries = [];
+let entries: string[] = [];
 
 entries = readDir('./client/entries');
 
@@ -61,57 +61,40 @@ type BuildEventData = {
     'error': Error;
 };
 
-/**
- * Description placeholder
- * @date 10/12/2023 - 3:26:55 PM
- *
- * @typedef {BuildEvent}
- */
-type BuildEvent = keyof BuildEventData;
-
-/**
- * Description placeholder
- * @date 10/12/2023 - 3:26:55 PM
- *
- * @type {EventEmitter<keyof BuildEventData>}
- */
-export const builder = new EventEmitter<BuildEvent>();
-
-/**
- * Description placeholder
- * @date 10/12/2023 - 3:26:55 PM
- *
- * @type {*}
- */
-const result = await esbuild.build({
-    entryPoints: entries,
-    bundle: true,
-    // minify: true,
-    outdir: './dist',
-    mainFields: ["svelte", "browser", "module", "main"],
-    conditions: ["svelte", "browser"],
-    watch: {
-        onRebuild(error: Error, result: any) {
-
-            if (error) builder.emit('error', error);
-            else builder.emit('build', result);
+export const runBuild = async () => {
+    const builder = new EventEmitter<keyof BuildEventData>();
+    const result = await esbuild.build({
+        entryPoints: entries,
+        bundle: true,
+        // minify: true,
+        outdir: './dist',
+        mainFields: ["svelte", "browser", "module", "main"],
+        conditions: ["svelte", "browser"],
+        watch: {
+            onRebuild(error: Error, result: any) {
+    
+                if (error) builder.emit('error', error);
+                else builder.emit('build', result);
+            }
+        },
+        // trust me, it works
+        plugins: [(sveltePlugin as unknown as Function)({
+            preprocess: [
+                typescript()
+            ]
+        })],
+        logLevel: "info",
+        loader: {
+            '.png': 'dataurl',
+            '.woff': 'dataurl',
+            '.woff2': 'dataurl',
+            '.eot': 'dataurl',
+            '.ttf': 'dataurl',
+            '.svg': 'dataurl',
         }
-    },
-    // trust me, it works
-    plugins: [(sveltePlugin as unknown as Function)({
-        preprocess: [
-            typescript()
-        ]
-    })],
-    logLevel: "info",
-    loader: {
-        '.png': 'dataurl',
-        '.woff': 'dataurl',
-        '.woff2': 'dataurl',
-        '.eot': 'dataurl',
-        '.ttf': 'dataurl',
-        '.svg': 'dataurl',
-    }
-});
+    });
 
-builder.on('build', () => entries = readDir('./client/entries'));
+    builder.on('build', () => entries = readDir('./client/entries'));
+
+    return builder;
+}

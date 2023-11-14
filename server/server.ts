@@ -3,18 +3,19 @@ import { log } from "./utilities/terminal-logging.ts";
 import { App, ResponseStatus } from "./structure/app/app.ts";
 import { Session } from "./structure/sessions.ts";
 import * as path from 'node:path';
-// import { emailValidation } from './middleware/spam-detection.ts';
 import { getJSONSync, log as serverLog } from "./utilities/files.ts";
 import { homeBuilder } from "./utilities/page-builder.ts";
 import Account from "./structure/accounts.ts";
-import { builder } from "./bundler.ts";
+import { runBuild } from "./bundler.ts";
 import { router as admin } from './routes/admin.ts';
 import { router as account } from './routes/account.ts';
 import { router as api } from './routes/api.ts';
 import Role from "./structure/roles.ts";
 import { validate } from "./middleware/data-type.ts";
 import { uuid } from "./utilities/uuid.ts";
-// import 'npm:@total-typescript/ts-reset';
+import os from "https://deno.land/x/dos@v0.11.0/mod.ts";
+
+console.log('Platform:', os.platform());
 
 const port = +(env.PORT || 3000);
 const domain = env.DOMAIN || `http://localhost:${port}`;
@@ -30,6 +31,7 @@ export const app = new App(port, domain, {
     ioPort: +(env.SOCKET_PORT || port + 1)
 });
 
+const builder = await runBuild();
 
 // building client listeners
 builder.on('build', () => {
