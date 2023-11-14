@@ -55,6 +55,7 @@ jobs:
           # folder it was cloned to.
           echo "Cloning repository"
           cd ../
+          ls -la
           git clone \
             --depth=1 \
             --branch=main \
@@ -74,7 +75,6 @@ jobs:
           echo "Copying Files"
           # Copy all files from the root of the repository to the
           # folder of the template repository.
-          ls -la
           cp -r ../webpack-template/. .
 
           echo "Committing"
