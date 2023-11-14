@@ -48,6 +48,9 @@ jobs:
           echo "     folder: $FOLDER"
           echo "branch name: $BRANCH_NAME"
 
+          echo "deleting workflow files"
+          rm -rf .github/workflows
+
           # Clone the remote repository and change working directory to the
           # folder it was cloned to.
           echo "Cloning repository"
@@ -64,10 +67,6 @@ jobs:
           # Setup the committers identity.
           git config user.email "taylorking206@u.boisestate.edu"
           git config user.name "Webpack Bot"
-
-          # echo "Setting up origin"
-          # git remote rm origin
-          # git remote add origin git@github.com:tsaxking/template-${{ matrix.templates }}.git
 
           echo "Checking out Branch: $BRANCH_NAME"
           # Create a new feature branch for the changes.
