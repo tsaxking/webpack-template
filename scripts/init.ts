@@ -48,7 +48,7 @@ const createEnv = () => {
 
     const env = Object.keys(values).map((key) => `${toSnakeCase(key).toUpperCase()} = '${values[key]}'`).join('\n');
     Deno.writeTextFileSync(
-        path.resolve(__root, './.env'),
+        '../.env',
         env
     );
 
