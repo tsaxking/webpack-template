@@ -42,7 +42,6 @@ jobs:
           LATEST_TAG=$(git describe --tags --always --abbrev=0)
           LAST_COMMIT_MESSAGE=$(git log -1 --pretty=%B)
           REPOSITORY="tsaxking/template-${{ matrix.templates }}"
-          FOLDER="bin/$REPOSITORY"
           BRANCH_NAME="chore-update-scripts-to-$LATEST_TAG"
           echo " latest tag: $LATEST_TAG"
           echo " repository: $REPSOITORY"
@@ -55,14 +54,13 @@ jobs:
           # Clone the remote repository and change working directory to the
           # folder it was cloned to.
           echo "Cloning repository"
+          cd ../
           git clone \
             --depth=1 \
             --branch=main \
-            git@github.com:tsaxking/template-${{ matrix.templates }}.git \
-            $FOLDER
+            git@github.com:tsaxking/template-${{ matrix.templates }}.git
 
-          echo "Changing directory: $FOLDER"
-          cd $FOLDER
+          cd template-${{ matrix.templates }}
 
           echo "Setting up identity"
           # Setup the committers identity.
@@ -74,8 +72,9 @@ jobs:
           git checkout -b $BRANCH_NAME
 
           echo "Copying Files"
-          # Update the script files to the latest version.
-          cp -R ../../../scripts scripts
+          # Copy all files from the root of the repository to the
+          # folder of the template repository.
+          cp -r ../webpack-template/. .
 
           echo "Committing"
           # Commit the changes and push the feature branch to origin
