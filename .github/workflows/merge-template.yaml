@@ -43,7 +43,7 @@ jobs:
           LAST_COMMIT_MESSAGE=$(git log -1 --pretty=%B)
           REPOSITORY="tsaxking/template-${{ matrix.templates }}"
           FOLDER="bin/$REPOSITORY"
-          BRANCH_NAME="chore-update-scripts-to-$LATEST_TAG-$LAST_COMMIT_MESSAGE"
+          BRANCH_NAME="chore-update-scripts-to-$LATEST_TAG"
           echo " latest tag: $LATEST_TAG"
           echo " repository: $REPSOITORY"
           echo "     folder: $FOLDER"
