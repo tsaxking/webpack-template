@@ -5,7 +5,7 @@ import stack from 'npm:callsite';
 import { Colors } from "../../utilities/colors.ts";
 import { StatusCode, StatusId } from "../../../shared/status-messages.ts";
 import { Status } from "../../utilities/status.ts";
-import { getTemplateSync } from "../../utilities/files.ts";
+import { getTemplateSync, getTemplate } from "../../utilities/files.ts";
 import { setCookie } from "https://deno.land/std@0.203.0/http/cookie.ts";
 import { App } from "./app.ts";
 import { Req } from "./req.ts";
@@ -13,6 +13,7 @@ import { CookieOptions } from "./app.ts";
 import { ResponseStatus } from "./app.ts";
 import { FileType } from "./app.ts";
 import { EventEmitter } from "../../../shared/event-emitter.ts";
+
 
 
 /**
@@ -459,5 +460,17 @@ export class Res {
         }
 
         return em;
+    }
+
+
+
+    async render(template: string, constructor: any) {
+        try {
+            const t = await getTemplate(template, constructor);
+            this.send(t, 'html');
+        } catch (e) {
+            log('Error rendering template', e);
+            this.sendStatus('server:unknown-server-error');
+        }
     }
 };
