@@ -55,11 +55,11 @@ jobs:
           # folder it was cloned to.
           echo "Cloning repository"
           cd ../
-          ls -la
           git clone \
             --depth=1 \
             --branch=main \
             git@github.com:tsaxking/template-${{ matrix.templates }}.git
+          ls -la
 
           cd template-${{ matrix.templates }}
 
