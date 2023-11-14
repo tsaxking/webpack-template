@@ -16,3 +16,6 @@ export const init = (name: string) => {
 
     db.exec(query);
 }
+
+
+console.log('test');
