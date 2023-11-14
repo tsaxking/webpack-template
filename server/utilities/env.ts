@@ -66,7 +66,9 @@ const env: {
     [key: string]: string | undefined;
 } = Deno.env.toObject();
 
-if (Object.keys(env).length === 55) {
+console.log(Colors.FgGreen, 'Loading environment variables...', Colors.Reset);
+
+if (Object.keys(env).length === 56) {
     console.log(Colors.FgYellow, 'Environment were not loaded, loading manually from .env file...', Colors.Reset);
     // variables have not been loaded from .env file
     const file = path.resolve(__root, './.env');
@@ -74,7 +76,7 @@ if (Object.keys(env).length === 55) {
     const lines = data.split('\n');
     for (const line of lines) {
         const [key, value] = line.split('=');
-        env[key] = value;
+        env[key.trim()] = value.replace(/"/g, '').replace(/'/g, '').trim();
     }
 }
 

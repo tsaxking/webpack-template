@@ -32,7 +32,7 @@ const readDir = (dirPath: string): string[] => {
                     path.resolve(__templates, file),
                     path.resolve(__root, 'dist', dirPath.split('/').slice(3).join('/'), e.name.replace('.ts', '.css'))
                 ),
-                title: env.TITLE
+                title: env.TITLE || 'Untitled'
             })
         );
 
