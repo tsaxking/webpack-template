@@ -64,8 +64,8 @@ jobs:
 
           echo "Setting up identity"
           # Setup the committers identity.
-          git config user.email "taylorking206@u.boisestate.edu"
-          git config user.name "Webpack Bot"
+          git config --global user.email "taylorking206@u.boisestate.edu"
+          git config --global user.name "Webpack Bot"
 
           echo "Checking out Branch: $BRANCH_NAME"
           # Create a new feature branch for the changes.
