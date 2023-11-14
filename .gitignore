@@ -10,6 +10,8 @@ lerna-debug.log*
 
 branch-transfer/
 
+deno.lock
+
 credentials.json
 token.json
 
