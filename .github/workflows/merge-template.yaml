@@ -14,11 +14,11 @@ jobs:
       fail-fast: false
       matrix:
         templates: [
-          # budgeting,
-          # sfz,
-          # minecraft,
-          scouting-app #,
-          # tators-dashboard
+          budgeting,
+          sfz,
+          minecraft,
+          scouting-app,
+          tators-dashboard
         ]
 
     steps:
