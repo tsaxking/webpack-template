@@ -18,7 +18,8 @@ jobs:
           sfz,
           minecraft,
           scouting-app,
-          tators-dashboard
+          tators-dashboard,
+          personal-website
         ]
 
     steps:
