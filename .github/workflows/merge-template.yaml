@@ -19,7 +19,8 @@ jobs:
           minecraft,
           scouting-app,
           tators-dashboard,
-          personal-website
+          personal-website,
+          cadre
         ]
 
     steps:
