@@ -20,7 +20,8 @@ jobs:
           scouting-app,
           tators-dashboard,
           personal-website,
-          cadre
+          cadre,
+          audio-part-picker
         ]
 
     steps:
