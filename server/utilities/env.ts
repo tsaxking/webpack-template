@@ -50,8 +50,8 @@ export const __templates: string = path.resolve(__root, './public/templates/');
  * @date 10/12/2023 - 3:24:39 PM
  */
 export const dirname = () => {
-    const site = callsite()[2];
-    return './' + path.relative(__root, site.getFileName().replace('file:', ''));
+    const site = callsite()[1];
+    return './' + path.relative(__root, site.getFileName().replace('file://', ''));
 }
 
 

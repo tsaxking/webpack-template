@@ -57,7 +57,9 @@ export type Queries = {
     'db/get-version': [
         [],
         {
-            version: number
+            major: number,
+            minor: number,
+            patch: number
         }
     ],
     'roles/from-id': [

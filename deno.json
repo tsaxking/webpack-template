@@ -3,7 +3,7 @@
     "start": "deno run --allow-all --unstable ./server/server.ts",
     "dev": "deno run --allow-all --unstable --watch ./server/server.ts",
     "build": "deno run --allow-all ./server/bundler.ts",
-    "init": "deno run --allow-all --unstable ./scripts/init.ts",
+    "init": "deno run --allow-all --allow-run --unstable ./scripts/init.ts",
     "entry": "deno run --allow-all ./scripts/add-entry.ts prompt",
     "status": "deno run --allow-all ./scripts/add-status.ts status",
     "socket": "deno run --allow-all ./scripts/add-status.ts socket",

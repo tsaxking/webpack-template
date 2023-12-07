@@ -5,6 +5,8 @@ import { Database, Statement } from "https://deno.land/x/sqlite3@0.9.1/mod.ts";
 import { log } from "./terminal-logging.ts";
 import { Queries } from "./sql-types.ts";
 
+log('This file has been run!');
+
 const { DATABASE_LINK } = env;
 
 /**
@@ -41,6 +43,13 @@ type Parameter = string | number | boolean | null;
  * @typedef {DB}
  */
 export class DB {
+    static readonly db = MAIN;
+
+    static get path() {
+        console.log(env);
+        return path.resolve(dbDir, env.DATABASE_LINK + '.db');
+    }
+
     /**
      * Description placeholder
      * @date 10/12/2023 - 3:24:19 PM
