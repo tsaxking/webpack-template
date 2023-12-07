@@ -1,6 +1,4 @@
 <script lang="ts">
-    import Button from "./Button.svelte";
-
     export let size: 'sm' | 'lg' = 'sm';
     export let vertical: boolean = false;
 
