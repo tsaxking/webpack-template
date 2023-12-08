@@ -120,13 +120,15 @@ export const messages: {
     message: 'You have been logged in.',
     color: 'success',
     code: 200,
-    instructions: 'You will be redirected to the home page.'
+    instructions: 'You will be redirected to the home page.',
+    redirect: '/home'
 },
     'account:logged-out': {
     message: 'You have been logged out.',
     color: 'success',
     code: 200,
-    instructions: 'You will be redirected to the home page.'
+    instructions: 'You will be redirected to the home page.',
+    redirect: '/home'
 },
     'account:no-role': {
     message: 'This account does not have this role',
