@@ -171,7 +171,7 @@ export type Queries = {
     ],
     'account/roles': [
         [{
-            accountId: string
+            id: string
         }],
         Role
     ],

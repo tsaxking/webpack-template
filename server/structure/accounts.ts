@@ -425,7 +425,7 @@ export default class Account {
 
     getRoles(): Role[] {
         const data = DB.all('account/roles', {
-            accountId: this.id
+            id: this.id
         });
 
         return data.map((r) => {

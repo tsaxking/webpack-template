@@ -1,2 +1,3 @@
 SELECT * FROM Roles
-WHERE id = :id;
+INNER JOIN AccountRoles ON Roles.id = AccountRoles.roleId
+WHERE AccountRoles.accountId = :id;
