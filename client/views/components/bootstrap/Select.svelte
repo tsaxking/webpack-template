@@ -12,7 +12,7 @@
     }
 </script>
 
-<select bind:value on:change={handleChange}>
+<select bind:value on:change={handleChange} class="form-select">
     {#each options as option}
         <option value={option}>{option}</option>
     {/each}
