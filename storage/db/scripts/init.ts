@@ -141,11 +141,12 @@ export const setVersions = async (db: Database) => {
                     _M + '-' + _m + '-' + _p + '.ts'
                 );
 
-                if (status) { // status !== 0, script failed
-                    log('Script failed for version', _M + '.' + _m + '.' + _p, 'with status code', status);
+                if (status.error) { // status !== 0, script failed
+                    log('Script failed for version', _M + '.' + _m + '.' + _p, 'with status code', status.code);
+                    log('Script error:', status.error);
                     log('Restoring database to version', M + '.' + m + '.' + p);
                     restore(db, [M, m, p]);
-                    Deno.exit(status);
+                    Deno.exit(status.code);
                 }
             } else {
                 log('No script found for version', _M + '.' + _m + '.' + _p);

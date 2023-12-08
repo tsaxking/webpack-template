@@ -5,8 +5,6 @@ import { Database, Statement } from "https://deno.land/x/sqlite3@0.9.1/mod.ts";
 import { log } from "./terminal-logging.ts";
 import { Queries } from "./sql-types.ts";
 
-log('This file has been run!');
-
 const { DATABASE_LINK } = env;
 
 /**
