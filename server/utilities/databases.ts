@@ -2,7 +2,7 @@
 import env, { __root } from "./env.ts";
 import path from 'node:path';
 import { Database, Statement } from "https://deno.land/x/sqlite3@0.9.1/mod.ts";
-import { log } from "./terminal-logging.ts";
+import { log, error } from "./terminal-logging.ts";
 import { Queries } from "./sql-types.ts";
 
 const { DATABASE_LINK } = env;
@@ -65,7 +65,8 @@ export class DB {
 
             return MAIN.prepare(sql);
         } catch (err) {
-            throw new Error('Could not find query: ' + type);
+            error('Error preparing query:', type, err);
+            throw new Error('Database error, above error was thrown when preparing query');
         }
     }
 
