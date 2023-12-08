@@ -2,6 +2,7 @@
     import { createEventDispatcher } from 'svelte';
 
     export let options: string[] = [];
+    export let values: string[] = [];
     export let value: string = '';
 
     const dispatch = createEventDispatcher();
@@ -14,6 +15,6 @@
 
 <select bind:value on:change={handleChange} class="form-select">
     {#each options as option}
-        <option value={option}>{option}</option>
+        <option value={values[options.indexOf(option)] || option}>{option}</option>
     {/each}
 </select>
