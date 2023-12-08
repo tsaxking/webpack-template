@@ -117,6 +117,7 @@ export const setVersions = async (db: Database) => {
             } catch (e) {
                 error('Failed to update database to version (sql)', _M + '.' + _m + '.' + _p, e);
                 restore(db, [M, m, p]);
+                Deno.exit();
             }
 
             // retrieve and run script if it exists
