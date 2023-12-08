@@ -2,6 +2,7 @@ import { sleep } from "../../shared/sleep";
 import { notify } from "./notifications";
 import { EventEmitter } from '../../shared/event-emitter';
 import { StatusJson } from "../../shared/status";
+import { streamDelimiter } from "../../shared/text";
 
 /**
  * These are optional options for a request
@@ -358,12 +359,15 @@ export class ServerRequest<T = unknown> {
             },
             body: JSON.stringify(body)
         })
-            .then(r => r.body?.getReader())
-            .then(reader => {
+            .then(res => {
+                const dataLength = parseInt(res.headers.get('x-data-length') || '0');
+
+                const reader = res.body?.getReader();
                 if (!reader) return emitter.emit('error', new Error('No reader found'));
+                
 
-                console.log('Stream started...');
-
+                let i = 0;
+                let last: string | undefined;
                 reader.read().then(function process({ done, value }) {
                     if (done) {
                         emitter.emit('complete', output);
@@ -371,13 +375,28 @@ export class ServerRequest<T = unknown> {
                     }
 
                     if (value) {
-                        const d = new TextDecoder().decode(value);
-                        if (parser) {
-                            output.push(parser(d));
-                            emitter.emit('chunk', parser(d));
-                        } else {
-                            output.push(d as K);
-                            emitter.emit('chunk', d as K);
+                        let d = new TextDecoder().decode(value);
+                        // console.log(done, d);
+                        const split = d.split(streamDelimiter);
+                        if (last) split[0] = last + split[0];
+                        last = split.pop();
+
+                        for (let s of split) {
+                            s = decodeURI(s);
+                            if (s) {
+                                i++;
+                                if (parser) {
+                                    output.push(parser(s));
+                                    emitter.emit('chunk', parser(s));
+                                } else {
+                                    output.push(s as K);
+                                    emitter.emit('chunk', s as K);
+                                }
+
+                                if (i >= dataLength) {
+                                    emitter.emit('complete', output);
+                                }
+                            }
                         }
                     }
                     return reader.read().then(process);

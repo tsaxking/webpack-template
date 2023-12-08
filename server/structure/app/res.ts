@@ -13,6 +13,8 @@ import { CookieOptions } from "./app.ts";
 import { ResponseStatus } from "./app.ts";
 import { FileType } from "./app.ts";
 import { EventEmitter } from "../../../shared/event-emitter.ts";
+import { streamDelimiter } from "../../../shared/text.ts";
+import { sleep } from "../../../shared/sleep.ts";
 
 
 
@@ -418,25 +420,25 @@ export class Res {
         const em = new EventEmitter<keyof StreamEventData>();
 
         const stream = new ReadableStream({
-            start(controller) {
-                const send = (n: number) => {
-                    if (n >= content.length) {
-                        em.emit('end');
-                        controller.close();
-                        clearInterval(timer);
-                        return;
-                    }
-                    controller.enqueue(new TextEncoder().encode(content[n]));
-                    i++;
-                } 
+            // send chunks when the event loop is free
+            async start(controller) {
+                // opens up the event loop while sending chunks
+                // let i = 0;
+                const send = async (data: string) => sleep(0).then(() => {
+                        // console.log('Sending chunk', i++, '/', content.length);
+                        controller.enqueue(new TextEncoder().encode(encodeURI(data) + streamDelimiter));
+                    });
 
-                let i = 0;
-                timer = setInterval(() => send(i), 10);
+                return Promise.all(content.map(send)).then(() => {
+                    // log('Stream ended:', content.length, '/', content.length);
+                    em.emit('end');
+                    controller.close();
+                });
             },
 
             cancel() {
-                if (timer) clearInterval(timer);
-                
+                if (timer) clearTimeout(timer);
+                log('Stream cancelled')
                 em.emit('cancel');
             },
 
@@ -450,9 +452,10 @@ export class Res {
                 headers: {
                     'Content-Type': 'application/octet-stream',
                     'x-content-type-options': 'nosniff',
-                    'x-content-size': new TextEncoder().encode(content.join('')).length.toString()
+                    'x-content-size': new TextEncoder().encode(content.join('')).length.toString(),
+                    'x-data-length': content.length.toString()
                 }
-            }))
+            }));
         } catch (e) {
             log('Error streaming', e);
 
