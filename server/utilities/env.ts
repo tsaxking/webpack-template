@@ -68,9 +68,9 @@ const env: {
 
 console.log(Colors.FgGreen, 'Loading environment variables...', Colors.Reset);
 
-if (Object.keys(env).length === 56) {
-    console.log(Colors.FgYellow, 'Environment were not loaded, loading manually from .env file... (This may not work properly, if you see errors, just restart)', Colors.Reset);
-    // variables have not been loaded from .env file
+// if (Object.keys(env).length === 56) {
+    // console.log(Colors.FgYellow, 'Environment were not loaded, loading manually from .env file... (This may not work properly, if you see errors, just restart)', Colors.Reset);
+    // force load from .env file
     const file = path.resolve(__root, './.env');
     const data = Deno.readTextFileSync(file);
     const lines = data.split('\n');
@@ -78,7 +78,7 @@ if (Object.keys(env).length === 56) {
         const [key, value] = line.split('=');
         env[key.trim()] = value.replace(/"/g, '').replace(/'/g, '').trim();
     }
-}
+// }
 
 console.log(Colors.FgGreen, 'Environment variables loaded!', Colors.Reset);
 
