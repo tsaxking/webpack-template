@@ -69,7 +69,32 @@ export const setIntervals = () => {
     }
 };
 
-export const restore = (db: Database, version: [number, number | undefined, number | undefined]) => {
+export const restore = (db: Database, version?: [number, number | undefined, number | undefined]) => {
+    if (!version) {
+        // restore most recent backup
+        const files = Array.from(Deno.readDirSync(
+            path.resolve(__root, './storage/db/backups')
+        ));
+        const [file] = files.sort((a, b) => {
+            const [,aDate] = a.name.replace('.db', '').split(':');
+            const [,bDate] = b.name.replace('.db', '').split(':');
+
+            return parseInt(bDate) - parseInt(aDate);
+        });
+
+        if (!file) {
+            error('No backups found');
+            return;
+        }
+
+        Deno.copyFile(
+            path.resolve(__root, './storage/db/backups/' + file.name),
+            db.path
+        );
+
+        return;
+    }
+
     let [M, m, p] = version;
     if (!m) m = 0;
     if (!p) p = 0;
