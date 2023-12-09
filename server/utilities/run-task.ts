@@ -1,5 +1,6 @@
 import { error, log } from "./terminal-logging.ts";
 import { dirname, __root } from "./env.ts";
+import { spawn } from 'node:child_process';
 
 
 type Result<T> = {
@@ -60,5 +61,48 @@ export const runTask = async <T>(file: string, functionName?: string, ...args: s
                 code: 1
             });
         });
+    });
+};
+
+
+export const runCommand = async (command: string, ...args: string[]): Promise<Result<string>> => {
+    return new Promise<Result<string>>((resolve) => {
+        try {
+            // using spawn from node
+            const process = spawn(command, args, {
+                stdio: 'pipe',
+                shell: true
+            });
+    
+            process.stdout.on('data', (data) => {
+                console.log(`stdout: ${data}`);
+            });
+    
+            process.stderr.on('data', (data) => {
+                console.log(`stderr: ${data}`);
+            });
+    
+            process.on('close', (code) => {
+                console.log(`child process exited with code ${code}`);
+                
+                if (code) {
+                    resolve({
+                        error: new Error('Process exited with code ' + code),
+                        code: code
+                    });
+                } else {
+                    resolve({
+                        error: null,
+                        code: 0,
+                        result: ''
+                    });
+                }
+            });
+        } catch (e) {
+            resolve({
+                error: e,
+                code: 1
+            });
+        }
     });
 };

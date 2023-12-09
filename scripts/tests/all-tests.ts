@@ -1,7 +1,7 @@
 import { assertEquals } from "https://deno.land/std@0.205.0/assert/mod.ts";
 import { __root } from "../../server/utilities/env.ts";
 import '../init.ts';
-import { runTask } from "../../server/utilities/run-task.ts";
+import { runTask, runCommand } from "../../server/utilities/run-task.ts";
 import { log } from "../../server/utilities/terminal-logging.ts";
 
 
@@ -27,5 +27,11 @@ export const runTests = async () => {
         log('Sync test result:', syncTest);
         if (syncTest.error) throw syncTest.error;
         else assertEquals(syncTest.result, ['a', 'b', 'c']);
+    });
+
+    Deno.test('Run command', async () => {
+        const result = await runCommand('echo "test"');
+        log('Command result:', result);
+        assertEquals(result.error, null);
     });
 }
