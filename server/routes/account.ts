@@ -47,7 +47,7 @@ router.post<{
         password
     } = req.body;
 
-    const account = Account.fromUsername(username);
+    const account = Account.fromUsername(username) || Account.fromEmail(username);
 
     // send the same error for both username and password to prevent username enumeration
     if (!account) return res.sendStatus('account:incorrect-username-or-password');

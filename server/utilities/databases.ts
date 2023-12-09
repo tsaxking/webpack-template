@@ -48,6 +48,11 @@ export class DB {
         return path.resolve(dbDir, env.DATABASE_LINK + '.db');
     }
 
+    static get version(): [number, number, number] {
+        const v = DB.get('db/get-version');
+        return [v?.major ?? 0, v?.minor ?? 0, v?.patch ?? 0];
+    }
+
     /**
      * Description placeholder
      * @date 10/12/2023 - 3:24:19 PM
