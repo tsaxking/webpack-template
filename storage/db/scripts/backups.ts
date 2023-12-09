@@ -70,17 +70,25 @@ export const setIntervals = () => {
 };
 
 export const restore = (db: Database, version?: [number, number | undefined, number | undefined]) => {
+    const files = Array.from(Deno.readDirSync(
+        path.resolve(__root, './storage/db/backups')
+    ));
+
+
+    // sort by date, most recent first
+    files.sort((a, b) => {
+        const [,aDate] = a.name.replace('.db', '').split(':');
+        const [,bDate] = b.name.replace('.db', '').split(':');
+
+        return parseInt(bDate) - parseInt(aDate);
+    });
+
     if (!version) {
         // restore most recent backup
         const files = Array.from(Deno.readDirSync(
             path.resolve(__root, './storage/db/backups')
         ));
-        const [file] = files.sort((a, b) => {
-            const [,aDate] = a.name.replace('.db', '').split(':');
-            const [,bDate] = b.name.replace('.db', '').split(':');
-
-            return parseInt(bDate) - parseInt(aDate);
-        });
+        const [file] = files;
 
         if (!file) {
             error('No backups found');
@@ -98,17 +106,7 @@ export const restore = (db: Database, version?: [number, number | undefined, num
     let [M, m, p] = version;
     if (!m) m = 0;
     if (!p) p = 0;
-    const files = Array.from(Deno.readDirSync(
-        path.resolve(__root, './storage/db/backups')
-    ));
 
-    // sort by date, most recent first
-    files.sort((a, b) => {
-        const [,aDate] = a.name.replace('.db', '').split(':');
-        const [,bDate] = b.name.replace('.db', '').split(':');
-
-        return parseInt(bDate) - parseInt(aDate);
-    });
 
     for (const file of files) {
         if (file.isFile) {

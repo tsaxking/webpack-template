@@ -65,7 +65,26 @@ export const setVersions = async (db: Database) => {
         './storage/db/queries/db/versions'
     );
 
-    const files = Deno.readDirSync(versionDir);
+    const files = Array.from(Deno.readDirSync(versionDir));
+
+
+    // sort by version, lowest first (M.m.p)
+    files.sort((a, b) => {
+        const [aM, am, ap] = a.name.replace('.sql', '').split('-').map((v: string) => parseInt(v));
+        const [bM, bm, bp] = b.name.replace('.sql', '').split('-').map((v: string) => parseInt(v));
+
+        if (aM !== bM) {
+            return aM - bM;
+        }
+        if (am !== bm) {
+            return am - bm;
+        }
+        if (ap !== bp) {
+            return ap - bp;
+        }
+
+        return 0;
+    });
 
     for (const sql of files) {
         if (sql.isFile) {
