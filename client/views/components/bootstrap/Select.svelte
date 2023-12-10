@@ -4,6 +4,7 @@
     export let options: string[] = [];
     export let values: string[] = [];
     export let value: string = '';
+    export let defaultValue: string | undefined = undefined;
 
     const dispatch = createEventDispatcher();
 
@@ -14,7 +15,11 @@
 </script>
 
 <select bind:value on:change={handleChange} class="form-select">
+    {#if defaultValue}
+        <option value="" disabled selected={!value}>{defaultValue}</option>
+    {/if}
+
     {#each options as option}
-        <option value={values[options.indexOf(option)] || option}>{option}</option>
+        <option value={values[options.indexOf(option)] || option} selected={value == (values[options.indexOf(option)] || option)}>{option}</option>
     {/each}
 </select>
