@@ -20,7 +20,7 @@ type StateStackOptions = {
  * @typedef {StateStackEventData}
  * @template T
  */
-type StateStackEventData<T> = {
+export type StateStackEventData<T> = {
     'next': State<T>;
     'prev': State<T>;
     'new': State<T>;
