@@ -40,6 +40,15 @@ type StateStackEventData<T> = {
  */
 export class State<T> {
     /**
+     * Date the state was created
+     * @date 10/12/2023 - 2:31:40 PM
+     *
+     * @readonly
+     * @type {Date}
+     */
+    public readonly created: Date = new Date();
+
+    /**
      * Creates an instance of State.
      * @date 10/12/2023 - 2:31:40 PM
      *
