@@ -3,8 +3,7 @@ import { log } from "./utilities/terminal-logging.ts";
 import { typescript, sveltePlugin } from "./build/esbuild-svelte.ts";
 import { EventEmitter } from "../shared/event-emitter.ts";
 import { getTemplateSync, saveTemplateSync } from "./utilities/files.ts";
-import path from 'node:path';
-import env, { __root, __templates } from "./utilities/env.ts";
+import env, { __root, __templates, resolve, relative } from "./utilities/env.ts";
 
 log('Deno version:', Deno.version.deno);
 log('Typescript version:', Deno.version.typescript);
@@ -24,13 +23,13 @@ const readDir = (dirPath: string): string[] => {
         saveTemplateSync(
             '/' + file,
             getTemplateSync('index', {
-                script: path.relative(
-                    path.resolve(__templates, file),
-                    path.resolve(__root, 'dist', dirPath.split('/').slice(3).join('/'), e.name.replace('.ts', '.js'))
+                script: relative(
+                    resolve(__templates, file),
+                    resolve(__root, 'dist', dirPath.split('/').slice(3).join('/'), e.name.replace('.ts', '.js'))
                 ),
-                style: path.relative(
-                    path.resolve(__templates, file),
-                    path.resolve(__root, 'dist', dirPath.split('/').slice(3).join('/'), e.name.replace('.ts', '.css'))
+                style: relative(
+                    resolve(__templates, file),
+                    resolve(__root, 'dist', dirPath.split('/').slice(3).join('/'), e.name.replace('.ts', '.css'))
                 ),
                 title: env.TITLE || 'Untitled'
             })

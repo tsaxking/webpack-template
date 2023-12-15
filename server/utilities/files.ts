@@ -1,9 +1,8 @@
-import path from 'node:path';
 import callsite from 'npm:callsite';
 import * as htmlConstructor from 'npm:node-html-constructor';
 import ObjectsToCsv from 'npm:objects-to-csv';
 import { log as terminalLog } from "./terminal-logging.ts";
-import { __root, __uploads, __logs, __templates } from "./env.ts";
+import { __root, __uploads, __logs, __templates, resolve, dirname } from "./env.ts";
 import fs from 'node:fs';
 
 const render = htmlConstructor.v4;
@@ -14,10 +13,9 @@ const render = htmlConstructor.v4;
  */
 const makeFolder = (folder: string) => {
     try {
-        const dirs = folder.split('/');
-        dirs.pop();
+        const dirs = dirname(folder);
         Deno.mkdirSync(
-            dirs.join('/'), 
+            dirs, 
             { recursive: true }
         );
     } catch {
@@ -38,10 +36,10 @@ const filePathBuilder = (file: string, ext: string, parentFolder: string) => {
         // use callsite
         const stack = callsite(),
             requester = stack[2].getFileName(),
-            requesterDir = path.dirname(requester);
-        output = path.resolve(requesterDir.replace('file:/',''), file);
+            requesterDir = __dirname(requester);
+        output = resolve(requesterDir.replace('file:/',''), file);
     } else {
-        output = path.resolve(__root, parentFolder, ...file.split('/'));
+        output = resolve(__root, parentFolder, ...file.split('/'));
     }
 
 
@@ -404,7 +402,7 @@ export type LogObj = {
 export function log(type: LogType, dataObj: LogObj) {
     createLogsFolder();
     return new ObjectsToCsv([dataObj]).toDisk(
-        path.resolve(__logs, `${type}.csv`),
+        resolve(__logs, `${type}.csv`),
         { append: true }
     );
 }

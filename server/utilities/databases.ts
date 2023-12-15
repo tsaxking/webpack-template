@@ -1,6 +1,5 @@
 
-import env, { __root } from "./env.ts";
-import path from 'node:path';
+import env, { __root, resolve } from "./env.ts";
 import { Database, Statement } from "https://deno.land/x/sqlite3@0.9.1/mod.ts";
 import { log, error } from "./terminal-logging.ts";
 import { Queries } from "./sql-types.ts";
@@ -13,14 +12,14 @@ const { DATABASE_LINK } = env;
  *
  * @type {*}
  */
-const dbDir = path.resolve(__root, './storage/db');
+const dbDir = resolve(__root, './storage/db');
 /**
  * Description placeholder
  * @date 10/12/2023 - 3:24:19 PM
  *
  * @type {Database}
  */
-export const MAIN = new Database(path.resolve(dbDir, DATABASE_LINK + '.db'));
+export const MAIN = new Database(resolve(dbDir, DATABASE_LINK + '.db'));
 
 
 
@@ -45,7 +44,7 @@ export class DB {
 
     static get path() {
         console.log(env);
-        return path.resolve(dbDir, env.DATABASE_LINK + '.db');
+        return resolve(dbDir, env.DATABASE_LINK + '.db');
     }
 
     static get version(): [number, number, number] {
@@ -65,7 +64,7 @@ export class DB {
      */
     private static prepare<T extends keyof Queries>(type: T): Statement {
         try {
-            const data = Deno.readFileSync(path.resolve(__root, './storage/db/queries/', type + '.sql'));
+            const data = Deno.readFileSync(resolve(__root, './storage/db/queries/', type + '.sql'));
             const sql = new TextDecoder('utf-8').decode(data);
 
             return MAIN.prepare(sql);

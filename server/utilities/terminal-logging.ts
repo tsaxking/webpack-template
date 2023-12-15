@@ -1,7 +1,7 @@
-import path from 'npm:path';
 import { __root } from "./env.ts";
 import { Colors } from "./colors.ts";
 import * as blog from "https://deno.land/x/blog@0.3.3/deps.ts";
+import { relative } from "./env.ts";
 
 
 /**
@@ -11,7 +11,7 @@ import * as blog from "https://deno.land/x/blog@0.3.3/deps.ts";
 const getSite = () => {
     const site = blog.callsites()[2];
     return {
-        filePath: './' + path.relative(__root, site.getFileName()?.replace('file:', '')),
+        filePath: relative(__root, site.getFileName()?.replace('file://', '').substring(1) || ''),
         lineNumber: (site.getLineNumber() || 0) + 1,
         fn: site.getFunctionName() + '()' || 'Global | Unnamed'
     }

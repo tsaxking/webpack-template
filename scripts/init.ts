@@ -2,9 +2,8 @@ import { init } from "../storage/db/scripts/init.ts";
 import { repeatPrompt } from "./prompt.ts";
 import { toSnakeCase } from "../shared/text.ts";
 import { log, error } from "../server/utilities/terminal-logging.ts";
-import path from 'node:path';
 import fs from 'node:fs';
-import env, { __root } from "../server/utilities/env.ts";
+import env, { __root, resolve } from "../server/utilities/env.ts";
 
 
 const runPrompt = (message: string, defaultValue?: string, validation?: (data: string) => boolean, allowBlank?: boolean): string => {
@@ -21,7 +20,7 @@ const runPrompt = (message: string, defaultValue?: string, validation?: (data: s
 
 
 const createEnv = () => {
-    if (Deno.args.includes('--no-env') || fs.existsSync(path.resolve(__root, './.env'))) {
+    if (Deno.args.includes('--no-env') || fs.existsSync(resolve(__root, './.env'))) {
         log('Skipping .env file creation...');
         return {
             databaseLink: 'main'
@@ -51,7 +50,7 @@ const createEnv = () => {
 
     const e = Object.keys(values).map((key) => `${toSnakeCase(key).toUpperCase()} = '${values[key]}'`).join('\n');
     Deno.writeTextFileSync(
-        path.resolve(
+        resolve(
             __root,
             './.env'
         ),

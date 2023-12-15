@@ -1,10 +1,9 @@
 import { readFileSync as read, existsSync as exists, statSync } from 'node:fs';
-import { dirname, resolve, relative, basename } from 'node:path';
 import esbuild from 'npm:esbuild';
 import { log, error, warn } from "../utilities/terminal-logging.ts";
 import { preprocess, compile, VERSION } from 'npm:svelte@3.39.0/compiler';
 import { originalPositionFor, TraceMap } from 'npm:@jridgewell/trace-mapping';
-import { dirname as cwd } from "../utilities/env.ts";
+import { __dirname as cwd, resolve, basename, dirname, relative } from "../utilities/env.ts";
 
 const isExternal = /^(https?:)?\/\//;
 const isString = (x: any) => typeof x === 'string';

@@ -1,7 +1,6 @@
-import { __root } from "../../../server/utilities/env.ts";
+import { __root, resolve } from "../../../server/utilities/env.ts";
 import { log, error } from "../../../server/utilities/terminal-logging.ts";
 import { Database } from "https://deno.land/x/sqlite3@0.9.1/mod.ts";
-import path from 'node:path';
 import { makeBackup, restore } from "./backups.ts";
 import fs from 'node:fs';
 import { runTask } from "../../../server/utilities/run-task.ts";
@@ -60,7 +59,7 @@ export const init = (name: string) => {
  * @async
  */
 export const setVersions = async (db: Database) => {
-    const versionDir = path.resolve(
+    const versionDir = resolve(
         __root,
         './storage/db/queries/db/versions'
     );
@@ -119,7 +118,7 @@ export const setVersions = async (db: Database) => {
             // retrieve and run sql file
             try {
                 const data = Deno.readTextFileSync(
-                    path.resolve(versionDir, sql.name)
+                    resolve(versionDir, sql.name)
                 );
 
                 db.exec(data);
@@ -141,14 +140,14 @@ export const setVersions = async (db: Database) => {
 
             // retrieve and run script if it exists
 
-            const scriptPath = path.resolve(
+            const scriptPath = resolve(
                 // __root,
                 './storage/db/scripts/versions/',
                 _M + '-' + _m + '-' + _p + '.ts'
             );
 
             const script = fs.existsSync(
-                path.resolve(
+                resolve(
                     __root,
                     scriptPath
                 )
