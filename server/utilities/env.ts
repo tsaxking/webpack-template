@@ -17,8 +17,8 @@ export const __root: string = (() => {
         case 'linux':
             return new URL('../../', import.meta.url).pathname;
         case 'windows':
-            const p = new URL('../../', import.meta.url).pathname.substring(1);
-            return capitalize(p.replace(/.$/g, ''));
+            // change /c:/path/to/file/ to C:/path/to/file/
+            return new URL('../../', import.meta.url).pathname.replace(/^\/([a-z]):\//i, '$1:/');
         default:
             throw new Error('Unsupported platform: ' + os.platform());
     }
