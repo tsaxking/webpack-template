@@ -17,8 +17,11 @@ export const __root: string = (() => {
         case 'linux':
             return new URL('../../', import.meta.url).pathname;
         case 'windows':
-            // change /c:/path/to/file/ to C:/path/to/file/
-            return new URL('../../', import.meta.url).pathname.replace(/^\/([a-z]):\//i, '$1:/');
+            // change /c:/path/to/file/ to C:/path/to/file
+            return new URL('../../', import.meta.url).pathname
+                .replace(/^\/([a-z]):\//i, '$1:/') // change /c:/ to c:/
+                .replace(/\//g, '\\') // change / to \
+                .replace(/.$/, ''); // remove trailing slash
         default:
             throw new Error('Unsupported platform: ' + os.platform());
     }
