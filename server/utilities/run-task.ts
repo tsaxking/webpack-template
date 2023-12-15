@@ -1,5 +1,5 @@
 import { error, log } from "./terminal-logging.ts";
-import { __dirname, __root, resolve } from "./env.ts";
+import { __dirname, __root, resolve, platformify } from "./env.ts";
 import { spawn } from 'node:child_process';
 
 
@@ -22,7 +22,7 @@ type Result<T> = {
 export const runTask = async <T>(file: string, functionName?: string, ...args: string[]): Promise<Result<T>> => {
     return new Promise<Result<T>>((res) => {
         import(
-            resolve(__root, file)
+            platformify(resolve(__root, file))
         ).then(async (module) => {
             if (functionName) {
                 if (typeof module[functionName] === 'function') {

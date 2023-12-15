@@ -156,7 +156,7 @@ export const setVersions = async (db: Database) => {
             if (script) {
                 log('Script found for version', _M + '.' + _m + '.' + _p);
                 const status = await runTask(
-                    '/storage/db/scripts/versions/' +
+                    './storage/db/scripts/versions/' +
                     _M + '-' + _m + '-' + _p + '.ts'
                 );
 
