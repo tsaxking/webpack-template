@@ -3,6 +3,7 @@ import callsite from 'npm:callsite';
 import { Colors } from "./colors.ts";
 import os from "https://deno.land/x/dos@v0.11.0/mod.ts";
 import { error } from "./terminal-logging.ts";
+import { capitalize } from "../../shared/text.ts";
 
 
 /**
@@ -16,7 +17,8 @@ export const __root: string = (() => {
         case 'linux':
             return new URL('../../', import.meta.url).pathname;
         case 'windows':
-            return new URL('../../', import.meta.url).pathname.substring(1);
+            const p = new URL('../../', import.meta.url).pathname.substring(1);
+            return capitalize(p.replace(/.$/g, ''));
         default:
             throw new Error('Unsupported platform: ' + os.platform());
     }
