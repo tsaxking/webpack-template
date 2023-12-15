@@ -2,6 +2,7 @@ import path from 'npm:path';
 import callsite from 'npm:callsite';
 import { Colors } from "./colors.ts";
 import os from "https://deno.land/x/dos@v0.11.0/mod.ts";
+import { error } from "./terminal-logging.ts";
 
 
 /**
@@ -79,7 +80,7 @@ try {
         const [key, value] = line.split('=');
         env[key.trim()] = value.replace(/"/g, '').replace(/'/g, '').trim();
     }
-} catch (error) {
+} catch {
     error('Unable to read .env file, please make sure it exists and is formatted correctly.');
 }
 // }
