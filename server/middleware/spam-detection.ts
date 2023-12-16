@@ -1,6 +1,8 @@
 // const SpamScanner = require('spamscanner');
 import { validate } from 'npm:deep-email-validator';
-import { Req, Res, Next, ServerFunction } from "../structure/app.ts";
+import { App, ServerFunction, Next } from "../structure/app/app.ts";
+import { Req } from "../structure/app/req.ts";
+import { Res } from "../structure/app/res.ts";
 import { log } from "../utilities/terminal-logging.ts";
 export type Options = {
     onspam?: (req: Req, res: Res, next: Next) => void;

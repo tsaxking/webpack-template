@@ -11,7 +11,7 @@ import { Res } from "./app/res.ts";
 
 
 export default class Role {
-    static allowRoles(...role: RoleName[]): ServerFunction {
+    static allowRoles(...role: RoleName[]): ServerFunction<any> {
         return async (req: Req, res: Res, next: Next) => {
             const { session } = req;
             const { account } = session;

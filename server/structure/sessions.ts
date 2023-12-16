@@ -325,8 +325,7 @@ export class Session {
                 accountId: this.accountId || '',
                 userAgent: this.userAgent || '',
                 prevUrl: this.prevUrl || '',
-                requests: this.requests,
-                created: this.created
+                requests: this.requests
             });
         } else {
             DB.run('sessions/new', {

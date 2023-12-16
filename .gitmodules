@@ -1,6 +1,3 @@
-[submodule "client/submodules/custom-bootstrap"]
-	path = client/submodules/custom-bootstrap
-	url = git@github.com:tsaxking/custom-bootstrap.git
 [submodule "client/submodules/colors"]
 	path = client/submodules/colors
 	url = git@github.com:tsaxking/colors.git
