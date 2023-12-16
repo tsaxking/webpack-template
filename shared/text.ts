@@ -36,3 +36,14 @@ export const fromCamelCase = (str: string): string => str.replace(/([A-Z])/g, (g
  * @returns 
  */
 export const fromSnakeCase = (str: string, del: string = '_'): string => str.replace(/([A-Z])/g, (g) => ` ${g[0].toLowerCase()}`).replace(del, ' ');
+
+
+
+export const abbreviate = (string: string, length: number = 10): string => {
+    if (length < 3) throw new Error('Abbreviation length must be at least 3');
+
+    if (string.length <= length) return string;
+    return string.substring(0, length - 3) + '...';
+};
+
+export const streamDelimiter = '<';

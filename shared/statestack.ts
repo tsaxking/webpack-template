@@ -20,7 +20,7 @@ type StateStackOptions = {
  * @typedef {StateStackEventData}
  * @template T
  */
-type StateStackEventData<T> = {
+export type StateStackEventData<T> = {
     'next': State<T>;
     'prev': State<T>;
     'new': State<T>;
@@ -39,6 +39,15 @@ type StateStackEventData<T> = {
  * @template T
  */
 export class State<T> {
+    /**
+     * Date the state was created
+     * @date 10/12/2023 - 2:31:40 PM
+     *
+     * @readonly
+     * @type {Date}
+     */
+    public readonly created: Date = new Date();
+
     /**
      * Creates an instance of State.
      * @date 10/12/2023 - 2:31:40 PM

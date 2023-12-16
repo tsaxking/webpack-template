@@ -23,8 +23,7 @@ CREATE TABLE IF NOT EXISTS Members (
     status TEXT,
     bio TEXT,
     resume TEXT,
-    board INTEGER NOT NULL DEFAULT 0,
-    FOREIGN KEY (id) REFERENCES Accounts(id)
+    board INTEGER NOT NULL DEFAULT 0
 );
 
 
@@ -38,15 +37,12 @@ CREATE TABLE IF NOT EXISTS Roles (
 
 CREATE TABLE IF NOT EXISTS AccountRoles (
     accountId TEXT NOT NULL,
-    roleId TEXT NOT NULL,
-    FOREIGN KEY (accountId) REFERENCES Accounts(id),
-    FOREIGN KEY (roleId) REFERENCES Roles(id)
+    roleId TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS Permissions (
     roleId TEXT NOT NULL,
-    permission TEXT NOT NULL,
-    FOREIGN KEY (roleId) REFERENCES Roles(id)
+    permission TEXT NOT NULL
 );
 
 
@@ -79,6 +75,10 @@ CREATE TABLE IF NOT EXISTS Sessions (
 --     created INTEGER NOT NULL
 -- );
 
+
+
+-- Reset the version number
+DELETE FROM Version;
 
 
 INSERT INTO Version (

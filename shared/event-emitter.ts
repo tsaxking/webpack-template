@@ -95,6 +95,20 @@ export class EventEmitter<allowedEvents = (string | number | '*')> {
     }
 
     /**
+     * Adds a listener for the given event, but removes it after it has been called once
+     * @param event
+     * @param callback 
+     */
+    once(event: allowedEvents, callback: ListenerCallback) {
+        const onceCallback = (...args: unknown[]) => {
+            callback(...args);
+            this.off(event, onceCallback);
+        };
+
+        this.on(event, onceCallback);
+    }
+
+    /**
      * Removes all listeners for all events
      * @date 10/12/2023 - 1:46:22 PM
      */

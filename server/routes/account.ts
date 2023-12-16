@@ -12,7 +12,12 @@ export const router = new Route();
 router.post('/get-account', async(req, res) => {
     const { account } = req.session;
 
-    if (account) res.json(account.safe);
+    if (account) res.json(account.safe({
+        roles: true,
+        memberInfo: true,
+        permissions: true,
+        email: true
+    }));
     else res.sendStatus('account:not-logged-in');
 });
 
@@ -42,7 +47,7 @@ router.post<{
         password
     } = req.body;
 
-    const account = Account.fromUsername(username);
+    const account = Account.fromUsername(username) || Account.fromEmail(username);
 
     // send the same error for both username and password to prevent username enumeration
     if (!account) return res.sendStatus('account:incorrect-username-or-password');

@@ -3,8 +3,7 @@ import { log } from "./utilities/terminal-logging.ts";
 import { typescript, sveltePlugin } from "./build/esbuild-svelte.ts";
 import { EventEmitter } from "../shared/event-emitter.ts";
 import { getTemplateSync, saveTemplateSync } from "./utilities/files.ts";
-import path from 'node:path';
-import env, { __root, __templates } from "./utilities/env.ts";
+import env, { __root, __templates, resolve, relative } from "./utilities/env.ts";
 
 log('Deno version:', Deno.version.deno);
 log('Typescript version:', Deno.version.typescript);
@@ -24,15 +23,15 @@ const readDir = (dirPath: string): string[] => {
         saveTemplateSync(
             '/' + file,
             getTemplateSync('index', {
-                script: path.relative(
-                    path.resolve(__templates, file),
-                    path.resolve(__root, 'dist', dirPath.split('/').slice(3).join('/'), e.name.replace('.ts', '.js'))
+                script: relative(
+                    resolve(__templates, file),
+                    resolve(__root, 'dist', dirPath.split('/').slice(3).join('/'), e.name.replace('.ts', '.js'))
                 ),
-                style: path.relative(
-                    path.resolve(__templates, file),
-                    path.resolve(__root, 'dist', dirPath.split('/').slice(3).join('/'), e.name.replace('.ts', '.css'))
+                style: relative(
+                    resolve(__templates, file),
+                    resolve(__root, 'dist', dirPath.split('/').slice(3).join('/'), e.name.replace('.ts', '.css'))
                 ),
-                title: env.TITLE
+                title: env.TITLE || 'Untitled'
             })
         );
 
@@ -46,7 +45,7 @@ const readDir = (dirPath: string): string[] => {
  *
  * @type {{}}
  */
-let entries = [];
+let entries: string[] = [];
 
 entries = readDir('./client/entries');
 
@@ -61,56 +60,40 @@ type BuildEventData = {
     'error': Error;
 };
 
-/**
- * Description placeholder
- * @date 10/12/2023 - 3:26:55 PM
- *
- * @typedef {BuildEvent}
- */
-type BuildEvent = keyof BuildEventData;
-
-/**
- * Description placeholder
- * @date 10/12/2023 - 3:26:55 PM
- *
- * @type {EventEmitter<keyof BuildEventData>}
- */
-export const builder = new EventEmitter<BuildEvent>();
-
-/**
- * Description placeholder
- * @date 10/12/2023 - 3:26:55 PM
- *
- * @type {*}
- */
-const result = await esbuild.build({
-    entryPoints: entries,
-    bundle: true,
-    minify: env.ENVIRONMENT === 'production',
-    outdir: './dist',
-    mainFields: ["svelte", "browser", "module", "main"],
-    conditions: ["svelte", "browser"],
-    watch: {
-        onRebuild(error: Error, result: any) {
-            if (error) builder.emit('error', error);
-            else builder.emit('build', result);
+export const runBuild = async () => {
+    const builder = new EventEmitter<keyof BuildEventData>();
+    const result = await esbuild.build({
+        entryPoints: entries,
+        bundle: true,
+        // minify: true,
+        outdir: './dist',
+        mainFields: ["svelte", "browser", "module", "main"],
+        conditions: ["svelte", "browser"],
+        watch: {
+            onRebuild(error: Error, result: any) {
+    
+                if (error) builder.emit('error', error);
+                else builder.emit('build', result);
+            }
+        },
+        // trust me, it works
+        plugins: [(sveltePlugin as unknown as Function)({
+            preprocess: [
+                typescript()
+            ]
+        })],
+        logLevel: "info",
+        loader: {
+            '.png': 'dataurl',
+            '.woff': 'dataurl',
+            '.woff2': 'dataurl',
+            '.eot': 'dataurl',
+            '.ttf': 'dataurl',
+            '.svg': 'dataurl',
         }
-    },
-    // trust me, it works
-    plugins: [(sveltePlugin as unknown as Function)({
-        preprocess: [
-            typescript()
-        ]
-    })],
-    logLevel: "info",
-    loader: {
-        '.png': 'dataurl',
-        '.woff': 'dataurl',
-        '.woff2': 'dataurl',
-        '.eot': 'dataurl',
-        '.ttf': 'dataurl',
-        '.svg': 'dataurl',
-    }
-});
+    });
 
-builder.on('build', () => entries = readDir('./client/entries'));
+    builder.on('build', () => entries = readDir('./client/entries'));
+
+    return builder;
+}

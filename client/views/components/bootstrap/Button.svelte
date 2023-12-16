@@ -10,7 +10,7 @@
 </script>
 
 
-<button class="btn btn-{outline ? 'outline-' : ''}{color}" {disabled}>
+<button class="btn btn-{outline ? 'outline-' : ''}{color}" {disabled} on:click={() => dispatch('click')}>
     {text}
     <slot></slot>
 </button>

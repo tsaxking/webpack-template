@@ -1,6 +1,4 @@
-import { LogType, getJSONSync, getTemplateSync, log } from "./files.ts";
-import Account from "../structure/accounts.ts";
-import { Email, EmailType } from "./email.ts";
+import { getTemplateSync, log } from "./files.ts";
 import { Session } from "../structure/sessions.ts";
 import { Server } from "npm:socket.io";
 import { messages, StatusId, StatusCode, StatusMessage, StatusColor } from "../../shared/status-messages.ts";
@@ -39,7 +37,7 @@ export class Status {
      * @param {(session: Session) => boolean} test
      * @returns {ServerFunction}
      */
-    static middleware(id: StatusId, test: (session: Session) => boolean): ServerFunction {
+    static middleware(id: StatusId, test: (session: Session) => boolean): ServerFunction<any> {
         return (req: Req, res: Res, next: Next) => {
             if (test(req.session)) {
                 next();
