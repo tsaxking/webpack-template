@@ -21,7 +21,8 @@ jobs:
           tators-dashboard,
           personal-website,
           cadre,
-          audio-part-picker
+          audio-part-picker,
+          scouting-webcam
         ]
 
     steps:
