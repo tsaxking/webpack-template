@@ -3,6 +3,7 @@ import { notify } from "./notifications";
 import { EventEmitter } from '../../shared/event-emitter';
 import { StatusJson } from "../../shared/status";
 import { streamDelimiter } from "../../shared/text";
+import { uuid } from "../../server/utilities/uuid";
 
 /**
  * These are optional options for a request
@@ -37,9 +38,9 @@ export type StreamOptions = {
  * These are the possible updates that can be emitted from a stream emitter
  * @date 10/12/2023 - 1:19:15 PM
  *
- * @typedef {SendStreamEventData}
+ * @typedef {SendFileStreamEventData}
  */
-type SendStreamEventData = {
+type SendFileStreamEventData = {
     'progress': ProgressEvent<EventTarget>;
     'complete': ProgressEvent<EventTarget>;
     'error': ProgressEvent<EventTarget>;
@@ -136,7 +137,174 @@ export class RetrieveStreamEventEmitter<T = string> extends EventEmitter<keyof R
 }
 
 
+/**
+ * Description placeholder
+ * @date 1/8/2024 - 3:39:39 PM
+ *
+ * @typedef {SendStreamEventData}
+ */
+type SendStreamEventData = {
+    'end': undefined;
+    'error': Error;
+    'progress': number;
+}
 
+/**
+ * Description placeholder
+ * @date 1/8/2024 - 3:39:39 PM
+ *
+ * @typedef {SendStreamOptions}
+ */
+type SendStreamOptions = {
+    rate: number;
+}
+
+
+/**
+ * Sends a stream of data to the server, the back end must use the built in stream handler to receive the data
+ * @date 1/8/2024 - 3:39:39 PM
+ *
+ * @class SendStream
+ * @typedef {SendStream}
+ */
+export class SendStream {
+    /**
+     * Event emitter for sending a stream
+     * @date 1/8/2024 - 3:39:39 PM
+     *
+     * @private
+     * @readonly
+     * @type {*}
+     */
+    private readonly $emitter = new EventEmitter<keyof SendStreamEventData>();
+    /**
+     * The data that will be sent to the server
+     * @date 1/8/2024 - 3:39:39 PM
+     *
+     * @private
+     * @readonly
+     * @type {string[]}
+     */
+    private readonly data: string[] = [];
+    /**
+     * The interval that sends the data to the server
+     * @date 1/8/2024 - 3:39:39 PM
+     *
+     * @private
+     * @type {(number | NodeJS.Timeout)}
+     */
+    private interval: number | NodeJS.Timeout;
+
+    /**
+     * Creates an instance of SendStream.
+     * @date 1/8/2024 - 3:39:39 PM
+     *
+     * @constructor
+     * @param {string} url
+     * @param {SendStreamOptions} options
+     */
+    constructor(public readonly url: string, public readonly options: SendStreamOptions) {}
+
+    /**
+     * Add data you want sent to the server
+     * @date 1/8/2024 - 3:39:39 PM
+     *
+     * @param {string} data
+     */
+    add(data: string) {
+        this.data.push(data);
+    }
+
+    /**
+     * Adds an event listener
+     * @date 1/8/2024 - 3:39:39 PM
+     *
+     * @template {keyof SendStreamEventData} K
+     * @param {K} event
+     * @param {(data: SendStreamEventData[K]) => void} callback
+     */
+    on<K extends keyof SendStreamEventData>(event: K, callback: (data: SendStreamEventData[K]) => void): void {
+        this.$emitter.on(event, callback);
+    }
+
+    /**
+     * Emits an event
+     * @date 1/8/2024 - 3:39:39 PM
+     *
+     * @template {keyof SendStreamEventData} K
+     * @param {K} event
+     * @param {SendStreamEventData[K]} data
+     */
+    emit<K extends keyof SendStreamEventData>(event: K, data: SendStreamEventData[K]): void {
+        this.$emitter.emit(event, data);
+    }
+
+    /**
+     * Removes an event listener
+     * @date 1/8/2024 - 3:39:39 PM
+     *
+     * @template {keyof SendStreamEventData} K
+     * @param {K} event
+     * @param {(data: SendStreamEventData[K]) => void} callback
+     */
+    off<K extends keyof SendStreamEventData>(event: K, callback: (data: SendStreamEventData[K]) => void): void {
+        this.$emitter.off(event, callback);
+    }
+
+    /**
+     * Sends the data to the server on an interval (will not stop until you call stop())
+     * @date 1/8/2024 - 3:39:39 PM
+     */
+    send() {
+        let i = 0;
+        this.interval = setInterval(async () => {
+            if (this.data.length) {
+                const data = this.data.shift();
+                if (data) {
+                    ServerRequest.post<{
+                        index: number;
+                        status: 'received' | 'end' | 'error';
+                    }>(this.url, {
+                        data,
+                        index: i,
+                        size: new TextEncoder().encode(data).length,
+                        type: 'data'
+                    })
+                        .then((data) => {
+                            switch (data.status) {
+                                case 'received':
+                                    this.emit('progress', i);
+                                    break;
+                                case 'end':
+                                    this.emit('end', undefined);
+                                    break;
+                                case 'error':
+                                    this.emit('error', new Error('Server error'));
+                                    break;
+                            }
+                        })
+                        .catch((error: Error) => {
+                            this.emit('error', error);
+                        });
+                }
+
+                i++;
+            }
+        }, this.options.rate); // 30 fps
+    }
+
+    /**
+     * Stops the stream
+     * @date 1/8/2024 - 3:39:39 PM
+     */
+    stop() {
+        if (this.interval) clearInterval(this.interval);
+        this.emit('end', undefined);
+        ServerRequest.post(this.url, {
+            type: 'end'
+        });
+    }
+};
 
 
 /**
@@ -288,10 +456,10 @@ export class ServerRequest<T = unknown> {
      * @param {FileList} files
      * @param {?*} [body]
      * @param {?StreamOptions} [options]
-     * @returns {EventEmitter<keyof SendStreamEventData>}
+     * @returns {EventEmitter<keyof SendFileStreamEventData>}
      */
-    static streamFiles(url: string, files: FileList, body?: any, options?: StreamOptions): EventEmitter<keyof SendStreamEventData> {
-        const emitter = new EventEmitter<keyof SendStreamEventData>();
+    static streamFiles(url: string, files: FileList, body?: any, options?: StreamOptions): EventEmitter<keyof SendFileStreamEventData> {
+        const emitter = new EventEmitter<keyof SendFileStreamEventData>();
 
         const formData = new FormData();
         for (let i = 0; i < files.length; i++) {
@@ -405,6 +573,28 @@ export class ServerRequest<T = unknown> {
             .catch(e => emitter.emit('error', new Error(e)));
 
         return emitter;
+    }
+
+
+    
+    /**
+     * Sends a stream of data to the server, the back end must use the built in stream handler to receive the data
+     * @param {string} url
+     * @param {SendStreamOptions} [options]
+     * @returns {SendStream}
+     */
+    static stream(url: string, data?: string[], options?: SendStreamOptions) {
+        const sendStream = new SendStream(url, options || {
+            rate: 1000 / 30
+        });
+
+        if (data) {
+            for (const d of data) {
+                sendStream.add(d);
+            }
+        }
+
+        return sendStream;
     }
 
     /**
@@ -527,7 +717,7 @@ export class ServerRequest<T = unknown> {
                     if (this.cached) console.log(data, '(cached)'); 
                     else console.log(data);
 
-                    if (data?.status) {
+                    if (data?.$status) {
                         // this is a notification
                         notify(data as StatusJson);
                     }

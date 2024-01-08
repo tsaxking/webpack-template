@@ -264,7 +264,7 @@ export class Status {
     get json() {
         return {
             title: this.title,
-            status: this.status,
+            $status: this.status,
             message: this.message,
             code: this.code,
             instructions: this.instructions,
