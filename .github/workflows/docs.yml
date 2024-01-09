@@ -34,4 +34,4 @@ jobs:
           git config --global user.email ""
           git add .
           git commit -m "Deploy documentation"
-          git push origin HEAD:docs --force # force push to the docs branch
+          git push origin HEAD:gh-pages --force # force push to the docs branch
