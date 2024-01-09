@@ -43,8 +43,8 @@ jobs:
           git commit --allow-empty -m "Initializing gh-pages branch"
           git push origin gh-pages
 
-          echo "Switching back to main branch"
-          git checkout main
+          echo "Merge main into gh-pages"
+          git merge main
 
       - name: Run documentation
         run: sh ./scripts/docs.sh
