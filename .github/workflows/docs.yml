@@ -32,10 +32,13 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email ""
-          git fetch
+          # delete the existing gh-pages branch
+          git branch -D gh-pages || true
+          # create a new gh-pages branch based on master
           git checkout -b gh-pages
-          git pull origin gh-pages
-          git merge docs
+          # remove all files from the new branch
+          git commit --allow-empty -m "Initial commit"
+          git push --set-upstream origin gh-pages
 
       - name: Run documentation
         run: sh ./scripts/docs.sh
