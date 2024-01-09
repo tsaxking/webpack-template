@@ -52,8 +52,8 @@ jobs:
           echo "     folder: $FOLDER"
           echo "branch name: $BRANCH_NAME"
 
-          echo "deleting workflow files"
-          rm -rf .github/workflows
+          echo "deleting workflow files we don't need in the other repositories"
+          rm -rf .github/workflows/merge-template.yaml
 
           # Clone the remote repository and change working directory to the
           # folder it was cloned to.
