@@ -32,6 +32,9 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email ""
+          git config pull.rebase false  # merge
+          git config pull.ff only       # fast-forward only
+          
           git fetch
           git checkout -b gh-pages
           git pull origin gh-pages
