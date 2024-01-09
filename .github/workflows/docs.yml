@@ -44,7 +44,7 @@ jobs:
           git push origin gh-pages
 
           echo "Merge main into gh-pages"
-          git merge main
+          git merge main --allow-unrelated-histories -m "Merge main into gh-pages"
 
       - name: Run documentation
         run: sh ./scripts/docs.sh
