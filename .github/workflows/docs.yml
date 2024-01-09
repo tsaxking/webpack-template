@@ -31,9 +31,7 @@ jobs:
         run: sh ./scripts/docs.sh
 
       - name: Deploy to GitHub Pages 🚀
-        run: |
-          git config --global user.name "GitHub Action"
-          git config --global user.email ""
-          git add .
-          git commit -m "Deploy documentation"
-          git push origin HEAD:gh-pages --force # force push to the docs branch
+        uses: JamesIves/github-pages-deploy-action@4.1.1
+        with:
+          branch: gh-pages
+          folder: docs
