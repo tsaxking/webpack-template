@@ -43,6 +43,8 @@ jobs:
 
       - name: Deploy to GitHub Pages 🚀
         run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email ""
           git add .
           git commit -m "Update docs"
           git push origin gh-pages
