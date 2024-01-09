@@ -1,0 +1,42 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+# This workflow will install Deno then run `deno lint` and `deno test`.
+# For more information see: https://github.com/denoland/setup-deno
+
+name: Deno
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v3
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: e7b7129b7a92b7500ded88f8f5baa25a7f59e56e
+
+      - name: Format
+        run: deno fmt
+
+      - name: Linter
+        run: deno lint --unstable
+
+      - name: Test
+        run: deno test --allow-read --allow-write --allow-env --allow-net --allow-run --unstable --coverage=coverage
+        env:
+          CI: true

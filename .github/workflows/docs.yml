@@ -1,0 +1,62 @@
+name: Document Repository
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  Document-Repository:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Retrieve git dependencies
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2.1.5
+        with:
+          node-version: "14"
+
+      - name: Install dependencies
+        run: npm i -g documentation
+
+
+      - name: Set up Github
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          echo "Deleting old gh-pages branch"
+          git branch -D gh-pages || true
+          git push origin --delete gh-pages || true
+
+          echo "Creating new gh-pages branch"
+          git checkout --orphan gh-pages
+          git reset --hard
+          git commit --allow-empty -m "Initializing gh-pages branch"
+          git push origin gh-pages
+
+          echo "Merge main into gh-pages"
+          git merge main --allow-unrelated-histories -m "Merge main into gh-pages"
+
+      - name: Run documentation
+        run: sh ./scripts/docs.sh
+
+      # - name: Deploy to GitHub Pages 🚀
+      #   uses: JamesIves/github-pages-deploy-action@4.1.1
+      #   with:
+      #     branch: gh-pages
+      #     folder: ./
+
+      - name: Deploy to GitHub Pages 🚀
+        run: |
+          git add .
+          git commit -m "Update docs"
+          git push origin gh-pages

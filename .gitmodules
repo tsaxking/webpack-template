@@ -1,0 +1,6 @@
+[submodule "client/submodules/colors"]
+	path = client/submodules/colors
+	url = git@github.com:tsaxking/colors.git
+[submodule "shared/submodules/calculations"]
+	path = shared/submodules/calculations
+	url = git@github.com:tsaxking/calculations.git
