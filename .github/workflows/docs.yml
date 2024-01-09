@@ -27,11 +27,24 @@ jobs:
       - name: Install dependencies
         run: npm i -g documentation
 
+
+      - name: Make documentation directory
+        run: 
+          mkdir docs
+
       - name: Run documentation
         run: sh ./scripts/docs.sh
 
+      # - name: Deploy to GitHub Pages 🚀
+      #   uses: JamesIves/github-pages-deploy-action@4.1.1
+      #   with:
+      #     branch: gh-pages
+      #     folder: ./
+
       - name: Deploy to GitHub Pages 🚀
-        uses: JamesIves/github-pages-deploy-action@4.1.1
-        with:
-          branch: gh-pages
-          folder: docs
+        run:
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Update docs"
+          git push origin gh-pages
