@@ -42,7 +42,7 @@ jobs:
           git add .
           git commit -m "Clean up old build"
           git push origin gh-pages
-          git merge main
+          git merge main --no-ff --no-edit
           git commit -m "Merge main into gh-pages"
 
       - name: Run documentation
