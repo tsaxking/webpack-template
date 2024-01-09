@@ -31,19 +31,20 @@ jobs:
       - name: Set up Github
         run: |
           git config --global user.name "github-actions[bot]"
-          git config --global user.email ""
-          git config pull.rebase false  # merge
-          git config pull.ff only       # fast-forward only
-          
-          git fetch
-          git checkout -b gh-pages
-          git pull origin gh-pages
-          rm -rf ./* # Remove all files from the old build, so we don't have any conflicts
-          git add .
-          git commit -m "Clean up old build"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          echo "Deleting old gh-pages branch"
+          git branch -D gh-pages || true
+          git push origin --delete gh-pages || true
+
+          echo "Creating new gh-pages branch"
+          git checkout --orphan gh-pages
+          git reset --hard
+          git commit --allow-empty -m "Initializing gh-pages branch"
           git push origin gh-pages
-          git merge main --no-ff --no-edit
-          git commit -m "Merge main into gh-pages"
+
+          echo "Switching back to main branch"
+          git checkout main
 
       - name: Run documentation
         run: sh ./scripts/docs.sh
