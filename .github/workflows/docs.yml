@@ -42,7 +42,7 @@ jobs:
       #     folder: ./
 
       - name: Deploy to GitHub Pages 🚀
-        run:
+        run: |
           git add .
           git commit -m "Update docs"
           git push origin gh-pages
