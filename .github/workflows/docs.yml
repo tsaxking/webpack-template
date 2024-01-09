@@ -10,15 +10,23 @@ permissions:
   contents: read
 
 jobs:
-  test:
+  Document-Repository:
     runs-on: ubuntu-latest
 
     steps:
       - name: Setup repo
         uses: actions/checkout@v3
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v2.1.5
+        with:
+          node-version: "14"
+
+      - name: Install dependencies
+        run: npm i -g documentation
+
       - name: Run documentation
-        run: documentation build ./** -f html --parse-extension ts --github -o docs
+        run: sh ./scripts/docs.sh
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@4.1.4
