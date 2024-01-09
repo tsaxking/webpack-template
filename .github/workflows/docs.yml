@@ -28,9 +28,13 @@ jobs:
         run: npm i -g documentation
 
 
-      - name: Make documentation directory
-        run: 
-          mkdir docs
+      - name: Set up Github
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email ""
+          git checkout gh-pages
+          git pull origin gh-pages
+          git merge docs
 
       - name: Run documentation
         run: sh ./scripts/docs.sh
@@ -43,8 +47,6 @@ jobs:
 
       - name: Deploy to GitHub Pages 🚀
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email ""
           git add .
           git commit -m "Update docs"
           git push origin gh-pages
