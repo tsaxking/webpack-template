@@ -30,5 +30,13 @@ jobs:
         with:
           deno-version: e7b7129b7a92b7500ded88f8f5baa25a7f59e56e
 
-      # - name: Run tests
-      #   run: deno task test
+      - name: Format
+        run: deno fmt
+
+      - name: Linter
+        run: deno lint
+
+      - name: Test
+        run: deno test --allow-read --allow-write --allow-env --allow-net --allow-run --unstable --coverage=coverage
+        env:
+          CI: true

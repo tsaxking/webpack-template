@@ -1,24 +1,58 @@
 {
-  "tasks": {
-    "start": "deno run --allow-all --unstable ./server/server.ts",
-    "dev": "deno run --allow-all --unstable --watch ./server/server.ts",
-    "build": "deno run --allow-all ./server/bundler.ts",
-    "init": "deno run --allow-all --allow-run --unstable ./scripts/init.ts",
-    "entry": "deno run --allow-all ./scripts/add-entry.ts prompt",
-    "status": "deno run --allow-all ./scripts/add-status.ts status",
-    "socket": "deno run --allow-all ./scripts/add-status.ts socket",
-    "type-route": "deno run --allow-all ./scripts/type-route.ts",
-    "discord": "deno run --allow-all --unstable ./server/utilities/discord/discord.ts",
-    "test": "deno test --allow-all --unstable --no-check ./scripts/test.ts -- --default",
-    "view-paths": "deno run --allow-all ./scripts/view-paths.ts"
-  },
-  "compilerOptions": {
-    // "noexplicitAny": false,
-    "lib": [
-      "deno.ns",
-      "dom",
-      "es2022",
-      "esnext"
-    ]
-  }
+    "tasks": {
+        "start": "deno run --allow-all --unstable ./server/server.ts",
+        "dev": "deno run --allow-all --unstable --watch ./server/server.ts",
+        "build": "deno run --allow-all ./server/bundler.ts",
+        "init": "deno run --allow-all --allow-run --unstable ./scripts/init.ts",
+        "entry": "deno run --allow-all ./scripts/add-entry.ts prompt",
+        "status": "deno run --allow-all ./scripts/add-status.ts status",
+        "socket": "deno run --allow-all ./scripts/add-status.ts socket",
+        "type-route": "deno run --allow-all ./scripts/type-route.ts",
+        "discord": "deno run --allow-all --unstable ./server/utilities/discord/discord.ts",
+        "test": "deno test --allow-all --unstable --no-check ./scripts/test.ts -- --default",
+        "view-paths": "deno run --allow-all ./scripts/view-paths.ts"
+    },
+    "compilerOptions": {
+        // "noexplicitAny": false,
+        "lib": [
+            "deno.ns",
+            "dom",
+            "es2022",
+            "esnext"
+        ]
+    },
+    "lint": {
+        "exclude": [
+            "node_modules/",
+            "dist/",
+            "**/require.js",
+            "**/submodules/",
+            "**/declaration-merging/"
+        ],
+        "rules": {
+            "exclude": [
+                "no-unused-vars",
+                "no-explicit-any",
+                "no-inferrable-types",
+                "no-async-promise-executor",
+                "ban-types",
+                "require-await"
+            ]
+        }
+    },
+    "fmt": {
+        "include": [
+            "./server/**/*.ts",
+            "./scripts/**/*.ts",
+            "./tests/**/*.ts",
+            "./deno.json",
+            "./client/**/*.ts",
+            "./storage/**/*.ts"
+        ],
+        "indentWidth": 4,
+        "lineWidth": 80,
+        "useTabs": false,
+        "singleQuote": true,
+        "semiColons": true
+    }
 }
