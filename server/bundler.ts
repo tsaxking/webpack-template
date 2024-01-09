@@ -10,7 +10,7 @@ log('Typescript version:', Deno.version.typescript);
 log('V8 version:', Deno.version.v8);
 
 /**
- * Description placeholder
+ * Recursively reads a directory, saves the template, and returns the file paths
  * @date 10/12/2023 - 3:26:56 PM
  */
 const readDir = (dirPath: string): string[] => {
@@ -40,7 +40,7 @@ const readDir = (dirPath: string): string[] => {
 }
 
 /**
- * Description placeholder
+ * All entry points to the front end app
  * @date 10/12/2023 - 3:26:56 PM
  *
  * @type {{}}
@@ -50,7 +50,7 @@ let entries: string[] = [];
 entries = readDir('./client/entries');
 
 /**
- * Description placeholder
+ * Event data for the build event
  * @date 10/12/2023 - 3:26:56 PM
  *
  * @typedef {BuildEventData}

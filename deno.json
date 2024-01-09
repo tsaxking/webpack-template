@@ -30,13 +30,13 @@
             "**/declaration-merging/"
         ],
         "rules": {
-            "exclude": [
-                "no-unused-vars",
-                "no-explicit-any",
-                "no-inferrable-types",
-                "no-async-promise-executor",
-                "ban-types",
-                "require-await"
+            "include": [
+                "./server/**/*.ts",
+                "./scripts/**/*.ts",
+                "./tests/**/*.ts",
+                "./deno.json",
+                "./client/**/*.ts",
+                "./storage/**/*.ts"
             ]
         }
     },

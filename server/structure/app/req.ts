@@ -4,6 +4,12 @@ import { Session } from "../sessions.ts";
 import { parseCookie } from "../../../shared/cookie.ts";
 import { FileUpload } from "../../middleware/stream.ts";
 
+/**
+ * File body type
+ * @date 1/9/2024 - 1:15:22 PM
+ *
+ * @typedef {FileBody}
+ */
 type FileBody = {
     $$files: FileUpload[]
 }

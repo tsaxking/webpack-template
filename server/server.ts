@@ -11,7 +11,7 @@ import { router as account } from './routes/account.ts';
 import { router as api } from './routes/api.ts';
 import Role from "./structure/roles.ts";
 import { validate } from "./middleware/data-type.ts";
-import { stream } from "./middleware/stream.ts";
+import { retrieveStream } from "./middleware/stream.ts";
 import os from "https://deno.land/x/dos@v0.11.0/mod.ts";
 
 console.log('Platform:', os.platform());
@@ -45,7 +45,7 @@ app.post('/test-stream', (req, res) => {
     res.stream(data);
 });
 
-app.post('/test-stream-data', stream({
+app.post('/test-stream-data', retrieveStream({
     onData: console.log,
     onError: console.error,
     onEnd: console.log

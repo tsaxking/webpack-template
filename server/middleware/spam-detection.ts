@@ -4,9 +4,35 @@ import { App, ServerFunction, Next } from "../structure/app/app.ts";
 import { Req } from "../structure/app/req.ts";
 import { Res } from "../structure/app/res.ts";
 import { log } from "../utilities/terminal-logging.ts";
+/**
+ * Options for the spam detection middleware
+ * @date 1/9/2024 - 1:19:48 PM
+ *
+ * @export
+ * @typedef {Options}
+ */
 export type Options = {
-    onspam?: (req: Req, res: Res, next: Next) => void;
-    onerror?: (req: Req, res: Res, next: Next) => void;
+    /**
+     * Called when the request is flagged as spam
+     * @param req 
+     * @param res 
+     * @param next 
+     * @returns 
+     */
+    onspam?: ServerFunction<any>;
+
+    /**
+     * Called when an error occurs
+     * @param req 
+     * @param res 
+     * @param next 
+     * @returns 
+     */
+    onerror?: ServerFunction<any>;
+
+    /**
+     * Whether or not to continue to the next middleware function (default: false)
+     */
     goToNext?: boolean;
 }
 
@@ -40,7 +66,11 @@ export type Options = {
 // };
 
 
-export const emailValidation = (keys: string[], options: Options = {}): ServerFunction => {
+/**
+ * Ensures that the specified keys are valid emails
+ * @date 1/9/2024 - 1:19:48 PM
+ */
+export const emailValidation = (keys: string[], options: Options = {}): ServerFunction<any> => {
     return (req: Req, res: Res, next: Next) => {
         const arr = keys.map(key => req.body[key]).filter(Boolean);
 

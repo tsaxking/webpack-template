@@ -1,5 +1,5 @@
 /**
- * Description placeholder
+ * All terminal colors
  * @date 10/12/2023 - 3:24:15 PM
  *
  * @export

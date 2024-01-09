@@ -260,7 +260,7 @@ export type Next = () => void;
  * @export
  * @typedef {ServerFunction}
  */
-export type ServerFunction<T> = (req: Req<T>, res: Res, next: Next) => any | Promise<any>;
+export type ServerFunction<T = unknown> = (req: Req<T>, res: Res, next: Next) => any | Promise<any>;
 /**
  * Final function that is called at the end of a request
  * @date 10/12/2023 - 2:49:37 PM

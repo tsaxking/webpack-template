@@ -48,7 +48,7 @@ type SendFileStreamEventData = {
 
 
 /**
- * Description placeholder
+ * Event emitter for sending a stream
  * @date 10/12/2023 - 1:19:15 PM
  *
  * @typedef {RetrieveStreamEventData}
@@ -138,7 +138,7 @@ export class RetrieveStreamEventEmitter<T = string> extends EventEmitter<keyof R
 
 
 /**
- * Description placeholder
+ * Events that can be emitted from a send stream
  * @date 1/8/2024 - 3:39:39 PM
  *
  * @typedef {SendStreamEventData}
@@ -150,7 +150,7 @@ type SendStreamEventData = {
 }
 
 /**
- * Description placeholder
+ * Options for sending a stream
  * @date 1/8/2024 - 3:39:39 PM
  *
  * @typedef {SendStreamOptions}

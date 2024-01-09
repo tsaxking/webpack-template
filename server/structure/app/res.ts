@@ -467,6 +467,15 @@ export class Res {
 
 
 
+    /**
+     * Renders a template to the client (utilizes node-html-constructor to build the template)
+     * @date 1/9/2024 - 1:15:37 PM
+     *
+     * @async
+     * @param {string} template
+     * @param {*} constructor
+     * @returns {*}
+     */
     async render(template: string, constructor: any) {
         try {
             const t = await getTemplate(template, constructor);

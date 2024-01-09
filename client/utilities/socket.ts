@@ -249,7 +249,7 @@ export class SocketWrapper {
 }
 
 /**
- * Description placeholder
+ * This is the socket wrapper that is used to interact with the socket
  * @date 10/12/2023 - 1:28:35 PM
  *
  * @type {SocketWrapper}

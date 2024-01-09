@@ -8,7 +8,7 @@ import { Bundle } from "https://deno.land/x/bundler@0.9.0/plugins/plugin.ts";
 
 
 /**
- * Description placeholder
+ * Bundles a file into a single html file
  * @date 10/12/2023 - 3:24:05 PM
  *
  * @async

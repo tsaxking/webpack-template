@@ -5,7 +5,7 @@ import { relative } from "./env.ts";
 
 
 /**
- * Description placeholder
+ * Retrieves the callsite information
  * @date 10/12/2023 - 3:26:33 PM
  */
 const getSite = () => {
@@ -20,7 +20,7 @@ const getSite = () => {
 
 
 /**
- * Description placeholder
+ * Creates a log message, including the file path, line number, and function name
  * @date 10/12/2023 - 3:26:33 PM
  */
 export const log = (...args: any[]) => {
@@ -29,7 +29,7 @@ export const log = (...args: any[]) => {
 };
 
 /**
- * Description placeholder
+ * Creates an error message, including the file path, line number, and function name
  * @date 10/12/2023 - 3:26:33 PM
  */
 export const error = (...args: any[]) => {
@@ -38,7 +38,7 @@ export const error = (...args: any[]) => {
 }
 
 /**
- * Description placeholder
+ * Creates a warning message, including the file path, line number, and function name
  * @date 10/12/2023 - 3:26:32 PM
  */
 export const warn = (...args: any[]) => {

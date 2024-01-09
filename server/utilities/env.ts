@@ -2,7 +2,10 @@ import callsite from 'npm:callsite';
 import { Colors } from "./colors.ts";
 import os from "https://deno.land/x/dos@v0.11.0/mod.ts";
 
-// make paths change based on platform
+/**
+ * Makes paths consistent across platforms
+ * @date 1/9/2024 - 12:12:32 PM
+ */
 export const platformify = (path: string) => {
     switch (os.platform()) {
         case 'linux':
@@ -14,6 +17,10 @@ export const platformify = (path: string) => {
     }
 }
 
+/**
+ * Adds the file:// protocol to a path if the platform requires it
+ * @date 1/9/2024 - 12:12:32 PM
+ */
 export const addFileProtocol = (path: string) => {
     switch (os.platform()) {
         case 'linux':
@@ -26,7 +33,10 @@ export const addFileProtocol = (path: string) => {
 
 }
 
-// make paths consistent across platforms
+/**
+ * Unifies paths across platforms, removes file:// protocol, and removes duplicate slashes
+ * @date 1/9/2024 - 12:12:32 PM
+ */
 export const unify = (path: string) => {
     return path
         .replace(/\\/g, '/')
@@ -36,6 +46,10 @@ export const unify = (path: string) => {
 
 
 
+/**
+ * Combines multiple paths into one
+ * @date 1/9/2024 - 12:12:32 PM
+ */
 export const resolve = (...paths: string[]): string => {
     // replace resolve with this function
     const move = (path1: string, path2: string): string => {
@@ -70,6 +84,10 @@ export const resolve = (...paths: string[]): string => {
     return platformify(result);
 }
 
+/**
+ * Finds the relative path from one file to another
+ * @date 1/9/2024 - 12:12:32 PM
+ */
 export const relative = (from: string, to: string): string => {
     from = unify(from);
     to = unify(to);
@@ -150,6 +168,21 @@ export const __dirname = () => {
     return platformify(data.join('/'));
 }
 
+/**
+ * Name of the file that called this function
+ * @date 1/9/2024 - 12:16:52 PM
+ */
+export const __filename = () => {
+    const site = callsite()[1];
+    let p =  relative(__root, site.getFileName()?.replace('file://', '').substring(1) || '');
+    p = unify(p);
+    return platformify(p);
+}
+
+/**
+ * The name of the parent folder of the file
+ * @date 1/9/2024 - 12:12:32 PM
+ */
 export const dirname = (path: string) => {
     path = unify(path);
     const data = path.split('/');
@@ -157,10 +190,25 @@ export const dirname = (path: string) => {
     return platformify(data.join('/'));
 }
 
+/**
+ * The name of the file at the end of the path
+ * @date 1/9/2024 - 12:12:32 PM
+ */
 export const basename = (path: string) => {
     path = unify(path);
     const data = path.split('/');
     return data.pop() || '';
+}
+
+
+/**
+ * The extension of the file at the end of the path
+ * @date 1/9/2024 - 12:14:33 PM
+ */
+export const extname = (path: string) => {
+    const dirs = path.split('/');
+    const file = dirs.pop() || ''; // get the file name (last element)
+    return file.split('.').pop() || '';
 }
 
 
@@ -193,9 +241,5 @@ try {
 // }
 
 console.log(Colors.FgGreen, 'Environment variables loaded!', Colors.Reset);
-
-
-
-
 
 export default env;

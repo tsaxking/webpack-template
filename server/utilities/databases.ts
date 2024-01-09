@@ -4,17 +4,23 @@ import { Database, Statement } from "https://deno.land/x/sqlite3@0.9.1/mod.ts";
 import { log, error } from "./terminal-logging.ts";
 import { Queries } from "./sql-types.ts";
 
+/**
+ * The name of the main database
+ * @date 1/9/2024 - 12:08:08 PM
+ *
+ * @type {*}
+ */
 const { DATABASE_LINK } = env;
 
 /**
- * Description placeholder
+ * Directory where the databases are stored
  * @date 10/12/2023 - 3:24:19 PM
  *
  * @type {*}
  */
 const dbDir = resolve(__root, './storage/db');
 /**
- * Description placeholder
+ * Main database
  * @date 10/12/2023 - 3:24:19 PM
  *
  * @type {Database}
@@ -24,7 +30,7 @@ export const MAIN = new Database(resolve(dbDir, DATABASE_LINK + '.db'));
 
 
 /**
- * Description placeholder
+ * Acceptable types for a parameter
  * @date 10/12/2023 - 3:24:19 PM
  *
  * @typedef {Parameter}
@@ -32,7 +38,7 @@ export const MAIN = new Database(resolve(dbDir, DATABASE_LINK + '.db'));
 type Parameter = string | number | boolean | null;
 
 /**
- * Description placeholder
+ * Database class
  * @date 10/12/2023 - 3:24:19 PM
  *
  * @export
@@ -40,20 +46,43 @@ type Parameter = string | number | boolean | null;
  * @typedef {DB}
  */
 export class DB {
+    /**
+     * Database instance
+     * @date 1/9/2024 - 12:08:08 PM
+     *
+     * @static
+     * @readonly
+     * @type {*}
+     */
     static readonly db = MAIN;
 
+    /**
+     * Path to the database
+     * @date 1/9/2024 - 12:08:08 PM
+     *
+     * @static
+     * @readonly
+     * @type {*}
+     */
     static get path() {
-        console.log(env);
         return resolve(dbDir, env.DATABASE_LINK + '.db');
     }
 
+    /**
+     * Database version
+     * @date 1/9/2024 - 12:08:08 PM
+     *
+     * @static
+     * @readonly
+     * @type {[number, number, number]}
+     */
     static get version(): [number, number, number] {
         const v = DB.get('db/get-version');
         return [v?.major ?? 0, v?.minor ?? 0, v?.patch ?? 0];
     }
 
     /**
-     * Description placeholder
+     * Prepares a query
      * @date 10/12/2023 - 3:24:19 PM
      *
      * @private
@@ -74,6 +103,18 @@ export class DB {
         }
     }
 
+    /**
+     * Runs a query
+     * @date 1/9/2024 - 12:08:08 PM
+     *
+     * @private
+     * @static
+     * @template {keyof Queries} T
+     * @param {('run' | 'get' | 'all')} type
+     * @param {T} query
+     * @param {...Queries[T][0]} args
+     * @returns {(Queries[T][1] | undefined)}
+     */
     private static runQuery<T extends keyof Queries>(type: 'run' | 'get' | 'all', query: T, ...args: Queries[T][0]): Queries[T][1] | undefined {
         const q = DB.prepare(query);
 
@@ -95,11 +136,22 @@ export class DB {
             d = recurse(0);
         } catch (e) {
             log('Error in query', query);
-            throw e;
+            throw e; // want to throw the error because it's a database error
         }
         return d;
     }
 
+    /**
+     * Runs a query without preparing it (only used for in-line queries)
+     * @date 1/9/2024 - 12:08:08 PM
+     *
+     * @private
+     * @static
+     * @param {('run' | 'get' | 'all')} type
+     * @param {string} query
+     * @param {...Parameter[]} args
+     * @returns {unknown}
+     */
     private static runUnsafeQuery(type: 'run' | 'get' | 'all', query: string, ...args: Parameter[]) {
         const q = MAIN.prepare(query);
 
@@ -130,7 +182,7 @@ export class DB {
 
 
     /**
-     * Description placeholder
+     * Runs a query
      * @date 10/12/2023 - 3:24:19 PM
      *
      * @static
@@ -144,7 +196,7 @@ export class DB {
     }
 
     /**
-     * Description placeholder
+     * Gets the first result of a query
      * @date 10/12/2023 - 3:24:19 PM
      *
      * @static
@@ -158,7 +210,7 @@ export class DB {
     }
 
     /**
-     * Description placeholder
+     * Gets all results of a query
      * @date 10/12/2023 - 3:24:19 PM
      *
      * @static
@@ -174,7 +226,8 @@ export class DB {
 
 
     /**
-     * Description placeholder
+     * Runs a query without preparing it (only used for in-line queries)
+     * Don't use this unless you know what you're doing. This should only be used for scripts, and never in the main server.
      * @date 10/12/2023 - 3:24:19 PM
      *
      * @static
@@ -198,7 +251,7 @@ export class DB {
 
 
 // when the program exits, close the database
-// this is to prevent the database from being locked
+// this is to prevent the database from being locked after the program exits
 
 globalThis.addEventListener('unload', () => {
     MAIN.close();

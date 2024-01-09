@@ -8,7 +8,7 @@ import { error } from "./terminal-logging.ts";
 config();
 
 /**
- * Description placeholder
+ * Sendgrid transporter, used to send emails
  * @date 10/12/2023 - 3:24:32 PM
  *
  * @type {*}
@@ -24,7 +24,7 @@ const transporter = nodemailer.createTransport(sgTransport({
 
 
 /**
- * Description placeholder
+ * Email options
  * @date 10/12/2023 - 3:24:32 PM
  *
  * @export
@@ -47,7 +47,7 @@ export type EmailOptions = {
 
 
 /**
- * Description placeholder
+ * Email types
  * @date 10/12/2023 - 3:24:32 PM
  *
  * @export
@@ -60,7 +60,7 @@ export enum EmailType {
 }
 
 /**
- * Description placeholder
+ * Email class
  * @date 10/12/2023 - 3:24:32 PM
  *
  * @export
@@ -87,13 +87,13 @@ export class Email {
 
 
     /**
-     * Description placeholder
+     * Sends the email to the specified address in the constructor
      * @date 10/12/2023 - 3:24:32 PM
      *
      * @returns {*}
      */
-    send() {try {
-        
+    send() {
+        try {
             const { to, subject, type, options } = this;
             let { attachments, constructor } = options;
     
@@ -145,8 +145,8 @@ export class Email {
                     }
                 });
             });
-    } catch (e) {
-        error('Unable to send email:', e);
-    }
+        } catch (e) {
+            error('Unable to send email:', e);
+        }
     }
 }

@@ -39,6 +39,10 @@ export const fromSnakeCase = (str: string, del: string = '_'): string => str.rep
 
 
 
+/**
+ * Abbreviates a string to a given length (appending ...)
+ * @date 1/9/2024 - 12:04:06 PM
+ */
 export const abbreviate = (string: string, length: number = 10): string => {
     if (length < 3) throw new Error('Abbreviation length must be at least 3');
 
@@ -46,4 +50,10 @@ export const abbreviate = (string: string, length: number = 10): string => {
     return string.substring(0, length - 3) + '...';
 };
 
+/**
+ * Used for streams, you can ignore this
+ * @date 1/9/2024 - 12:04:06 PM
+ *
+ * @type {"<"}
+ */
 export const streamDelimiter = '<';

@@ -1,3 +1,5 @@
+// The point of this file is to work with another server that generates ids and pulls them form random.org
+
 import * as randomString from 'npm:uuid';
 import axios from 'npm:axios';
 import * as fsPromises from 'node:fs/promises';

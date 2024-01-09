@@ -3,14 +3,42 @@ import { Res } from "../structure/app/res.ts"
 import { Next, ServerFunction } from "../structure/app/app.ts";
 import { Colors } from "../utilities/colors.ts";
 
+/**
+ * Options for the validate function
+ * @date 1/9/2024 - 1:16:19 PM
+ *
+ * @typedef {ValidateOptions}
+ */
 type ValidateOptions = {
     allowExtra?: boolean
+    
+    /**
+     * Called when a value is invalid
+     * @param key 
+     * @param value 
+     * @returns 
+     */
     onInvalid?: (key: string, value: any) => void
+
+    /**
+     * Called when a value is missing
+     * @param key 
+     * @returns 
+     */
     onMissing?: (key: string) => void
     
+    /**
+     * Called when a value is missing or is flagged as spam
+     * 
+     * The flagging system is not yet implemented
+     */
     onspam?: ServerFunction<any>
 }
 
+/**
+ * Creates a middleware function that validates the req.body, ensuring that all data is both present and the correct type
+ * @date 1/9/2024 - 1:16:19 PM
+ */
 export const validate = (data: {
     [key: string]: (value: any) => boolean
 }, options?: ValidateOptions): ServerFunction<any> => {

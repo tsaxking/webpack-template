@@ -3,6 +3,13 @@ import { __dirname, __root, resolve, addFileProtocol } from "./env.ts";
 import { spawn } from 'node:child_process';
 
 
+/**
+ * Result of a task
+ * @date 1/9/2024 - 12:33:21 PM
+ *
+ * @typedef {Result}
+ * @template T
+ */
 type Result<T> = {
     error: Error,
     code: number
@@ -13,7 +20,7 @@ type Result<T> = {
 }
 
 /**
- * 
+ * Runs a deno file
  * @param {string} file File path from the root of the project (must start with a slash)
  * @param {string} functionName Function to run from the file
  * @param {string[]} args Arguments to pass to the function
@@ -67,7 +74,14 @@ export const runTask = async <T>(file: string, functionName?: string, ...args: s
 };
 
 
+/**
+ * Runs a command (unstable!)
+ * @date 1/9/2024 - 12:33:21 PM
+ *
+ * @async
+ */
 export const runCommand = async (command: string, ...args: string[]): Promise<Result<string>> => {
+    // TODO: make runCommand work
     return new Promise<Result<string>>((resolve) => {
         try {
             // using spawn from node

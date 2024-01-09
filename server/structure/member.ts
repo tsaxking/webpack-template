@@ -1,3 +1,6 @@
+// This is essentially an extension off of an account. It is used to manage members of the site, their bios, resumes, and other information.
+// This isn't documented yet because I'm still working on it. It's not a priority right now.
+
 import { DB } from "../utilities/databases.ts";
 import Account from "./accounts.ts";
 import { EmailType } from "../utilities/email.ts";
@@ -210,7 +213,7 @@ export class Member {
 
 
     changeBio(bio: string) {
-        if (!Account.valid(bio, [' '])) return MemberReturnStatus.invalidBio;
+        if (!Account.isValid(bio, [' '])) return MemberReturnStatus.invalidBio;
 
         DB.run('member/update-bio', {
             bio: bio,
@@ -224,7 +227,7 @@ export class Member {
 
 
     changeTitle(title: string) {
-        if (!Account.valid(title, [' '])) return MemberReturnStatus.invalidTitle;
+        if (!Account.isValid(title, [' '])) return MemberReturnStatus.invalidTitle;
 
         DB.run('member/update-title', {
             title,

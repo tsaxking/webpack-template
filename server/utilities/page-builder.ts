@@ -1,36 +1,17 @@
+/**
+ * @fileoverview This file is used to build static home pages given the request object. It is used for server side rendering and front end multi-page applications.
+ * 
+ */
+
 import { getJSON, getTemplate } from './files.ts';
 import { fromSnakeCase, capitalize } from '../../shared/text.ts';
-import { Server } from 'npm:socket.io';
-import { Session } from '../structure/sessions.ts';
-import { SocketWrapper } from '../structure/socket.ts';
 import { Req } from "../structure/app/req.ts";
 import { Res } from "../structure/app/res.ts";
-import { Next, ServerFunction } from "../structure/app/app.ts";
-
-
-declare global {
-    namespace Express {
-        interface Request {
-            session: Session;
-            start: number;
-            io: Server;
-            file?: {
-                id: string;
-                name: string;
-                size: number;
-                type: string;
-                ext: string;
-                contentType: string;
-                filename: string
-            }
-            socketIO?: SocketWrapper;
-        }
-    }
-}
+import { Next } from "../structure/app/app.ts";
 
 
 /**
- * Description placeholder
+ * Object containing all the pages that can be built
  * @date 10/12/2023 - 3:25:12 PM
  *
  * @type {{
@@ -58,7 +39,7 @@ const builds: {
 
 
 /**
- * Description placeholder
+ * Middleware that builds the page if it exists
  * @date 10/12/2023 - 3:25:12 PM
  *
  * @async
@@ -66,14 +47,16 @@ const builds: {
 export const builder = async (req: Req, res: Res, next: Next) => {
     const { url } = req;
     if (builds[url]) {
-        res.send(await builds[url](req));
+        res.send(
+            await homeBuilder(url)
+        );
     } else {
         next();
     }
 };
 
 /**
- * Description placeholder
+ * Builds the home pages using a template
  * @date 10/12/2023 - 3:25:12 PM
  *
  * @async
@@ -90,7 +73,7 @@ export const homeBuilder = async (url: string) => {
 };
 
 /**
- * Description placeholder
+ * Generates the navbar
  * @date 10/12/2023 - 3:25:12 PM
  *
  * @async

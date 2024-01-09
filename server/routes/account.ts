@@ -159,7 +159,7 @@ router.post<{
 
 
 router.post('/get-pending-accounts', Account.allowPermissions('verify'), (_req, res) => {
-    const accounts = Account.unverifiedAccounts();
+    const accounts = Account.unverifiedAccounts;
     res.json(accounts.map(a => a.safe({
         roles: true,
         memberInfo: true,
@@ -176,7 +176,7 @@ router.post('/get-pending-accounts', Account.allowPermissions('verify'), (_req, 
 
 
 router.post('/get-all', (_req, res) => {
-    const accounts = Account.all();
+    const accounts = Account.all;
     res.json(accounts.map(a => a.safe));
 });
 

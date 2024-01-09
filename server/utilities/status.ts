@@ -1,26 +1,15 @@
 import { getTemplateSync, log } from "./files.ts";
 import { Session } from "../structure/sessions.ts";
-import { Server } from "npm:socket.io";
 import { messages, StatusId, StatusCode, StatusMessage, StatusColor } from "../../shared/status-messages.ts";
 import { Next, ServerFunction } from "../structure/app/app.ts";
 import { Req } from "../structure/app/req.ts";
 import { Res } from "../structure/app/res.ts";
-
-declare global {
-    namespace Express {
-        interface Request {
-            session: Session;
-            start: number;
-            io: Server;
-        }
-    }
-}
-
-
+import Account from '../structure/accounts.ts';
 
 
 /**
- * Description placeholder
+ * Status class, used to send pre-made status messages to the client
+ * These messages also add logs to the ./storage/logs/status.csv file
  * @date 10/12/2023 - 3:26:23 PM
  *
  * @export
@@ -29,7 +18,8 @@ declare global {
  */
 export class Status {
     /**
-     * Description placeholder
+     * Status middleware, used to check if a user fulfills a certain requirement
+     * This could be used to check if a user is logged in, or if they have a certain role
      * @date 10/12/2023 - 3:26:23 PM
      *
      * @static
@@ -54,7 +44,7 @@ export class Status {
 
 
     /**
-     * Description placeholder
+     * Generates a status object from a status id and a request object
      * @date 10/12/2023 - 3:26:23 PM
      *
      * @static
@@ -111,7 +101,7 @@ export class Status {
 
 
     /**
-     * Description placeholder
+     * Message the user will see
      * @date 10/12/2023 - 3:26:23 PM
      *
      * @public
@@ -120,7 +110,7 @@ export class Status {
      */
     public readonly message: string;
     /**
-     * Description placeholder
+     * Bootstrap color the message will have
      * @date 10/12/2023 - 3:26:23 PM
      *
      * @public
@@ -129,7 +119,7 @@ export class Status {
      */
     public readonly color: StatusColor;
     /**
-     * Description placeholder
+     * HTTP status code
      * @date 10/12/2023 - 3:26:23 PM
      *
      * @public
@@ -138,7 +128,7 @@ export class Status {
      */
     public readonly code: StatusCode;
     /**
-     * Description placeholder
+     * Any instructions the user should follow
      * @date 10/12/2023 - 3:26:23 PM
      *
      * @public
@@ -147,7 +137,7 @@ export class Status {
      */
     public readonly instructions: string;
     /**
-     * Description placeholder
+     * Data to be stored in logs
      * @date 10/12/2023 - 3:26:23 PM
      *
      * @public
@@ -156,7 +146,7 @@ export class Status {
      */
     public readonly data: string;
     /**
-     * Description placeholder
+     * URL to redirect to
      * @date 10/12/2023 - 3:26:23 PM
      *
      * @public
@@ -165,7 +155,7 @@ export class Status {
      */
     public readonly redirect?: string;
     /**
-     * Description placeholder
+     * Request object
      * @date 10/12/2023 - 3:26:23 PM
      *
      * @public
@@ -202,7 +192,7 @@ export class Status {
         this.redirect = message.redirect;
         this.request = req;
 
-
+        // Log the status message in the ./storage/logs/status.csv file
         log('status', {
             ...message,
             data: data ? JSON.stringify(data) : 'No data provided.',
@@ -213,7 +203,7 @@ export class Status {
 
 
 
-        // Send email to admins if error
+        // TODO: Send email to admins if server error
         // if (status === ColorCode.majorError && env.SEND_STATUS_EMAILS === 'TRUE') {
         //     Account.fromRole('admin')
         //         .then(admins => {
@@ -241,7 +231,7 @@ export class Status {
     }
 
     /**
-     * Description placeholder
+     * Generates the HTML for the status message
      * @date 10/12/2023 - 3:26:23 PM
      *
      * @readonly
@@ -255,7 +245,7 @@ export class Status {
     }
 
     /**
-     * Description placeholder
+     * Generates a safe json for the status message (excludes the request object)
      * @date 10/12/2023 - 3:26:23 PM
      *
      * @readonly
@@ -275,7 +265,7 @@ export class Status {
     }
 
     /**
-     * Description placeholder
+     * Sends the status message to the client (either as json or html, depending on the request method)
      * @date 10/12/2023 - 3:26:23 PM
      *
      * @param {Res} res

@@ -12,7 +12,7 @@ import { EventEmitter } from "../../shared/event-emitter.ts";
 import { datacatalog_v1 } from "npm:googleapis";
 
 /**
- * Description placeholder
+ * Options for file upload streams
  *
  * @typedef {FileStreamOptions}
  */
@@ -21,6 +21,13 @@ type FileStreamOptions = {
     extensions?: string[];
 }
 
+/**
+ * File upload object
+ * @date 1/9/2024 - 1:21:53 PM
+ *
+ * @export
+ * @typedef {FileUpload}
+ */
 export type FileUpload = {
     name: string;
     id: string;
@@ -29,7 +36,7 @@ export type FileUpload = {
 }
 
 /**
- * Description placeholder
+ * Creates a middleware function that handles file uploads
  *
  * @param {FileStreamOptions} opts
  * @returns {(req: any, res: any, next: any) => unknown}
@@ -95,22 +102,48 @@ export const fileStream = (opts?: FileStreamOptions): ServerFunction<any> => {
 
 
 
+/**
+ * All events that can be emitted by a stream
+ * @date 1/9/2024 - 1:21:53 PM
+ *
+ * @typedef {StreamEvents}
+ */
 type StreamEvents = {
     'data': string;
     'end': void;
     'error': Error;
 };
 
+/**
+ * Event emitter
+ * @date 1/9/2024 - 1:21:53 PM
+ *
+ * @typedef {EM}
+ */
 type EM = EventEmitter<keyof StreamEvents>;
 
 
+/**
+ * Stream event middleware options
+ * @date 1/9/2024 - 1:21:53 PM
+ *
+ * @typedef {StreamOptions}
+ */
 type StreamOptions = {
     onData: (data: string) => void;
     onEnd: () => void;
     onError: (err: Error) => void;
 };
 
-export const stream = (options: Partial<StreamOptions>): ServerFunction<any> => {
+/**
+ * Creates a middleware function that handles stream events
+ * Be careful using this function as it can cause memory leaks if not used properly
+ * This works with ServerRequest.stream() which sends a constant stream of https requests to the server
+ * All this does is 'combine' the requests into one event emitter
+ * @deprecated Do not use this function, it is not yet fully tested
+ * @date 1/9/2024 - 1:21:53 PM
+ */
+export const retrieveStream = (options: Partial<StreamOptions>): ServerFunction<any> => {
     const cached = new Map<number, string>();
 
     let sentIndex = 0;

@@ -4,11 +4,18 @@ import ObjectsToCsv from 'npm:objects-to-csv';
 import { log as terminalLog } from "./terminal-logging.ts";
 import { __root, __uploads, __logs, __templates, resolve, dirname } from "./env.ts";
 import fs from 'node:fs';
+import { attempt, attemptAsync } from '../../shared/attempt.ts';
 
+/**
+ * Used to render html templates
+ * @date 1/9/2024 - 12:20:06 PM
+ *
+ * @type {*}
+ */
 const render = htmlConstructor.v4;
 
 /**
- * Description placeholder
+ * Recursively Makes a folder if it does not exist
  * @date 10/12/2023 - 3:24:47 PM
  */
 const makeFolder = (folder: string) => {
@@ -25,7 +32,7 @@ const makeFolder = (folder: string) => {
 
 
 /**
- * Description placeholder
+ * Used to build file paths, only to be used within this file
  * @date 10/12/2023 - 3:24:47 PM
  */
 const filePathBuilder = (file: string, ext: string, parentFolder: string) => {
@@ -36,7 +43,7 @@ const filePathBuilder = (file: string, ext: string, parentFolder: string) => {
         // use callsite
         const stack = callsite(),
             requester = stack[2].getFileName(),
-            requesterDir = __dirname(requester);
+            requesterDir = dirname(requester);
         output = resolve(requesterDir.replace('file:/',''), file);
     } else {
         output = resolve(__root, parentFolder, ...file.split('/'));
@@ -47,23 +54,20 @@ const filePathBuilder = (file: string, ext: string, parentFolder: string) => {
 }
 
 /**
- * Description placeholder
+ * Removes all comments from a string
  * @date 10/12/2023 - 3:24:47 PM
  */
 const removeComments = (content: string) => {
-    // remove all /* */ comments
-    content = content.replace(/\/\*[\s\S]*?\*\//g, '');
-
-    // remove all // comments
-    content = content.replace(/\/\/ .*/g, '');
-
-    return content;
+    return content
+        .replace(/\/\*[\s\S]*?\*\//g, '') // multi line comments (js & css)
+        .replace(/\/\/ .*/g, '') // single line comments (js)
+        .replace(/<!--[\s\S]*?-->/g, '') // html comments (html)
 }
 
 
 
 /**
- * Description placeholder
+ * returns the contents of a file
  * @date 10/12/2023 - 3:24:47 PM
  *
  * @export
@@ -77,13 +81,14 @@ export function getJSONSync<type = unknown>(file: string): type {
     const decoder = new TextDecoder();
     const decoded = decoder.decode(data);
 
-    const parsed = JSON.parse(removeComments(decoded));
-    return parsed as type;
+    const parsed = attempt<type>(JSON.parse(removeComments(decoded)));
+    if (!parsed) throw new Error('Invalid JSON');
+    return parsed;
 }
 
 
 /**
- * Description placeholder
+ * Returns the contents of a json file (async)
  * @date 10/12/2023 - 3:24:47 PM
  *
  * @export
@@ -99,19 +104,28 @@ export function getJSON<type = unknown>(file: string): Promise<type> {
                 const decoder = new TextDecoder();
                 const decoded = decoder.decode(data);
 
-                const parsed = JSON.parse(removeComments(decoded));
-                res(parsed as type);
+                const parsed = attempt<type>(JSON.parse(removeComments(decoded)));
+                if (parsed) res(parsed);
+                else rej(new Error('Invalid JSON'));
             })
             .catch(rej);
     });
 }
 
-export function JSONPath (file: string): string {
+/**
+ * Returns the path to a json file
+ * @date 1/9/2024 - 12:20:06 PM
+ *
+ * @export
+ * @param {string} file
+ * @returns {string}
+ */
+export function JSONPath(file: string): string {
     return filePathBuilder(file, '.json', './storage/jsons/');
 }
 
 /**
- * Description placeholder
+ * Saves a json file
  * @date 10/12/2023 - 3:24:47 PM
  *
  * @export
@@ -119,19 +133,18 @@ export function JSONPath (file: string): string {
  * @param {*} data
  */
 export function saveJSONSync(file: string, data: any) {
-    const p = filePathBuilder(file, '.json', './storage/jsons/');
-
-    try {
-        data = JSON.stringify(data, null, 4);
-    } catch {
-        throw new Error('Invalid JSON');
-    }
-
-    Deno.writeFileSync(p, data);
+    attempt(() => {
+        const p = filePathBuilder(file, '.json', './storage/jsons/');
+        makeFolder(p);
+        Deno.writeFileSync(
+            p,
+            new TextEncoder().encode(data)
+        );
+    });
 }
 
 /**
- * Description placeholder
+ * Saves a json file (async)
  * @date 10/12/2023 - 3:24:47 PM
  *
  * @export
@@ -141,23 +154,22 @@ export function saveJSONSync(file: string, data: any) {
  */
 export function saveJSON(file: string, data: any) {
     return new Promise<void>((res, rej) => {
-        const p = filePathBuilder(file, '.json', './storage/jsons/');
-
-        try {
-            data = JSON.stringify(data, null, 4);
-        } catch {
-            rej(new Error('Invalid JSON'));
-        }
-
-        Deno.writeFile(p, data)
-            .then(res)
-            .catch(rej);
+        attempt(() => {
+            const p = filePathBuilder(file, '.json', './storage/jsons/');
+            makeFolder(p);
+            Deno.writeFile(
+                p,
+                new TextEncoder().encode(data)
+            )
+                .then(res)
+                .catch(rej);
+        });
     });
 }
 
 
 /**
- * Description placeholder
+ * Returns the contents of an html file
  * @date 10/12/2023 - 3:24:47 PM
  *
  * @export
@@ -175,7 +187,7 @@ export function getTemplateSync(file: string, options?: { [key: string]: any }):
 }
 
 /**
- * Description placeholder
+ * Returns the contents of an html file (async)
  * @date 10/12/2023 - 3:24:47 PM
  *
  * @export
@@ -199,7 +211,7 @@ export function getTemplate(file: string, options?: { [key: string]: any }): Pro
 }
 
 /**
- * Description placeholder
+ * Saves an html file
  * @date 10/12/2023 - 3:24:47 PM
  *
  * @export
@@ -208,15 +220,18 @@ export function getTemplate(file: string, options?: { [key: string]: any }): Pro
  * @returns {*}
  */
 export function saveTemplateSync(file: string, data: string) {
-    const p = filePathBuilder(file, '.html', './public/templates/');
-
-    makeFolder(p);
-
-    return Deno.writeFileSync(p, new TextEncoder().encode(data));
+    attempt(() => {
+        const p = filePathBuilder(file, '.html', './public/templates/');
+        makeFolder(p);
+        Deno.writeFileSync(
+            p,
+            new TextEncoder().encode(data)
+        );
+    });
 }
 
 /**
- * Description placeholder
+ * Saves an html file (async)
  * @date 10/12/2023 - 3:24:47 PM
  *
  * @export
@@ -225,35 +240,42 @@ export function saveTemplateSync(file: string, data: string) {
  * @returns {*}
  */
 export function saveTemplate(file: string, data: string) {
-    const p = filePathBuilder(file, '.html', './public/templates/');
-
-    makeFolder(p);
-
-    return Deno.writeFile(p, new TextEncoder().encode(data));
+    attempt(() => {
+        const p = filePathBuilder(file, '.html', './public/templates/');
+        makeFolder(p);
+        Deno.writeFile(
+            p,
+            new TextEncoder().encode(data)
+        );
+    });
 }
 
 
 
 /**
- * Description placeholder
+ * Creates the uploads folder if it does not exist
  * @date 10/12/2023 - 3:24:47 PM
  */
 export const createUploadsFolder = () => {
-    if (!fs.existsSync(__uploads)) {
-        terminalLog('Creating uploads folder');
-        fs.mkdirSync(__uploads);
-    }
+    attempt(() => {
+        if (!fs.existsSync(__uploads)) {
+            terminalLog('Creating uploads folder');
+            fs.mkdirSync(__uploads);
+        }
+    });
 };
 
 /**
- * Description placeholder
+ * Creates the logs folder if it does not exist
  * @date 10/12/2023 - 3:24:47 PM
  */
 export const createLogsFolder = () => {
-    if (!fs.existsSync(__logs)) {
-        terminalLog('Creating logs folder');
-        fs.mkdirSync(__logs);
-    }
+    attempt(() => {
+        if (!fs.existsSync(__logs)) {
+            terminalLog('Creating logs folder');
+            fs.mkdirSync(__logs);
+        }
+    });
 }
 
 
@@ -261,7 +283,7 @@ export const createLogsFolder = () => {
 
 
 /**
- * Description placeholder
+ * Saves a file to the uploads folder
  * @date 10/12/2023 - 3:24:47 PM
  *
  * @export
@@ -270,14 +292,16 @@ export const createLogsFolder = () => {
  * @returns {*}
  */
 export function saveUpload(filename: string, data: Uint8Array) {
-    createUploadsFolder();
-    const p = filePathBuilder(filename, '', __uploads);
+    return attemptAsync(() => {
+        createUploadsFolder();
+        const p = filePathBuilder(filename, '', __uploads);
 
-    return Deno.writeFile(p, data);
+        return Deno.writeFile(p, data);
+    })
 }
 
 /**
- * Description placeholder
+ * Returns the contents of a file in the uploads folder (async)
  * @date 10/12/2023 - 3:24:47 PM
  *
  * @export
@@ -285,18 +309,16 @@ export function saveUpload(filename: string, data: Uint8Array) {
  * @returns {*}
  */
 export function getUpload(filename: string) {
-    createUploadsFolder();
-    const p = filePathBuilder(filename, '', __uploads);
-    try {
+    return attemptAsync(() => {
+        createUploadsFolder();
+        const p = filePathBuilder(filename, '', __uploads);
         return Deno.readFile(p);
-    } catch {
-        terminalLog('error', `Could not delete file ${filename} because it likely does not exist`);
-    }
+    });
 }
 
 
 /**
- * Description placeholder
+ * Returns the contents of a file in the uploads folder (sync)
  * @date 10/12/2023 - 3:24:47 PM
  *
  * @export
@@ -304,17 +326,15 @@ export function getUpload(filename: string) {
  * @returns {*}
  */
 export function getUploadSync(filename: string) {
-    createUploadsFolder();
-    const p = filePathBuilder(filename, '', __uploads);
-    try {
+    return attempt(() => {
+        createUploadsFolder();
+        const p = filePathBuilder(filename, '', __uploads);
         return Deno.readFileSync(p);
-    } catch {
-        terminalLog('error', `Could not delete file ${filename} because it likely does not exist`);
-    }
+    });
 }
 
 /**
- * Description placeholder
+ * Deletes a file in the uploads folder
  * @date 10/12/2023 - 3:24:47 PM
  *
  * @export
@@ -322,18 +342,16 @@ export function getUploadSync(filename: string) {
  * @returns {*}
  */
 export function deleteUpload(filename: string) {
-    createUploadsFolder();
-    const p = filePathBuilder(filename, '', __uploads);
-    try {
+    return attempt(() => {
+        createUploadsFolder();
+        const p = filePathBuilder(filename, '', __uploads);
         return Deno.remove(p);
-    } catch {
-        terminalLog('error', `Could not delete file ${filename} because it likely does not exist`);
-    }
+    });
 }
 
 
 /**
- * Description placeholder
+ * The different types of byte sizes
  * @date 10/12/2023 - 3:24:47 PM
  *
  * @typedef {Bytes}
@@ -341,7 +359,7 @@ export function deleteUpload(filename: string) {
 type Bytes = 'Bytes' | 'KB' | 'MB' | 'GB' | 'TB' | 'PB' | 'EB' | 'ZB' | 'YB';
 
 /**
- * Description placeholder
+ * Formats a number of bytes into a string
  * @date 10/12/2023 - 3:24:47 PM
  *
  * @export
@@ -369,7 +387,7 @@ export function formatBytes(bytes: number, decimals: number = 2): { string: stri
 
 
 /**
- * Description placeholder
+ * Types of logs
  * @date 10/12/2023 - 3:24:47 PM
  *
  * @export
@@ -378,7 +396,7 @@ export function formatBytes(bytes: number, decimals: number = 2): { string: stri
 export type LogType = 'request' | 'error' | 'debugger' | 'status';
 
 /**
- * Description placeholder
+ * The allowed types of data in a log (prevents deep objects)
  * @date 10/12/2023 - 3:24:47 PM
  *
  * @export
@@ -391,7 +409,7 @@ export type LogObj = {
 
 
 /**
- * Description placeholder
+ * Logs data to a csv file
  * @date 10/12/2023 - 3:24:47 PM
  *
  * @export
@@ -400,9 +418,11 @@ export type LogObj = {
  * @returns {*}
  */
 export function log(type: LogType, dataObj: LogObj) {
-    createLogsFolder();
-    return new ObjectsToCsv([dataObj]).toDisk(
-        resolve(__logs, `${type}.csv`),
-        { append: true }
-    );
+    return attempt(() => {
+        createLogsFolder();
+        return new ObjectsToCsv([dataObj]).toDisk(
+            resolve(__logs, `${type}.csv`),
+            { append: true }
+        );
+    });
 }
