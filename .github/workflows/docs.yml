@@ -2,9 +2,9 @@ name: Document Repository
 
 on:
   push:
-    branches: ["main"]
+    branches: ["docs"]
   pull_request:
-    branches: ["main"]
+    branches: ["docs"]
 
 permissions:
   contents: read
