@@ -34,7 +34,7 @@ jobs:
           git config --global user.email ""
           git fetch
           git checkout -b gh-pages
-          git pull
+          git pull origin gh-pages
           git merge docs
 
       - name: Run documentation
