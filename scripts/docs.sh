@@ -1,1 +1,1 @@
-rm -rf node_modules && documentation build ./** -f html --parse-extension ts --github -o docs && npm i
+rm -rf node_modules && documentation build ./** -f html --github -o docs
