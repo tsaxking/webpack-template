@@ -36,6 +36,7 @@ jobs:
           git branch -D gh-pages || true
           # create a new gh-pages branch based on master
           git checkout -b gh-pages
+          git fetch
           # remove all files from the new branch
           git commit --allow-empty -m "Initial commit"
           git push --set-upstream origin gh-pages
