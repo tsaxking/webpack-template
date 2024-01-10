@@ -1,12 +1,11 @@
 // import { Request, Response, NextFunction } from 'npm:express';
 import { uuid } from '../utilities/uuid.ts';
 import Account from './accounts.ts';
-import { DB } from "../utilities/databases.ts";
-import { Next, ServerFunction, CookieOptions } from "./app/app.ts";
-import { app } from "../server.ts";
-import { Req } from "./app/req.ts";
-import { Res } from "./app/res.ts";
-
+import { DB } from '../utilities/databases.ts';
+import { CookieOptions, Next, ServerFunction } from './app/app.ts';
+import { app } from '../server.ts';
+import { Req } from './app/req.ts';
+import { Res } from './app/res.ts';
 
 /**
  * Session object from the database
@@ -19,12 +18,12 @@ export type SessionObj = {
     ip: string;
     id: string;
     latestActivity: number;
-    accountId: string|null;
+    accountId: string | null;
     prevUrl?: string;
     userAgent?: string;
     created: number;
     limitTime?: number;
-}
+};
 
 /**
  * The options for the session middleware
@@ -40,8 +39,7 @@ type SessionOptions = {
         onOverload?: (session: Session) => void;
     };
     name?: string;
-}
-
+};
 
 /**
  * This session class represents a session, which is a connection from a client.
@@ -70,7 +68,7 @@ export class Session {
         onOverload?: (session: Session) => void;
     } = {
         max: Infinity,
-        per: 60 * 1000
+        per: 60 * 1000,
     };
 
     /**
@@ -83,7 +81,7 @@ export class Session {
     static cookieOptions: CookieOptions = {
         maxAge: 60 * 60 * 24 * 7,
         httpOnly: true,
-        sameSite: 'Strict'
+        sameSite: 'Strict',
     };
     /**
      * The cookie identifier for the session
@@ -106,7 +104,6 @@ export class Session {
         const s = DB.get('sessions/get', { id });
         return s ? Session.fromSessObj(s) : undefined;
     }
-
 
     /**
      * Converts a session object from the database to a session class
@@ -136,7 +133,7 @@ export class Session {
      * @param {Res} res
      * @returns {(Session|undefined)}
      */
-    static newSession(req: Req, res: Res): Session|undefined {
+    static newSession(req: Req, res: Res): Session | undefined {
         const s = new Session(req);
         res.cookie(Session.sessionName, s.id, Session.cookieOptions);
         req.addCookie('ssid', s.id);
@@ -149,12 +146,11 @@ export class Session {
             userAgent: s.userAgent || '',
             prevUrl: s.prevUrl || '',
             requests: s.requests,
-            created: s.created
+            created: s.created,
         });
 
         return s;
     }
-
 
     /**
      * The middleware function for the session
@@ -182,7 +178,7 @@ export class Session {
             s.requests++;
             s.latestActivity = Date.now();
             next();
-        }
+        };
     }
 
     /**
@@ -258,10 +254,10 @@ export class Session {
         }
 
         // if (Session.requestsInfo.max < Infinity) {
-            // log(Session.requestsInfo.max, Session.requestsInfo.per);
-            // setInterval(() => {
-            //     this.requests = 0;
-            // }, Session.requestsInfo.per);
+        // log(Session.requestsInfo.max, Session.requestsInfo.per);
+        // setInterval(() => {
+        //     this.requests = 0;
+        // }, Session.requestsInfo.per);
         // }
     }
 
@@ -322,7 +318,7 @@ export class Session {
                 accountId: this.accountId || '',
                 userAgent: this.userAgent || '',
                 prevUrl: this.prevUrl || '',
-                requests: this.requests
+                requests: this.requests,
             });
         } else {
             DB.run('sessions/new', {
@@ -333,7 +329,7 @@ export class Session {
                 userAgent: this.userAgent || '',
                 prevUrl: this.prevUrl || '',
                 requests: this.requests,
-                created: this.created
+                created: this.created,
             });
         }
     }

@@ -1,14 +1,12 @@
 /**
  * @fileoverview This file is used to build static home pages given the request object. It is used for server side rendering and front end multi-page applications.
- * 
  */
 
 import { getJSON, getTemplate } from './files.ts';
-import { fromSnakeCase, capitalize } from '../../shared/text.ts';
-import { Req } from "../structure/app/req.ts";
-import { Res } from "../structure/app/res.ts";
-import { Next } from "../structure/app/app.ts";
-
+import { capitalize, fromSnakeCase } from '../../shared/text.ts';
+import { Req } from '../structure/app/req.ts';
+import { Res } from '../structure/app/res.ts';
+import { Next } from '../structure/app/app.ts';
 
 /**
  * Object containing all the pages that can be built
@@ -37,7 +35,6 @@ const builds: {
     */
 };
 
-
 /**
  * Middleware that builds the page if it exists
  * @date 10/12/2023 - 3:25:12 PM
@@ -48,7 +45,7 @@ export const builder = async (req: Req, res: Res, next: Next) => {
     const { url } = req;
     if (builds[url]) {
         res.send(
-            await homeBuilder(url)
+            await homeBuilder(url),
         );
     } else {
         next();
@@ -66,9 +63,9 @@ export const homeBuilder = async (url: string) => {
         pageTitle: capitalize(fromSnakeCase(url, '-')).slice(1),
         content: builds[url] ? await builds[url]() : '',
         footer: await getTemplate('components/footer', {
-            year: new Date().getFullYear()
+            year: new Date().getFullYear(),
         }),
-        navbar: await navBuilder(url, false)
+        navbar: await navBuilder(url, false),
     });
 };
 
@@ -81,16 +78,16 @@ export const homeBuilder = async (url: string) => {
 export const navBuilder = async (url: string, offcanvas: boolean) => {
     return await getTemplate('components/navbar', {
         offcanvas: {
-            offcanvas
+            offcanvas,
         },
         navbarRepeat: await getJSON<string[]>('pages/home').then((data) => {
             return data.map((page: string) => {
                 return {
                     active: '/' + page === url,
                     name: capitalize(fromSnakeCase(page, '-')),
-                    link: '/' + page
-                }
+                    link: '/' + page,
+                };
             });
-        })
-    })
-}
+        }),
+    });
+};

@@ -1,8 +1,8 @@
-import { Server } from "https://deno.land/x/socket_io@0.2.0/mod.ts";
-import { __root } from "../../utilities/env.ts";
-import { Session } from "../sessions.ts";
-import { parseCookie } from "../../../shared/cookie.ts";
-import { FileUpload } from "../../middleware/stream.ts";
+import { Server } from 'https://deno.land/x/socket_io@0.2.0/mod.ts';
+import { __root } from '../../utilities/env.ts';
+import { Session } from '../sessions.ts';
+import { parseCookie } from '../../../shared/cookie.ts';
+import { FileUpload } from '../../middleware/stream.ts';
 
 /**
  * File body type
@@ -11,8 +11,8 @@ import { FileUpload } from "../../middleware/stream.ts";
  * @typedef {FileBody}
  */
 type FileBody = {
-    $$files: FileUpload[]
-}
+    $$files: FileUpload[];
+};
 
 /**
  * This class represents a request
@@ -22,9 +22,11 @@ type FileBody = {
  * @class Req
  * @typedef {Req}
  */
-export class Req<T = {
-    [key: string]: any
-}> {
+export class Req<
+    T = {
+        [key: string]: any;
+    },
+> {
     /**
      * The cookie object
      * @date 10/12/2023 - 3:02:56 PM
@@ -35,7 +37,7 @@ export class Req<T = {
         }}
      */
     private _cookie?: {
-        [key: string]: string
+        [key: string]: string;
     };
 
     /**
@@ -46,7 +48,7 @@ export class Req<T = {
      * @type {Record<string, string>}
      */
     public params: {
-        [key: string]: string | undefined
+        [key: string]: string | undefined;
     } = {};
     /**
      * The body of the request
@@ -121,7 +123,11 @@ export class Req<T = {
      * @param {Deno.ServeHandlerInfo} info
      * @param {Server} io
      */
-    constructor(public readonly req: Request, info: Deno.ServeHandlerInfo, public readonly io: Server) {
+    constructor(
+        public readonly req: Request,
+        info: Deno.ServeHandlerInfo,
+        public readonly io: Server,
+    ) {
         this.url = req.url;
         this.method = req.method;
         this.headers = req.headers;
@@ -140,7 +146,7 @@ export class Req<T = {
         }}
      */
     get cookie(): {
-        [key: string]: string
+        [key: string]: string;
     } {
         if (this._cookie) return this._cookie;
 
@@ -148,7 +154,6 @@ export class Req<T = {
         this._cookie = c;
         return c;
     }
-
 
     /**
      * Sets a cookie for the response
@@ -160,7 +165,7 @@ export class Req<T = {
     addCookie(name: string, value: string) {
         this._cookie = {
             ...this.cookie,
-            [name]: value
+            [name]: value,
         };
     }
 
@@ -185,7 +190,9 @@ export class Req<T = {
      * @type {FileUpload[]}
      */
     get files(): FileUpload[] {
-        if (!(this.body as FileBody).$$files) (this.body as FileBody).$$files = [];
+        if (!(this.body as FileBody).$$files) {
+            (this.body as FileBody).$$files = [];
+        }
         return (this.body as FileBody).$$files;
     }
-};
+}

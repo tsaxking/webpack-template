@@ -1,33 +1,32 @@
-import env, { __root, resolve } from "./utilities/env.ts";
-import { log } from "./utilities/terminal-logging.ts";
-import { App, ResponseStatus } from "./structure/app/app.ts";
-import { Session } from "./structure/sessions.ts";
-import { getJSONSync, log as serverLog } from "./utilities/files.ts";
-import { homeBuilder } from "./utilities/page-builder.ts";
-import Account from "./structure/accounts.ts";
-import { runBuild } from "./bundler.ts";
+import env, { __root, resolve } from './utilities/env.ts';
+import { log } from './utilities/terminal-logging.ts';
+import { App, ResponseStatus } from './structure/app/app.ts';
+import { Session } from './structure/sessions.ts';
+import { getJSONSync, log as serverLog } from './utilities/files.ts';
+import { homeBuilder } from './utilities/page-builder.ts';
+import Account from './structure/accounts.ts';
+import { runBuild } from './bundler.ts';
 import { router as admin } from './routes/admin.ts';
 import { router as account } from './routes/account.ts';
 import { router as api } from './routes/api.ts';
-import Role from "./structure/roles.ts";
-import { validate } from "./middleware/data-type.ts";
-import { retrieveStream } from "./middleware/stream.ts";
-import os from "https://deno.land/x/dos@v0.11.0/mod.ts";
+import Role from './structure/roles.ts';
+import { validate } from './middleware/data-type.ts';
+import { retrieveStream } from './middleware/stream.ts';
+import os from 'https://deno.land/x/dos@v0.11.0/mod.ts';
 
 console.log('Platform:', os.platform());
 
 const port = +(env.PORT || 3000);
 const domain = env.DOMAIN || `http://localhost:${port}`;
 
-
 export const app = new App(port, domain, {
     // onListen: () => {
-        // log(`Listening on ${domain}`);
+    // log(`Listening on ${domain}`);
     // },
     // onConnection: (socket) => {
-        // log('New connection:', socket.id);
+    // log('New connection:', socket.id);
     // },
-    ioPort: +(env.SOCKET_PORT || port + 1)
+    ioPort: +(env.SOCKET_PORT || port + 1),
 });
 
 const builder = await runBuild();
@@ -45,12 +44,14 @@ app.post('/test-stream', (req, res) => {
     res.stream(data);
 });
 
-app.post('/test-stream-data', retrieveStream({
-    onData: console.log,
-    onError: console.error,
-    onEnd: console.log
-}));
-
+app.post(
+    '/test-stream-data',
+    retrieveStream({
+        onData: console.log,
+        onError: console.error,
+        onEnd: console.log,
+    }),
+);
 
 app.post('/test', (req, res, next) => {
     res.sendStatus('test:success');
@@ -60,16 +61,20 @@ app.post('/ping', (req, res) => {
     res.send('pong');
 });
 
-app.post('/test-validation', validate({
-    username: (v: any) => v === 'fail', 
-    password: (v: any) => v === 'test'
-}, {
-    onspam: (req, res, next) => {
-        res.sendStatus('test:fail');
-    }
-}), (req, res, next) => {
-    res.sendStatus('test:success');
-});
+app.post(
+    '/test-validation',
+    validate({
+        username: (v: any) => v === 'fail',
+        password: (v: any) => v === 'test',
+    }, {
+        onspam: (req, res, next) => {
+            res.sendStatus('test:fail');
+        },
+    }),
+    (req, res, next) => {
+        res.sendStatus('test:success');
+    },
+);
 
 app.use('/*', (req, res, next) => {
     log(`[${req.method}] ${req.url}`);
@@ -85,7 +90,7 @@ app.use('/*', Session.middleware());
 
 app.post('/socket-url', (req, res, next) => {
     res.json({
-        url: env.SOCKET_DOMAIN
+        url: env.SOCKET_DOMAIN,
     });
 });
 
@@ -125,8 +130,7 @@ function stripHtml(body: any) {
             default:
                 return obj;
         }
-    }
-
+    };
 
     obj = strip(body);
 
@@ -154,10 +158,8 @@ app.post('/*', (req, res, next) => {
         console.log(req.body);
     }
 
-
     next();
 });
-
 
 // TODO: There is an error with the email validation middleware
 // app.post('/*', emailValidation(['email', 'confirmEmail'], {
@@ -170,7 +172,6 @@ app.post('/*', (req, res, next) => {
 //     // }
 // }));
 
-
 const homePages = getJSONSync('pages/home') as string[];
 
 app.get('/', (req, res, next) => {
@@ -180,7 +181,7 @@ app.get('/', (req, res, next) => {
 app.get('/*', async (req, res, next) => {
     if (homePages.includes(req.url.slice(1))) {
         return res.send(
-            await homeBuilder(req.url)
+            await homeBuilder(req.url),
         );
     }
     next();
@@ -210,34 +211,13 @@ app.get('/*', (req, res, next) => {
 
 app.route('/admin', admin);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-app.get('/user/*', Account.isSignedIn,  (req, res, next) => {
+app.get('/user/*', Account.isSignedIn, (req, res, next) => {
     res.sendTemplate('entries/user');
 });
 
 app.get('/admin/*', Role.allowRoles('admin'), (req, res, next) => {
     res.sendTemplate('entries/admin');
 });
-
-
-
-
-
-
-
-
 
 app.final<{
     $$files?: any;
@@ -254,20 +234,22 @@ app.final<{
         url: req.url,
         status: res._status,
         userAgent: req.headers.get('user-agent') || '',
-        body: req.method == 'post' ? JSON.stringify((() => {
-            let { body } = req;
-            body = JSON.parse(JSON.stringify(body)) as {
-    $$files?: any;
-    password?: string;
-    confirmPassword?: string;
-};
-            delete body?.password;
-            delete body?.confirmPassword;
-            delete body?.$$files;
-            return body;
-        })()) : '',
+        body: req.method == 'post'
+            ? JSON.stringify((() => {
+                let { body } = req;
+                body = JSON.parse(JSON.stringify(body)) as {
+                    $$files?: any;
+                    password?: string;
+                    confirmPassword?: string;
+                };
+                delete body?.password;
+                delete body?.confirmPassword;
+                delete body?.$$files;
+                return body;
+            })())
+            : '',
         params: JSON.stringify(req.params),
-        query: JSON.stringify(req.query)
+        query: JSON.stringify(req.query),
     });
 
     if (!res.fulfilled) {

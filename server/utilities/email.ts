@@ -3,7 +3,7 @@ import sgTransport from 'npm:nodemailer-sendgrid-transport';
 import { config } from 'npm:dotenv';
 import { getTemplateSync } from './files.ts';
 import env from './env.ts';
-import { error } from "./terminal-logging.ts";
+import { error } from './terminal-logging.ts';
 
 config();
 
@@ -14,14 +14,11 @@ config();
  * @type {*}
  */
 const transporter = nodemailer.createTransport(sgTransport({
-        service: 'gmail',
-        auth: {
-            api_key: env.SENDGRID_API_KEY
-        }
-    }));
-
-
-
+    service: 'gmail',
+    auth: {
+        api_key: env.SENDGRID_API_KEY,
+    },
+}));
 
 /**
  * Email options
@@ -32,19 +29,17 @@ const transporter = nodemailer.createTransport(sgTransport({
  */
 export type EmailOptions = {
     attachments?: {
-        filename: string,
-        path: string
-    }[],
+        filename: string;
+        path: string;
+    }[];
     constructor: {
-        link?: string,
-        linkText?: string,
-        title: string,
-        message: string,
-        [key: string]: any
-    }
-}
-
-
+        link?: string;
+        linkText?: string;
+        title: string;
+        message: string;
+        [key: string]: any;
+    };
+};
 
 /**
  * Email types
@@ -56,7 +51,7 @@ export type EmailOptions = {
 export enum EmailType {
     link,
     text,
-    error
+    error,
 }
 
 /**
@@ -82,9 +77,8 @@ export class Email {
         public to: string | string[],
         public subject: string,
         public type: EmailType,
-        public options: EmailOptions
+        public options: EmailOptions,
     ) {}
-
 
     /**
      * Sends the email to the specified address in the constructor
@@ -96,18 +90,17 @@ export class Email {
         try {
             const { to, subject, type, options } = this;
             let { attachments, constructor } = options;
-    
-    
+
             constructor = {
                 ...(constructor || {}),
                 logo: (env.DOMAIN || '') + (env.LOGO || ''),
                 homeLink: (env.DOMAIN || '') + (env.HOME_LINK || ''),
-                footer: (env.FOOTER || '')
-            }
-    
+                footer: (env.FOOTER || ''),
+            };
+
             let html: string;
-            let temp: string|boolean;
-            
+            let temp: string | boolean;
+
             switch (type) {
                 case EmailType.link:
                     temp = getTemplateSync('./emails/link', constructor);
@@ -125,25 +118,27 @@ export class Email {
                     html = '';
                     break;
             }
-    
-    
+
             const mailOptions = {
                 from: env.SENDGRID_DEFAULT_FROM,
                 to,
                 subject,
                 html,
-                attachments
+                attachments,
             };
-    
+
             return new Promise((resolve, reject) => {
-                transporter.sendMail(mailOptions, (err: Error, info: { response: string }) => {
-                    if (err) {
-                        console.error(err);
-                    } else {
-                        console.log('Email sent: ' + info.response);
-                        resolve(info);
-                    }
-                });
+                transporter.sendMail(
+                    mailOptions,
+                    (err: Error, info: { response: string }) => {
+                        if (err) {
+                            console.error(err);
+                        } else {
+                            console.log('Email sent: ' + info.response);
+                            resolve(info);
+                        }
+                    },
+                );
             });
         } catch (e) {
             error('Unable to send email:', e);

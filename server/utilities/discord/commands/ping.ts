@@ -5,5 +5,5 @@ export default {
     description: 'Ping!',
     execute: async (interaction) => {
         await interaction.reply('Pong!');
-    }
+    },
 } as Command;

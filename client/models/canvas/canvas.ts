@@ -1,4 +1,4 @@
-// type Events = 
+// type Events =
 //     'click' |
 //     'mousedown' |
 //     'mouseup' |
@@ -21,11 +21,11 @@ export class Canvas {
 
     // TODO: Implement FPS
     // public fps: number = 0;
-    
+
     constructor(public readonly ctx: CanvasRenderingContext2D) {
     }
 
-    get width() {   
+    get width() {
         return this.ctx.canvas.width;
     }
 
@@ -88,7 +88,7 @@ export class Canvas {
             update?.(this);
             this.draw();
             requestAnimationFrame(loop);
-        }
+        };
         requestAnimationFrame(loop);
         return stop;
     }

@@ -4,12 +4,11 @@ import * as randomString from 'npm:uuid';
 import axios from 'npm:axios';
 import * as fsPromises from 'node:fs/promises';
 import * as fs from 'node:fs';
-import env from "./env.ts";
+import env from './env.ts';
 
 export const uuid = (...args: any[]) => randomString.v4();
 
 // const uuidv4 = randomString.v4;
-
 
 // /**
 //  * Description placeholder
@@ -21,7 +20,6 @@ export const uuid = (...args: any[]) => randomString.v4();
 //     ID_GENERATION_KEY,
 //     ID_GENERATION_LINK
 // } = env;
-
 
 // /**
 //  * Description placeholder
@@ -59,7 +57,6 @@ export const uuid = (...args: any[]) => randomString.v4();
 //     }
 // })();
 
-
 // /**
 //  * Description placeholder
 //  * @date 10/12/2023 - 3:26:42 PM
@@ -70,7 +67,6 @@ export const uuid = (...args: any[]) => randomString.v4();
 //     letters?: boolean;
 //     length?: number;
 // };
-
 
 // /**
 //  * Description placeholder
@@ -93,11 +89,9 @@ export const uuid = (...args: any[]) => randomString.v4();
 //     return uuidv4();
 // }
 
-
-
 // /**
 //  * Returns a unique id
-//  * @param {uuidOptions} options 
+//  * @param {uuidOptions} options
 //  * @returns {string} unique id
 //  */
 // export const uuid = (options?: uuidOptions): string => {

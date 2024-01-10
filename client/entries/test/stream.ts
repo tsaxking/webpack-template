@@ -19,7 +19,6 @@ import { ServerRequest } from '../../utilities/requests';
 //     console.log(data.map((d, i) => [d, i]).filter(([d, i]) => d !== i.toString()));
 // });
 
-
 const streamer = ServerRequest.stream('/test-stream-data');
 
 (async () => {

@@ -2,10 +2,8 @@ import {
     Bundler,
     HTMLPlugin,
     TypescriptPlugin,
-} from "https://deno.land/x/bundler@0.9.0/mod.ts";
-import { Bundle } from "https://deno.land/x/bundler@0.9.0/plugins/plugin.ts";
-
-
+} from 'https://deno.land/x/bundler@0.9.0/mod.ts';
+import { Bundle } from 'https://deno.land/x/bundler@0.9.0/plugins/plugin.ts';
 
 /**
  * Bundles a file into a single html file
@@ -15,7 +13,7 @@ import { Bundle } from "https://deno.land/x/bundler@0.9.0/plugins/plugin.ts";
  */
 export const bundle = async (path: string): Promise<Bundle> => {
     const inputs = [path];
-    const outputMap = { [path]: "index.html" };
+    const outputMap = { [path]: 'index.html' };
 
     const plugins = [
         new HTMLPlugin(),
@@ -29,4 +27,4 @@ export const bundle = async (path: string): Promise<Bundle> => {
     const bundles = await bundler.createBundles(chunks);
 
     return bundles[0];
-}
+};

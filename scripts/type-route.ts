@@ -1,36 +1,33 @@
-
 const parse = (ts: string) => {
     // console.log(ts);
     // ts is a typescript file
     // parse it for the generic
     // (router|app).(get/post/use/final)<{generic}>(path, ...middleware, callback);
 
-
     const generic = /(router|app)\.(get|post|use|final)<{([\s\S]+?)}>/g;
     const middleware = /(router|app)\.(get|post|use|final)\(([\s\S]+?)\)/g;
-    
-    const generics = Array.from(ts.matchAll(generic)).map(m => {
+
+    const generics = Array.from(ts.matchAll(generic)).map((m) => {
         const [_, router, method, generic] = m as string[];
-        
+
         return {
-            generic
-        }
+            generic,
+        };
     });
 
-    const middlewares = Array.from(ts.matchAll(middleware)).map(m => {
+    const middlewares = Array.from(ts.matchAll(middleware)).map((m) => {
         const [_, router, method, middleware] = m as string[];
 
         return {
-            middleware
-        }
+            middleware,
+        };
     });
 
     return {
         generics,
-        middlewares
+        middlewares,
     };
-}
-
+};
 
 console.log(parse(`
 router.post('/get-roles', (req, res) => {

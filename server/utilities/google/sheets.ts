@@ -1,14 +1,18 @@
-import { authorize } from "./google.ts";
+import { authorize } from './google.ts';
 import { google } from 'npm:googleapis';
 
 const sheetAuth = async () => {
     return google.sheets({
         version: 'v4',
-        auth: await authorize('spreadsheets', 'drive')
-    })
-}
+        auth: await authorize('spreadsheets', 'drive'),
+    });
+};
 
-export const getSheetDataRange = (sheet: string, rows: number, cols: number) => {
+export const getSheetDataRange = (
+    sheet: string,
+    rows: number,
+    cols: number,
+) => {
     const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     // turn cols into A => Z, AA => ZZ, etc
     let col = '';
@@ -18,7 +22,7 @@ export const getSheetDataRange = (sheet: string, rows: number, cols: number) => 
     }
 
     return `${sheet}!A1:${col}${rows}`;
-}
+};
 
 export const upload = async (ssid: string, sheet: string, data: string[][]) => {
     const auth = await authorize('spreadsheets', 'drive');
@@ -27,40 +31,51 @@ export const upload = async (ssid: string, sheet: string, data: string[][]) => {
 
     return sheets.spreadsheets.values.update({
         spreadsheetId: ssid,
-        range: getSheetDataRange(sheet, data.length, Math.max(...data.map(d => d.length))),
+        range: getSheetDataRange(
+            sheet,
+            data.length,
+            Math.max(...data.map((d) => d.length)),
+        ),
         valueInputOption: 'RAW',
         requestBody: {
-            values: data
-        }
+            values: data,
+        },
     });
-}
+};
 
 export const clear = async (ssid: string, sheet: string) => {
     const sheets = await sheetAuth();
 
     return sheets.spreadsheets.values.clear({
         spreadsheetId: ssid,
-        range: sheet
+        range: sheet,
     });
-}
+};
 
-export const retrieve = async (ssid: string, sheet: string, rows: number, cols: number) => {
+export const retrieve = async (
+    ssid: string,
+    sheet: string,
+    rows: number,
+    cols: number,
+) => {
     const sheets = await sheetAuth();
 
     return sheets.spreadsheets.values.get({
         spreadsheetId: ssid,
-        range: getSheetDataRange(sheet, rows, cols)
+        range: getSheetDataRange(sheet, rows, cols),
     });
-}
+};
 
 export const makeSheet = async (ssid: string, sheet: string) => {
     const sheets = await sheetAuth();
 
     const s = await sheets.spreadsheets.get({
-        spreadsheetId: ssid
+        spreadsheetId: ssid,
     });
 
-    const sheetExists = s.data.sheets?.some(s => s.properties?.title === sheet);
+    const sheetExists = s.data.sheets?.some((s) =>
+        s.properties?.title === sheet
+    );
 
     if (sheetExists) return;
 
@@ -70,13 +85,13 @@ export const makeSheet = async (ssid: string, sheet: string) => {
             requests: [{
                 addSheet: {
                     properties: {
-                        title: sheet
-                    }
-                }
-            }]
-        }
+                        title: sheet,
+                    },
+                },
+            }],
+        },
     });
-}
+};
 
 export const deleteSheet = async (ssid: string, sheet: string) => {
     const sheets = await sheetAuth();
@@ -87,10 +102,11 @@ export const deleteSheet = async (ssid: string, sheet: string) => {
             requests: [{
                 deleteSheet: {
                     sheetId: (await sheets.spreadsheets.get({
-                        spreadsheetId: ssid
-                    })).data.sheets?.find(s => s.properties?.title === sheet)?.properties?.sheetId
-                }
-            }]
-        }
+                        spreadsheetId: ssid,
+                    })).data.sheets?.find((s) => s.properties?.title === sheet)
+                        ?.properties?.sheetId,
+                },
+            }],
+        },
     });
-}
+};

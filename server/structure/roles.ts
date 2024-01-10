@@ -1,14 +1,10 @@
-import { DB } from "../utilities/databases.ts";
-import { Status } from "../utilities/status.ts";
-import { Permission, RoleName } from "../../shared/db-types.ts";
-import { Role as RoleObject } from "../../shared/db-types.ts";
-import { Next, ServerFunction } from "./app/app.ts";
-import { Req } from "./app/req.ts";
-import { Res } from "./app/res.ts";
-
-
-
-
+import { DB } from '../utilities/databases.ts';
+import { Status } from '../utilities/status.ts';
+import { Permission, RoleName } from '../../shared/db-types.ts';
+import { Role as RoleObject } from '../../shared/db-types.ts';
+import { Next, ServerFunction } from './app/app.ts';
+import { Req } from './app/req.ts';
+import { Res } from './app/res.ts';
 
 /**
  * Role object, contains permission information and role name
@@ -38,12 +34,12 @@ export default class Role {
 
             const { roles } = account;
 
-            if (role.every(r => roles.find((_r: Role) => _r.name === r))) {
+            if (role.every((r) => roles.find((_r: Role) => _r.name === r))) {
                 return next();
             } else {
                 return res.sendStatus('permissions:unauthorized');
             }
-        }
+        };
     }
 
     /**
@@ -65,7 +61,7 @@ export default class Role {
 
             const { roles } = account;
 
-            if (role.some(r => roles.find((_r: Role) => _r.name === r))) {
+            if (role.some((r) => roles.find((_r: Role) => _r.name === r))) {
                 return res.sendStatus('permissions:unauthorized');
             } else {
                 return next();
@@ -83,12 +79,11 @@ export default class Role {
      */
     static fromId(id: string): Role | undefined {
         const r = DB.get('roles/from-id', {
-            id
+            id,
         });
         if (!r) return;
         return new Role(r);
     }
-
 
     /**
      * Retrieves a role from the database given its name
@@ -100,7 +95,7 @@ export default class Role {
      */
     static fromName(name: string): Role | undefined {
         const r = DB.get('roles/from-name', {
-            name
+            name,
         });
         if (!r) return;
         return new Role(r);
@@ -115,7 +110,7 @@ export default class Role {
      */
     static all(): Role[] {
         const data = DB.all('roles/all');
-        return data.map(d => new Role(d)).sort((a, b) => a.rank - b.rank);
+        return data.map((d) => new Role(d)).sort((a, b) => a.rank - b.rank);
     }
 
     /**
@@ -161,7 +156,6 @@ export default class Role {
         this.id = role.id;
     }
 
-
     /**
      * Retrieves all permission objects for the role
      * @date 1/9/2024 - 12:48:41 PM
@@ -170,8 +164,8 @@ export default class Role {
      */
     getPermissions(): Permission[] {
         const data = DB.all('permissions/from-role', {
-            role: this.name
+            role: this.name,
         });
-        return data.map(d => d.permission) as Permission[];
+        return data.map((d) => d.permission) as Permission[];
     }
 }

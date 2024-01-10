@@ -1,8 +1,7 @@
-
-import env, { __root, resolve } from "./env.ts";
-import { Database, Statement } from "https://deno.land/x/sqlite3@0.9.1/mod.ts";
-import { log, error } from "./terminal-logging.ts";
-import { Queries } from "./sql-types.ts";
+import env, { __root, resolve } from './env.ts';
+import { Database, Statement } from 'https://deno.land/x/sqlite3@0.9.1/mod.ts';
+import { error, log } from './terminal-logging.ts';
+import { Queries } from './sql-types.ts';
 
 /**
  * The name of the main database
@@ -26,8 +25,6 @@ const dbDir = resolve(__root, './storage/db');
  * @type {Database}
  */
 export const MAIN = new Database(resolve(dbDir, DATABASE_LINK + '.db'));
-
-
 
 /**
  * Acceptable types for a parameter
@@ -93,13 +90,17 @@ export class DB {
      */
     private static prepare<T extends keyof Queries>(type: T): Statement {
         try {
-            const data = Deno.readFileSync(resolve(__root, './storage/db/queries/', type + '.sql'));
+            const data = Deno.readFileSync(
+                resolve(__root, './storage/db/queries/', type + '.sql'),
+            );
             const sql = new TextDecoder('utf-8').decode(data);
 
             return MAIN.prepare(sql);
         } catch (err) {
             error('Error preparing query:', type, err);
-            throw new Error('Database error, above error was thrown when preparing query');
+            throw new Error(
+                'Database error, above error was thrown when preparing query',
+            );
         }
     }
 
@@ -115,11 +116,19 @@ export class DB {
      * @param {...Queries[T][0]} args
      * @returns {(Queries[T][1] | undefined)}
      */
-    private static runQuery<T extends keyof Queries>(type: 'run' | 'get' | 'all', query: T, ...args: Queries[T][0]): Queries[T][1] | undefined {
+    private static runQuery<T extends keyof Queries>(
+        type: 'run' | 'get' | 'all',
+        query: T,
+        ...args: Queries[T][0]
+    ): Queries[T][1] | undefined {
         const q = DB.prepare(query);
 
         const recurse = (i: number) => {
-            if (i > 10) throw new Error('Attempted to run the query 10 times, all failed');
+            if (i > 10) {
+                throw new Error(
+                    'Attempted to run the query 10 times, all failed',
+                );
+            }
             try {
                 return q[type](...args);
             } catch (error) {
@@ -129,7 +138,7 @@ export class DB {
                     throw error;
                 }
             }
-        }
+        };
 
         let d: Queries[T][1] | Queries[T][1][] | number | undefined;
         try {
@@ -152,11 +161,19 @@ export class DB {
      * @param {...Parameter[]} args
      * @returns {unknown}
      */
-    private static runUnsafeQuery(type: 'run' | 'get' | 'all', query: string, ...args: Parameter[]) {
+    private static runUnsafeQuery(
+        type: 'run' | 'get' | 'all',
+        query: string,
+        ...args: Parameter[]
+    ) {
         const q = MAIN.prepare(query);
 
         const recurse = (i: number) => {
-            if (i > 10) throw new Error('Attempted to run the query 10 times, all failed');
+            if (i > 10) {
+                throw new Error(
+                    'Attempted to run the query 10 times, all failed',
+                );
+            }
             try {
                 return q[type](...args);
             } catch (error) {
@@ -167,7 +184,7 @@ export class DB {
                     throw error;
                 }
             }
-        }
+        };
 
         let d: unknown;
         try {
@@ -179,8 +196,6 @@ export class DB {
         return d;
     }
 
-
-
     /**
      * Runs a query
      * @date 10/12/2023 - 3:24:19 PM
@@ -191,7 +206,10 @@ export class DB {
      * @param {...Queries[T][0]} args
      * @returns {number}
      */
-    static run<T extends keyof Queries>(type: T, ...args: Queries[T][0]): number {
+    static run<T extends keyof Queries>(
+        type: T,
+        ...args: Queries[T][0]
+    ): number {
         return DB.runQuery('run', type, ...args) as number;
     }
 
@@ -205,7 +223,10 @@ export class DB {
      * @param {...Queries[T][0]} args
      * @returns {(Queries[T][1] | undefined)}
      */
-    static get<T extends keyof Queries>(type: T, ...args: Queries[T][0]): Queries[T][1] | undefined {
+    static get<T extends keyof Queries>(
+        type: T,
+        ...args: Queries[T][0]
+    ): Queries[T][1] | undefined {
         return DB.runQuery('get', type, ...args);
     }
 
@@ -219,11 +240,12 @@ export class DB {
      * @param {...Queries[T][0]} args
      * @returns {Queries[T][1][]}
      */
-    static all<T extends keyof Queries>(type: T, ...args: Queries[T][0]): Queries[T][1][] {
+    static all<T extends keyof Queries>(
+        type: T,
+        ...args: Queries[T][0]
+    ): Queries[T][1][] {
         return DB.runQuery('all', type, ...args) as Queries[T][1][];
     }
-
-
 
     /**
      * Runs a query without preparing it (only used for in-line queries)
@@ -244,11 +266,10 @@ export class DB {
             },
             all: <type = unknown>(query: string, ...args: Parameter[]) => {
                 return DB.runUnsafeQuery('all', query, ...args) as type[];
-            }
-        }
+            },
+        };
     }
 }
-
 
 // when the program exits, close the database
 // this is to prevent the database from being locked after the program exits

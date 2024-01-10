@@ -1,22 +1,20 @@
-import { __root } from "../../utilities/env.ts";
+import { __root } from '../../utilities/env.ts';
 import PATH from 'npm:path';
-import { log } from "../../utilities/terminal-logging.ts";
+import { log } from '../../utilities/terminal-logging.ts';
 import stack from 'npm:callsite';
-import { Colors } from "../../utilities/colors.ts";
-import { StatusCode, StatusId } from "../../../shared/status-messages.ts";
-import { Status } from "../../utilities/status.ts";
-import { getTemplateSync, getTemplate } from "../../utilities/files.ts";
-import { setCookie } from "https://deno.land/std@0.203.0/http/cookie.ts";
-import { App } from "./app.ts";
-import { Req } from "./req.ts";
-import { CookieOptions } from "./app.ts";
-import { ResponseStatus } from "./app.ts";
-import { FileType } from "./app.ts";
-import { EventEmitter } from "../../../shared/event-emitter.ts";
-import { streamDelimiter } from "../../../shared/text.ts";
-import { sleep } from "../../../shared/sleep.ts";
-
-
+import { Colors } from '../../utilities/colors.ts';
+import { StatusCode, StatusId } from '../../../shared/status-messages.ts';
+import { Status } from '../../utilities/status.ts';
+import { getTemplate, getTemplateSync } from '../../utilities/files.ts';
+import { setCookie } from 'https://deno.land/std@0.203.0/http/cookie.ts';
+import { App } from './app.ts';
+import { Req } from './req.ts';
+import { CookieOptions } from './app.ts';
+import { ResponseStatus } from './app.ts';
+import { FileType } from './app.ts';
+import { EventEmitter } from '../../../shared/event-emitter.ts';
+import { streamDelimiter } from '../../../shared/text.ts';
+import { sleep } from '../../../shared/sleep.ts';
 
 /**
  * All filetype headers (used for sending files, this is not a complete list)
@@ -55,18 +53,19 @@ const fileTypeHeaders: {
     '7z': 'application/x-7z-compressed',
     xml: 'application/xml',
     doc: 'application/msword',
-    docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    docx:
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     xls: 'application/vnd.ms-excel',
     xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     ppt: 'application/vnd.ms-powerpoint',
-    pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    pptx:
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
     avi: 'video/x-msvideo',
     wmv: 'video/x-ms-wmv',
     mov: 'video/quicktime',
     mpeg: 'video/mpeg',
-    flv: 'video/x-flv'
+    flv: 'video/x-flv',
 };
-
 
 /**
  * The event types for the stream
@@ -79,7 +78,6 @@ type StreamEventData = {
     'end': undefined;
     'cancel': undefined;
 };
-
 
 /**
  * This is the response object, resembling the express response object
@@ -178,7 +176,7 @@ export class Res {
         [key: string]: {
             value: string;
             options?: CookieOptions;
-        }
+        };
     } = {};
 
     /**
@@ -205,23 +203,26 @@ export class Res {
      * @private
      * @returns {*}
      */
-    private isFulfilled(): void|undefined {
+    private isFulfilled(): void | undefined {
         if (this.fulfilled) {
             log('Response already fulfilled at:');
-            return console.log(this.trace.filter(t => t!=='null:null').map(t => {
-                t = t.replace('file://', '').replace('file:', '');
-                t = PATH.relative(__root, t);
-                t = `\n\t${Colors.FgYellow}${t}${Colors.Reset}`
-                return t;
-            }).join(''));
+            return console.log(
+                this.trace.filter((t) => t !== 'null:null').map((t) => {
+                    t = t.replace('file://', '').replace('file:', '');
+                    t = PATH.relative(__root, t);
+                    t = `\n\t${Colors.FgYellow}${t}${Colors.Reset}`;
+                    return t;
+                }).join(''),
+            );
         }
         this.fulfilled = true;
 
-        this.trace.push(...stack().map((site: any) => {
-            return site.getFileName() + ':' + site.getLineNumber();
-        }));
+        this.trace.push(
+            ...stack().map((site: any) => {
+                return site.getFileName() + ':' + site.getLineNumber();
+            }),
+        );
     }
-
 
     /**
      * Responds in json format
@@ -234,17 +235,19 @@ export class Res {
         this.isFulfilled();
         try {
             const d = JSON.stringify(data);
-            this.resolve?.(new Response(d, {
-                status: this._status,
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            }));
+            this.resolve?.(
+                new Response(d, {
+                    status: this._status,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                }),
+            );
             return ResponseStatus.success;
         } catch (e) {
-            log("Cannot stringify data", e);
+            log('Cannot stringify data', e);
             return ResponseStatus.error;
-        };
+        }
     }
 
     /**
@@ -261,8 +264,8 @@ export class Res {
         const res = new Response(data, {
             status: this._status,
             headers: {
-                'Content-Type': fileTypeHeaders[filetype] || 'text/plain'
-            }
+                'Content-Type': fileTypeHeaders[filetype] || 'text/plain',
+            },
         });
         this._setCookie(res);
         this.resolve?.(res);
@@ -284,7 +287,7 @@ export class Res {
             setCookie(res.headers, {
                 name: id,
                 value: c.value,
-                ...c.options
+                ...c.options,
             });
         }
 
@@ -308,8 +311,10 @@ export class Res {
             const res = new Response(data, {
                 status: this._status,
                 headers: {
-                    'Content-Type': fileTypeHeaders[extName as keyof typeof fileTypeHeaders] || 'text/plain'
-                }
+                    'Content-Type': fileTypeHeaders[
+                        extName as keyof typeof fileTypeHeaders
+                    ] || 'text/plain',
+                },
             });
             this._setCookie(res);
             this.resolve?.(res);
@@ -319,7 +324,6 @@ export class Res {
             return ResponseStatus.fileNotFound;
         }
     }
-
 
     /**
      * Sets the status code of the response
@@ -333,9 +337,8 @@ export class Res {
         return this;
     }
 
-
     /**
-     * Redirects the client to the given path 
+     * Redirects the client to the given path
      * Fulfils the response
      * @date 10/12/2023 - 3:06:01 PM
      *
@@ -350,7 +353,6 @@ export class Res {
         return ResponseStatus.success;
     }
 
-
     /**
      * Adds a cookie to the response
      * @date 10/12/2023 - 3:06:01 PM
@@ -363,12 +365,11 @@ export class Res {
     cookie(id: string, value: string, options?: CookieOptions): this {
         this._cookie[id] = {
             value: value,
-            options: options
+            options: options,
         };
 
         return this;
     }
-
 
     /**
      * Sends a status to the client (using the StatusMessages in shared/status-messages.ts)
@@ -424,9 +425,14 @@ export class Res {
             async start(controller) {
                 // opens up the event loop while sending chunks
                 // let i = 0;
-                const send = async (data: string) => sleep(0).then(() => {
+                const send = async (data: string) =>
+                    sleep(0).then(() => {
                         // console.log('Sending chunk', i++, '/', content.length);
-                        controller.enqueue(new TextEncoder().encode(encodeURI(data) + streamDelimiter));
+                        controller.enqueue(
+                            new TextEncoder().encode(
+                                encodeURI(data) + streamDelimiter,
+                            ),
+                        );
                     });
 
                 return Promise.all(content.map(send)).then(() => {
@@ -438,24 +444,28 @@ export class Res {
 
             cancel() {
                 if (timer) clearTimeout(timer);
-                log('Stream cancelled')
+                log('Stream cancelled');
                 em.emit('cancel');
             },
 
-            type: 'bytes'
+            type: 'bytes',
         });
 
         try {
             this.isFulfilled();
 
-            this.resolve?.(new Response(stream, {
-                headers: {
-                    'Content-Type': 'application/octet-stream',
-                    'x-content-type-options': 'nosniff',
-                    'x-content-size': new TextEncoder().encode(content.join('')).length.toString(),
-                    'x-data-length': content.length.toString()
-                }
-            }));
+            this.resolve?.(
+                new Response(stream, {
+                    headers: {
+                        'Content-Type': 'application/octet-stream',
+                        'x-content-type-options': 'nosniff',
+                        'x-content-size': new TextEncoder().encode(
+                            content.join(''),
+                        ).length.toString(),
+                        'x-data-length': content.length.toString(),
+                    },
+                }),
+            );
         } catch (e) {
             log('Error streaming', e);
 
@@ -464,8 +474,6 @@ export class Res {
 
         return em;
     }
-
-
 
     /**
      * Renders a template to the client (utilizes node-html-constructor to build the template)
@@ -485,4 +493,4 @@ export class Res {
             this.sendStatus('server:unknown-server-error');
         }
     }
-};
+}

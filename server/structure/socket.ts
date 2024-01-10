@@ -1,7 +1,7 @@
 // currently the socket wrapper class is unused, but it may be used in the future
 
-import { Server, Socket } from "npm:socket.io";
-import { parseCookie } from "../../shared/cookie.ts";
+import { Server, Socket } from 'npm:socket.io';
+import { parseCookie } from '../../shared/cookie.ts';
 import { log } from '../utilities/terminal-logging.ts';
 
 /**
@@ -13,7 +13,7 @@ import { log } from '../utilities/terminal-logging.ts';
  */
 type SocketMetadata = {
     time: number;
-}
+};
 
 /**
  * queue information for the socket
@@ -21,12 +21,12 @@ type SocketMetadata = {
  *
  * @typedef {SocketQueue}
  */
-type SocketQueue = { 
-    event: string, 
-    args: any[], 
-    room?: string, 
-    metadata: SocketMetadata 
-}
+type SocketQueue = {
+    event: string;
+    args: any[];
+    room?: string;
+    metadata: SocketMetadata;
+};
 
 /**
  * Wrapper for the socket
@@ -48,9 +48,8 @@ export class SocketWrapper {
      *     }}
      */
     static readonly sockets: {
-        [key: string]: SocketWrapper
+        [key: string]: SocketWrapper;
     } = {};
-
 
     /**
      * Queue of events to emit
@@ -106,20 +105,24 @@ export class SocketWrapper {
      */
     emit(event: string, ...args: any[]) {
         log('Emitting', event, 'with', args);
-        if (!this.socket.connected) return this.queue.push({
-            event,
-            args,
-            metadata: {
-                time: Date.now()
-            }
-        });
+        if (!this.socket.connected) {
+            return this.queue.push({
+                event,
+                args,
+                metadata: {
+                    time: Date.now(),
+                },
+            });
+        }
 
-        this.socket.emit(event, 
+        this.socket.emit(
+            event,
             // socket metadata:
             // {
             //     time: Date.now()
-            // }, 
-        ...args);
+            // },
+            ...args,
+        );
     }
 
     /**
@@ -133,23 +136,24 @@ export class SocketWrapper {
         return {
             emit: (event: string, ...args: any[]) => {
                 // add to queue if not connected
-                if (!this.socket.connected) return this.queue.push({
-                    event,
-                    args,
-                    room,
-                    metadata: {
-                        time: Date.now()
-                    }
-                });
+                if (!this.socket.connected) {
+                    return this.queue.push({
+                        event,
+                        args,
+                        room,
+                        metadata: {
+                            time: Date.now(),
+                        },
+                    });
+                }
 
                 this.socket.to(room).emit(event, {
-                    time: Date.now()
+                    time: Date.now(),
                 }, ...args);
-            }
-        }
+            },
+        };
     }
 }
-
 
 /**
  * io server
@@ -157,7 +161,7 @@ export class SocketWrapper {
  *
  * @type {(Server|null)}
  */
-export let io: Server|null = null;
+export let io: Server | null = null;
 
 /**
  * Initializes the socket server

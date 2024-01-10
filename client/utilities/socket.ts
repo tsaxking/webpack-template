@@ -1,8 +1,7 @@
-import { io } from "socket.io-client";
-import { SocketEvent } from "../../shared/socket";
+import { io } from 'socket.io-client';
+import { SocketEvent } from '../../shared/socket';
 import { ServerRequest } from './requests';
-import { uptime } from "../../shared/clock";
-
+import { uptime } from '../../shared/clock';
 
 /**
  * This waits for the server to send the socket url before initializing the socket, this is so that the socket url can be defined only in one location (the .env file)
@@ -18,16 +17,14 @@ const initialized = new Promise<void>((res) => {
             // this says it doesn't exist but it really does, so I have a small work around :)
             (s.io as any).reconnect();
         });
-    
+
         s.on('reload', () => {
             if (uptime() > 1000) location.reload();
         });
-    
+
         socket.io = s;
     });
 });
-
-
 
 /**
  * Currently unused, but this is an idea for how to handle socket event metadata
@@ -49,7 +46,6 @@ export type SocketMetadata = {
  * @typedef {SocketListener}
  */
 export class SocketListener {
-
     public static readonly listeners: Map<string, SocketListener> = new Map();
 
     /**
@@ -62,12 +58,12 @@ export class SocketListener {
      * @returns {*}
      */
     private static addListener(listener: SocketListener) {
-        if (SocketListener.listeners.has(listener.event)) 
-            return console.error(new Error(`Event ${listener.event} already has a listener`));
-        else SocketListener.listeners.set(listener.event, listener);
+        if (SocketListener.listeners.has(listener.event)) {
+            return console.error(
+                new Error(`Event ${listener.event} already has a listener`),
+            );
+        } else SocketListener.listeners.set(listener.event, listener);
     }
-
-
 
     /**
      * List of view updates
@@ -120,9 +116,9 @@ export class ViewUpdate {
      */
     constructor(
         public readonly event: string,
-        public readonly page: string|null,
+        public readonly page: string | null,
         public readonly callback: (...args: any[]) => void,
-        public readonly filter?: (...args: any[]) => boolean
+        public readonly filter?: (...args: any[]) => boolean,
     ) {
         const listener = SocketWrapper.listeners[event];
         if (!listener) throw new Error(`Event ${event} does not exist`);
@@ -138,10 +134,14 @@ export class ViewUpdate {
      */
     destroy() {
         const listener = SocketWrapper.listeners[this.event];
-        if (!listener) return console.error(`Event ${this.event} does not exist`);
+        if (!listener) {
+            return console.error(`Event ${this.event} does not exist`);
+        }
 
         const index = listener.updates.indexOf(this);
-        if (index === -1) return console.error(`ViewUpdate ${this.event} does not exist`);
+        if (index === -1) {
+            return console.error(`ViewUpdate ${this.event} does not exist`);
+        }
 
         listener.updates.splice(index, 1);
     }
@@ -176,7 +176,7 @@ export class SocketWrapper {
      * @private
      * @type {?*}
      */
-    private socket?: any
+    private socket?: any;
 
     /**
      * Creates an instance of SocketWrapper.
@@ -196,7 +196,6 @@ export class SocketWrapper {
         return this.socket?.io;
     }
 
-
     /**
      * This is a setter for the socket so that it can be initialized after the class is created
      * @date 10/12/2023 - 1:28:35 PM
@@ -208,7 +207,6 @@ export class SocketWrapper {
         this.socket = socket;
     }
 
-
     // wrapper for socket so that it can update the model and view if on the correct page with a single listener
     /**
      * adds an event listener to the socket
@@ -219,7 +217,10 @@ export class SocketWrapper {
      * @param {(...args: any[]) => void} dataUpdate
      * @returns {Promise<SocketListener>}
      */
-    async on(event: SocketEvent, dataUpdate: (...args: any[]) => void): Promise<SocketListener> {
+    async on(
+        event: SocketEvent,
+        dataUpdate: (...args: any[]) => void,
+    ): Promise<SocketListener> {
         // wait for the socket to be initialized, if it already has been initialized then this will resolve immediately
         await initialized;
 
@@ -230,19 +231,22 @@ export class SocketWrapper {
         const listener = new SocketListener(event);
         SocketWrapper.listeners[event] = listener;
 
-        this.socket.on(event, (/* metadata: SocketMetadata, */ ...args: any[]) => {
-            console.log('socket.on', event, ...args);
-            dataUpdate(...args);
+        this.socket.on(
+            event,
+            (/* metadata: SocketMetadata, */ ...args: any[]) => {
+                console.log('socket.on', event, ...args);
+                dataUpdate(...args);
 
-            for (const vu of listener.updates) {
-                // filter is a custom function that returns true if the view should update based on the data received
-                if (vu.filter && !vu.filter(...args)) {
-                    console.log('filtering out', vu);
-                    continue;
+                for (const vu of listener.updates) {
+                    // filter is a custom function that returns true if the view should update based on the data received
+                    if (vu.filter && !vu.filter(...args)) {
+                        console.log('filtering out', vu);
+                        continue;
+                    }
+                    vu.callback(...args);
                 }
-                vu.callback(...args);
-            }
-        });
+            },
+        );
 
         return listener;
     }

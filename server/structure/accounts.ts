@@ -1,23 +1,28 @@
-
-
-
-import { DB } from "../utilities/databases.ts";
-import crypto from "node:crypto";
-import { uuid } from "../utilities/uuid.ts";
-import Role from "./roles.ts";
-import { Status } from "../utilities/status.ts";
-import { Email, EmailOptions, EmailType } from "../utilities/email.ts";
+import { DB } from '../utilities/databases.ts';
+import crypto from 'node:crypto';
+import { uuid } from '../utilities/uuid.ts';
+import Role from './roles.ts';
+import { Status } from '../utilities/status.ts';
+import { Email, EmailOptions, EmailType } from '../utilities/email.ts';
 import Filter from 'npm:bad-words';
-import { Member } from "./member.ts";
-import { Account as AccountObject, MembershipStatus, Member as MemberObj, Skill, Permission } from "../../shared/db-types.ts";
-import env from "../utilities/env.ts";
-import { deleteUpload } from "../utilities/files.ts";
+import { Member } from './member.ts';
+import {
+    Account as AccountObject,
+    Member as MemberObj,
+    MembershipStatus,
+    Permission,
+    Skill,
+} from '../../shared/db-types.ts';
+import env from '../utilities/env.ts';
+import { deleteUpload } from '../utilities/files.ts';
 import { Next, ServerFunction } from './app/app.ts';
-import { Req } from "./app/req.ts";
-import { Res } from "./app/res.ts";
-import { AccountStatusId, RolesStatusId } from "../../shared/status-messages.ts";
-import { validate } from "../middleware/data-type.ts";
-
+import { Req } from './app/req.ts';
+import { Res } from './app/res.ts';
+import {
+    AccountStatusId,
+    RolesStatusId,
+} from '../../shared/status-messages.ts';
+import { validate } from '../middleware/data-type.ts';
 
 /**
  * Properties that can be changed dynamically
@@ -29,9 +34,8 @@ import { validate } from "../middleware/data-type.ts";
 export enum AccountDynamicProperty {
     firstName = 'firstName',
     lastName = 'lastName',
-    picture = 'picture'
+    picture = 'picture',
 }
-
 
 /**
  * Link to a discord account
@@ -45,7 +49,6 @@ type DiscordLink = {
     discriminator: string;
     avatar: string;
 };
-
 
 /**
  * Account object, this is the main object for the user.
@@ -68,15 +71,16 @@ export default class Account {
         switch (type) {
             case 'id':
                 return validate({
-                    id: (v: any) => typeof v === 'string' && !!Account.fromId(v)
+                    id: (v: any) =>
+                        typeof v === 'string' && !!Account.fromId(v),
                 });
             case 'username':
                 return validate({
-                    username: (v: any) => typeof v === 'string' && !!Account.fromUsername(v)
+                    username: (v: any) =>
+                        typeof v === 'string' && !!Account.fromUsername(v),
                 });
-        };
+        }
     }
-
 
     /**
      * Automatically signs in when several conditions are fulfilled:
@@ -103,7 +107,7 @@ export default class Account {
 
             req.session!.accountId = account.id;
             next();
-        }
+        };
     }
 
     /**
@@ -114,9 +118,8 @@ export default class Account {
      * @returns {*}
      */
     static get unverifiedAccounts() {
-        return DB.all('account/unverified').map(a => new Account(a));
+        return DB.all('account/unverified').map((a) => new Account(a));
     }
-
 
     /**
      * Retrieves an account from the database given its id
@@ -126,14 +129,13 @@ export default class Account {
      * @param {string} id
      * @returns {(Account|null)}
      */
-    static fromId(id: string): Account|null {
+    static fromId(id: string): Account | null {
         const data = DB.get('account/from-id', {
-            id
+            id,
         });
         if (!data) return null;
         return new Account(data);
     }
-
 
     /**
      * Retrieves an account from the database given its username
@@ -143,9 +145,9 @@ export default class Account {
      * @param {string} username
      * @returns {(Account|null)}
      */
-    static fromUsername(username: string): Account|null {
+    static fromUsername(username: string): Account | null {
         const data = DB.get('account/from-username', {
-            username
+            username,
         });
         if (!data) return null;
         return new Account(data);
@@ -159,11 +161,11 @@ export default class Account {
      * @param {string} email
      * @returns {(Account|null)}
      */
-    static fromEmail(email: string): Account|null {
+    static fromEmail(email: string): Account | null {
         const data = DB.get('account/from-email', {
-            email
+            email,
         });
-        if (!data) return null; 
+        if (!data) return null;
         return new Account(data);
     }
 
@@ -175,9 +177,9 @@ export default class Account {
      * @param {string} key
      * @returns {(Account|null)}
      */
-    static fromVerificationKey(key: string): Account|null {
+    static fromVerificationKey(key: string): Account | null {
         const data = DB.get('account/from-verification-key', {
-            verification: key
+            verification: key,
         });
         if (!data) return null;
         return new Account(data);
@@ -191,9 +193,9 @@ export default class Account {
      * @param {string} key
      * @returns {(Account|null)}
      */
-    static fromPasswordChangeKey(key: string): Account|null {
+    static fromPasswordChangeKey(key: string): Account | null {
         const data = DB.get('account/from-password-change', {
-            passwordChange: key
+            passwordChange: key,
         });
         if (!data) return null;
         return new Account(data);
@@ -219,13 +221,13 @@ export default class Account {
 
             const { permissions } = account;
 
-            if (permission.every(p => permissions.find(_p => _p === p))) {
+            if (permission.every((p) => permissions.find((_p) => _p === p))) {
                 return next();
             } else {
                 const s = Status.from('permissions:unauthorized', req);
                 return s.send(res);
             }
-        }
+        };
     }
 
     /**
@@ -277,12 +279,11 @@ export default class Account {
      */
     static get all(): Account[] {
         const data = DB.all('account/all');
-        return data.map(a => new Account(a));
+        return data.map((a) => new Account(a));
     }
 
-
-    // █▄ ▄█ ▄▀▄ █▄ █ ▄▀▄ ▄▀  █ █▄ █ ▄▀     ▄▀▄ ▄▀▀ ▄▀▀ ▄▀▄ █ █ █▄ █ ▀█▀ ▄▀▀ 
-    // █ ▀ █ █▀█ █ ▀█ █▀█ ▀▄█ █ █ ▀█ ▀▄█    █▀█ ▀▄▄ ▀▄▄ ▀▄▀ ▀▄█ █ ▀█  █  ▄█▀ 
+    // █▄ ▄█ ▄▀▄ █▄ █ ▄▀▄ ▄▀  █ █▄ █ ▄▀     ▄▀▄ ▄▀▀ ▄▀▀ ▄▀▄ █ █ █▄ █ ▀█▀ ▄▀▀
+    // █ ▀ █ █▀█ █ ▀█ █▀█ ▀▄█ █ █ ▀█ ▀▄█    █▀█ ▀▄▄ ▀▄▄ ▀▄▀ ▀▄█ █ ▀█  █  ▄█▀
 
     /**
      * Generates a new hash for a password
@@ -292,7 +293,7 @@ export default class Account {
      * @param {string} password
      * @returns {{salt: string, key: string}}
      */
-    static newHash(password: string): {salt: string, key: string} {
+    static newHash(password: string): { salt: string; key: string } {
         const salt = crypto
             .randomBytes(32)
             .toString('hex');
@@ -327,39 +328,101 @@ export default class Account {
      */
     static isValid(str: string, chars: string[] = []): boolean {
         const allowedCharacters = [
-            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
-            'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x',
-            'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-            '_', '-', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')',
-            '+', '=', '{', '}', '[', ']', ':', ';', '"', "'", '<', '>',
-            '?', '/', '|', ',', '.', '~', '`'
+            'a',
+            'b',
+            'c',
+            'd',
+            'e',
+            'f',
+            'g',
+            'h',
+            'i',
+            'j',
+            'k',
+            'l',
+            'm',
+            'n',
+            'o',
+            'p',
+            'q',
+            'r',
+            's',
+            't',
+            'u',
+            'v',
+            'w',
+            'x',
+            'y',
+            'z',
+            '0',
+            '1',
+            '2',
+            '3',
+            '4',
+            '5',
+            '6',
+            '7',
+            '8',
+            '9',
+            '_',
+            '-',
+            '!',
+            '@',
+            '#',
+            '$',
+            '%',
+            '^',
+            '&',
+            '*',
+            '(',
+            ')',
+            '+',
+            '=',
+            '{',
+            '}',
+            '[',
+            ']',
+            ':',
+            ';',
+            '"',
+            "'",
+            '<',
+            '>',
+            '?',
+            '/',
+            '|',
+            ',',
+            '.',
+            '~',
+            '`',
         ];
 
         allowedCharacters.push(...chars);
 
-        const invalidChars:string[] = [];
+        const invalidChars: string[] = [];
 
         let valid = str
             .toLowerCase()
             .split('')
-            .every(char => {
+            .every((char) => {
                 const validChar = allowedCharacters.includes(char);
                 if (!validChar) invalidChars.push(char);
                 return validChar;
             });
 
         if (!valid) console.log('Invalid characters:', invalidChars);
-    
 
         // test for bad words
         const filtered = new Filter().clean(str);
 
         if (filtered !== str) {
             valid = false;
-            invalidChars.push(...str.split(' ').filter((word, i) => word !== filtered.split(' ')[i]));
+            invalidChars.push(
+                ...str.split(' ').filter((word, i) =>
+                    word !== filtered.split(' ')[i]
+                ),
+            );
         }
-
-
 
         if (!valid) {
             console.log('Invalid characters/words:', invalidChars);
@@ -381,7 +444,13 @@ export default class Account {
      * @param {string} lastName
      * @returns {Promise<AccountStatusId>}
      */
-    static async create(username: string, password: string, email: string, firstName: string, lastName: string): Promise<AccountStatusId> {
+    static async create(
+        username: string,
+        password: string,
+        email: string,
+        firstName: string,
+        lastName: string,
+    ): Promise<AccountStatusId> {
         if (Account.fromUsername(username)) return 'username-taken';
         if (Account.fromEmail(email)) return 'email-taken';
 
@@ -406,7 +475,6 @@ export default class Account {
 
         const { salt, key } = Account.newHash(password);
 
-
         DB.run('account/new', {
             id: uuid(),
             username,
@@ -418,7 +486,7 @@ export default class Account {
             verified: 0,
             verification: uuid(),
             created: Date.now(),
-            phoneNumber: ''
+            phoneNumber: '',
         });
 
         const a = new Account({
@@ -432,7 +500,7 @@ export default class Account {
             verified: 0,
             verification: uuid(),
             created: Date.now(),
-            phoneNumber: ''
+            phoneNumber: '',
         });
 
         a.sendVerification();
@@ -453,27 +521,11 @@ export default class Account {
         if (!account) return 'not-found';
 
         DB.run('account/delete', {
-            id
+            id,
         });
 
         return 'removed';
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     /**
      * uuid of the account
@@ -530,7 +582,7 @@ export default class Account {
      *
      * @type {?(string|null)}
      */
-    passwordChange?: string|null;
+    passwordChange?: string | null;
     /**
      * Discord link of the account
      * @date 1/9/2024 - 12:53:19 PM
@@ -601,8 +653,6 @@ export default class Account {
         }
     }
 
-
-
     /**
      * Verifies the account
      * @date 1/9/2024 - 12:53:19 PM
@@ -621,7 +671,7 @@ export default class Account {
 
             DB.run('account/change-email', {
                 id: this.id,
-                email
+                email,
             });
             this.email = email;
             delete this.emailChange;
@@ -629,16 +679,14 @@ export default class Account {
             return 'verified';
         }
 
-
         DB.run('account/verify', {
-            id: this.id
+            id: this.id,
         });
         this.verified = 1;
         delete this.verification;
 
         return 'verified';
     }
-
 
     /**
      * Sends an email to the account with a link to verify their account
@@ -651,21 +699,25 @@ export default class Account {
 
         DB.run('account/set-verification', {
             verification: key,
-            id: this.id
+            id: this.id,
         });
 
-        const email = new Email(this.email, 'Verify your account', EmailType.link, {
-            constructor: {
-                link: `${env.DODB}/account/verify/${key}`,
-                linkText: 'Click here to verify your account',
-                title: 'Verify your account',
-                message: 'Click the button below to verify your account'
-            }
-        });
+        const email = new Email(
+            this.email,
+            'Verify your account',
+            EmailType.link,
+            {
+                constructor: {
+                    link: `${env.DODB}/account/verify/${key}`,
+                    linkText: 'Click here to verify your account',
+                    title: 'Verify your account',
+                    message: 'Click the button below to verify your account',
+                },
+            },
+        );
 
         return email.send();
     }
-
 
     /**
      * Creates an adaptable safe version of the account object (used for sending to the client)
@@ -693,13 +745,9 @@ export default class Account {
             email: include?.email ? this.email : undefined,
             roles: include?.roles ? this.roles : [],
             memberInfo: include?.memberInfo ? this.memberInfo : undefined,
-            permissions: include?.permissions ? this.permissions : []
+            permissions: include?.permissions ? this.permissions : [],
         };
     }
-
-
-
-
 
     /**
      * member information
@@ -725,12 +773,6 @@ export default class Account {
         return email.send();
     }
 
-
-
-
-
-
-
     /**
      * All roles of the account
      * @date 1/9/2024 - 12:53:19 PM
@@ -739,7 +781,7 @@ export default class Account {
      */
     get roles(): Role[] {
         const data = DB.all('account/roles', {
-            id: this.id
+            id: this.id,
         });
 
         return data.map((r) => {
@@ -754,17 +796,17 @@ export default class Account {
      * @param {string} role
      * @returns {(AccountStatusId|RolesStatusId)}
      */
-    addRole(role: string): AccountStatusId|RolesStatusId {
+    addRole(role: string): AccountStatusId | RolesStatusId {
         const r = Role.fromName(role);
         if (!r) return 'not-found';
 
-        if ((this.roles).find(_r => _r.name === r.name)) {
+        if (this.roles.find((_r) => _r.name === r.name)) {
             return 'has-role';
         }
 
         DB.run('account/add-role', {
             accountId: this.id,
-            roleId: r.id
+            roleId: r.id,
         });
 
         return 'role-added';
@@ -777,26 +819,21 @@ export default class Account {
      * @param {string} role
      * @returns {(AccountStatusId|RolesStatusId)}
      */
-    removeRole(role: string): AccountStatusId|RolesStatusId {
+    removeRole(role: string): AccountStatusId | RolesStatusId {
         const r = Role.fromName(role);
         if (!r) return 'not-found';
 
-        if (!(this.roles).find(_r => _r.name === r.name)) {
+        if (!this.roles.find((_r) => _r.name === r.name)) {
             return 'no-role';
         }
 
         DB.run('account/remove-role', {
             accountId: this.id,
-            roleId: r.id
+            roleId: r.id,
         });
 
         return 'role-removed';
     }
-
-
-
-
-
 
     /**
      * Sets the profile picture of the account
@@ -812,14 +849,12 @@ export default class Account {
 
         DB.run('account/update-picture', {
             id: this.id,
-            picture: id
+            picture: id,
         });
         this.picture = id;
 
         return 'picture-updated';
     }
-
-
 
     /**
      * Gets all roles of the account
@@ -832,8 +867,6 @@ export default class Account {
         return (roles.flatMap((role) => role.getPermissions()));
     }
 
-
-
     /**
      * Changes a dynamic property of the account
      * @date 1/9/2024 - 12:53:19 PM
@@ -843,7 +876,9 @@ export default class Account {
      * @returns {AccountStatusId}
      */
     change(property: AccountDynamicProperty, to: string): AccountStatusId {
-        if (property !== AccountDynamicProperty.picture &&!Account.isValid(to)) {
+        if (
+            property !== AccountDynamicProperty.picture && !Account.isValid(to)
+        ) {
             switch (property) {
                 case AccountDynamicProperty.firstName:
                     return 'invalid-first-name';
@@ -866,7 +901,6 @@ export default class Account {
         return 'updated';
     }
 
-
     /**
      * Changes the username of the account
      * @date 1/9/2024 - 12:53:19 PM
@@ -880,7 +914,7 @@ export default class Account {
 
         DB.run('account/change-username', {
             id: this.id,
-            username
+            username,
         });
 
         this.username = username;
@@ -888,11 +922,6 @@ export default class Account {
         return 'username-changed';
     }
 
-
-    
-
-
-    
     /**
      * Checks if the password is correct
      * @date 1/9/2024 - 12:53:19 PM
@@ -904,7 +933,6 @@ export default class Account {
         const hash = Account.hash(password, this.salt);
         return hash === this.key;
     }
-
 
     /**
      * Starts the process of changing the email of the account
@@ -920,15 +948,15 @@ export default class Account {
 
         this.emailChange = {
             email,
-            date: Date.now()
-        }
+            date: Date.now(),
+        };
 
         DB.run(
-            'account/request-email-change', 
+            'account/request-email-change',
             {
                 id: this.id,
-                emailChange: JSON.stringify(this.emailChange)
-            }
+                emailChange: JSON.stringify(this.emailChange),
+            },
         );
 
         this.sendVerification();
@@ -948,7 +976,7 @@ export default class Account {
 
         DB.run('account/request-password-change', {
             id: this.id,
-            passwordChange: key
+            passwordChange: key,
         });
         return key;
     }
@@ -962,14 +990,14 @@ export default class Account {
      * @returns {AccountStatusId}
      */
     changePassword(key: string, password: string): AccountStatusId {
-        if (key !== this.passwordChange) return 'invalid-password-reset-key'
+        if (key !== this.passwordChange) return 'invalid-password-reset-key';
 
         const { salt, key: newKey } = Account.newHash(password);
         DB.run('account/change-password', {
             id: this.id,
             salt,
             key: newKey,
-            passwordChange: null
+            passwordChange: null,
         });
         this.key = newKey;
         this.salt = salt;
@@ -977,7 +1005,6 @@ export default class Account {
 
         return 'password-reset-success';
     }
-
 
     /**
      * Returns the role rank
@@ -1002,11 +1029,10 @@ export default class Account {
         return 'unverified';
     }
 
-
     /**
      * Saves the account to the database (not implemented)
      * @deprecated Not implemented
      * @date 1/9/2024 - 12:53:19 PM
      */
     save() {}
-};
+}

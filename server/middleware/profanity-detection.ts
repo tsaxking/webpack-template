@@ -1,8 +1,8 @@
 import Filter from 'npm:bad-words';
 import { Status } from '../utilities/status.ts';
-import { Next, ServerFunction } from "../structure/app/app.ts";
-import { Req } from "../structure/app/req.ts";
-import { Res } from "../structure/app/res.ts";
+import { Next, ServerFunction } from '../structure/app/app.ts';
+import { Req } from '../structure/app/req.ts';
+import { Res } from '../structure/app/res.ts';
 
 /**
  * Bad word filter
@@ -11,7 +11,6 @@ import { Res } from "../structure/app/res.ts";
  * @type {*}
  */
 const filter = new Filter();
-
 
 /**
  * Returns a middleware function that checks if the body keys contain profanity
@@ -25,5 +24,5 @@ export const detect = (...keys: string[]): ServerFunction<any> => {
             }
         }
         next();
-    }
-}
+    };
+};

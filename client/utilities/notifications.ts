@@ -3,14 +3,12 @@
 // All confirm/alert/prompt functions return a promise that resolves when the user closes the modal instead of blocking the thread (like the default browser functions)
 // toasts by default are placed at the top right of the screen, this is customizable
 
-
-import { StatusJson } from "../../shared/status";
+import { StatusJson } from '../../shared/status';
 import ToastContainer from '../views/components/bootstrap/ToastContainer.svelte';
-import Toast from "../views/components/bootstrap/Toast.svelte";
-import { fromCamelCase, capitalize, fromSnakeCase } from "../../shared/text";
-import Modal from "../views/components/bootstrap/Modal.svelte";
-import Button from "../views/components/bootstrap/Button.svelte";
-
+import Toast from '../views/components/bootstrap/Toast.svelte';
+import { capitalize, fromCamelCase, fromSnakeCase } from '../../shared/text';
+import Modal from '../views/components/bootstrap/Modal.svelte';
+import Button from '../views/components/bootstrap/Button.svelte';
 
 /**
  * Mounts the toast container to the DOM (not visible)
@@ -19,28 +17,30 @@ import Button from "../views/components/bootstrap/Button.svelte";
  * @type {*}
  */
 const container = new ToastContainer({
-    target: document.body.querySelector('main') || document.body
+    target: document.body.querySelector('main') || document.body,
 });
-
-
 
 /**
  * Displays a toast notification to the user
  * @date 10/12/2023 - 1:14:47 PM
  * @param {StatusJson} data The data to display (in the format of a StatusMessage)
-*/
+ */
 export const notify = (data: StatusJson): Promise<void> => {
     return new Promise<void>((res) => {
-        const status = capitalize(fromSnakeCase(fromCamelCase(data.title), '-'));
-    
-        let message = `${status}: ${capitalize(fromSnakeCase(fromCamelCase(data.status), '-'))}`;
-    
-        if(data.data) {
+        const status = capitalize(
+            fromSnakeCase(fromCamelCase(data.title), '-'),
+        );
+
+        let message = `${status}: ${
+            capitalize(fromSnakeCase(fromCamelCase(data.status), '-'))
+        }`;
+
+        if (data.data) {
             for (const [key, value] of Object.entries(data.data)) {
                 message += `\n${key}: ${value}`;
             }
         }
-    
+
         const t = new Toast({
             target: document.createElement('div'),
             props: {
@@ -48,28 +48,27 @@ export const notify = (data: StatusJson): Promise<void> => {
                 message: data.message,
                 show: true,
                 color: data.color,
-                bodyTextColor: 'white'
-            }
+                bodyTextColor: 'white',
+            },
         });
-    
-        container.$$.root.querySelector('#toast-container')?.appendChild(t.$$.root.firstChild as Node);
-    
+
+        container.$$.root.querySelector('#toast-container')?.appendChild(
+            t.$$.root.firstChild as Node,
+        );
+
         t.$on('hide.bs.toast', () => {
             res();
             t.$destroy();
         });
     });
-}
-
-
+};
 
 /**
  * Returns a promise that resolves when the user closes the modal
  * @date 10/12/2023 - 1:17:28 PM
  * @param {string} message The message to display to the user
  * @async
- *
-*/
+ */
 export const alert = async (message: string): Promise<void> => {
     return new Promise<void>((res, rej) => {
         const id = 'alert-' + Math.random().toString(36).substring(2, 9);
@@ -78,8 +77,8 @@ export const alert = async (message: string): Promise<void> => {
             props: {
                 title: 'Alert',
                 message,
-                id
-            }
+                id,
+            },
         });
 
         const modal = m.$$.root.querySelector('#' + id) as Node;
@@ -97,14 +96,11 @@ export const alert = async (message: string): Promise<void> => {
     });
 };
 
-
-
 /**
  * Returns a promise that resolves when the user closes the modal with a boolean value
  * @date 10/12/2023 - 1:17:50 PM
  *  @param {string} message The prompt to display to the user
  * @returns {Promise<boolean>}
- * 
  */
 export const confirm = async (message: string): Promise<boolean> => {
     return new Promise<boolean>((res, rej) => {
@@ -114,8 +110,8 @@ export const confirm = async (message: string): Promise<boolean> => {
             props: {
                 title: 'Confirm',
                 message: message,
-                id
-            }
+                id,
+            },
         });
 
         const modal = m.$$.root.querySelector('#' + id) as HTMLElement;
@@ -124,14 +120,17 @@ export const confirm = async (message: string): Promise<boolean> => {
             target: modal.querySelector('.modal-footer') as HTMLElement,
             props: {
                 text: 'Confirm',
-                color: 'primary'
-            }
+                color: 'primary',
+            },
         });
 
-        button.$$.root.querySelector('button.btn-primary')?.addEventListener('click', () => {
-            $(modal).modal('hide');
-            res(true);
-        });
+        button.$$.root.querySelector('button.btn-primary')?.addEventListener(
+            'click',
+            () => {
+                $(modal).modal('hide');
+                res(true);
+            },
+        );
 
         m.$on('close', () => {
             $(modal).modal('hide');
@@ -147,16 +146,16 @@ export const confirm = async (message: string): Promise<boolean> => {
  * @param {string} question The prompt to display to the user
  * @returns {Promise<string|null>}
  */
-export const prompt = async (question: string): Promise<string|null> => {
-    return new Promise<string|null>((res, rej) => {
+export const prompt = async (question: string): Promise<string | null> => {
+    return new Promise<string | null>((res, rej) => {
         const id = 'alert-' + Math.random().toString(36).substring(2, 9);
         const m = new Modal({
             target: document.body,
             props: {
                 title: 'Prompt',
                 message: question,
-                id
-            }
+                id,
+            },
         });
 
         const modal = m.$$.root.querySelector('#' + id) as HTMLElement;
@@ -171,8 +170,8 @@ export const prompt = async (question: string): Promise<string|null> => {
             target: modal.querySelector('.modal-footer') as HTMLElement,
             props: {
                 text: 'Confirm',
-                color: 'primary'
-            }
+                color: 'primary',
+            },
         });
 
         const submit = () => {
@@ -180,7 +179,7 @@ export const prompt = async (question: string): Promise<string|null> => {
             if (input.value === '') return res(null);
             res(input.value);
         };
-        
+
         input.addEventListener('keydown', (e) => {
             switch (e.key) {
                 case 'Enter':
@@ -190,7 +189,10 @@ export const prompt = async (question: string): Promise<string|null> => {
             }
         });
 
-        button.$$.root.querySelector('button.btn-primary')?.addEventListener('click', submit);
+        button.$$.root.querySelector('button.btn-primary')?.addEventListener(
+            'click',
+            submit,
+        );
 
         m.$on('close', () => {
             $(modal).modal('hide');

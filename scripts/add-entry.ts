@@ -1,6 +1,6 @@
-import { __root, resolve, dirname, relative } from "../server/utilities/env.ts";
+import { __root, dirname, relative, resolve } from '../server/utilities/env.ts';
 
-const [,...args] = Deno.args;
+const [, ...args] = Deno.args;
 
 export const runEntryPrompt = () => {
     if (args.length) {
@@ -12,7 +12,7 @@ export const runEntryPrompt = () => {
         console.error('No file name provided');
         Deno.exit(1);
     }
-    
+
     addEntry(input);
 };
 
@@ -26,7 +26,7 @@ export const addEntry = (name: string) => {
 
     const importsRelative = relative(
         dir,
-        resolve(__root, 'client', 'utilities', 'imports')
+        resolve(__root, 'client', 'utilities', 'imports'),
     );
 
     const imports = `import '${importsRelative}';`;

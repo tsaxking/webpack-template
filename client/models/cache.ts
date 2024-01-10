@@ -1,7 +1,5 @@
 import { EventEmitter } from '../../shared/event-emitter';
 
-
-
 /**
  * Global updates for all caches
  * @date 10/12/2023 - 1:04:42 PM
@@ -17,7 +15,7 @@ type Updates = 'create' | 'update' | 'delete' | 'archive' | 'restore' | '*';
  * type UserEmitter = {
  *      'create': User // 'create' event will pass the new User object into the callback (you have to apply these yourself)
  * };
- * 
+ *
  * class UserCache extends Cache<UserEmitter> {
  *    constructor(user: User) {
  *          super();
@@ -40,7 +38,9 @@ export class Cache<data = {}> {
      * @readonly
      * @type {EventEmitter<Updates>}
      */
-    private static readonly $emitter: EventEmitter<Updates> = new EventEmitter<Updates>();
+    private static readonly $emitter: EventEmitter<Updates> = new EventEmitter<
+        Updates
+    >();
 
     /**
      * Add a listener for global updates
@@ -52,7 +52,10 @@ export class Cache<data = {}> {
      * @param {K} event
      * @param {(data: any) => void} callback
      */
-    public static on<K extends Updates>(event: K, callback: (data: any) => void): void {
+    public static on<K extends Updates>(
+        event: K,
+        callback: (data: any) => void,
+    ): void {
         Cache.$emitter.on(event, callback);
     }
 
@@ -66,7 +69,10 @@ export class Cache<data = {}> {
      * @param {K} event
      * @param {?(data: any) => void} [callback]
      */
-    public static off<K extends Updates>(event: K, callback?: (data: any) => void): void {
+    public static off<K extends Updates>(
+        event: K,
+        callback?: (data: any) => void,
+    ): void {
         Cache.$emitter.off(event, callback);
     }
 
@@ -99,7 +105,9 @@ export class Cache<data = {}> {
      * @readonly
      * @type {EventEmitter<keyof data>}
      */
-    readonly $emitter: EventEmitter<keyof data> = new EventEmitter<keyof data>();
+    readonly $emitter: EventEmitter<keyof data> = new EventEmitter<
+        keyof data
+    >();
 
     /**
      * Add a listener for cache object updates
@@ -110,7 +118,10 @@ export class Cache<data = {}> {
      * @param {K} event
      * @param {(data: data[K]) => void} callback
      */
-    public on<K extends keyof data>(event: K, callback: (data: data[K]) => void): void {
+    public on<K extends keyof data>(
+        event: K,
+        callback: (data: data[K]) => void,
+    ): void {
         this.$emitter.on(event, callback);
     }
     /**
@@ -122,7 +133,10 @@ export class Cache<data = {}> {
      * @param {K} event
      * @param {?(data: data[K]) => void} [callback]
      */
-    public off<K extends keyof data>(event: K, callback?: (data: data[K]) => void): void {
+    public off<K extends keyof data>(
+        event: K,
+        callback?: (data: data[K]) => void,
+    ): void {
         this.$emitter.off(event, callback);
     }
 
@@ -140,4 +154,4 @@ export class Cache<data = {}> {
         this.$emitter.destroy();
         this.$cache.clear();
     }
-};
+}

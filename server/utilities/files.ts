@@ -1,8 +1,15 @@
 import callsite from 'npm:callsite';
 import * as htmlConstructor from 'npm:node-html-constructor';
 import ObjectsToCsv from 'npm:objects-to-csv';
-import { log as terminalLog } from "./terminal-logging.ts";
-import { __root, __uploads, __logs, __templates, resolve, dirname } from "./env.ts";
+import { log as terminalLog } from './terminal-logging.ts';
+import {
+    __logs,
+    __root,
+    __templates,
+    __uploads,
+    dirname,
+    resolve,
+} from './env.ts';
 import fs from 'node:fs';
 import { attempt, attemptAsync } from '../../shared/attempt.ts';
 
@@ -22,14 +29,13 @@ const makeFolder = (folder: string) => {
     try {
         const dirs = dirname(folder);
         Deno.mkdirSync(
-            dirs, 
-            { recursive: true }
+            dirs,
+            { recursive: true },
         );
     } catch {
         console.log('Dir exists');
     }
 };
-
 
 /**
  * Used to build file paths, only to be used within this file
@@ -44,14 +50,13 @@ const filePathBuilder = (file: string, ext: string, parentFolder: string) => {
         const stack = callsite(),
             requester = stack[2].getFileName(),
             requesterDir = dirname(requester);
-        output = resolve(requesterDir.replace('file:/',''), file);
+        output = resolve(requesterDir.replace('file:/', ''), file);
     } else {
         output = resolve(__root, parentFolder, ...file.split('/'));
     }
 
-
     return output;
-}
+};
 
 /**
  * Removes all comments from a string
@@ -61,10 +66,8 @@ const removeComments = (content: string) => {
     return content
         .replace(/\/\*[\s\S]*?\*\//g, '') // multi line comments (js & css)
         .replace(/\/\/ .*/g, '') // single line comments (js)
-        .replace(/<!--[\s\S]*?-->/g, '') // html comments (html)
-}
-
-
+        .replace(/<!--[\s\S]*?-->/g, ''); // html comments (html)
+};
 
 /**
  * returns the contents of a file
@@ -86,7 +89,6 @@ export function getJSONSync<type = unknown>(file: string): type {
     return parsed;
 }
 
-
 /**
  * Returns the contents of a json file (async)
  * @date 10/12/2023 - 3:24:47 PM
@@ -100,11 +102,13 @@ export function getJSON<type = unknown>(file: string): Promise<type> {
     return new Promise<type>((res, rej) => {
         const filePath = filePathBuilder(file, '.json', './storage/jsons/');
         Deno.readFile(filePath)
-            .then(data => {
+            .then((data) => {
                 const decoder = new TextDecoder();
                 const decoded = decoder.decode(data);
 
-                const parsed = attempt<type>(JSON.parse(removeComments(decoded)));
+                const parsed = attempt<type>(
+                    JSON.parse(removeComments(decoded)),
+                );
                 if (parsed) res(parsed);
                 else rej(new Error('Invalid JSON'));
             })
@@ -138,7 +142,7 @@ export function saveJSONSync(file: string, data: any) {
         makeFolder(p);
         Deno.writeFileSync(
             p,
-            new TextEncoder().encode(data)
+            new TextEncoder().encode(data),
         );
     });
 }
@@ -159,14 +163,13 @@ export function saveJSON(file: string, data: any) {
             makeFolder(p);
             Deno.writeFile(
                 p,
-                new TextEncoder().encode(data)
+                new TextEncoder().encode(data),
             )
                 .then(res)
                 .catch(rej);
         });
     });
 }
-
 
 /**
  * Returns the contents of an html file
@@ -177,13 +180,18 @@ export function saveJSON(file: string, data: any) {
  * @param {?{ [key: string]: any }} [options]
  * @returns {string}
  */
-export function getTemplateSync(file: string, options?: { [key: string]: any }): string {
+export function getTemplateSync(
+    file: string,
+    options?: { [key: string]: any },
+): string {
     const p = filePathBuilder(file, '.html', './public/templates/');
 
     const data = Deno.readFileSync(p);
     const decoder = new TextDecoder();
 
-    return options ? render(decoder.decode(data), options) : decoder.decode(data);
+    return options
+        ? render(decoder.decode(data), options)
+        : decoder.decode(data);
 }
 
 /**
@@ -195,12 +203,15 @@ export function getTemplateSync(file: string, options?: { [key: string]: any }):
  * @param {?{ [key: string]: any }} [options]
  * @returns {Promise<string>}
  */
-export function getTemplate(file: string, options?: { [key: string]: any }): Promise<string> {
+export function getTemplate(
+    file: string,
+    options?: { [key: string]: any },
+): Promise<string> {
     return new Promise<string>((res, rej) => {
         const p = filePathBuilder(file, '.html', './public/templates/');
 
         Deno.readFile(p)
-            .then(data => {
+            .then((data) => {
                 const decoder = new TextDecoder();
                 const decoded = decoder.decode(data);
 
@@ -225,7 +236,7 @@ export function saveTemplateSync(file: string, data: string) {
         makeFolder(p);
         Deno.writeFileSync(
             p,
-            new TextEncoder().encode(data)
+            new TextEncoder().encode(data),
         );
     });
 }
@@ -245,12 +256,10 @@ export function saveTemplate(file: string, data: string) {
         makeFolder(p);
         Deno.writeFile(
             p,
-            new TextEncoder().encode(data)
+            new TextEncoder().encode(data),
         );
     });
 }
-
-
 
 /**
  * Creates the uploads folder if it does not exist
@@ -276,11 +285,7 @@ export const createLogsFolder = () => {
             fs.mkdirSync(__logs);
         }
     });
-}
-
-
-
-
+};
 
 /**
  * Saves a file to the uploads folder
@@ -297,7 +302,7 @@ export function saveUpload(filename: string, data: Uint8Array) {
         const p = filePathBuilder(filename, '', __uploads);
 
         return Deno.writeFile(p, data);
-    })
+    });
 }
 
 /**
@@ -315,7 +320,6 @@ export function getUpload(filename: string) {
         return Deno.readFile(p);
     });
 }
-
 
 /**
  * Returns the contents of a file in the uploads folder (sync)
@@ -349,7 +353,6 @@ export function deleteUpload(filename: string) {
     });
 }
 
-
 /**
  * The different types of byte sizes
  * @date 10/12/2023 - 3:24:47 PM
@@ -367,24 +370,39 @@ type Bytes = 'Bytes' | 'KB' | 'MB' | 'GB' | 'TB' | 'PB' | 'EB' | 'ZB' | 'YB';
  * @param {number} [decimals=2]
  * @returns {{ string: string, type: Bytes }}
  */
-export function formatBytes(bytes: number, decimals: number = 2): { string: string, type: Bytes } {
-    if (bytes === 0) return {
-        string: '0 Bytes',
-        type: 'Bytes'
-    };
+export function formatBytes(
+    bytes: number,
+    decimals: number = 2,
+): { string: string; type: Bytes } {
+    if (bytes === 0) {
+        return {
+            string: '0 Bytes',
+            type: 'Bytes',
+        };
+    }
 
     const k = 1024;
     const dm = decimals < 0 ? 0 : decimals;
-    const sizes: Bytes[] = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    const sizes: Bytes[] = [
+        'Bytes',
+        'KB',
+        'MB',
+        'GB',
+        'TB',
+        'PB',
+        'EB',
+        'ZB',
+        'YB',
+    ];
 
     const i = Math.floor(Math.log(bytes) / Math.log(k));
 
     return {
-        string: parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i],
-        type: sizes[i]
-    }
+        string: parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' +
+            sizes[i],
+        type: sizes[i],
+    };
 }
-
 
 /**
  * Types of logs
@@ -403,10 +421,8 @@ export type LogType = 'request' | 'error' | 'debugger' | 'status';
  * @typedef {LogObj}
  */
 export type LogObj = {
-    [key: string]: string|number|boolean|undefined|null;
-}
-
-
+    [key: string]: string | number | boolean | undefined | null;
+};
 
 /**
  * Logs data to a csv file
@@ -422,7 +438,7 @@ export function log(type: LogType, dataObj: LogObj) {
         createLogsFolder();
         return new ObjectsToCsv([dataObj]).toDisk(
             resolve(__logs, `${type}.csv`),
-            { append: true }
+            { append: true },
         );
     });
 }

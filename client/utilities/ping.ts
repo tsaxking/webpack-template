@@ -1,13 +1,13 @@
-import { EventEmitter } from "../../shared/event-emitter";
+import { EventEmitter } from '../../shared/event-emitter';
 
 const ping = async (): Promise<number> => {
     const start = Date.now();
-    
+
     const response = await fetch('/ping', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
-        }
+            'Content-Type': 'application/json',
+        },
     });
 
     const end = Date.now();
@@ -15,20 +15,26 @@ const ping = async (): Promise<number> => {
     return end - start;
 };
 
-export type PingState = 'disconnected' | 'strong' | 'weak' | 'medium' | 'unknown';
+export type PingState =
+    | 'disconnected'
+    | 'strong'
+    | 'weak'
+    | 'medium'
+    | 'unknown';
 
 type PingEventData = {
     'ping': number;
     'change': PingState;
     'error': Error;
-}
+};
 
 class Ping {
     #interval: number = 1000;
     public state: PingState = 'disconnected';
     private readonly $pings: number[] = [];
     private timeout?: any;
-    private readonly $emitter: EventEmitter<keyof PingEventData> = new EventEmitter<keyof PingEventData>();
+    private readonly $emitter: EventEmitter<keyof PingEventData> =
+        new EventEmitter<keyof PingEventData>();
 
     constructor() {
         this.start();
@@ -76,14 +82,23 @@ class Ping {
     movingAverage(num: number) {
         if (num > this.$pings.length) return this.average;
         if (num < 1) throw new Error('Moving average must be greater than 0');
-        return this.$pings.slice(this.$pings.length - num).reduce((a, b) => a + b, 0) / num;
+        return this.$pings.slice(this.$pings.length - num).reduce(
+            (a, b) => a + b,
+            0,
+        ) / num;
     }
 
-    on<K extends keyof PingEventData>(event: K, callback: (data: PingEventData[K]) => void) {
+    on<K extends keyof PingEventData>(
+        event: K,
+        callback: (data: PingEventData[K]) => void,
+    ) {
         this.$emitter.on(event, callback);
     }
 
-    off<K extends keyof PingEventData>(event: K, callback?: (data: PingEventData[K]) => void) {
+    off<K extends keyof PingEventData>(
+        event: K,
+        callback?: (data: PingEventData[K]) => void,
+    ) {
         this.$emitter.off(event, callback);
     }
 

@@ -1,4 +1,4 @@
-declare module "pdfjs" {
+declare module 'pdfjs' {
 }
 
 export interface PdfJsLib {
@@ -8,7 +8,7 @@ export interface PdfJsLib {
 
     GlobalWorkerOptions: {
         workerSrc: string;
-    }
+    };
 
     disableWorker: boolean;
 
@@ -22,16 +22,18 @@ interface PdfJsDocument {
 }
 
 export interface PdfJsPage {
-    getViewport(scale: number | {
-        scale: number;
-        rotation: number;
-    }): PdfJsViewport;
+    getViewport(
+        scale: number | {
+            scale: number;
+            rotation: number;
+        },
+    ): PdfJsViewport;
     getTextContent(): Promise<PdfJsTextContent>;
     getAnnotations(): Promise<PdfJsAnnotation[]>;
     render(renderParameters: PdfJsRenderParameters): PdfJsRenderTask;
     getAnnotations(): Promise<PdfJsAnnotation[]>;
     getAnnotations(params: { intent: string }): Promise<PdfJsAnnotation[]>;
-    
+
     getTextContentStream(): ReadableStream;
     getOperatorList(): Promise<PdfJsOperatorList>;
     getOperatorList(params: { intent: string }): Promise<PdfJsOperatorList>;

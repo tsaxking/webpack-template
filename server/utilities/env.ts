@@ -1,6 +1,6 @@
 import callsite from 'npm:callsite';
-import { Colors } from "./colors.ts";
-import os from "https://deno.land/x/dos@v0.11.0/mod.ts";
+import { Colors } from './colors.ts';
+import os from 'https://deno.land/x/dos@v0.11.0/mod.ts';
 
 /**
  * Makes paths consistent across platforms
@@ -15,7 +15,7 @@ export const platformify = (path: string) => {
         default:
             throw new Error('Unsupported platform: ' + os.platform());
     }
-}
+};
 
 /**
  * Adds the file:// protocol to a path if the platform requires it
@@ -30,8 +30,7 @@ export const addFileProtocol = (path: string) => {
         default:
             throw new Error('Unsupported platform: ' + os.platform());
     }
-
-}
+};
 
 /**
  * Unifies paths across platforms, removes file:// protocol, and removes duplicate slashes
@@ -42,9 +41,7 @@ export const unify = (path: string) => {
         .replace(/\\/g, '/')
         .replaceAll('file://', '')
         .replace(/\/\//g, '/');
-}
-
-
+};
 
 /**
  * Combines multiple paths into one
@@ -55,7 +52,6 @@ export const resolve = (...paths: string[]): string => {
     const move = (path1: string, path2: string): string => {
         path1 = unify(path1);
         path2 = unify(path2);
-
 
         const path1Parts = path1.split('/');
         const path2Parts = path2.split('/');
@@ -74,7 +70,7 @@ export const resolve = (...paths: string[]): string => {
         }
 
         return path1Parts.join('/');
-    }
+    };
 
     let result = paths[0];
     for (let i = 1; i < paths.length; i++) {
@@ -82,7 +78,7 @@ export const resolve = (...paths: string[]): string => {
     }
 
     return platformify(result);
-}
+};
 
 /**
  * Finds the relative path from one file to another
@@ -108,8 +104,7 @@ export const relative = (from: string, to: string): string => {
     }
 
     return platformify('./' + result + path2Parts.join('/'));
-}
-
+};
 
 /**
  * Root directory of the project
@@ -161,12 +156,15 @@ export const __templates: string = resolve(__root, './public/templates/');
  */
 export const __dirname = () => {
     const site = callsite()[1];
-    let p =  relative(__root, site.getFileName()?.replace('file://', '').substring(1) || '');
+    let p = relative(
+        __root,
+        site.getFileName()?.replace('file://', '').substring(1) || '',
+    );
     p = unify(p);
     const data = p.split('/');
     data.pop();
     return platformify(data.join('/'));
-}
+};
 
 /**
  * Name of the file that called this function
@@ -174,10 +172,13 @@ export const __dirname = () => {
  */
 export const __filename = () => {
     const site = callsite()[1];
-    let p =  relative(__root, site.getFileName()?.replace('file://', '').substring(1) || '');
+    let p = relative(
+        __root,
+        site.getFileName()?.replace('file://', '').substring(1) || '',
+    );
     p = unify(p);
     return platformify(p);
-}
+};
 
 /**
  * The name of the parent folder of the file
@@ -188,7 +189,7 @@ export const dirname = (path: string) => {
     const data = path.split('/');
     data.pop();
     return platformify(data.join('/'));
-}
+};
 
 /**
  * The name of the file at the end of the path
@@ -198,8 +199,7 @@ export const basename = (path: string) => {
     path = unify(path);
     const data = path.split('/');
     return data.pop() || '';
-}
-
+};
 
 /**
  * The extension of the file at the end of the path
@@ -209,8 +209,7 @@ export const extname = (path: string) => {
     const dirs = path.split('/');
     const file = dirs.pop() || ''; // get the file name (last element)
     return file.split('.').pop() || '';
-}
-
+};
 
 /**
  * Environment variables
@@ -225,8 +224,8 @@ const env: {
 console.log(Colors.FgGreen, 'Loading environment variables...', Colors.Reset);
 
 // if (Object.keys(env).length === 56) {
-    // console.log(Colors.FgYellow, 'Environment were not loaded, loading manually from .env file... (This may not work properly, if you see errors, just restart)', Colors.Reset);
-    // force load from .env file
+// console.log(Colors.FgYellow, 'Environment were not loaded, loading manually from .env file... (This may not work properly, if you see errors, just restart)', Colors.Reset);
+// force load from .env file
 try {
     const file = resolve(__root, './.env');
     const data = Deno.readTextFileSync(file);
@@ -236,7 +235,9 @@ try {
         env[key.trim()] = value.replace(/"/g, '').replace(/'/g, '').trim();
     }
 } catch {
-    console.error('Unable to read .env file, please make sure it exists and is formatted correctly.');
+    console.error(
+        'Unable to read .env file, please make sure it exists and is formatted correctly.',
+    );
 }
 // }
 

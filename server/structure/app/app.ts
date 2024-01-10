@@ -1,16 +1,15 @@
 // make a class that simulates npm:express using the deno std library
-import { serve } from "https://deno.land/std@0.150.0/http/server.ts";
-import { Server } from "https://deno.land/x/socket_io@0.2.0/mod.ts";
-import env, { __root } from "../../utilities/env.ts";
+import { serve } from 'https://deno.land/std@0.150.0/http/server.ts';
+import { Server } from 'https://deno.land/x/socket_io@0.2.0/mod.ts';
+import env, { __root } from '../../utilities/env.ts';
 import PATH from 'npm:path';
-import { log } from "../../utilities/terminal-logging.ts";
-import { Session } from "../sessions.ts";
+import { log } from '../../utilities/terminal-logging.ts';
+import { Session } from '../sessions.ts';
 import stack from 'npm:callsite';
-import { Colors } from "../../utilities/colors.ts";
-import { parseCookie } from "../../../shared/cookie.ts";
-import { Req } from "./req.ts";
-import { Res } from "./res.ts";
-
+import { Colors } from '../../utilities/colors.ts';
+import { parseCookie } from '../../../shared/cookie.ts';
+import { Req } from './req.ts';
+import { Res } from './res.ts';
 
 /**
  * All file types that can be sent (can be expanded)
@@ -19,48 +18,45 @@ import { Res } from "./res.ts";
  * @export
  * @typedef {FileType}
  */
-export type FileType = 
-    'js' | 
-    'css' |
-    'html' |
-    'json' |
-    'png' |
-    'jpg' |
-    'jpeg' |
-    'gif' |
-    'svg' |
-    'ico' |
-    'ttf' |
-    'woff' |
-    'woff2' |
-    'otf' |
-    'eot' |
-    'mp4' |
-    'webm' |
-    'mp3' |
-    'wav' |
-    'ogg' |
-    'txt' |
-    'pdf' |
-    'zip' |
-    'rar' |
-    'tar' |
-    '7z' |
-    'xml' |
-    'doc' |
-    'docx' |
-    'xls' |
-    'xlsx' |
-    'ppt' |
-    'pptx' |
-    'avi' |
-    'wmv' |
-    'mov' |
-    'mpeg' |
-    'flv';
-
-
-
+export type FileType =
+    | 'js'
+    | 'css'
+    | 'html'
+    | 'json'
+    | 'png'
+    | 'jpg'
+    | 'jpeg'
+    | 'gif'
+    | 'svg'
+    | 'ico'
+    | 'ttf'
+    | 'woff'
+    | 'woff2'
+    | 'otf'
+    | 'eot'
+    | 'mp4'
+    | 'webm'
+    | 'mp3'
+    | 'wav'
+    | 'ogg'
+    | 'txt'
+    | 'pdf'
+    | 'zip'
+    | 'rar'
+    | 'tar'
+    | '7z'
+    | 'xml'
+    | 'doc'
+    | 'docx'
+    | 'xls'
+    | 'xlsx'
+    | 'ppt'
+    | 'pptx'
+    | 'avi'
+    | 'wmv'
+    | 'mov'
+    | 'mpeg'
+    | 'flv';
 
 /**
  * Enum for response status
@@ -72,10 +68,8 @@ export type FileType =
 export enum ResponseStatus {
     fileNotFound,
     success,
-    error
+    error,
 }
-
-
 
 /**
  * Options to apply to cookies
@@ -91,8 +85,7 @@ export type CookieOptions = {
     domain?: string;
     path?: string;
     sameSite?: 'Strict' | 'Lax' | 'None';
-}
-
+};
 
 /**
  * This class is used to group requests together from a single pathname
@@ -130,18 +123,21 @@ export class Route {
      * @param {...ServerFunction[]} callbacks
      * @returns {this}
      */
-    get(path: string | ServerFunction<null>, ...callbacks: ServerFunction<null>[]): this {
+    get(
+        path: string | ServerFunction<null>,
+        ...callbacks: ServerFunction<null>[]
+    ): this {
         if (typeof path === 'string') {
-            this.serverFunctions.push(...callbacks.map(cb => ({
+            this.serverFunctions.push(...callbacks.map((cb) => ({
                 path: path,
                 callback: cb,
-                method: RequestMethod.GET
+                method: RequestMethod.GET,
             })));
         } else {
-            this.serverFunctions.push(...[path, ...callbacks].map(cb => ({
+            this.serverFunctions.push(...[path, ...callbacks].map((cb) => ({
                 path: '/*',
                 callback: cb,
-                method: RequestMethod.GET
+                method: RequestMethod.GET,
             })));
         }
         return this;
@@ -155,23 +151,25 @@ export class Route {
      * @param {...ServerFunction[]} callbacks
      * @returns {this}
      */
-    post<T>(path: string | ServerFunction<T>, ...callbacks: ServerFunction<T>[]): this {
+    post<T>(
+        path: string | ServerFunction<T>,
+        ...callbacks: ServerFunction<T>[]
+    ): this {
         if (typeof path === 'string') {
-            this.serverFunctions.push(...callbacks.map(cb => ({
+            this.serverFunctions.push(...callbacks.map((cb) => ({
                 path: path,
                 callback: cb,
-                method: RequestMethod.POST
+                method: RequestMethod.POST,
             } as ServerFunctionHandler<T>)));
         } else {
-            this.serverFunctions.push(...[path, ...callbacks].map(cb => ({
+            this.serverFunctions.push(...[path, ...callbacks].map((cb) => ({
                 path: '/*',
                 callback: cb,
-                method: RequestMethod.POST
+                method: RequestMethod.POST,
             } as ServerFunctionHandler<T>)));
         }
         return this;
     }
-
 
     /**
      * Adds a middleware function that is run for every request that matches the rout and path
@@ -181,24 +179,25 @@ export class Route {
      * @param {...ServerFunction[]} callbacks
      * @returns {this}
      */
-    use(path: string | ServerFunction<any>, ...callbacks: ServerFunction<any>[]): this {
+    use(
+        path: string | ServerFunction<any>,
+        ...callbacks: ServerFunction<any>[]
+    ): this {
         if (typeof path === 'string') {
-            this.serverFunctions.push(...callbacks.map(cb => ({
+            this.serverFunctions.push(...callbacks.map((cb) => ({
                 path: path,
                 callback: cb,
-                method: RequestMethod.GET
+                method: RequestMethod.GET,
             })));
         } else {
-            this.serverFunctions.push(...[path, ...callbacks].map(cb => ({
+            this.serverFunctions.push(...[path, ...callbacks].map((cb) => ({
                 path: '/*',
                 callback: cb,
-                method: RequestMethod.GET
+                method: RequestMethod.GET,
             })));
         }
         return this;
     }
-
-
 
     /**
      * Adds a route to the route
@@ -209,10 +208,10 @@ export class Route {
      * @returns {this}
      */
     route(path: string, route: Route): this {
-        this.serverFunctions.push(...route.serverFunctions.map(sf => ({
+        this.serverFunctions.push(...route.serverFunctions.map((sf) => ({
             path: path + sf.path,
             callback: sf.callback,
-            method: sf.method
+            method: sf.method,
         })));
         return this;
     }
@@ -241,7 +240,7 @@ enum RequestMethod {
     GET = 'GET',
     POST = 'POST',
     PUT = 'PUT',
-    DELETE = 'DELETE'
+    DELETE = 'DELETE',
 }
 
 /**
@@ -260,7 +259,11 @@ export type Next = () => void;
  * @export
  * @typedef {ServerFunction}
  */
-export type ServerFunction<T = unknown> = (req: Req<T>, res: Res, next: Next) => any | Promise<any>;
+export type ServerFunction<T = unknown> = (
+    req: Req<T>,
+    res: Res,
+    next: Next,
+) => any | Promise<any>;
 /**
  * Final function that is called at the end of a request
  * @date 10/12/2023 - 2:49:37 PM
@@ -282,7 +285,7 @@ type ServerFunctionHandler<T> = {
     path: string;
     callback: ServerFunction<T>;
     method: RequestMethod;
-}
+};
 
 /**
  * Options for starting the application
@@ -296,7 +299,6 @@ type AppOptions = {
     onDisconnect?: () => void;
     ioPort?: number;
 };
-
 
 /**
  * This is the main application class, this is used to create a server and listen for requests
@@ -338,13 +340,21 @@ export class App {
      * @param {string} domain
      * @param {?AppOptions} [options]
      */
-    constructor(public readonly port: number, public readonly domain: string, options?: AppOptions) {
-        this.server = Deno.serve({ port: this.port }, (req: Request, info: Deno.ServeHandlerInfo) => this.handler(req, info));
+    constructor(
+        public readonly port: number,
+        public readonly domain: string,
+        options?: AppOptions,
+    ) {
+        this.server = Deno.serve(
+            { port: this.port },
+            (req: Request, info: Deno.ServeHandlerInfo) =>
+                this.handler(req, info),
+        );
         this.io = new Server({
             cors: {
                 origin: '*',
-                methods: ['GET', 'POST']
-            }
+                methods: ['GET', 'POST'],
+            },
         });
 
         this.io.on('connection', (socket) => {
@@ -353,14 +363,15 @@ export class App {
             // socket.join(socket.id);
 
             // join tab session
-            const { ssid } = parseCookie(socket.handshake.headers.get('cookie') || '');
+            const { ssid } = parseCookie(
+                socket.handshake.headers.get('cookie') || '',
+            );
             if (ssid) socket.join(ssid);
 
             if (env.ENVIRONMENT === 'dev') {
                 socket.emit('reload');
             }
         });
-
 
         if (options) {
             if (options.onListen) {
@@ -392,13 +403,16 @@ export class App {
      * @param {Deno.ServeHandlerInfo} info
      * @returns {Promise<Response>}
      */
-    private async handler(denoReq: Request, info: Deno.ServeHandlerInfo): Promise<Response> {
+    private async handler(
+        denoReq: Request,
+        info: Deno.ServeHandlerInfo,
+    ): Promise<Response> {
         return new Promise<Response>(async (resolve, reject) => {
             const url = new URL(denoReq.url, this.domain);
 
             const finals = this.finalFunctions;
 
-            const fns = this.serverFunctions.filter(sf => {
+            const fns = this.serverFunctions.filter((sf) => {
                 // get rid of query
                 const path = url.pathname.split('?')[0];
                 if (sf.method !== denoReq.method) return false;
@@ -406,7 +420,6 @@ export class App {
                 const urlParts = path.split('/');
 
                 // if (pathParts.length !== urlParts.length) return false;
-
 
                 const test = pathParts.every((part: string, i: number) => {
                     // log(part, urlParts[i]);
@@ -436,8 +449,8 @@ export class App {
             }
 
             req.body = await req.req.json().catch(() => {}) as {
-                [key: string]: any
-            } || {}
+                [key: string]: any;
+            } || {};
 
             const runFn = async (i: number) => {
                 return new Promise<void>(async (resolve) => {
@@ -449,7 +462,9 @@ export class App {
                         if (!res.fulfilled) {
                             // there was no response
                             resolve();
-                            return res.reject?.(`No response to ${req.method}: ${req.pathname}`);
+                            return res.reject?.(
+                                `No response to ${req.method}: ${req.pathname}`,
+                            );
                         }
 
                         // if the request was responded to, then the promise was resolved already.
@@ -465,7 +480,6 @@ export class App {
                         ranNext = true;
                     };
 
-
                     try {
                         await fn.callback(req, res, next);
                     } catch (e) {
@@ -474,9 +488,12 @@ export class App {
                     }
                     if (!ranNext && !res.fulfilled && fns[i + 1]) {
                         const site = stack().map((site: any) => {
-                            return site.getFileName() + ':' + site.getLineNumber();
+                            return site.getFileName() + ':' +
+                                site.getLineNumber();
                         });
-                        const str = site.filter((t: string) => t!=='null:null').map((t: string) => {
+                        const str = site.filter((t: string) =>
+                            t !== 'null:null'
+                        ).map((t: string) => {
                             t = t.replace('file://', '').replace('file:', '');
                             t = PATH.relative(__root, t);
                             t = `\n\t${Colors.FgYellow}${t}${Colors.Reset}`;
@@ -488,7 +505,6 @@ export class App {
                     }
                 });
             };
-
 
             try {
                 runFn(0).then(() => {
@@ -504,12 +520,10 @@ export class App {
                     .catch((e: Error) => {
                         log(e);
                     });
-
             } catch (e) {
                 log(e);
             }
         });
-
     }
 
     /**
@@ -531,7 +545,6 @@ export class App {
      */
     private readonly finalFunctions: FinalFunction<any>[] = [];
 
-
     /**
      * Serving static files
      * @date 10/12/2023 - 2:49:37 PM
@@ -546,8 +559,6 @@ export class App {
         });
     }
 
-
-
     /**
      * Adds a get middleware function to the route
      * @date 10/12/2023 - 2:49:37 PM
@@ -556,23 +567,25 @@ export class App {
      * @param {...ServerFunction[]} callbacks
      * @returns {App}
      */
-    get(path: string | ServerFunction<null>, ...callbacks: ServerFunction<null>[]): App {
+    get(
+        path: string | ServerFunction<null>,
+        ...callbacks: ServerFunction<null>[]
+    ): App {
         if (typeof path === 'string') {
-            this.serverFunctions.push(...callbacks.map(cb => ({
+            this.serverFunctions.push(...callbacks.map((cb) => ({
                 path: path,
                 callback: cb,
-                method: RequestMethod.GET
+                method: RequestMethod.GET,
             })));
         } else {
-            this.serverFunctions.push(...[path, ...callbacks].map(cb => ({
+            this.serverFunctions.push(...[path, ...callbacks].map((cb) => ({
                 path: '/*',
                 callback: cb,
-                method: RequestMethod.GET
+                method: RequestMethod.GET,
             })));
         }
         return this;
     }
-
 
     /**
      * Adds a middleware function that is run for every request that matches the path
@@ -582,18 +595,21 @@ export class App {
      * @param {...ServerFunction[]} callback
      * @returns {App}
      */
-    use(path: string | ServerFunction<any>, ...callback: ServerFunction<any>[]): App {
+    use(
+        path: string | ServerFunction<any>,
+        ...callback: ServerFunction<any>[]
+    ): App {
         if (typeof path === 'string') {
-            this.serverFunctions.push(...callback.map(cb => ({
+            this.serverFunctions.push(...callback.map((cb) => ({
                 path: path,
                 callback: cb,
-                method: RequestMethod.GET
+                method: RequestMethod.GET,
             })));
         } else {
-            this.serverFunctions.push(...[path, ...callback].map(cb => ({
+            this.serverFunctions.push(...[path, ...callback].map((cb) => ({
                 path: '/*',
                 callback: cb,
-                method: RequestMethod.GET
+                method: RequestMethod.GET,
             })));
         }
         return this;
@@ -607,23 +623,25 @@ export class App {
      * @param {...ServerFunction[]} callback
      * @returns {App}
      */
-    post<T>(path: string | ServerFunction<T>, ...callback: ServerFunction<T>[]): App {
+    post<T>(
+        path: string | ServerFunction<T>,
+        ...callback: ServerFunction<T>[]
+    ): App {
         if (typeof path === 'string') {
-            this.serverFunctions.push(...callback.map(cb => ({
+            this.serverFunctions.push(...callback.map((cb) => ({
                 path: path,
                 callback: cb,
-                method: RequestMethod.POST
+                method: RequestMethod.POST,
             } as ServerFunctionHandler<T>)));
         } else {
-            this.serverFunctions.push(...[path, ...callback].map(cb => ({
+            this.serverFunctions.push(...[path, ...callback].map((cb) => ({
                 path: '/*',
                 callback: cb,
-                method: RequestMethod.POST
+                method: RequestMethod.POST,
             } as ServerFunctionHandler<T>)));
         }
         return this;
     }
-
 
     /**
      * Adds a route to the application
@@ -634,15 +652,14 @@ export class App {
      * @returns {App}
      */
     route(path: string, route: Route): App {
-        this.serverFunctions.push(...route.serverFunctions.map(sf => ({
+        this.serverFunctions.push(...route.serverFunctions.map((sf) => ({
             path: path + sf.path,
             callback: sf.callback,
-            method: sf.method
+            method: sf.method,
         })));
         // this.routes[path] = route;
         return this;
     }
-
 
     /**
      * Adds a final function to the application
@@ -657,16 +674,15 @@ export class App {
     }
 }
 
-
 /**
  * Used to extract parameters from a path
  * @date 10/12/2023 - 2:49:36 PM
  */
 const extractParams = (path: string, url: string): {
-    [key: string]: string
+    [key: string]: string;
 } => {
     const params: {
-        [key: string]: string
+        [key: string]: string;
     } = {};
     const pathParts = path.split('/');
     const urlParts = url.split('/');

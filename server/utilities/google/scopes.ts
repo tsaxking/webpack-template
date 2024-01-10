@@ -1,4 +1,4 @@
-export type Scope = 
-    'spreadsheets' |
-    'drive' |
-    'drive.file';
+export type Scope =
+    | 'spreadsheets'
+    | 'drive'
+    | 'drive.file';

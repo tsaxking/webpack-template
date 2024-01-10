@@ -6,13 +6,14 @@ import { attempt } from '../../shared/attempt';
  * @returns A function that exits fullscreen
  */
 export const fullscreen = (target: HTMLElement) => {
-    const end = () => attempt(() => {
-        // exit fullscreen
-        if (document.fullscreenElement) {
-            document.exitFullscreen()
-                .then(() => console.log('Exited fullscreen'))
-        }
-    });
+    const end = () =>
+        attempt(() => {
+            // exit fullscreen
+            if (document.fullscreenElement) {
+                document.exitFullscreen()
+                    .then(() => console.log('Exited fullscreen'));
+            }
+        });
 
     end(); // exit current fullscreen
 
@@ -29,4 +30,4 @@ export const fullscreen = (target: HTMLElement) => {
     });
 
     return end;
-}
+};

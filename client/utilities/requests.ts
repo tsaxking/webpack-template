@@ -1,9 +1,9 @@
-import { sleep } from "../../shared/sleep";
-import { notify } from "./notifications";
+import { sleep } from '../../shared/sleep';
+import { notify } from './notifications';
 import { EventEmitter } from '../../shared/event-emitter';
-import { StatusJson } from "../../shared/status";
-import { streamDelimiter } from "../../shared/text";
-import { uuid } from "../../server/utilities/uuid";
+import { StatusJson } from '../../shared/status';
+import { streamDelimiter } from '../../shared/text';
+import { uuid } from '../../server/utilities/uuid';
 
 /**
  * These are optional options for a request
@@ -30,9 +30,8 @@ export type RequestOptions = {
 export type StreamOptions = {
     headers?: {
         [key: string]: string;
-    }
+    };
 };
-
 
 /**
  * These are the possible updates that can be emitted from a stream emitter
@@ -45,7 +44,6 @@ type SendFileStreamEventData = {
     'complete': ProgressEvent<EventTarget>;
     'error': ProgressEvent<EventTarget>;
 };
-
 
 /**
  * Event emitter for sending a stream
@@ -60,10 +58,6 @@ type RetrieveStreamEventData<T> = {
     'error': Error;
 };
 
-
-
-
-
 /**
  * Event emitter for retrieving a stream
  * @date 10/12/2023 - 1:19:15 PM
@@ -74,7 +68,8 @@ type RetrieveStreamEventData<T> = {
  * @template [T=string]
  * @extends {EventEmitter<RetrieveStreamEvent<T>>}
  */
-export class RetrieveStreamEventEmitter<T = string> extends EventEmitter<keyof RetrieveStreamEventData<T>> {
+export class RetrieveStreamEventEmitter<T = string>
+    extends EventEmitter<keyof RetrieveStreamEventData<T>> {
     /**
      * Creates an instance of RetrieveStreamEventEmitter.
      * @date 10/12/2023 - 1:19:15 PM
@@ -93,7 +88,10 @@ export class RetrieveStreamEventEmitter<T = string> extends EventEmitter<keyof R
      * @param {K} event
      * @param {(data: RetrieveStreamEventData<T>[K]) => void} callback
      */
-    on<K extends keyof RetrieveStreamEventData<T>>(event: K, callback: (data: RetrieveStreamEventData<T>[K]) => void): void {
+    on<K extends keyof RetrieveStreamEventData<T>>(
+        event: K,
+        callback: (data: RetrieveStreamEventData<T>[K]) => void,
+    ): void {
         super.on(event, callback);
     }
 
@@ -105,7 +103,10 @@ export class RetrieveStreamEventEmitter<T = string> extends EventEmitter<keyof R
      * @param {K} event
      * @param {RetrieveStreamEventData<T>[K]} data
      */
-    emit<K extends keyof RetrieveStreamEventData<T>>(event: K, data: RetrieveStreamEventData<T>[K]): void {
+    emit<K extends keyof RetrieveStreamEventData<T>>(
+        event: K,
+        data: RetrieveStreamEventData<T>[K],
+    ): void {
         super.emit(event, data);
     }
 
@@ -117,7 +118,10 @@ export class RetrieveStreamEventEmitter<T = string> extends EventEmitter<keyof R
      * @param {K} event
      * @param {(data: RetrieveStreamEventData<T>[K]) => void} callback
      */
-    off<K extends keyof RetrieveStreamEventData<T>>(event: K, callback: (data: RetrieveStreamEventData<T>[K]) => void): void {
+    off<K extends keyof RetrieveStreamEventData<T>>(
+        event: K,
+        callback: (data: RetrieveStreamEventData<T>[K]) => void,
+    ): void {
         super.off(event, callback);
     }
 
@@ -136,7 +140,6 @@ export class RetrieveStreamEventEmitter<T = string> extends EventEmitter<keyof R
     }
 }
 
-
 /**
  * Events that can be emitted from a send stream
  * @date 1/8/2024 - 3:39:39 PM
@@ -147,7 +150,7 @@ type SendStreamEventData = {
     'end': undefined;
     'error': Error;
     'progress': number;
-}
+};
 
 /**
  * Options for sending a stream
@@ -157,8 +160,7 @@ type SendStreamEventData = {
  */
 type SendStreamOptions = {
     rate: number;
-}
-
+};
 
 /**
  * Sends a stream of data to the server, the back end must use the built in stream handler to receive the data
@@ -203,7 +205,10 @@ export class SendStream {
      * @param {string} url
      * @param {SendStreamOptions} options
      */
-    constructor(public readonly url: string, public readonly options: SendStreamOptions) {}
+    constructor(
+        public readonly url: string,
+        public readonly options: SendStreamOptions,
+    ) {}
 
     /**
      * Add data you want sent to the server
@@ -223,7 +228,10 @@ export class SendStream {
      * @param {K} event
      * @param {(data: SendStreamEventData[K]) => void} callback
      */
-    on<K extends keyof SendStreamEventData>(event: K, callback: (data: SendStreamEventData[K]) => void): void {
+    on<K extends keyof SendStreamEventData>(
+        event: K,
+        callback: (data: SendStreamEventData[K]) => void,
+    ): void {
         this.$emitter.on(event, callback);
     }
 
@@ -235,7 +243,10 @@ export class SendStream {
      * @param {K} event
      * @param {SendStreamEventData[K]} data
      */
-    emit<K extends keyof SendStreamEventData>(event: K, data: SendStreamEventData[K]): void {
+    emit<K extends keyof SendStreamEventData>(
+        event: K,
+        data: SendStreamEventData[K],
+    ): void {
         this.$emitter.emit(event, data);
     }
 
@@ -247,7 +258,10 @@ export class SendStream {
      * @param {K} event
      * @param {(data: SendStreamEventData[K]) => void} callback
      */
-    off<K extends keyof SendStreamEventData>(event: K, callback: (data: SendStreamEventData[K]) => void): void {
+    off<K extends keyof SendStreamEventData>(
+        event: K,
+        callback: (data: SendStreamEventData[K]) => void,
+    ): void {
         this.$emitter.off(event, callback);
     }
 
@@ -268,7 +282,7 @@ export class SendStream {
                         data,
                         index: i,
                         size: new TextEncoder().encode(data).length,
-                        type: 'data'
+                        type: 'data',
                     })
                         .then((data) => {
                             switch (data.status) {
@@ -279,7 +293,10 @@ export class SendStream {
                                     this.emit('end', undefined);
                                     break;
                                 case 'error':
-                                    this.emit('error', new Error('Server error'));
+                                    this.emit(
+                                        'error',
+                                        new Error('Server error'),
+                                    );
                                     break;
                             }
                         })
@@ -301,11 +318,10 @@ export class SendStream {
         if (this.interval) clearInterval(this.interval);
         this.emit('end', undefined);
         ServerRequest.post(this.url, {
-            type: 'end'
+            type: 'end',
         });
     }
-};
-
+}
 
 /**
  * This class is meant for the purpose of sending requests to the hosted server using fetch and xhr requests
@@ -335,7 +351,7 @@ export class ServerRequest<T = unknown> {
      * @readonly
      * @type {(ServerRequest|undefined)}
      */
-    static get last(): ServerRequest|undefined {
+    static get last(): ServerRequest | undefined {
         return this.all[this.all.length - 1];
     }
 
@@ -411,11 +427,14 @@ export class ServerRequest<T = unknown> {
      * @param {?RequestOptions} [options]
      * @returns {Promise<T>}
      */
-    static async post<T>(url: string, body?: any, options?: RequestOptions): Promise<T> {
+    static async post<T>(
+        url: string,
+        body?: any,
+        options?: RequestOptions,
+    ): Promise<T> {
         const r = new ServerRequest<T>(url, 'post', body, options);
         return r.send();
     }
-
 
     /**
      * Send a get request to the server that returns a promise with a generic type
@@ -446,7 +465,6 @@ export class ServerRequest<T = unknown> {
         return Promise.all(requests.map((r) => r.send()));
     }
 
-
     /**
      * Sends a stream of files to the server, the back end must use the built in stream handler to receive the files
      * @date 10/12/2023 - 1:19:15 PM
@@ -458,7 +476,12 @@ export class ServerRequest<T = unknown> {
      * @param {?StreamOptions} [options]
      * @returns {EventEmitter<keyof SendFileStreamEventData>}
      */
-    static streamFiles(url: string, files: FileList, body?: any, options?: StreamOptions): EventEmitter<keyof SendFileStreamEventData> {
+    static streamFiles(
+        url: string,
+        files: FileList,
+        body?: any,
+        options?: StreamOptions,
+    ): EventEmitter<keyof SendFileStreamEventData> {
         const emitter = new EventEmitter<keyof SendFileStreamEventData>();
 
         const formData = new FormData();
@@ -487,18 +510,17 @@ export class ServerRequest<T = unknown> {
             xhr.setRequestHeader('X-Body', JSON.stringify(body));
         }
 
-
         xhr.upload.onprogress = (e) => {
             emitter.emit('progress', e);
-        }
+        };
 
         xhr.upload.onerror = (e) => {
             emitter.emit('error', e);
-        }
+        };
 
         xhr.upload.onload = (e) => {
             emitter.emit('complete', e);
-        }
+        };
 
         xhr.send(formData);
         return emitter;
@@ -515,7 +537,11 @@ export class ServerRequest<T = unknown> {
      * @param {?(data: string) => K} [parser]
      * @returns {RetrieveStreamEventEmitter<K>}
      */
-    static retrieveStream<K = string>(url: string, body?: any, parser?: (data: string) => K): RetrieveStreamEventEmitter<K> {
+    static retrieveStream<K = string>(
+        url: string,
+        body?: any,
+        parser?: (data: string) => K,
+    ): RetrieveStreamEventEmitter<K> {
         const output: K[] = [];
 
         const emitter = new RetrieveStreamEventEmitter<K>();
@@ -523,16 +549,19 @@ export class ServerRequest<T = unknown> {
         fetch(url, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             },
-            body: JSON.stringify(body)
+            body: JSON.stringify(body),
         })
-            .then(res => {
-                const dataLength = parseInt(res.headers.get('x-data-length') || '0');
+            .then((res) => {
+                const dataLength = parseInt(
+                    res.headers.get('x-data-length') || '0',
+                );
 
                 const reader = res.body?.getReader();
-                if (!reader) return emitter.emit('error', new Error('No reader found'));
-                
+                if (!reader) {
+                    return emitter.emit('error', new Error('No reader found'));
+                }
 
                 let i = 0;
                 let last: string | undefined;
@@ -570,13 +599,11 @@ export class ServerRequest<T = unknown> {
                     return reader.read().then(process);
                 });
             })
-            .catch(e => emitter.emit('error', new Error(e)));
+            .catch((e) => emitter.emit('error', new Error(e)));
 
         return emitter;
     }
 
-
-    
     /**
      * Sends a stream of data to the server, the back end must use the built in stream handler to receive the data
      * @param {string} url
@@ -584,9 +611,12 @@ export class ServerRequest<T = unknown> {
      * @returns {SendStream}
      */
     static stream(url: string, data?: string[], options?: SendStreamOptions) {
-        const sendStream = new SendStream(url, options || {
-            rate: 1000 / 30
-        });
+        const sendStream = new SendStream(
+            url,
+            options || {
+                rate: 1000 / 30,
+            },
+        );
 
         if (data) {
             for (const d of data) {
@@ -668,12 +698,10 @@ export class ServerRequest<T = unknown> {
         public readonly url: string,
         public readonly method: 'get' | 'post' = 'post',
         public readonly body?: any,
-        public readonly options?: RequestOptions
+        public readonly options?: RequestOptions,
     ) {
         ServerRequest.all.push(this);
     }
-
-
 
     /**
      * Sends the request to the server and returns a promise with a generic type
@@ -703,25 +731,23 @@ export class ServerRequest<T = unknown> {
                 }
             }
 
-
             fetch(this.url, {
                 method: this.method.toUpperCase(),
                 headers: {
                     'Content-Type': 'application/json',
-                    ...this.options?.headers
+                    ...this.options?.headers,
                 },
-                body: JSON.stringify(this.body)
+                body: JSON.stringify(this.body),
             })
                 .then((r) => r.json())
                 .then(async (data) => {
-                    if (this.cached) console.log(data, '(cached)'); 
+                    if (this.cached) console.log(data, '(cached)');
                     else console.log(data);
 
                     if (data?.$status) {
                         // this is a notification
                         notify(data as StatusJson);
                     }
-
 
                     this.duration = Date.now() - start;
                     this.response = data;

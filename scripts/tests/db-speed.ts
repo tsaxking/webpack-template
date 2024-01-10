@@ -1,6 +1,6 @@
-import { DB } from "../../server/utilities/databases.ts";
-import { log } from "../../server/utilities/terminal-logging.ts";
-import { random } from "../../shared/uuid.ts";
+import { DB } from '../../server/utilities/databases.ts';
+import { log } from '../../server/utilities/terminal-logging.ts';
+import { random } from '../../shared/uuid.ts';
 
 const create = () => {
     try {
@@ -13,21 +13,24 @@ const create = () => {
     } catch (error) {
         log(error);
     }
-}
+};
 
 const insert = (i: number) => {
     try {
         return new Promise<void>((res, rej) => {
-            DB.unsafe.run(`
+            DB.unsafe.run(
+                `
                 INSERT INTO test (name) VALUES(?)
-            `, random());
-    
+            `,
+                random(),
+            );
+
             res();
         });
     } catch (error) {
         log(i, error);
     }
-}
+};
 
 const select = () => {
     try {
@@ -38,7 +41,7 @@ const select = () => {
         log(error);
         return [];
     }
-}
+};
 
 const remove = () => {
     try {
@@ -48,7 +51,7 @@ const remove = () => {
     } catch (error) {
         log(error);
     }
-}
+};
 
 const drop = () => {
     try {
@@ -58,9 +61,7 @@ const drop = () => {
     } catch (error) {
         log(error);
     }
-}
-
-
+};
 
 export const test = (num: number): number => {
     create();
@@ -72,17 +73,17 @@ export const test = (num: number): number => {
     let result: any[] = [];
     try {
         result = select();
-        
+
         console.log(result.length === num, result.length, num);
-        
+
         remove();
-        
+
         const end = Date.now();
-        console.log(end - start, (end-start)/num);
+        console.log(end - start, (end - start) / num);
     } catch (error) {
         log(error);
     }
-    
+
     drop();
 
     return result.length;

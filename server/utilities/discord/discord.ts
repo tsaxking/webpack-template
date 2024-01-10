@@ -1,5 +1,5 @@
 import { Client, GatewayIntentBits, SlashCommandBuilder } from 'npm:discord.js';
-import env from "../env.ts";
+import env from '../env.ts';
 import Ping from './commands/ping.ts';
 
 export type Command = {
@@ -7,16 +7,16 @@ export type Command = {
     description: string;
     execute: (interaction: any) => void;
     data?: SlashCommandBuilder;
-}
+};
 
 const commands: Command[] = [
-    Ping
+    Ping,
 ];
 
 export const client = new Client({
     intents: [
-        GatewayIntentBits.Guilds
-    ]
+        GatewayIntentBits.Guilds,
+    ],
 });
 
 client.on('ready', () => {
@@ -26,13 +26,13 @@ client.on('ready', () => {
 
     // loop through guilds
     for (const guild of client.guilds.cache.values()) {
-        guild.commands.set(commands.map(c => c.data ? c.data.toJSON() : c));
+        guild.commands.set(commands.map((c) => c.data ? c.data.toJSON() : c));
     }
 });
 
 client.on('interactionCreate', async (interaction) => {
     if (interaction.isCommand()) {
-        const cmd = commands.find(c => c.name === interaction.commandName);
+        const cmd = commands.find((c) => c.name === interaction.commandName);
         if (cmd) cmd.execute(interaction);
     }
 });

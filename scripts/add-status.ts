@@ -1,11 +1,14 @@
-import { validCodes } from "../shared/status.ts";
-import { messages, StatusCode, StatusColor, StatusId } from "../shared/status-messages.ts";
-import { Colors } from "../server/utilities/colors.ts";
-import { capitalize, fromSnakeCase, toCamelCase } from "../shared/text.ts";
+import { validCodes } from '../shared/status.ts';
+import {
+    messages,
+    StatusCode,
+    StatusColor,
+    StatusId,
+} from '../shared/status-messages.ts';
+import { Colors } from '../server/utilities/colors.ts';
+import { capitalize, fromSnakeCase, toCamelCase } from '../shared/text.ts';
 import Filter from 'npm:bad-words';
-import { repeatPrompt } from "./prompt.ts";
-
-
+import { repeatPrompt } from './prompt.ts';
 
 export const addSocket = (name: string) => {
     const file = Deno.readFileSync('./shared/socket.ts');
@@ -14,7 +17,9 @@ export const addSocket = (name: string) => {
 
     const [, end] = decoded.split('export type SocketEvent =');
 
-    let events = end.split('|').map(i => i.trim().replace(';', '').replace(/\n/g, ''));
+    let events = end.split('|').map((i) =>
+        i.trim().replace(';', '').replace(/\n/g, '')
+    );
     events.push(`'${name}'`);
 
     events.sort((a, b) => {
@@ -52,10 +57,14 @@ export const addStatus = (data: {
         message: data.message,
         color: data.color as StatusColor,
         code: data.code as StatusCode,
-        instructions: data.instructions
+        instructions: data.instructions,
     };
 
-    if (messages[value]) throw new Error(`Status ${Colors.FgGreen}${value}${Colors.Reset} already exists`);
+    if (messages[value]) {
+        throw new Error(
+            `Status ${Colors.FgGreen}${value}${Colors.Reset} already exists`,
+        );
+    }
 
     messages[value] = obj;
 
@@ -68,9 +77,9 @@ export const addStatus = (data: {
         }
 
         return a1.localeCompare(b1);
-    }) as StatusId []).map((key: StatusId) => {
+    }) as StatusId[]).map((key: StatusId) => {
         return `    '${key}': {
-    message: '${messages[key].message.replace(/'/g, '\\\'')}',
+    message: '${messages[key].message.replace(/'/g, "\\'")}',
     color: '${messages[key].color}',
     code: ${messages[key].code},
     instructions: '${messages[key].instructions}'
@@ -81,9 +90,7 @@ export const addStatus = (data: {
         if (!acc[key.split(':')[0]]) acc[key.split(':')[0]] = [];
         acc[key.split(':')[0]].push(key.split(':')[1]);
         return acc;
-    }, {
-    } as any);
-
+    }, {} as any);
 
     const file = Deno.readFileSync('./shared/status-messages.ts');
     const decoder = new TextDecoder();
@@ -91,7 +98,9 @@ export const addStatus = (data: {
 
     const [, end] = decoded.split('export type StatusId =');
 
-    let ids = end.split(';')[0].split('|').map(i => i.trim().replace(';', '').replace(/\n/g, ''));
+    let ids = end.split(';')[0].split('|').map((i) =>
+        i.trim().replace(';', '').replace(/\n/g, '')
+    );
 
     ids.push(`'${value}'`);
 
@@ -124,37 +133,56 @@ ${str}
 
 export type StatusId = ${ids.join('\n\t| ')}\n;
 
-${Object.keys(groups).map(key => {
-        return `export type ${capitalize(toCamelCase(fromSnakeCase(key, '-')))}StatusId = ${groups[key].map((i: string) => `'${i}'`).join('\n\t| ')};`
+${
+        Object.keys(groups).map((key) => {
+            return `export type ${
+                capitalize(toCamelCase(fromSnakeCase(key, '-')))
+            }StatusId = ${
+                groups[key].map((i: string) => `'${i}'`).join('\n\t| ')
+            };`;
+        }).join('\n\n\n')
     }
-).join('\n\n\n')}
 `;
 
-    Deno.writeFileSync('./shared/status-messages.ts', new TextEncoder().encode(newFile));
+    Deno.writeFileSync(
+        './shared/status-messages.ts',
+        new TextEncoder().encode(newFile),
+    );
 
     if (data.code.toString().startsWith('2')) {
         addSocket(value);
     }
 };
 
-
 export const addStatusPrompt = () => {
-    const allowedCharacters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_';
+    const allowedCharacters =
+        'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_';
 
-    const parse = (str: string) => str.trim().toLowerCase().split('').filter(i => allowedCharacters.includes(i)).join('');
+    const parse = (str: string) =>
+        str.trim().toLowerCase().split('').filter((i) =>
+            allowedCharacters.includes(i)
+        ).join('');
     const filter = (str: string): boolean => {
         if (str.length < 3) return false;
         const filter = new Filter();
         const filtered = filter.clean(str);
         if (filtered !== str) return false;
         return true;
-    }
+    };
 
     const group = repeatPrompt('Status group', undefined, filter);
     const name = repeatPrompt('Status name', undefined, filter);
     const message = repeatPrompt('Status message', undefined, filter);
-    const color = repeatPrompt('Status color', undefined, (i) => ['success', 'danger', 'warning', 'info'].includes(i));
-    const code = repeatPrompt('Status code', undefined, (i) => validCodes.includes(+i as StatusCode));
+    const color = repeatPrompt(
+        'Status color',
+        undefined,
+        (i) => ['success', 'danger', 'warning', 'info'].includes(i),
+    );
+    const code = repeatPrompt(
+        'Status code',
+        undefined,
+        (i) => validCodes.includes(+i as StatusCode),
+    );
     const instructions = prompt('Status instructions:') || '';
 
     addStatus({
@@ -163,13 +191,12 @@ export const addStatusPrompt = () => {
         message: message,
         color,
         code: +code as StatusCode,
-        instructions: parse(instructions)
+        instructions: parse(instructions),
     });
 };
-
 
 if (Deno.args.includes('status')) addStatusPrompt();
 if (Deno.args.includes('socket')) {
     const name = repeatPrompt('Socket event name');
     addSocket(name);
-};
+}
