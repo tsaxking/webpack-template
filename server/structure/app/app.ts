@@ -311,6 +311,25 @@ type AppOptions = {
  */
 export class App {
     /**
+     * Creates a middleware function that checks if the request has a header with the specified key and value
+     *
+     * @public
+     * @static
+     * @param {string} key
+     * @param {string} value
+     * @returns {ServerFunction}
+     */
+    public static headerAuth(key: string, value: string): ServerFunction {
+        return (req, res, next) => {
+            if (req.headers.get(key) === value) {
+                next();
+            } else {
+                res.sendStatus('permissions:unauthorized');
+            }
+        };
+    }
+
+    /**
      * Socket.io server
      * @date 10/12/2023 - 2:49:37 PM
      *
