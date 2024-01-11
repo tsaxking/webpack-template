@@ -172,14 +172,14 @@ app.post('/*', (req, res, next) => {
 //     // }
 // }));
 
-const homePages = getJSONSync('pages/home') as string[];
+const homePages = getJSONSync<string[]>('pages/home');
 
 app.get('/', (req, res, next) => {
     res.redirect('/home');
 });
 
 app.get('/*', async (req, res, next) => {
-    if (homePages.includes(req.url.slice(1))) {
+    if (homePages?.includes(req.url.slice(1))) {
         return res.send(
             await homeBuilder(req.url),
         );

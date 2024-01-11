@@ -78,15 +78,13 @@ const removeComments = (content: string) => {
  * @param {string} file
  * @returns {type}
  */
-export function getJSONSync<type = unknown>(file: string): type {
+export function getJSONSync<type = unknown>(file: string): type | null {
     const filePath = filePathBuilder(file, '.json', './storage/jsons/');
     const data = Deno.readFileSync(filePath);
     const decoder = new TextDecoder();
     const decoded = decoder.decode(data);
 
-    const parsed = attempt<type>(JSON.parse(removeComments(decoded)));
-    if (!parsed) throw new Error('Invalid JSON');
-    return parsed;
+    return attempt<type>(JSON.parse(removeComments(decoded)));
 }
 
 /**
@@ -98,8 +96,8 @@ export function getJSONSync<type = unknown>(file: string): type {
  * @param {string} file
  * @returns {Promise<type>}
  */
-export function getJSON<type = unknown>(file: string): Promise<type> {
-    return new Promise<type>((res, rej) => {
+export function getJSON<type = unknown>(file: string): Promise<type | null> {
+    return new Promise<type | null>((res, rej) => {
         const filePath = filePathBuilder(file, '.json', './storage/jsons/');
         Deno.readFile(filePath)
             .then((data) => {
@@ -109,8 +107,7 @@ export function getJSON<type = unknown>(file: string): Promise<type> {
                 const parsed = attempt<type>(
                     JSON.parse(removeComments(decoded)),
                 );
-                if (parsed) res(parsed);
-                else rej(new Error('Invalid JSON'));
+                res(parsed);
             })
             .catch(rej);
     });
