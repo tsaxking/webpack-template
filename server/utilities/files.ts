@@ -84,7 +84,7 @@ export function getJSONSync<type = unknown>(file: string): type | null {
     const decoder = new TextDecoder();
     const decoded = decoder.decode(data);
 
-    return attempt<type>(JSON.parse(removeComments(decoded)));
+    return attempt<type>(() => JSON.parse(removeComments(decoded)));
 }
 
 /**
@@ -105,7 +105,7 @@ export function getJSON<type = unknown>(file: string): Promise<type | null> {
                 const decoded = decoder.decode(data);
 
                 const parsed = attempt<type>(
-                    JSON.parse(removeComments(decoded)),
+                    () => JSON.parse(removeComments(decoded)),
                 );
                 res(parsed);
             })
