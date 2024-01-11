@@ -3,7 +3,7 @@ import { log } from './utilities/terminal-logging.ts';
 import { sveltePlugin, typescript } from './build/esbuild-svelte.ts';
 import { EventEmitter } from '../shared/event-emitter.ts';
 import { getTemplateSync, saveTemplateSync } from './utilities/files.ts';
-import { readLines } from "https://deno.land/std@0.100.0/io/mod.ts";
+import { stdin } from './utilities/utilties.ts';
 
 import env, {
     __root,
@@ -115,13 +115,4 @@ export const runBuild = async () => {
     return builder;
 }
 
-// if the user types "rb" in the terminal, rebuild the app
-(async () =>{
-    for await (const line of readLines(Deno.stdin)) {
-        switch (line) {
-            case 'rb':
-                runBuild()
-                break;
-        }
-    }
-})()
+stdin.on('rb', runBuild);
