@@ -111,4 +111,17 @@ export const runBuild = async () => {
     builder.on('build', () => entries = readDir('./client/entries'));
 
     return builder;
-};
+}
+
+// if the user types "rb" in the terminal, rebuild the app
+const buf = new Uint8Array(1024);
+Deno.stdin.read(buf)
+    .then((n) => {
+        const text = new TextDecoder().decode(buf.subarray(0, n));
+        switch (text) {
+            case 'rb':
+                runBuild();
+                break;
+        }
+    })
+    .catch(console.error);

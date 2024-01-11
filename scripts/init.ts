@@ -32,7 +32,7 @@ const createEnv = () => {
         };
     }
     log('Creating .env file...');
-    const values: {
+    let values: {
         [key: string]: string | number | boolean | null | undefined;
     } = {
         session_duration: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
@@ -103,10 +103,9 @@ const createEnv = () => {
         true,
     );
 
-    Object.assign(env, values);
 
     const e = Object.keys(values).map((key) =>
-        `${fromCamelCase(toSnakeCase(key)).toUpperCase()} = '${values[key]}'`
+        `${toSnakeCase(fromCamelCase(key)).toUpperCase()} = '${values[key]}'`
     ).join('\n');
     Deno.writeTextFileSync(
         resolve(
