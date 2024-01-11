@@ -1,4 +1,4 @@
-import { EventEmitter } from "./event-emitter.ts";
+import { EventEmitter } from './event-emitter.ts';
 
 /**
  * Options for the state stack
@@ -11,7 +11,7 @@ import { EventEmitter } from "./event-emitter.ts";
 type StateStackOptions = {
     max?: number;
     copy?: (data: any) => any;
-}
+};
 
 /**
  * Events for the state stack with their respective data type
@@ -26,8 +26,6 @@ export type StateStackEventData<T> = {
     'new': State<T>;
     'change': State<T>;
 };
-
-
 
 /**
  * This is a state in the state stack (duh)
@@ -56,7 +54,10 @@ export class State<T> {
      * @param {T} data
      * @param {StateStack<T>} stack
      */
-    constructor(public readonly data: T, private readonly stack: StateStack<T>) {}
+    constructor(
+        public readonly data: T,
+        private readonly stack: StateStack<T>,
+    ) {}
 
     /**
      * Returns the next state in the stack (if it exists)
@@ -77,7 +78,7 @@ export class State<T> {
     prev(): State<T> | undefined {
         return this.stack.prev();
     }
-};
+}
 
 /**
  * This is a class meant to store data in a stack
@@ -98,7 +99,8 @@ export class StateStack<T = any> {
      * @readonly
      * @type {EventEmitter<keyof StateStackEventData<T>>}
      */
-    private readonly $emitter: EventEmitter<keyof StateStackEventData<T>> = new EventEmitter<keyof StateStackEventData<T>>();
+    private readonly $emitter: EventEmitter<keyof StateStackEventData<T>> =
+        new EventEmitter<keyof StateStackEventData<T>>();
     /**
      * List of states in the stack
      * @date 10/12/2023 - 2:31:40 PM
@@ -214,7 +216,10 @@ export class StateStack<T = any> {
      * @param {K} event
      * @param {(data: StateStackEventData<T>[K]) => void} callback
      */
-    on<K extends keyof StateStackEventData<T>>(event: K, callback: (data: StateStackEventData<T>[K]) => void): void {
+    on<K extends keyof StateStackEventData<T>>(
+        event: K,
+        callback: (data: StateStackEventData<T>[K]) => void,
+    ): void {
         this.$emitter.on(event, callback);
     }
 
@@ -226,7 +231,10 @@ export class StateStack<T = any> {
      * @param {K} event
      * @param {?(data: StateStackEventData<T>[K]) => void} [callback]
      */
-    off<K extends keyof StateStackEventData<T>>(event: K, callback?: (data: StateStackEventData<T>[K]) => void): void {
+    off<K extends keyof StateStackEventData<T>>(
+        event: K,
+        callback?: (data: StateStackEventData<T>[K]) => void,
+    ): void {
         this.$emitter.off(event, callback);
     }
 
@@ -238,10 +246,13 @@ export class StateStack<T = any> {
      * @param {K} event
      * @param {StateStackEventData<T>[K]} data
      */
-    emit<K extends keyof StateStackEventData<T>>(event: K, data: StateStackEventData<T>[K]): void {
+    emit<K extends keyof StateStackEventData<T>>(
+        event: K,
+        data: StateStackEventData<T>[K],
+    ): void {
         this.$emitter.emit(event, data);
     }
-};
+}
 
 /**
  * Events for the branch stack with their respective data type
@@ -256,7 +267,6 @@ type BranchEventData<T> = {
     'remove': string;
     'duplicate': StateStack<T>;
 };
-
 
 /**
  * This is a class meant store multiple state stacks as branches
@@ -291,8 +301,9 @@ export class BranchStack<T = any> {
      * @private
      * @type {EventEmitter<keyof BranchEventData<T>>}
      */
-    private readonly $emitter: EventEmitter<keyof BranchEventData<T>> = new EventEmitter<keyof BranchEventData<T>>();
-    
+    private readonly $emitter: EventEmitter<keyof BranchEventData<T>> =
+        new EventEmitter<keyof BranchEventData<T>>();
+
     /**
      * Creates an instance of BranchStack.
      * @date 10/12/2023 - 2:31:40 PM
@@ -390,7 +401,10 @@ export class BranchStack<T = any> {
      * @param {K} event
      * @param {(data: BranchEventData<T>[K]) => void} callback
      */
-    on<K extends keyof BranchEventData<T>>(event: K, callback: (data: BranchEventData<T>[K]) => void): void {
+    on<K extends keyof BranchEventData<T>>(
+        event: K,
+        callback: (data: BranchEventData<T>[K]) => void,
+    ): void {
         this.$emitter.on(event, callback);
     }
 
@@ -402,7 +416,10 @@ export class BranchStack<T = any> {
      * @param {K} event
      * @param {?(data: BranchEventData<T>[K]) => void} [callback]
      */
-    off<K extends keyof BranchEventData<T>>(event: K, callback?: (data: BranchEventData<T>[K]) => void): void {
+    off<K extends keyof BranchEventData<T>>(
+        event: K,
+        callback?: (data: BranchEventData<T>[K]) => void,
+    ): void {
         this.$emitter.off(event, callback);
     }
-};
+}

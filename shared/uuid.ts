@@ -7,7 +7,8 @@ export const random = (options?: {
     charset?: string;
 }) => {
     const length = options?.length ?? 16;
-    const charset = options?.charset ?? 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charset = options?.charset ??
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
     let result = '';
     for (let i = 0; i < length; i++) {
