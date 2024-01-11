@@ -34,7 +34,7 @@ jobs:
         run: deno fmt
 
       - name: Linter
-        run: deno lint --unstable
+        run: deno lint
 
       - name: Test
         run: deno test --allow-read --allow-write --allow-env --allow-net --allow-run --unstable --coverage=coverage
