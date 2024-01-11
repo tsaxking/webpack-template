@@ -29,7 +29,7 @@ type PingEventData = {
 };
 
 class Ping {
-    #interval: number = 1000;
+    #interval = 1000;
     public state: PingState = 'disconnected';
     private readonly $pings: number[] = [];
     private timeout?: any;

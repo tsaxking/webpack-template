@@ -94,7 +94,7 @@ export const runBuild = async () => {
             },
         },
         // trust me, it works
-        plugins: [(sveltePlugin as unknown as Function)({
+        plugins: [(sveltePlugin as any)({
             preprocess: [
                 typescript(),
             ],
@@ -113,6 +113,6 @@ export const runBuild = async () => {
     builder.on('build', () => entries = readDir('./client/entries'));
 
     return builder;
-}
+};
 
 stdin.on('rb', runBuild);

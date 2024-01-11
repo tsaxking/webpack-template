@@ -369,7 +369,7 @@ type Bytes = 'Bytes' | 'KB' | 'MB' | 'GB' | 'TB' | 'PB' | 'EB' | 'ZB' | 'YB';
  */
 export function formatBytes(
     bytes: number,
-    decimals: number = 2,
+    decimals = 2,
 ): { string: string; type: Bytes } {
     if (bytes === 0) {
         return {

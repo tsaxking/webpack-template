@@ -19,7 +19,7 @@ export const toCamelCase = (str: string): string => str.replace(/(?:^\w|[A-Z]|\b
  * @param str 
  * @returns 
  */
-export const toSnakeCase = (str: string, del: string = '_'): string => str.replace(/([A-Z])/g, (g) => `${del}${g[0].toLowerCase()}`).replace(/\s+/g, '_');
+export const toSnakeCase = (str: string, del = '_'): string => str.replace(/([A-Z])/g, (g) => `${del}${g[0].toLowerCase()}`).replace(/\s+/g, '_');
 
 
 /**
@@ -34,7 +34,7 @@ export const fromCamelCase = (str: string): string => str.replace(/([A-Z])/g, (g
  * @param str 
  * @returns 
  */
-export const fromSnakeCase = (str: string, del: string = '_'): string => str.replace(/([A-Z])/g, (g) => ` ${g[0].toLowerCase()}`).replace(del, ' ');
+export const fromSnakeCase = (str: string, del = '_'): string => str.replace(/([A-Z])/g, (g) => ` ${g[0].toLowerCase()}`).replace(del, ' ');
 
 
 
@@ -42,7 +42,7 @@ export const fromSnakeCase = (str: string, del: string = '_'): string => str.rep
  * Abbreviates a string to a given length (appending ...)
  * @date 1/9/2024 - 12:04:06 PM
  */
-export const abbreviate = (string: string, length: number = 10): string => {
+export const abbreviate = (string: string, length = 10): string => {
     if (length < 3) throw new Error('Abbreviation length must be at least 3');
 
     if (string.length <= length) return string;

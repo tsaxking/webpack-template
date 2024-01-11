@@ -56,7 +56,7 @@ export const fileStream = (opts?: FileStreamOptions): ServerFunction<any> => {
             return uuid() + '-' + Date.now();
         };
 
-        let sent: boolean = false;
+        let sent = false;
 
         const sendStatus = (status: StatusId, data: any) => {
             if (!sent) {
@@ -193,17 +193,19 @@ export const retrieveStream = (
             const { type } = req.body;
             switch (type) {
                 case 'data':
-                    const { index, data, size } = req.body;
-                    if (index === sentIndex) {
-                        send(data);
-                    } else {
-                        cached.set(index, data);
-                    }
+                    (() => {
+                        const { index, data, size } = req.body;
+                        if (index === sentIndex) {
+                            send(data);
+                        } else {
+                            cached.set(index, data);
+                        }
 
-                    res.json({
-                        index: sentIndex,
-                        status: 'received',
-                    });
+                        res.json({
+                            index: sentIndex,
+                            status: 'received',
+                        });
+                    })();
                     break;
                 case 'end':
                     options.onEnd?.();

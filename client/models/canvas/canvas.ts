@@ -17,7 +17,7 @@ export interface Drawable {
 
 export class Canvas {
     public readonly elements: Drawable[] = [];
-    private animating: boolean = false;
+    private animating = false;
 
     // TODO: Implement FPS
     // public fps: number = 0;
@@ -29,16 +29,16 @@ export class Canvas {
         return this.ctx.canvas.width;
     }
 
-    get height() {
-        return this.ctx.canvas.height;
-    }
-
     set width(width: number) {
         this.ctx.canvas.width = width;
     }
 
     set height(height: number) {
         this.ctx.canvas.height = height;
+    }
+
+    get height() {
+        return this.ctx.canvas.height;
     }
 
     add(...elements: Drawable[]) {

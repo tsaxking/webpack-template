@@ -572,7 +572,7 @@ export class ServerRequest<T = unknown> {
                     }
 
                     if (value) {
-                        let d = new TextDecoder().decode(value);
+                        const d = new TextDecoder().decode(value);
                         // console.log(done, d);
                         const split = d.split(streamDelimiter);
                         if (last) split[0] = last + split[0];
@@ -658,7 +658,7 @@ export class ServerRequest<T = unknown> {
      * @public
      * @type {boolean}
      */
-    public sent: boolean = false;
+    public sent = false;
     /**
      *  Duration of the request
      * @date 10/12/2023 - 1:19:15 PM
@@ -682,7 +682,7 @@ export class ServerRequest<T = unknown> {
      * @private
      * @type {boolean}
      */
-    private cached: boolean = false;
+    private cached = false;
 
     /**
      * Creates an instance of ServerRequest.

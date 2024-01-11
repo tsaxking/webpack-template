@@ -90,7 +90,7 @@ export class Session {
      * @static
      * @type {string}
      */
-    static sessionName: string = 'ssid';
+    static sessionName = 'ssid';
 
     /**
      * Retrieves a session from the database
@@ -187,7 +187,7 @@ export class Session {
      *
      * @type {string}
      */
-    public ip: string = '';
+    public ip = '';
     /**
      * The id of the session
      * @date 10/12/2023 - 3:13:58 PM
@@ -222,7 +222,7 @@ export class Session {
      *
      * @type {number}
      */
-    public requests: number = 0;
+    public requests = 0;
     /**
      * The time this session was created
      * @date 10/12/2023 - 3:13:57 PM

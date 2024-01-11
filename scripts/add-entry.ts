@@ -1,4 +1,5 @@
 import { __root, dirname, relative, resolve } from '../server/utilities/env.ts';
+import { attempt } from '../shared/attempt.ts';
 
 const [, ...args] = Deno.args;
 
@@ -20,9 +21,7 @@ export const addEntry = (name: string) => {
     const filepath = resolve(__root, 'client', 'entries', name + '.ts');
     const dir = dirname(filepath);
 
-    try {
-        Deno.mkdirSync(dir, { recursive: true });
-    } catch {}
+    attempt(() => Deno.mkdirSync(dir, { recursive: true }));
 
     const importsRelative = relative(
         dir,

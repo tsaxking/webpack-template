@@ -123,7 +123,7 @@ export class Res {
      * @public
      * @type {boolean}
      */
-    public fulfilled: boolean = false;
+    public fulfilled = false;
     /**
      * The trace of the response (uses npm:callsite)
      * @date 10/12/2023 - 3:06:02 PM

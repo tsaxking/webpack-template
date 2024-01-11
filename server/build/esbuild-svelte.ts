@@ -36,7 +36,7 @@ const bail = (err: Error, ...args: any[]) => {
 
 const transform = async (input: any, options: any) => {
     let config = options;
-    let deps = [];
+    const deps = [];
 
     if (input.filename) {
         let src = input.attributes.src;
@@ -52,7 +52,7 @@ const transform = async (input: any, options: any) => {
         }
     }
 
-    let output = await esbuild.transform(input.content, config);
+    const output = await esbuild.transform(input.content, config);
     if (output.warnings.length) {
         warn(...output.warnings);
     }
@@ -80,7 +80,7 @@ export const typescript = (options: any = {}) => {
     if (config.tsconfigRaw) {
         contents = config.tsconfigRaw;
     } else {
-        let file = resolve(tsconfig || './tsconfig.json');
+        const file = resolve(tsconfig || './tsconfig.json');
         try {
             contents = JSON.parse(read(file, 'utf8'));
         } catch (err) {
@@ -101,14 +101,14 @@ export const typescript = (options: any = {}) => {
         warn('No compilerOptions found in tsconfig.json');
     }
 
-    let compilerOptions = { ...contents.compilerOptions };
+    const compilerOptions = { ...contents.compilerOptions };
     compilerOptions.importsNotUsedAsValues = 'preserve';
     compilerOptions.preserveValueImports = true;
     config.tsconfigRaw = { compilerOptions };
     const define = config.define || {};
     return {
         async script(input: any) {
-            let bool = isTypescript(input.attributes);
+            const bool = isTypescript(input.attributes);
             if (!bool && define) {
                 return transform(input, { define, loader: 'js' });
             }
@@ -121,12 +121,12 @@ export const typescript = (options: any = {}) => {
 };
 
 export const replace = (define: any = {}) => {
-    for (let key in define) {
+    for (const key in define) {
         define[key] = String(define[key]);
     }
     return {
         async script(input: any) {
-            let bool = isTypescript(input.attributes);
+            const bool = isTypescript(input.attributes);
             if (bool) return { code: input.content };
             return transform(input, { define, loader: 'js' });
         },
@@ -141,8 +141,8 @@ async function convertMessage(
 ) {
     let location;
     if (start && end) {
-        let lineText = source.split(/\r\n|\r|\n/g)[start.line - 1];
-        let lineEnd = start.line === end.line ? end.column : lineText.length;
+        const lineText = source.split(/\r\n|\r|\n/g)[start.line - 1];
+        const lineEnd = start.line === end.line ? end.column : lineText.length;
         if (sourcemap) {
             sourcemap = new TraceMap(sourcemap);
             const pos = originalPositionFor(sourcemap, {
@@ -165,7 +165,7 @@ async function convertMessage(
     return { text: message, location };
 }
 const shouldCache = (build: any) => {
-    var _a, _b;
+    let _a, _b;
     return ((_a = build.initialOptions) == null ? void 0 : _a.incremental) ||
         ((_b = build.initialOptions) == null ? void 0 : _b.watch);
 };
@@ -224,7 +224,7 @@ export function sveltePlugin(options: any) {
                 },
             );
             build.onLoad({ filter: svelteFilter }, async (args: any) => {
-                var _a, _b, _c;
+                let _a, _b, _c;
                 let cachedFile = null;
                 let previousWatchFiles: any = [];
                 if (
@@ -253,14 +253,14 @@ export function sveltePlugin(options: any) {
                         fileCache.delete(args.path);
                     }
                 }
-                let originalSource = read(args.path, 'utf8');
-                let filename = relative(cwd(), args.path);
+                const originalSource = read(args.path, 'utf8');
+                const filename = relative(cwd(), args.path);
                 const dependencyModifcationTimes = /* @__PURE__ */ new Map();
                 dependencyModifcationTimes.set(
                     args.path,
                     statSync(args.path).mtime,
                 );
-                let compilerOptions = {
+                const compilerOptions = {
                     css: svelteVersion < 3 ? false : 'external',
                     ...options == null ? void 0 : options.compilerOptions,
                 };
@@ -285,7 +285,7 @@ export function sveltePlugin(options: any) {
                             throw e;
                         }
                         if (preprocessResult.map) {
-                            let fixedMap: any = preprocessResult.map;
+                            const fixedMap: any = preprocessResult.map;
                             for (
                                 let index = 0;
                                 index <
@@ -342,7 +342,7 @@ export function sveltePlugin(options: any) {
                         (compilerOptions.css === false ||
                             compilerOptions.css === 'external') && css.code
                     ) {
-                        let cssPath = args.path.replace(
+                        const cssPath = args.path.replace(
                             '.svelte',
                             '.esbuild-svelte-fake-css',
                         ).replace(/\\/g, '/');
@@ -389,7 +389,7 @@ export function sveltePlugin(options: any) {
                     }
                     return result;
                 } catch (e) {
-                    let result: any = {};
+                    const result: any = {};
                     result.errors = [
                         await convertMessage(
                             e,
@@ -440,21 +440,21 @@ export function sveltePlugin(options: any) {
             ) {
                 build.initialOptions.metafile = true;
                 build.onEnd((result: any) => {
-                    var _a, _b, _c;
+                    let _a, _b, _c;
                     for (
-                        let fileName in (_a = result.metafile) == null
+                        const fileName in (_a = result.metafile) == null
                             ? void 0
                             : _a.inputs
                     ) {
                         if (SVELTE_FILTER.test(fileName)) {
-                            let file = (_b = result.metafile) == null
+                            const file = (_b = result.metafile) == null
                                 ? void 0
                                 : _b.inputs[fileName];
                             (_c = file == null ? void 0 : file.imports) == null
                                 ? void 0
                                 : _c.forEach((i: any) => {
                                     if (SVELTE_FILTER.test(i.path)) {
-                                        let fileCacheEntry = fileCache.get(
+                                        const fileCacheEntry = fileCache.get(
                                             fileName,
                                         );
                                         if (fileCacheEntry != void 0) {

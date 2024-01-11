@@ -2,7 +2,7 @@ export const repeatPrompt = (
     message: string,
     original?: string,
     validate?: (data: string) => boolean,
-    allowBlank: boolean = false,
+    allowBlank = false,
 ): string => {
     if (!original) original = message;
     const i = prompt(message + ':');

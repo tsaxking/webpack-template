@@ -115,7 +115,7 @@ export class StateStack<T = any> {
      * @private
      * @type {number}
      */
-    private index: number = -1;
+    private index = -1;
     /**
      * Options for the state stack
      * @date 10/12/2023 - 2:31:40 PM
@@ -309,7 +309,7 @@ export class BranchStack<T = any> {
      * @type {(StateStack<T> | undefined)}
      */
     get current(): StateStack<T> | undefined {
-        if (!this.currentBranch) return;
+        if (!this.currentBranch) return undefined;
         return this.branches.get(this.currentBranch);
     }
 

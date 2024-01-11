@@ -32,7 +32,7 @@ const createEnv = () => {
         };
     }
     log('Creating .env file...');
-    let values: {
+    const values: {
         [key: string]: string | number | boolean | null | undefined;
     } = {
         session_duration: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
@@ -102,7 +102,6 @@ const createEnv = () => {
         (i) => i.length > 0,
         true,
     );
-
 
     const e = Object.keys(values).map((key) =>
         `${toSnakeCase(fromCamelCase(key)).toUpperCase()} = '${values[key]}'`
