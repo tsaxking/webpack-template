@@ -1,6 +1,6 @@
 import { DB } from '../utilities/databases.ts';
 import { Status } from '../utilities/status.ts';
-import { Permission, RoleName } from '../../shared/db-types.ts';
+import { Permission, RoleName, RolePermission } from '../../shared/db-types.ts';
 import { Role as RoleObject } from '../../shared/db-types.ts';
 import { Next, ServerFunction } from './app/app.ts';
 import { Req } from './app/req.ts';
@@ -110,7 +110,7 @@ export default class Role {
      */
     static all(): Role[] {
         const data = DB.all('roles/all');
-        return data.map((d) => new Role(d)).sort((a, b) => a.rank - b.rank);
+        return data.map((d: RoleObject) => new Role(d)).sort((a: Role, b: Role) => a.rank - b.rank);
     }
 
     /**
@@ -166,6 +166,6 @@ export default class Role {
         const data = DB.all('permissions/from-role', {
             role: this.name,
         });
-        return data.map((d) => d.permission) as Permission[];
+        return data.map((d: RolePermission) => d.permission) as Permission[];
     }
 }

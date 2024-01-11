@@ -91,7 +91,7 @@ export class DB {
     private static prepare<T extends keyof Queries>(type: T): Statement {
         try {
             const data = Deno.readFileSync(
-                resolve(__root, './storage/db/queries/', type + '.sql'),
+                resolve(__root, './storage/db/queries/', String(type) + '.sql'),
             );
             const sql = new TextDecoder('utf-8').decode(data);
 

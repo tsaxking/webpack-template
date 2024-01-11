@@ -23,6 +23,7 @@ import {
     RolesStatusId,
 } from '../../shared/status-messages.ts';
 import { validate } from '../middleware/data-type.ts';
+import { Role as RoleObj } from '../../shared/db-types.ts';
 
 /**
  * Properties that can be changed dynamically
@@ -95,7 +96,7 @@ export default class Account {
      * @returns {ServerFunction<any>}
      */
     static autoSignIn(username?: string): ServerFunction<any> {
-        return (req, res, next) => {
+        return (req: Req<any>, res: Res, next: Next) => {
             if (env.ENVIRONMENT === 'production') return next();
 
             if (!username) return next();
@@ -118,7 +119,7 @@ export default class Account {
      * @returns {*}
      */
     static get unverifiedAccounts() {
-        return DB.all('account/unverified').map((a) => new Account(a));
+        return DB.all('account/unverified').map((a: AccountObject) => new Account(a));
     }
 
     /**
@@ -221,7 +222,7 @@ export default class Account {
 
             const { permissions } = account;
 
-            if (permission.every((p) => permissions.find((_p) => _p === p))) {
+            if (permission.every((p: string) => permissions.find((_p) => _p === p))) {
                 return next();
             } else {
                 const s = Status.from('permissions:unauthorized', req);
@@ -279,7 +280,7 @@ export default class Account {
      */
     static get all(): Account[] {
         const data = DB.all('account/all');
-        return data.map((a) => new Account(a));
+        return data.map((a: AccountObject) => new Account(a));
     }
 
     // █▄ ▄█ ▄▀▄ █▄ █ ▄▀▄ ▄▀  █ █▄ █ ▄▀     ▄▀▄ ▄▀▀ ▄▀▀ ▄▀▄ █ █ █▄ █ ▀█▀ ▄▀▀
@@ -784,7 +785,7 @@ export default class Account {
             id: this.id,
         });
 
-        return data.map((r) => {
+        return data.map((r: RoleObj) => {
             return Role.fromName(r.name);
         }).filter(Boolean) as Role[];
     }

@@ -126,7 +126,7 @@ export class Member {
     static getMembers(): Member[] {
         const membersInfo = DB.all('member/all');
 
-        return membersInfo.map((m) => new Member(m));
+        return membersInfo.map((m: MemberObj) => new Member(m));
     }
 
     public readonly id: string;

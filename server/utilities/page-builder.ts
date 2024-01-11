@@ -80,7 +80,7 @@ export const navBuilder = async (url: string, offcanvas: boolean) => {
         offcanvas: {
             offcanvas,
         },
-        navbarRepeat: await getJSON<string[]>('pages/home').then((data) => {
+        navbarRepeat: await getJSON<string[]>('pages/home').then((data: any) => {
             return data.map((page: string) => {
                 return {
                     active: '/' + page === url,

@@ -376,7 +376,7 @@ export class App {
             },
         });
 
-        this.io.on('connection', (socket) => {
+        this.io.on('connection', (socket: any) => {
             log('New connection:', socket.id);
 
             // socket.join(socket.id);
