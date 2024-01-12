@@ -8,6 +8,8 @@ lerna-debug.log*
 
 */templates/entries/
 
+*/dir-tree.txt
+
 branch-transfer/
 
 deno.lock

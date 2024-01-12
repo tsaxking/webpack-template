@@ -24,7 +24,7 @@ type FileBody = {
  */
 export class Req<
     T = {
-        [key: string]: any;
+        [key: string]: unknown;
     },
 > {
     /**

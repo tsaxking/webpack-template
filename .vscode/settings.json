@@ -12,5 +12,10 @@
     "editor.formatOnPaste": false, // required 
     "editor.formatOnType": false, // required
     "editor.formatOnSave": true, // optional 
-    "editor.formatOnSaveMode": "file" // required to format on save
+    "editor.formatOnSaveMode": "file", // required to format on save
+    "spellright.addToSystemDictionary": true,
+    "cSpell.words": [
+        "Deno",
+        "Deno's"
+    ]
 }

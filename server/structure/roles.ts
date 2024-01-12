@@ -110,7 +110,10 @@ export default class Role {
      */
     static all(): Role[] {
         const data = DB.all('roles/all');
-        return data.map((d: RoleObject) => new Role(d)).sort((a: Role, b: Role) => a.rank - b.rank);
+        return data.map((d: RoleObject) => new Role(d)).sort((
+            a: Role,
+            b: Role,
+        ) => a.rank - b.rank);
     }
 
     /**

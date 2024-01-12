@@ -158,10 +158,12 @@ export const addStatusPrompt = () => {
     const allowedCharacters =
         'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_';
 
-    const parse = (str: string) =>
-        str.trim().toLowerCase().split('').filter((i) =>
+    const parse = (str: string, trim?: boolean) => {
+        if (trim) str = str.trim();
+        return str.toLowerCase().split('').filter((i) =>
             allowedCharacters.includes(i)
         ).join('');
+    };
     const filter = (str: string): boolean => {
         if (str.length < 3) return false;
         const filter = new Filter();
@@ -186,8 +188,8 @@ export const addStatusPrompt = () => {
     const instructions = prompt('Status instructions:') || '';
 
     addStatus({
-        group: parse(group),
-        name: parse(name),
+        group: parse(group, true),
+        name: parse(name, true),
         message: message,
         color,
         code: +code as StatusCode,

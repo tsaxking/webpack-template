@@ -119,7 +119,9 @@ export default class Account {
      * @returns {*}
      */
     static get unverifiedAccounts() {
-        return DB.all('account/unverified').map((a: AccountObject) => new Account(a));
+        return DB.all('account/unverified').map((a: AccountObject) =>
+            new Account(a)
+        );
     }
 
     /**
@@ -222,7 +224,11 @@ export default class Account {
 
             const { permissions } = account;
 
-            if (permission.every((p: string) => permissions.find((_p) => _p === p))) {
+            if (
+                permission.every((p: string) =>
+                    permissions.find((_p) => _p === p)
+                )
+            ) {
                 return next();
             } else {
                 const s = Status.from('permissions:unauthorized', req);

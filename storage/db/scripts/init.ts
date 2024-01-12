@@ -1,4 +1,4 @@
-import { __root, resolve } from '../../../server/utilities/env.ts';
+import env, { __root, resolve } from '../../../server/utilities/env.ts';
 import { error, log } from '../../../server/utilities/terminal-logging.ts';
 import { Database } from 'https://deno.land/x/sqlite3@0.9.1/mod.ts';
 import { makeBackup, restore } from './backups.ts';
@@ -30,6 +30,11 @@ export const getDBVersion = (
  * @date 12/7/2023 - 1:37:31 PM
  */
 export const init = (name: string) => {
+    if (!name) {
+        error('No database name provided');
+        Deno.exit();
+    }
+
     log(`Initializing database... (${name})`);
     const filePath = './storage/db/queries/db/init.sql';
     const query = Deno.readTextFileSync(filePath);
@@ -193,3 +198,5 @@ export const setVersions = async (db: Database) => {
         }
     }
 };
+
+if (Deno.args.includes('--update')) init(env.DATABASE_LINK as string);

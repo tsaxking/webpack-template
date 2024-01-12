@@ -4,13 +4,15 @@
         "dev": "deno run --allow-all --unstable --watch ./server/server.ts",
         "build": "deno run --allow-all ./server/bundler.ts",
         "init": "deno run --allow-all --allow-run --unstable ./scripts/init.ts",
+        "update": "deno run --allow-all --allow-run --unstable ./storage/db/scripts/init.ts --update",
         "entry": "deno run --allow-all ./scripts/add-entry.ts prompt",
         "status": "deno run --allow-all ./scripts/add-status.ts status",
         "socket": "deno run --allow-all ./scripts/add-status.ts socket",
         "type-route": "deno run --allow-all ./scripts/type-route.ts",
         "discord": "deno run --allow-all --unstable ./server/utilities/discord/discord.ts",
         "test": "deno test --allow-all --unstable --no-check ./scripts/test.ts -- --default",
-        "view-paths": "deno run --allow-all ./scripts/view-paths.ts"
+        "view-paths": "deno run --allow-all ./scripts/view-paths.ts",
+        "tree": "deno run --allow-all ./scripts/dir-tree.ts"
     },
     "compilerOptions": {
         // "noexplicitAny": false,
@@ -118,7 +120,8 @@
             "./deno.json",
             "./client/**/*.ts",
             "./storage/**/*.ts",
-            "./shared/**/*.ts"
+            "./shared/**/*.ts",
+            "./global-declarations/**/*.ts"
         ],
         "indentWidth": 4,
         "lineWidth": 80,

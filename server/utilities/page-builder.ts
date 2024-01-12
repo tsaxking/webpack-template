@@ -80,14 +80,16 @@ export const navBuilder = async (url: string, offcanvas: boolean) => {
         offcanvas: {
             offcanvas,
         },
-        navbarRepeat: await getJSON<string[]>('pages/home').then((data: any) => {
-            return data.map((page: string) => {
-                return {
-                    active: '/' + page === url,
-                    name: capitalize(fromSnakeCase(page, '-')),
-                    link: '/' + page,
-                };
-            });
-        }),
+        navbarRepeat: await getJSON<string[]>('pages/home').then(
+            (data: any) => {
+                return data.map((page: string) => {
+                    return {
+                        active: '/' + page === url,
+                        name: capitalize(fromSnakeCase(page, '-')),
+                        link: '/' + page,
+                    };
+                });
+            },
+        ),
     });
 };
