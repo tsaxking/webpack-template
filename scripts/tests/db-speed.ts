@@ -1,6 +1,6 @@
 import { DB } from '../../server/utilities/databases.ts';
 import { log } from '../../server/utilities/terminal-logging.ts';
-import { random } from '../../shared/uuid.ts';
+import { Random } from '../../shared/random.ts';
 
 const create = () => {
     try {
@@ -22,7 +22,7 @@ const insert = (i: number) => {
                 `
                 INSERT INTO test (name) VALUES(?)
             `,
-                random(),
+                Random.uuid(),
             );
 
             res();

@@ -17,7 +17,7 @@ export class Random {
      *     }} [options]
      * @returns {string}
      */
-    uuid(options?: {
+    static uuid(options?: {
         length?: number;
         charset?: string;
     }) {
@@ -41,7 +41,7 @@ export class Random {
      * @param {T[]} array
      * @returns {T}
      */
-    choose<T>(array: T[]): T {
+    static choose<T>(array: T[]): T {
         return array[Math.floor(Math.random() * array.length)];
     }
 
@@ -53,7 +53,7 @@ export class Random {
      * @param {T[]} array
      * @returns {T[]}
      */
-    shuffle<T>(array: T[]): T[] {
+    static shuffle<T>(array: T[]): T[] {
         const result = [];
         for (let i = 0; i < array.length; i++) {
             const index = Math.floor(Math.random() * array.length);
@@ -71,7 +71,7 @@ export class Random {
      * @param {number} max
      * @returns {number}
      */
-    between(min: number, max: number): number {
+    static between(min: number, max: number): number {
         return Math.floor(Math.random() * (max - min + 1) + min);
     }
 
@@ -83,7 +83,7 @@ export class Random {
      * @param {number} num
      * @returns {number}
      */
-    roundTo(sigFigs: number, num: number): number {
+    static roundTo(sigFigs: number, num: number): number {
         const mult = Math.pow(10, sigFigs);
         return Math.round(num * mult) / mult;
     }
