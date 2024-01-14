@@ -24,12 +24,14 @@ export class Random {
         const length = options?.length ?? 16;
         const charset = options?.charset ??
             'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    
+
         let result = '';
         for (let i = 0; i < length; i++) {
-            result += charset.charAt(Math.floor(Math.random() * charset.length));
+            result += charset.charAt(
+                Math.floor(Math.random() * charset.length),
+            );
         }
-    
+
         return result;
     }
 
@@ -74,7 +76,9 @@ export class Random {
     static between(min: number, max: number): number {
         return Math.floor(Math.random() * (max - min + 1) + min);
     }
+}
 
+export class $Math {
     /**
      * Returns a random number to the given number of significant figures
      * @date 1/13/2024 - 11:32:15 PM
@@ -87,4 +91,4 @@ export class Random {
         const mult = Math.pow(10, sigFigs);
         return Math.round(num * mult) / mult;
     }
-};
+}

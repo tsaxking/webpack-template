@@ -1,4 +1,3 @@
-
 type __A = Record<string | number | symbol, never>;
 interface JSON {
     /**

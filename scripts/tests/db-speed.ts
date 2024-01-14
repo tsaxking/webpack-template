@@ -1,6 +1,6 @@
 import { DB } from '../../server/utilities/databases.ts';
 import { log } from '../../server/utilities/terminal-logging.ts';
-import { Random } from '../../shared/random.ts';
+import { Random } from '../../shared/math.ts';
 
 const create = () => {
     try {
