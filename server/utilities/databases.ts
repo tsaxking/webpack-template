@@ -78,6 +78,32 @@ export class DB {
         return [v?.major ?? 0, v?.minor ?? 0, v?.patch ?? 0];
     }
 
+
+    /**
+     * Checks if the database has a version
+     *
+     * @static
+     * @param {[number, number, number]} v
+     * @returns {boolean}
+     */
+    static hasVersion(v: [number, number, number]) {
+        const [M, m, p] = v;
+        const [M2, m2, p2] = DB.version;
+
+        return M2 >= M && m2 >= m && p2 >= p;
+    }
+
+    /**
+     * Checks if the database is a specific version
+     *
+     * @static
+     * @param {[number, number, number]} v
+     * @returns {boolean}
+     */
+    static isVersion(v: [number, number, number]) {
+        return DB.version.join('.') === v.join('.');
+    }
+
     /**
      * Prepares a query
      * @date 10/12/2023 - 3:24:19 PM
