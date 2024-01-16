@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { existsSync as exists, readFileSync as read, statSync } from 'node:fs';
 import esbuild from 'npm:esbuild';
 import { error, log, warn } from '../utilities/terminal-logging.ts';
@@ -64,7 +65,8 @@ const transform = async (input: any, options: any) => {
 };
 
 export const typescript = (options: any = {}) => {
-    let { tsconfig, logLevel = 'error', ...config } = options;
+    const { tsconfig, logLevel = 'error' } = options;
+    let { ...config } = options;
     config = {
         charset: 'utf8',
         logLevel,
@@ -316,10 +318,13 @@ export function sveltePlugin(options: any) {
                                 });
                         }
                     }
-                    let { js, css, warnings } = compile(source, {
+                    const { js, css, ...rest } = compile(source, {
                         ...compilerOptions,
                         filename,
                     });
+
+                    let { warnings } = rest;
+
                     if (compilerOptions.sourcemap) {
                         if (js.map.sourcesContent == void 0) {
                             js.map.sourcesContent = [];

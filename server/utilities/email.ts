@@ -89,7 +89,8 @@ export class Email {
     send() {
         try {
             const { to, subject, type, options } = this;
-            let { attachments, constructor } = options;
+            let { constructor } = options;
+            const { attachments } = options;
 
             constructor = {
                 ...(constructor || {}),

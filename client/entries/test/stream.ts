@@ -22,10 +22,12 @@ import { ServerRequest } from '../../utilities/requests';
 const streamer = ServerRequest.stream('/test-stream-data');
 
 (async () => {
-    while (true) {
+    let i = 0;
+    while (i < 1000000) {
         streamer.add('test');
         // console.log('Added');
         await sleep(1000);
+        i++;
     }
 })();
 

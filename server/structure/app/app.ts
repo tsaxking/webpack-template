@@ -1,3 +1,4 @@
+/* eslint-disable no-async-promise-executor */
 // make a class that simulates npm:express using the deno std library
 import { serve } from 'https://deno.land/std@0.150.0/http/server.ts';
 import { Server } from 'https://deno.land/x/socket_io@0.2.0/mod.ts';

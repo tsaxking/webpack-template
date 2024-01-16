@@ -29,6 +29,11 @@ export const app = new App(port, domain, {
     ioPort: +(env.SOCKET_PORT || port + 1),
 });
 
+
+app.get('/*', (req, res) => {
+    console.log('test');
+})
+
 const builder = await runBuild();
 
 // building client listeners
@@ -53,7 +58,7 @@ app.post(
     }),
 );
 
-app.post('/test', (req, res, next) => {
+app.post('/test', (req, res) => {
     res.sendStatus('test:success');
 });
 
@@ -67,11 +72,11 @@ app.post(
         username: (v: any) => v === 'fail',
         password: (v: any) => v === 'test',
     }, {
-        onspam: (req, res, next) => {
+        onspam: (req, res) => {
             res.sendStatus('test:fail');
         },
     }),
-    (req, res, next) => {
+    (req, res) => {
         res.sendStatus('test:success');
     },
 );
@@ -94,7 +99,7 @@ app.post('/socket-url', (req, res, next) => {
     });
 });
 
-app.get('/favicon.ico', (req, res) => {
+app.get('/favicon.ico', (req, res, next) => {
     res.sendFile(resolve(__root, './public/pictures/logo-square.png'));
 });
 
@@ -174,7 +179,8 @@ app.post('/*', (req, res, next) => {
 
 const homePages = getJSONSync<string[]>('pages/home');
 
-app.get('/', (req, res, next) => {
+
+app.get('/', (req, res) => {
     res.redirect('/home');
 });
 
@@ -211,11 +217,11 @@ app.get('/*', (req, res, next) => {
 
 app.route('/admin', admin);
 
-app.get('/user/*', Account.isSignedIn, (req, res, next) => {
+app.get('/user/*', Account.isSignedIn, (req, res) => {
     res.sendTemplate('entries/user');
 });
 
-app.get('/admin/*', Role.allowRoles('admin'), (req, res, next) => {
+app.get('/admin/*', Role.allowRoles('admin'), (req, res) => {
     res.sendTemplate('entries/admin');
 });
 

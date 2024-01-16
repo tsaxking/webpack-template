@@ -21,7 +21,8 @@ makeDir();
 
 export const makeBackup = (db: Database) => {
     try {
-        let [M, m, p] = getDBVersion(db);
+        const [M, ...rest] = getDBVersion(db);
+        let [m, p] = rest;
 
         if (!m) m = 0;
         if (!p) p = 0;
@@ -98,7 +99,9 @@ export const restore = (
         return;
     }
 
-    let [M, m, p] = version;
+    const [M, ...rest] = version;
+    let [m, p] = rest;
+
     if (!m) m = 0;
     if (!p) p = 0;
 

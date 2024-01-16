@@ -12,14 +12,18 @@
   "devDependencies": {
     "@popperjs/core": "^2.11.8",
     "@sveltejs/vite-plugin-svelte": "^2.4.6",
+    "@tsconfig/deno": "^1.0.9",
     "@tsconfig/svelte": "^5.0.0",
     "@types/jquery": "^3.5.20",
     "@types/node": "^20.7.1",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.0",
+    "eslint": "^8.56.0",
     "svelte-check": "^3.4.6",
     "svelte-preprocess-esbuild": "^3.0.1",
     "sveltestrap": "^5.11.2",
     "tslib": "^2.6.0",
-    "typescript": "^5.0.2",
+    "typescript": "^5.3.3",
     "vite": "^4.4.9"
   },
   "dependencies": {
