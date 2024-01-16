@@ -30,9 +30,9 @@ export interface PdfJsPage {
     ): PdfJsViewport;
     getTextContent(): Promise<PdfJsTextContent>;
     getAnnotations(): Promise<PdfJsAnnotation[]>;
-    render(renderParameters: PdfJsRenderParameters): PdfJsRenderTask;
     getAnnotations(): Promise<PdfJsAnnotation[]>;
     getAnnotations(params: { intent: string }): Promise<PdfJsAnnotation[]>;
+    render(renderParameters: PdfJsRenderParameters): PdfJsRenderTask;
 
     getTextContentStream(): ReadableStream;
     getOperatorList(): Promise<PdfJsOperatorList>;

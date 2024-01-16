@@ -78,7 +78,6 @@ export class DB {
         return [v?.major ?? 0, v?.minor ?? 0, v?.patch ?? 0];
     }
 
-
     /**
      * Checks if the database has a version
      *

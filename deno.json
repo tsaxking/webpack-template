@@ -123,6 +123,13 @@
             "./shared/**/*.ts",
             "./global-declarations/**/*.ts"
         ],
+        "exclude": [
+            "node_modules/",
+            "dist/",
+            "**/require.js",
+            "**/submodules/",
+            "**/declaration-merging/"
+        ],
         "indentWidth": 4,
         "lineWidth": 80,
         "useTabs": false,

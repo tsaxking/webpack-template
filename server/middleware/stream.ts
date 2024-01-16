@@ -78,7 +78,7 @@ export const fileStream = (opts?: FileStreamOptions): ServerFunction<any> => {
         if (opts?.maxFiles && files.length > opts.maxFiles) {
             return res.sendStatus('files:too-many-files', {
                 maxFiles: opts.maxFiles,
-                ...body
+                ...body,
             });
         }
 
