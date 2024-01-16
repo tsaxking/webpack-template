@@ -65,14 +65,17 @@ jobs:
                   fi
                   sh ./scripts/fmt-lint-check.sh
 
+            - name: Git Config
+              run: |
+                git config --global user.name "github-actions[bot]"
+                git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
             - name: Push results
               run: |
                   if git log -1 --pretty=%B | grep -q "AUTOMATED"; then
                     echo "Changes were automated, exiting"
                     exit 0
                   fi
-                  git config --global user.name "github-actions[bot]"
-                  git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
                   echo "Adding changes..."
                   git add .
