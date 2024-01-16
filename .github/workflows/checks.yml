@@ -28,6 +28,9 @@ jobs:
                   submodules: 'true'
                   token: ${{ secrets.GH_TOKEN }}
 
+            - name: Ignore if changes were automated
+              run: |
+
             - name: Setup Deno
               # uses: denoland/setup-deno@v1
               uses: denoland/setup-deno@61fe2df320078202e33d7d5ad347e7dcfa0e8f31 # v1.1.2
@@ -62,14 +65,13 @@ jobs:
                   fi
                   npm i -g eslint prettier svelte
 
-
             - name: Import submodules
               run: |
-                if git log -1 --pretty=%B | grep -q "AUTOMATED"; then
-                  echo "Changes were automated, exiting"
-                  exit 0
-                fi
-                git submodule update --init --recursive --remote
+                  if git log -1 --pretty=%B | grep -q "AUTOMATED"; then
+                    echo "Changes were automated, exiting"
+                    exit 0
+                  fi
+                  git submodule update --init --recursive --remote
 
             - name: Run Formatter, Linter, then Checks
               run: |
