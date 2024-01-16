@@ -37,6 +37,14 @@ jobs:
             # - name: Verify formatting
             #   run: deno fmt --check
 
+            - name: Setup Node.js
+              uses: actions/setup-node@v2.1.5
+              with:
+                  node-version: '14'
+
+            - name: Install dependencies
+              run: npm i 
+
             - name: Run Formatter, Linter, then Checks
               run: sh ./scripts/fmt-lint-check.sh
 
