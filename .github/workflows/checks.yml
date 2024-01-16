@@ -38,7 +38,7 @@ jobs:
             #   run: deno fmt --check
 
             - name: Setup Node.js
-              uses: actions/setup-node@v2.1.5
+              uses: actions/setup-node@v4
               with:
                   node-version: '15'
 
