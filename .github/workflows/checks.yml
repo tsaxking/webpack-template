@@ -27,15 +27,15 @@ jobs:
               with:
                   token: ${{ secrets.GH_TOKEN }}
 
+            - name: Ignore if changes were automated
+              run:
+                  |
+
             - name: Setup Deno
               # uses: denoland/setup-deno@v1
               uses: denoland/setup-deno@61fe2df320078202e33d7d5ad347e7dcfa0e8f31 # v1.1.2
               with:
                   deno-version: v1.x
-
-            # Uncomment this step to verify the use of 'deno fmt' on each commit.
-            # - name: Verify formatting
-            #   run: deno fmt --check
 
             - name: Setup Node.js
               uses: actions/setup-node@v4
@@ -44,17 +44,34 @@ jobs:
 
             - name: Install local dependencies
               run: |
+                  if git log -1 --pretty=%B | grep -q "AUTOMATED"; then
+                    echo "Changes were automated, exiting"
+                    exit 0
+                  fi
                   npm i --save-dev --force prettier-plugin-svelte prettier @typescript-eslint/parser @typescript-eslint/eslint-plugin@5.33.0 eslint typescript prettier-plugin-svelte svelte
 
             - name: Install global dependencies
               run: |
+                  if git log -1 --pretty=%B | grep -q "AUTOMATED"; then
+                    echo "Changes were automated, exiting"
+                    exit 0
+                  fi
                   npm i -g eslint prettier svelte
 
             - name: Run Formatter, Linter, then Checks
-              run: sh ./scripts/fmt-lint-check.sh
+              run: |
+                if git log -1 --pretty=%B | grep -q "AUTOMATED"; then
+                  echo "Changes were automated, exiting"
+                  exit 0
+                fi
+                sh ./scripts/fmt-lint-check.sh
 
             - name: Push results
               run: |
+                  if git log -1 --pretty=%B | grep -q "AUTOMATED"; then
+                    echo "Changes were automated, exiting"
+                    exit 0
+                  fi
                   git config --global user.name "github-actions[bot]"
                   git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
@@ -69,6 +86,10 @@ jobs:
 
             - name: Push to deliver
               run: |
+                  if git log -1 --pretty=%B | grep -q "AUTOMATED"; then
+                    echo "Changes were automated, exiting"
+                    exit 0
+                  fi
                   echo "testing if on branch 'main'"
                   if [ "$(git rev-parse --abbrev-ref HEAD)" != "main" ]; then
                     echo "not on branch 'main', exiting"
