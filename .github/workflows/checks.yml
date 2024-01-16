@@ -44,10 +44,10 @@ jobs:
 
             - name: Stash current dependencies
               run: |
-                echo "Rename package.json and package-lock.json to .package.json and .package-lock.json so that they are not picked up by npm install"
+                  echo "Rename package.json and package-lock.json to .package.json and .package-lock.json so that they are not picked up by npm install"
 
-                mv package.json .package.json
-                mv package-lock.json .package-lock.json
+                  mv package.json .package.json
+                  mv package-lock.json .package-lock.json
 
             - name: Install local dependencies
               run: |
@@ -83,11 +83,11 @@ jobs:
 
             - name: Restore dependencies
               run: |
-                echo "Restore package.json and package-lock.json to their original names"
-                rm package.json package-lock.json
+                  echo "Restore package.json and package-lock.json to their original names"
+                  rm package.json package-lock.json
 
-                mv .package.json package.json
-                mv .package-lock.json package-lock.json
+                  mv .package.json package.json
+                  mv .package-lock.json package-lock.json
 
             - name: Git Config
               run: |
