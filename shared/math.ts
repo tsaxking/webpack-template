@@ -78,6 +78,14 @@ export class Random {
     }
 }
 
+/**
+ * Extending Math operations
+ * @date 1/15/2024 - 10:44:13 PM
+ *
+ * @export
+ * @class 
+ * @typedef {$Math}
+ */
 export class $Math {
     /**
      * Returns a random number to the given number of significant figures
