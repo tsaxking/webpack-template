@@ -112,19 +112,21 @@ export const relative = (from: string, to: string): string => {
  *
  * @type {string}
  */
-export const __root: string = platformify((() => {
-    switch (os.platform()) {
-        case 'linux':
-            return new URL('../../', import.meta.url).pathname;
-        case 'windows':
-            // change /c:/path/to/file/ to C:/path/to/file
-            return (new URL('../../', import.meta.url).pathname
-                .replace(/^\/([a-z]):\//i, '$1:/') // change /c:/ to c:/
-                .replace(/.$/, '')); // remove trailing slash
-        default:
-            throw new Error('Unsupported platform: ' + os.platform());
-    }
-})());
+export const __root: string = platformify(
+    (() => {
+        switch (os.platform()) {
+            case 'linux':
+                return new URL('../../', import.meta.url).pathname;
+            case 'windows':
+                // change /c:/path/to/file/ to C:/path/to/file
+                return new URL('../../', import.meta.url).pathname
+                    .replace(/^\/([a-z]):\//i, '$1:/') // change /c:/ to c:/
+                    .replace(/.$/, ''); // remove trailing slash
+            default:
+                throw new Error('Unsupported platform: ' + os.platform());
+        }
+    })(),
+);
 
 /**
  * Uploads directory

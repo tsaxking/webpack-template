@@ -28,10 +28,7 @@ const render = htmlConstructor.v4;
 const makeFolder = (folder: string) => {
     try {
         const dirs = dirname(folder);
-        Deno.mkdirSync(
-            dirs,
-            { recursive: true },
-        );
+        Deno.mkdirSync(dirs, { recursive: true });
     } catch {
         console.log('Dir exists');
     }
@@ -104,8 +101,8 @@ export function getJSON<type = unknown>(file: string): Promise<type | null> {
                 const decoder = new TextDecoder();
                 const decoded = decoder.decode(data);
 
-                const parsed = attempt<type>(
-                    () => JSON.parse(removeComments(decoded)),
+                const parsed = attempt<type>(() =>
+                    JSON.parse(removeComments(decoded))
                 );
                 res(parsed);
             })
@@ -137,10 +134,7 @@ export function saveJSONSync(file: string, data: any) {
     attempt(() => {
         const p = filePathBuilder(file, '.json', './storage/jsons/');
         makeFolder(p);
-        Deno.writeFileSync(
-            p,
-            new TextEncoder().encode(data),
-        );
+        Deno.writeFileSync(p, new TextEncoder().encode(data));
     });
 }
 
@@ -158,10 +152,7 @@ export function saveJSON(file: string, data: any) {
         attempt(() => {
             const p = filePathBuilder(file, '.json', './storage/jsons/');
             makeFolder(p);
-            Deno.writeFile(
-                p,
-                new TextEncoder().encode(data),
-            )
+            Deno.writeFile(p, new TextEncoder().encode(data))
                 .then(res)
                 .catch(rej);
         });
@@ -231,10 +222,7 @@ export function saveTemplateSync(file: string, data: string) {
     attempt(() => {
         const p = filePathBuilder(file, '.html', './public/templates/');
         makeFolder(p);
-        Deno.writeFileSync(
-            p,
-            new TextEncoder().encode(data),
-        );
+        Deno.writeFileSync(p, new TextEncoder().encode(data));
     });
 }
 
@@ -251,10 +239,7 @@ export function saveTemplate(file: string, data: string) {
     attempt(() => {
         const p = filePathBuilder(file, '.html', './public/templates/');
         makeFolder(p);
-        Deno.writeFile(
-            p,
-            new TextEncoder().encode(data),
-        );
+        Deno.writeFile(p, new TextEncoder().encode(data));
     });
 }
 

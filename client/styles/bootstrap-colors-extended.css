@@ -1,20 +1,15 @@
 /* Created by Robert Gaum using Bootstrap 4 */
 
-
 /* Simply paste this CSS file into your project, and link to it as normal, or link to the CDN */
 
-
 /* CDN: */
-
 
 /* Bootstrap: https://getbootstrap.com/ */
 
 :root {
     /***Colors***/
     /*Light*/
-    --light: #f8f9fa
-    /*White*/
-    --white: #ffffff;
+    --light: #f8f9fa /*White*/ --white: #ffffff;
     /*Black*/
     --black: #000000;
     /*Indigo*/
@@ -75,7 +70,6 @@
     --green-dark: #003300;
     /************/
 }
-
 
 /* indigo CSS */
 
@@ -141,7 +135,7 @@
 
 .btn-indigo:not(:disabled):not(.disabled):active,
 .btn-indigo:not(:disabled):not(.disabled).active,
-.show>.btn-indigo.dropdown-toggle {
+.show > .btn-indigo.dropdown-toggle {
     color: var(--white);
     background-color: var(--indigo-dark);
     border-color: var(--indigo);
@@ -149,7 +143,7 @@
 
 .btn-indigo:not(:disabled):not(.disabled):active:focus,
 .btn-indigo:not(:disabled):not(.disabled).active:focus,
-.show>.btn-indigo.dropdown-toggle:focus {
+.show > .btn-indigo.dropdown-toggle:focus {
     box-shadow: 0 0 0 0.2rem var(--indigo-light);
 }
 
@@ -179,7 +173,7 @@
 
 .btn-outline-indigo:not(:disabled):not(.disabled):active,
 .btn-outline-indigo:not(:disabled):not(.disabled).active,
-.show>.btn-outline-indigo.dropdown-toggle {
+.show > .btn-outline-indigo.dropdown-toggle {
     color: #fff;
     background-color: var(--indigo);
     border-color: var(--indigo);
@@ -187,13 +181,13 @@
 
 .btn-outline-indigo:not(:disabled):not(.disabled):active:focus,
 .btn-outline-indigo:not(:disabled):not(.disabled).active:focus,
-.show>.btn-outline-indigo.dropdown-toggle:focus {
+.show > .btn-outline-indigo.dropdown-toggle:focus {
     box-shadow: 0 0 0 0.2rem var(--indigo-light);
 }
 
 .table-indigo,
-.table-indigo>th,
-.table-indigo>td {
+.table-indigo > th,
+.table-indigo > td {
     color: var(--indigo-dark);
     background-color: var(--indigo-light);
 }
@@ -202,8 +196,8 @@
     background-color: var(--indigo);
 }
 
-.table-hover .table-indigo:hover>td,
-.table-hover .table-indigo:hover>th {
+.table-hover .table-indigo:hover > td,
+.table-hover .table-indigo:hover > th {
     background-color: var(--indigo);
 }
 
@@ -249,9 +243,7 @@
     border-color: var(--indigo-dark);
 }
 
-
 /********************************************/
-
 
 /* teal CSS */
 
@@ -317,7 +309,7 @@
 
 .btn-teal:not(:disabled):not(.disabled):active,
 .btn-teal:not(:disabled):not(.disabled).active,
-.show>.btn-teal.dropdown-toggle {
+.show > .btn-teal.dropdown-toggle {
     color: var(--white);
     background-color: var(--teal-dark);
     border-color: var(--teal);
@@ -325,7 +317,7 @@
 
 .btn-teal:not(:disabled):not(.disabled):active:focus,
 .btn-teal:not(:disabled):not(.disabled).active:focus,
-.show>.btn-teal.dropdown-toggle:focus {
+.show > .btn-teal.dropdown-toggle:focus {
     box-shadow: 0 0 0 0.2rem var(--teal-light);
 }
 
@@ -355,7 +347,7 @@
 
 .btn-outline-teal:not(:disabled):not(.disabled):active,
 .btn-outline-teal:not(:disabled):not(.disabled).active,
-.show>.btn-outline-teal.dropdown-toggle {
+.show > .btn-outline-teal.dropdown-toggle {
     color: #fff;
     background-color: var(--teal);
     border-color: var(--teal);
@@ -363,13 +355,13 @@
 
 .btn-outline-teal:not(:disabled):not(.disabled):active:focus,
 .btn-outline-teal:not(:disabled):not(.disabled).active:focus,
-.show>.btn-outline-teal.dropdown-toggle:focus {
+.show > .btn-outline-teal.dropdown-toggle:focus {
     box-shadow: 0 0 0 0.2rem var(--teal-light);
 }
 
 .table-teal,
-.table-teal>th,
-.table-teal>td {
+.table-teal > th,
+.table-teal > td {
     color: var(--teal-dark);
     background-color: var(--teal-light);
 }
@@ -378,8 +370,8 @@
     background-color: var(--teal);
 }
 
-.table-hover .table-teal:hover>td,
-.table-hover .table-teal:hover>th {
+.table-hover .table-teal:hover > td,
+.table-hover .table-teal:hover > th {
     background-color: var(--teal);
 }
 
@@ -425,9 +417,7 @@
     border-color: var(--teal-dark);
 }
 
-
 /********************************************/
-
 
 /* orange CSS */
 
@@ -493,7 +483,7 @@
 
 .btn-orange:not(:disabled):not(.disabled):active,
 .btn-orange:not(:disabled):not(.disabled).active,
-.show>.btn-orange.dropdown-toggle {
+.show > .btn-orange.dropdown-toggle {
     color: var(--white);
     background-color: var(--orange-dark);
     border-color: var(--orange);
@@ -501,7 +491,7 @@
 
 .btn-orange:not(:disabled):not(.disabled):active:focus,
 .btn-orange:not(:disabled):not(.disabled).active:focus,
-.show>.btn-orange.dropdown-toggle:focus {
+.show > .btn-orange.dropdown-toggle:focus {
     box-shadow: 0 0 0 0.2rem var(--orange-light);
 }
 
@@ -531,7 +521,7 @@
 
 .btn-outline-orange:not(:disabled):not(.disabled):active,
 .btn-outline-orange:not(:disabled):not(.disabled).active,
-.show>.btn-outline-orange.dropdown-toggle {
+.show > .btn-outline-orange.dropdown-toggle {
     color: #fff;
     background-color: var(--orange);
     border-color: var(--orange);
@@ -539,13 +529,13 @@
 
 .btn-outline-orange:not(:disabled):not(.disabled):active:focus,
 .btn-outline-orange:not(:disabled):not(.disabled).active:focus,
-.show>.btn-outline-orange.dropdown-toggle:focus {
+.show > .btn-outline-orange.dropdown-toggle:focus {
     box-shadow: 0 0 0 0.2rem var(--orange-light);
 }
 
 .table-orange,
-.table-orange>th,
-.table-orange>td {
+.table-orange > th,
+.table-orange > td {
     color: var(--orange-dark);
     background-color: var(--orange-light);
 }
@@ -554,8 +544,8 @@
     background-color: var(--orange);
 }
 
-.table-hover .table-orange:hover>td,
-.table-hover .table-orange:hover>th {
+.table-hover .table-orange:hover > td,
+.table-hover .table-orange:hover > th {
     background-color: var(--orange);
 }
 
@@ -601,9 +591,7 @@
     border-color: var(--orange-dark);
 }
 
-
 /********************************************/
-
 
 /* pink CSS */
 
@@ -669,7 +657,7 @@
 
 .btn-pink:not(:disabled):not(.disabled):active,
 .btn-pink:not(:disabled):not(.disabled).active,
-.show>.btn-pink.dropdown-toggle {
+.show > .btn-pink.dropdown-toggle {
     color: var(--white);
     background-color: var(--pink-dark);
     border-color: var(--pink);
@@ -677,7 +665,7 @@
 
 .btn-pink:not(:disabled):not(.disabled):active:focus,
 .btn-pink:not(:disabled):not(.disabled).active:focus,
-.show>.btn-pink.dropdown-toggle:focus {
+.show > .btn-pink.dropdown-toggle:focus {
     box-shadow: 0 0 0 0.2rem var(--pink-light);
 }
 
@@ -707,7 +695,7 @@
 
 .btn-outline-pink:not(:disabled):not(.disabled):active,
 .btn-outline-pink:not(:disabled):not(.disabled).active,
-.show>.btn-outline-pink.dropdown-toggle {
+.show > .btn-outline-pink.dropdown-toggle {
     color: #fff;
     background-color: var(--pink);
     border-color: var(--pink);
@@ -715,13 +703,13 @@
 
 .btn-outline-pink:not(:disabled):not(.disabled):active:focus,
 .btn-outline-pink:not(:disabled):not(.disabled).active:focus,
-.show>.btn-outline-pink.dropdown-toggle:focus {
+.show > .btn-outline-pink.dropdown-toggle:focus {
     box-shadow: 0 0 0 0.2rem var(--pink-light);
 }
 
 .table-pink,
-.table-pink>th,
-.table-pink>td {
+.table-pink > th,
+.table-pink > td {
     color: var(--pink-dark);
     background-color: var(--pink-light);
 }
@@ -730,8 +718,8 @@
     background-color: var(--pink);
 }
 
-.table-hover .table-pink:hover>td,
-.table-hover .table-pink:hover>th {
+.table-hover .table-pink:hover > td,
+.table-hover .table-pink:hover > th {
     background-color: var(--pink);
 }
 
@@ -777,9 +765,7 @@
     border-color: var(--pink-dark);
 }
 
-
 /********************************************/
-
 
 /* maroon CSS */
 
@@ -845,7 +831,7 @@
 
 .btn-maroon:not(:disabled):not(.disabled):active,
 .btn-maroon:not(:disabled):not(.disabled).active,
-.show>.btn-maroon.dropdown-toggle {
+.show > .btn-maroon.dropdown-toggle {
     color: var(--white);
     background-color: var(--maroon-dark);
     border-color: var(--maroon);
@@ -853,7 +839,7 @@
 
 .btn-maroon:not(:disabled):not(.disabled):active:focus,
 .btn-maroon:not(:disabled):not(.disabled).active:focus,
-.show>.btn-maroon.dropdown-toggle:focus {
+.show > .btn-maroon.dropdown-toggle:focus {
     box-shadow: 0 0 0 0.2rem var(--maroon-light);
 }
 
@@ -883,7 +869,7 @@
 
 .btn-outline-maroon:not(:disabled):not(.disabled):active,
 .btn-outline-maroon:not(:disabled):not(.disabled).active,
-.show>.btn-outline-maroon.dropdown-toggle {
+.show > .btn-outline-maroon.dropdown-toggle {
     color: #fff;
     background-color: var(--maroon);
     border-color: var(--maroon);
@@ -891,13 +877,13 @@
 
 .btn-outline-maroon:not(:disabled):not(.disabled):active:focus,
 .btn-outline-maroon:not(:disabled):not(.disabled).active:focus,
-.show>.btn-outline-maroon.dropdown-toggle:focus {
+.show > .btn-outline-maroon.dropdown-toggle:focus {
     box-shadow: 0 0 0 0.2rem var(--maroon-light);
 }
 
 .table-maroon,
-.table-maroon>th,
-.table-maroon>td {
+.table-maroon > th,
+.table-maroon > td {
     color: var(--maroon-dark);
     background-color: var(--maroon-light);
 }
@@ -906,8 +892,8 @@
     background-color: var(--maroon);
 }
 
-.table-hover .table-maroon:hover>td,
-.table-hover .table-maroon:hover>th {
+.table-hover .table-maroon:hover > td,
+.table-hover .table-maroon:hover > th {
     background-color: var(--maroon);
 }
 
@@ -953,9 +939,7 @@
     border-color: var(--maroon-dark);
 }
 
-
 /********************************************/
-
 
 /* navy CSS */
 
@@ -1021,7 +1005,7 @@
 
 .btn-navy:not(:disabled):not(.disabled):active,
 .btn-navy:not(:disabled):not(.disabled).active,
-.show>.btn-navy.dropdown-toggle {
+.show > .btn-navy.dropdown-toggle {
     color: var(--white);
     background-color: var(--navy-dark);
     border-color: var(--navy);
@@ -1029,7 +1013,7 @@
 
 .btn-navy:not(:disabled):not(.disabled):active:focus,
 .btn-navy:not(:disabled):not(.disabled).active:focus,
-.show>.btn-navy.dropdown-toggle:focus {
+.show > .btn-navy.dropdown-toggle:focus {
     box-shadow: 0 0 0 0.2rem var(--navy-light);
 }
 
@@ -1059,7 +1043,7 @@
 
 .btn-outline-navy:not(:disabled):not(.disabled):active,
 .btn-outline-navy:not(:disabled):not(.disabled).active,
-.show>.btn-outline-navy.dropdown-toggle {
+.show > .btn-outline-navy.dropdown-toggle {
     color: #fff;
     background-color: var(--navy);
     border-color: var(--navy);
@@ -1067,13 +1051,13 @@
 
 .btn-outline-navy:not(:disabled):not(.disabled):active:focus,
 .btn-outline-navy:not(:disabled):not(.disabled).active:focus,
-.show>.btn-outline-navy.dropdown-toggle:focus {
+.show > .btn-outline-navy.dropdown-toggle:focus {
     box-shadow: 0 0 0 0.2rem var(--navy-light);
 }
 
 .table-navy,
-.table-navy>th,
-.table-navy>td {
+.table-navy > th,
+.table-navy > td {
     color: var(--navy-dark);
     background-color: var(--navy-light);
 }
@@ -1082,8 +1066,8 @@
     background-color: var(--navy);
 }
 
-.table-hover .table-navy:hover>td,
-.table-hover .table-navy:hover>th {
+.table-hover .table-navy:hover > td,
+.table-hover .table-navy:hover > th {
     background-color: var(--navy);
 }
 
@@ -1129,9 +1113,7 @@
     border-color: var(--navy-dark);
 }
 
-
 /********************************************/
-
 
 /* yellow CSS */
 
@@ -1197,7 +1179,7 @@
 
 .btn-yellow:not(:disabled):not(.disabled):active,
 .btn-yellow:not(:disabled):not(.disabled).active,
-.show>.btn-yellow.dropdown-toggle {
+.show > .btn-yellow.dropdown-toggle {
     color: var(--white);
     background-color: var(--yellow-dark);
     border-color: var(--yellow);
@@ -1205,7 +1187,7 @@
 
 .btn-yellow:not(:disabled):not(.disabled):active:focus,
 .btn-yellow:not(:disabled):not(.disabled).active:focus,
-.show>.btn-yellow.dropdown-toggle:focus {
+.show > .btn-yellow.dropdown-toggle:focus {
     box-shadow: 0 0 0 0.2rem var(--yellow-light);
 }
 
@@ -1235,7 +1217,7 @@
 
 .btn-outline-yellow:not(:disabled):not(.disabled):active,
 .btn-outline-yellow:not(:disabled):not(.disabled).active,
-.show>.btn-outline-yellow.dropdown-toggle {
+.show > .btn-outline-yellow.dropdown-toggle {
     color: #fff;
     background-color: var(--yellow);
     border-color: var(--yellow);
@@ -1243,13 +1225,13 @@
 
 .btn-outline-yellow:not(:disabled):not(.disabled):active:focus,
 .btn-outline-yellow:not(:disabled):not(.disabled).active:focus,
-.show>.btn-outline-yellow.dropdown-toggle:focus {
+.show > .btn-outline-yellow.dropdown-toggle:focus {
     box-shadow: 0 0 0 0.2rem var(--yellow-light);
 }
 
 .table-yellow,
-.table-yellow>th,
-.table-yellow>td {
+.table-yellow > th,
+.table-yellow > td {
     color: var(--yellow-dark);
     background-color: var(--yellow-light);
 }
@@ -1258,8 +1240,8 @@
     background-color: var(--yellow);
 }
 
-.table-hover .table-yellow:hover>td,
-.table-hover .table-yellow:hover>th {
+.table-hover .table-yellow:hover > td,
+.table-hover .table-yellow:hover > th {
     background-color: var(--yellow);
 }
 
@@ -1305,9 +1287,7 @@
     border-color: var(--yellow-dark);
 }
 
-
 /********************************************/
-
 
 /* lime CSS */
 
@@ -1373,7 +1353,7 @@
 
 .btn-lime:not(:disabled):not(.disabled):active,
 .btn-lime:not(:disabled):not(.disabled).active,
-.show>.btn-lime.dropdown-toggle {
+.show > .btn-lime.dropdown-toggle {
     color: var(--white);
     background-color: var(--lime-dark);
     border-color: var(--lime);
@@ -1381,7 +1361,7 @@
 
 .btn-lime:not(:disabled):not(.disabled):active:focus,
 .btn-lime:not(:disabled):not(.disabled).active:focus,
-.show>.btn-lime.dropdown-toggle:focus {
+.show > .btn-lime.dropdown-toggle:focus {
     box-shadow: 0 0 0 0.2rem var(--lime-light);
 }
 
@@ -1411,7 +1391,7 @@
 
 .btn-outline-lime:not(:disabled):not(.disabled):active,
 .btn-outline-lime:not(:disabled):not(.disabled).active,
-.show>.btn-outline-lime.dropdown-toggle {
+.show > .btn-outline-lime.dropdown-toggle {
     color: #fff;
     background-color: var(--lime);
     border-color: var(--lime);
@@ -1419,13 +1399,13 @@
 
 .btn-outline-lime:not(:disabled):not(.disabled):active:focus,
 .btn-outline-lime:not(:disabled):not(.disabled).active:focus,
-.show>.btn-outline-lime.dropdown-toggle:focus {
+.show > .btn-outline-lime.dropdown-toggle:focus {
     box-shadow: 0 0 0 0.2rem var(--lime-light);
 }
 
 .table-lime,
-.table-lime>th,
-.table-lime>td {
+.table-lime > th,
+.table-lime > td {
     color: var(--lime-dark);
     background-color: var(--lime-light);
 }
@@ -1434,8 +1414,8 @@
     background-color: var(--lime);
 }
 
-.table-hover .table-lime:hover>td,
-.table-hover .table-lime:hover>th {
+.table-hover .table-lime:hover > td,
+.table-hover .table-lime:hover > th {
     background-color: var(--lime);
 }
 
@@ -1481,9 +1461,7 @@
     border-color: var(--lime-dark);
 }
 
-
 /********************************************/
-
 
 /* gray CSS */
 
@@ -1549,7 +1527,7 @@
 
 .btn-gray:not(:disabled):not(.disabled):active,
 .btn-gray:not(:disabled):not(.disabled).active,
-.show>.btn-gray.dropdown-toggle {
+.show > .btn-gray.dropdown-toggle {
     color: var(--white);
     background-color: var(--gray-dark);
     border-color: var(--gray);
@@ -1557,7 +1535,7 @@
 
 .btn-gray:not(:disabled):not(.disabled):active:focus,
 .btn-gray:not(:disabled):not(.disabled).active:focus,
-.show>.btn-gray.dropdown-toggle:focus {
+.show > .btn-gray.dropdown-toggle:focus {
     box-shadow: 0 0 0 0.2rem var(--gray-light);
 }
 
@@ -1587,7 +1565,7 @@
 
 .btn-outline-gray:not(:disabled):not(.disabled):active,
 .btn-outline-gray:not(:disabled):not(.disabled).active,
-.show>.btn-outline-gray.dropdown-toggle {
+.show > .btn-outline-gray.dropdown-toggle {
     color: #fff;
     background-color: var(--gray);
     border-color: var(--gray);
@@ -1595,13 +1573,13 @@
 
 .btn-outline-gray:not(:disabled):not(.disabled):active:focus,
 .btn-outline-gray:not(:disabled):not(.disabled).active:focus,
-.show>.btn-outline-gray.dropdown-toggle:focus {
+.show > .btn-outline-gray.dropdown-toggle:focus {
     box-shadow: 0 0 0 0.2rem var(--gray-light);
 }
 
 .table-gray,
-.table-gray>th,
-.table-gray>td {
+.table-gray > th,
+.table-gray > td {
     color: var(--gray-dark);
     background-color: var(--gray-light);
 }
@@ -1610,8 +1588,8 @@
     background-color: var(--gray);
 }
 
-.table-hover .table-gray:hover>td,
-.table-hover .table-gray:hover>th {
+.table-hover .table-gray:hover > td,
+.table-hover .table-gray:hover > th {
     background-color: var(--gray);
 }
 
@@ -1657,9 +1635,7 @@
     border-color: var(--gray-dark);
 }
 
-
 /********************************************/
-
 
 /* brown CSS */
 
@@ -1725,7 +1701,7 @@
 
 .btn-brown:not(:disabled):not(.disabled):active,
 .btn-brown:not(:disabled):not(.disabled).active,
-.show>.btn-brown.dropdown-toggle {
+.show > .btn-brown.dropdown-toggle {
     color: var(--white);
     background-color: var(--brown-dark);
     border-color: var(--brown);
@@ -1733,7 +1709,7 @@
 
 .btn-brown:not(:disabled):not(.disabled):active:focus,
 .btn-brown:not(:disabled):not(.disabled).active:focus,
-.show>.btn-brown.dropdown-toggle:focus {
+.show > .btn-brown.dropdown-toggle:focus {
     box-shadow: 0 0 0 0.2rem var(--brown-light);
 }
 
@@ -1763,7 +1739,7 @@
 
 .btn-outline-brown:not(:disabled):not(.disabled):active,
 .btn-outline-brown:not(:disabled):not(.disabled).active,
-.show>.btn-outline-brown.dropdown-toggle {
+.show > .btn-outline-brown.dropdown-toggle {
     color: #fff;
     background-color: var(--brown);
     border-color: var(--brown);
@@ -1771,13 +1747,13 @@
 
 .btn-outline-brown:not(:disabled):not(.disabled):active:focus,
 .btn-outline-brown:not(:disabled):not(.disabled).active:focus,
-.show>.btn-outline-brown.dropdown-toggle:focus {
+.show > .btn-outline-brown.dropdown-toggle:focus {
     box-shadow: 0 0 0 0.2rem var(--brown-light);
 }
 
 .table-brown,
-.table-brown>th,
-.table-brown>td {
+.table-brown > th,
+.table-brown > td {
     color: var(--brown-dark);
     background-color: var(--brown-light);
 }
@@ -1786,8 +1762,8 @@
     background-color: var(--brown);
 }
 
-.table-hover .table-brown:hover>td,
-.table-hover .table-brown:hover>th {
+.table-hover .table-brown:hover > td,
+.table-hover .table-brown:hover > th {
     background-color: var(--brown);
 }
 
@@ -1833,9 +1809,7 @@
     border-color: var(--brown-dark);
 }
 
-
 /********************************************/
-
 
 /* grape CSS */
 
@@ -1901,7 +1875,7 @@
 
 .btn-grape:not(:disabled):not(.disabled):active,
 .btn-grape:not(:disabled):not(.disabled).active,
-.show>.btn-grape.dropdown-toggle {
+.show > .btn-grape.dropdown-toggle {
     color: var(--white);
     background-color: var(--grape-dark);
     border-color: var(--grape);
@@ -1909,7 +1883,7 @@
 
 .btn-grape:not(:disabled):not(.disabled):active:focus,
 .btn-grape:not(:disabled):not(.disabled).active:focus,
-.show>.btn-grape.dropdown-toggle:focus {
+.show > .btn-grape.dropdown-toggle:focus {
     box-shadow: 0 0 0 0.2rem var(--grape-light);
 }
 
@@ -1939,7 +1913,7 @@
 
 .btn-outline-grape:not(:disabled):not(.disabled):active,
 .btn-outline-grape:not(:disabled):not(.disabled).active,
-.show>.btn-outline-grape.dropdown-toggle {
+.show > .btn-outline-grape.dropdown-toggle {
     color: #fff;
     background-color: var(--grape);
     border-color: var(--grape);
@@ -1947,13 +1921,13 @@
 
 .btn-outline-grape:not(:disabled):not(.disabled):active:focus,
 .btn-outline-grape:not(:disabled):not(.disabled).active:focus,
-.show>.btn-outline-grape.dropdown-toggle:focus {
+.show > .btn-outline-grape.dropdown-toggle:focus {
     box-shadow: 0 0 0 0.2rem var(--grape-light);
 }
 
 .table-grape,
-.table-grape>th,
-.table-grape>td {
+.table-grape > th,
+.table-grape > td {
     color: var(--grape-dark);
     background-color: var(--grape-light);
 }
@@ -1962,8 +1936,8 @@
     background-color: var(--grape);
 }
 
-.table-hover .table-grape:hover>td,
-.table-hover .table-grape:hover>th {
+.table-hover .table-grape:hover > td,
+.table-hover .table-grape:hover > th {
     background-color: var(--grape);
 }
 
@@ -2009,9 +1983,7 @@
     border-color: var(--grape-dark);
 }
 
-
 /********************************************/
-
 
 /* vermillion CSS */
 
@@ -2077,7 +2049,7 @@
 
 .btn-vermillion:not(:disabled):not(.disabled):active,
 .btn-vermillion:not(:disabled):not(.disabled).active,
-.show>.btn-vermillion.dropdown-toggle {
+.show > .btn-vermillion.dropdown-toggle {
     color: var(--white);
     background-color: var(--vermillion-dark);
     border-color: var(--vermillion);
@@ -2085,7 +2057,7 @@
 
 .btn-vermillion:not(:disabled):not(.disabled):active:focus,
 .btn-vermillion:not(:disabled):not(.disabled).active:focus,
-.show>.btn-vermillion.dropdown-toggle:focus {
+.show > .btn-vermillion.dropdown-toggle:focus {
     box-shadow: 0 0 0 0.2rem var(--vermillion-light);
 }
 
@@ -2115,7 +2087,7 @@
 
 .btn-outline-vermillion:not(:disabled):not(.disabled):active,
 .btn-outline-vermillion:not(:disabled):not(.disabled).active,
-.show>.btn-outline-vermillion.dropdown-toggle {
+.show > .btn-outline-vermillion.dropdown-toggle {
     color: #fff;
     background-color: var(--vermillion);
     border-color: var(--vermillion);
@@ -2123,13 +2095,13 @@
 
 .btn-outline-vermillion:not(:disabled):not(.disabled):active:focus,
 .btn-outline-vermillion:not(:disabled):not(.disabled).active:focus,
-.show>.btn-outline-vermillion.dropdown-toggle:focus {
+.show > .btn-outline-vermillion.dropdown-toggle:focus {
     box-shadow: 0 0 0 0.2rem var(--vermillion-light);
 }
 
 .table-vermillion,
-.table-vermillion>th,
-.table-vermillion>td {
+.table-vermillion > th,
+.table-vermillion > td {
     color: var(--vermillion-dark);
     background-color: var(--vermillion-light);
 }
@@ -2138,8 +2110,8 @@
     background-color: var(--vermillion);
 }
 
-.table-hover .table-vermillion:hover>td,
-.table-hover .table-vermillion:hover>th {
+.table-hover .table-vermillion:hover > td,
+.table-hover .table-vermillion:hover > th {
     background-color: var(--vermillion);
 }
 
@@ -2185,9 +2157,7 @@
     border-color: var(--vermillion-dark);
 }
 
-
 /********************************************/
-
 
 /* steel CSS */
 
@@ -2253,7 +2223,7 @@
 
 .btn-steel:not(:disabled):not(.disabled):active,
 .btn-steel:not(:disabled):not(.disabled).active,
-.show>.btn-steel.dropdown-toggle {
+.show > .btn-steel.dropdown-toggle {
     color: var(--white);
     background-color: var(--steel-dark);
     border-color: var(--steel);
@@ -2261,7 +2231,7 @@
 
 .btn-steel:not(:disabled):not(.disabled):active:focus,
 .btn-steel:not(:disabled):not(.disabled).active:focus,
-.show>.btn-steel.dropdown-toggle:focus {
+.show > .btn-steel.dropdown-toggle:focus {
     box-shadow: 0 0 0 0.2rem var(--steel-light);
 }
 
@@ -2291,7 +2261,7 @@
 
 .btn-outline-steel:not(:disabled):not(.disabled):active,
 .btn-outline-steel:not(:disabled):not(.disabled).active,
-.show>.btn-outline-steel.dropdown-toggle {
+.show > .btn-outline-steel.dropdown-toggle {
     color: #fff;
     background-color: var(--steel);
     border-color: var(--steel);
@@ -2299,13 +2269,13 @@
 
 .btn-outline-steel:not(:disabled):not(.disabled):active:focus,
 .btn-outline-steel:not(:disabled):not(.disabled).active:focus,
-.show>.btn-outline-steel.dropdown-toggle:focus {
+.show > .btn-outline-steel.dropdown-toggle:focus {
     box-shadow: 0 0 0 0.2rem var(--steel-light);
 }
 
 .table-steel,
-.table-steel>th,
-.table-steel>td {
+.table-steel > th,
+.table-steel > td {
     color: var(--steel-dark);
     background-color: var(--steel-light);
 }
@@ -2314,8 +2284,8 @@
     background-color: var(--steel);
 }
 
-.table-hover .table-steel:hover>td,
-.table-hover .table-steel:hover>th {
+.table-hover .table-steel:hover > td,
+.table-hover .table-steel:hover > th {
     background-color: var(--steel);
 }
 
@@ -2361,9 +2331,7 @@
     border-color: var(--steel-dark);
 }
 
-
 /********************************************/
-
 
 /* green CSS */
 
@@ -2429,7 +2397,7 @@
 
 .btn-green:not(:disabled):not(.disabled):active,
 .btn-green:not(:disabled):not(.disabled).active,
-.show>.btn-green.dropdown-toggle {
+.show > .btn-green.dropdown-toggle {
     color: var(--white);
     background-color: var(--green-dark);
     border-color: var(--green);
@@ -2437,7 +2405,7 @@
 
 .btn-green:not(:disabled):not(.disabled):active:focus,
 .btn-green:not(:disabled):not(.disabled).active:focus,
-.show>.btn-green.dropdown-toggle:focus {
+.show > .btn-green.dropdown-toggle:focus {
     box-shadow: 0 0 0 0.2rem var(--green-light);
 }
 
@@ -2467,7 +2435,7 @@
 
 .btn-outline-green:not(:disabled):not(.disabled):active,
 .btn-outline-green:not(:disabled):not(.disabled).active,
-.show>.btn-outline-green.dropdown-toggle {
+.show > .btn-outline-green.dropdown-toggle {
     color: #fff;
     background-color: var(--green);
     border-color: var(--green);
@@ -2475,13 +2443,13 @@
 
 .btn-outline-green:not(:disabled):not(.disabled):active:focus,
 .btn-outline-green:not(:disabled):not(.disabled).active:focus,
-.show>.btn-outline-green.dropdown-toggle:focus {
+.show > .btn-outline-green.dropdown-toggle:focus {
     box-shadow: 0 0 0 0.2rem var(--green-light);
 }
 
 .table-green,
-.table-green>th,
-.table-green>td {
+.table-green > th,
+.table-green > td {
     color: var(--green-dark);
     background-color: var(--green-light);
 }
@@ -2490,8 +2458,8 @@
     background-color: var(--green);
 }
 
-.table-hover .table-green:hover>td,
-.table-hover .table-green:hover>th {
+.table-hover .table-green:hover > td,
+.table-hover .table-green:hover > th {
     background-color: var(--green);
 }
 
@@ -2537,9 +2505,7 @@
     border-color: var(--green-dark);
 }
 
-
 /********************************************/
-
 
 /* Extended hovers */
 
@@ -2697,7 +2663,6 @@
 
 .hover-text-yellow-light:hover {
     color: var(--yellow-light) !important;
-    ;
 }
 
 .hover-bg-yellow:hover {
@@ -2714,7 +2679,6 @@
 
 .hover-text-lime:hover {
     color: var(--lime) !important;
-    ;
 }
 
 .hover-text-lime-dark:hover {
@@ -2818,65 +2782,65 @@
 }
 
 .hover-text-vermillion-light:hover {
-    color: var(--vermillion-light)!important;
+    color: var(--vermillion-light) !important;
 }
 
 .hover-bg-vermillion:hover {
-    background-color: var(--vermillion)!important;
+    background-color: var(--vermillion) !important;
 }
 
 .hover-bg-vermillion-dark:hover {
-    background-color: var(--vermillion-dark)!important;
+    background-color: var(--vermillion-dark) !important;
 }
 
 .hover-bg-vermillion-light:hover {
-    background-color: var(--vermillion-light)!important;
+    background-color: var(--vermillion-light) !important;
 }
 
 .hover-text-steel:hover {
-    color: var(--steel)!important;
+    color: var(--steel) !important;
 }
 
 .hover-text-steel-dark:hover {
-    color: var(--steel-dark)!important;
+    color: var(--steel-dark) !important;
 }
 
 .hover-text-steel-light:hover {
-    color: var(--steel-light)!important;
+    color: var(--steel-light) !important;
 }
 
 .hover-bg-steel:hover {
-    background-color: var(--steel)!important;
+    background-color: var(--steel) !important;
 }
 
 .hover-bg-steel-dark:hover {
-    background-color: var(--steel-dark)!important;
+    background-color: var(--steel-dark) !important;
 }
 
 .hover-bg-steel-light:hover {
-    background-color: var(--steel-light)!important;
+    background-color: var(--steel-light) !important;
 }
 
 .hover-text-green:hover {
-    color: var(--green)!important;
+    color: var(--green) !important;
 }
 
 .hover-text-green-dark:hover {
-    color: var(--green-dark)!important;
+    color: var(--green-dark) !important;
 }
 
 .hover-text-green-light:hover {
-    color: var(--green-light)!important;
+    color: var(--green-light) !important;
 }
 
 .hover-bg-green:hover {
-    background-color: var(--green)!important;
+    background-color: var(--green) !important;
 }
 
 .hover-bg-green-dark:hover {
-    background-color: var(--green-dark)!important;
+    background-color: var(--green-dark) !important;
 }
 
 .hover-bg-green-light:hover {
-    background-color: var(--green-light)!important;
+    background-color: var(--green-light) !important;
 }

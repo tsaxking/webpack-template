@@ -15,10 +15,7 @@ export const bundle = async (path: string): Promise<Bundle> => {
     const inputs = [path];
     const outputMap = { [path]: 'index.html' };
 
-    const plugins = [
-        new HTMLPlugin(),
-        new TypescriptPlugin(),
-    ];
+    const plugins = [new HTMLPlugin(), new TypescriptPlugin()];
 
     const bundler = new Bundler({ plugins });
 

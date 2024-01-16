@@ -25,7 +25,8 @@ const readDir = (dirPath: string): string[] => {
     return entries.flatMap((e) => {
         if (!e.isFile) return readDir(`${dirPath}/${e.name}`);
 
-        const file = dirPath.split('/').slice(2).join('/') + '/' +
+        const file = dirPath.split('/').slice(2).join('/') +
+            '/' +
             e.name.replace('.ts', '.html');
 
         saveTemplateSync(
@@ -74,8 +75,8 @@ entries = readDir('./client/entries');
  * @typedef {BuildEventData}
  */
 type BuildEventData = {
-    'build': any;
-    'error': Error;
+    build: any;
+    error: Error;
 };
 
 export const runBuild = async () => {
@@ -94,11 +95,11 @@ export const runBuild = async () => {
             },
         },
         // trust me, it works
-        plugins: [(sveltePlugin as any)({
-            preprocess: [
-                typescript(),
-            ],
-        })],
+        plugins: [
+            (sveltePlugin as any)({
+                preprocess: [typescript()],
+            }),
+        ],
         logLevel: 'info',
         loader: {
             '.png': 'dataurl',
@@ -110,7 +111,7 @@ export const runBuild = async () => {
         },
     });
 
-    builder.on('build', () => entries = readDir('./client/entries'));
+    builder.on('build', () => (entries = readDir('./client/entries')));
 
     return builder;
 };

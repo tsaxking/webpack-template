@@ -82,13 +82,15 @@ export const makeSheet = async (ssid: string, sheet: string) => {
     return sheets.spreadsheets.batchUpdate({
         spreadsheetId: ssid,
         requestBody: {
-            requests: [{
-                addSheet: {
-                    properties: {
-                        title: sheet,
+            requests: [
+                {
+                    addSheet: {
+                        properties: {
+                            title: sheet,
+                        },
                     },
                 },
-            }],
+            ],
         },
     });
 };
@@ -99,14 +101,20 @@ export const deleteSheet = async (ssid: string, sheet: string) => {
     return sheets.spreadsheets.batchUpdate({
         spreadsheetId: ssid,
         requestBody: {
-            requests: [{
-                deleteSheet: {
-                    sheetId: (await sheets.spreadsheets.get({
-                        spreadsheetId: ssid,
-                    })).data.sheets?.find((s) => s.properties?.title === sheet)
-                        ?.properties?.sheetId,
+            requests: [
+                {
+                    deleteSheet: {
+                        sheetId: (
+                            await sheets.spreadsheets.get({
+                                spreadsheetId: ssid,
+                            })
+                        ).data.sheets?.find((s) =>
+                            s.properties?.title === sheet
+                        )
+                            ?.properties?.sheetId,
+                    },
                 },
-            }],
+            ],
         },
     });
 };

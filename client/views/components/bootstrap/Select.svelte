@@ -1,25 +1,29 @@
 <script lang="ts">
-    import { createEventDispatcher } from 'svelte';
+import { createEventDispatcher } from 'svelte';
 
-    export let options: string[] = [];
-    export let values: string[] = [];
-    export let value: string = '';
-    export let defaultValue: string | undefined = undefined;
+export let options: string[] = [];
+export let values: string[] = [];
+export let value: string = '';
+export let defaultValue: string | undefined = undefined;
 
-    const dispatch = createEventDispatcher();
+const dispatch = createEventDispatcher();
 
-    const handleChange = (event: Event) => {
-        const target = event.target as HTMLSelectElement;
-        dispatch('change', target.value);
-    }
+const handleChange = (event: Event) => {
+    const target = event.target as HTMLSelectElement;
+    dispatch('change', target.value);
+};
 </script>
 
-<select bind:value on:change={handleChange} class="form-select">
+<select bind:value on:change="{handleChange}" class="form-select">
     {#if defaultValue}
-        <option value="" disabled selected={!value}>{defaultValue}</option>
+        <option value="" disabled selected="{!value}">{defaultValue}</option>
     {/if}
 
     {#each options as option}
-        <option value={values[options.indexOf(option)] || option} selected={value == (values[options.indexOf(option)] || option)}>{option}</option>
+        <option
+            value="{values[options.indexOf(option)] || option}"
+            selected="{value == (values[options.indexOf(option)] || option)}"
+            >{option}</option
+        >
     {/each}
 </select>

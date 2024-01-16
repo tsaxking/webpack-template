@@ -39,9 +39,12 @@ type ValidateOptions = {
  * Creates a middleware function that validates the req.body, ensuring that all data is both present and the correct type
  * @date 1/9/2024 - 1:16:19 PM
  */
-export const validate = (data: {
-    [key: string]: (value: any) => boolean;
-}, options?: ValidateOptions): ServerFunction<any> => {
+export const validate = (
+    data: {
+        [key: string]: (value: any) => boolean;
+    },
+    options?: ValidateOptions,
+): ServerFunction<any> => {
     return (req: Req, res: Res, next: Next) => {
         const { body } = req;
 

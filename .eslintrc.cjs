@@ -3,13 +3,13 @@ module.exports = {
     parser: '@typescript-eslint/parser',
     plugins: ['@typescript-eslint'],
     root: true,
-    
+
     // rules
     rules: {
         '@typescript-eslint/no-explicit-any': 'warn',
-        '@typescript-eslint/no-unused-vars':  [
-            "warn",
-            { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }
+        '@typescript-eslint/no-unused-vars': [
+            'warn',
+            { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
         ],
     },
 
@@ -17,6 +17,6 @@ module.exports = {
         // project: ["./tsconfig.eslint.json"],
         // tsconfigRootDir: __dirname,
     },
-    
-    ignorePatterns: ['node_modules/', 'dist/', '**/*.js']
+
+    ignorePatterns: ['node_modules/', 'dist/', '**/*.js'],
 };

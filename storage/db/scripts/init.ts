@@ -38,9 +38,7 @@ export const init = (name: string) => {
     log(`Initializing database... (${name})`);
     const filePath = './storage/db/queries/db/init.sql';
     const query = Deno.readTextFileSync(filePath);
-    const db = new Database(
-        './storage/db/' + name + '.db',
-    );
+    const db = new Database('./storage/db/' + name + '.db');
 
     const [M, m, p] = getDBVersion(db);
     log('Current database version:', M + '.' + m + '.' + p);
@@ -61,21 +59,20 @@ export const init = (name: string) => {
  * @async
  */
 export const setVersions = async (db: Database) => {
-    const versionDir = resolve(
-        __root,
-        './storage/db/queries/db/versions',
-    );
+    const versionDir = resolve(__root, './storage/db/queries/db/versions');
 
     const files = Array.from(Deno.readDirSync(versionDir));
 
     // sort by version, lowest first (M.m.p)
     files.sort((a, b) => {
-        const [aM, am, ap] = a.name.replace('.sql', '').split('-').map((
-            v: string,
-        ) => parseInt(v));
-        const [bM, bm, bp] = b.name.replace('.sql', '').split('-').map((
-            v: string,
-        ) => parseInt(v));
+        const [aM, am, ap] = a.name
+            .replace('.sql', '')
+            .split('-')
+            .map((v: string) => parseInt(v));
+        const [bM, bm, bp] = b.name
+            .replace('.sql', '')
+            .split('-')
+            .map((v: string) => parseInt(v));
 
         if (aM !== bM) {
             return aM - bM;
@@ -95,19 +92,26 @@ export const setVersions = async (db: Database) => {
             // check if version is already installed
             const [M, m, p] = getDBVersion(db);
 
-            const [_M, _m, _p] = sql.name.replace('.sql', '').split('-').map(
-                (v) => parseInt(v),
-            );
+            const [_M, _m, _p] = sql.name
+                .replace('.sql', '')
+                .split('-')
+                .map((v) => parseInt(v));
 
             if (isNaN(_M) || isNaN(_m) || isNaN(_p)) {
                 throw new Error(
-                    'Invalid version file: ' + sql.name +
+                    'Invalid version file: ' +
+                        sql.name +
                         'All version files must be named like this: 1-0-0.sql',
                 );
             }
 
-            const installedStr = 'Skipping version ' + _M + '.' + _m + '.' +
-                _p + ' because it is already installed';
+            const installedStr = 'Skipping version ' +
+                _M +
+                '.' +
+                _m +
+                '.' +
+                _p +
+                ' because it is already installed';
 
             if (M > _M) {
                 log(installedStr);
@@ -161,21 +165,22 @@ export const setVersions = async (db: Database) => {
                 _M + '-' + _m + '-' + _p + '.ts',
             );
 
-            const script = fs.existsSync(
-                resolve(
-                    __root,
-                    scriptPath,
-                ),
-            );
+            const script = fs.existsSync(resolve(__root, scriptPath));
 
             if (script) {
                 log('Script found for version', _M + '.' + _m + '.' + _p);
                 const status = await runTask(
                     './storage/db/scripts/versions/' +
-                        _M + '-' + _m + '-' + _p + '.ts',
+                        _M +
+                        '-' +
+                        _m +
+                        '-' +
+                        _p +
+                        '.ts',
                 );
 
-                if (status.error) { // status !== 0, script failed
+                if (status.error) {
+                    // status !== 0, script failed
                     log(
                         'Script failed for version',
                         _M + '.' + _m + '.' + _p,

@@ -32,7 +32,9 @@ export const notify = (data: StatusJson): Promise<void> => {
         );
 
         let message = `${status}: ${
-            capitalize(fromSnakeCase(fromCamelCase(data.status), '-'))
+            capitalize(
+                fromSnakeCase(fromCamelCase(data.status), '-'),
+            )
         }`;
 
         if (data.data) {
@@ -52,9 +54,9 @@ export const notify = (data: StatusJson): Promise<void> => {
             },
         });
 
-        container.$$.root.querySelector('#toast-container')?.appendChild(
-            t.$$.root.firstChild as Node,
-        );
+        container.$$.root
+            .querySelector('#toast-container')
+            ?.appendChild(t.$$.root.firstChild as Node);
 
         t.$on('hide.bs.toast', () => {
             res();
@@ -124,13 +126,12 @@ export const confirm = async (message: string): Promise<boolean> => {
             },
         });
 
-        button.$$.root.querySelector('button.btn-primary')?.addEventListener(
-            'click',
-            () => {
+        button.$$.root
+            .querySelector('button.btn-primary')
+            ?.addEventListener('click', () => {
                 $(modal).modal('hide');
                 res(true);
-            },
-        );
+            });
 
         m.$on('close', () => {
             $(modal).modal('hide');
@@ -189,10 +190,9 @@ export const prompt = async (question: string): Promise<string | null> => {
             }
         });
 
-        button.$$.root.querySelector('button.btn-primary')?.addEventListener(
-            'click',
-            submit,
-        );
+        button.$$.root
+            .querySelector('button.btn-primary')
+            ?.addEventListener('click', submit);
 
         m.$on('close', () => {
             $(modal).modal('hide');

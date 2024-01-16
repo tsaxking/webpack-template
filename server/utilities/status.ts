@@ -91,13 +91,7 @@ export class Status {
 
         const [title, status] = id.split(':');
 
-        return new Status(
-            message,
-            title,
-            status,
-            data,
-            req,
-        );
+        return new Status(message, title, status, data, req);
     }
 
     /**

@@ -29,10 +29,9 @@ export const app = new App(port, domain, {
     ioPort: +(env.SOCKET_PORT || port + 1),
 });
 
-
 app.get('/*', (req, res) => {
     console.log('test');
-})
+});
 
 const builder = await runBuild();
 
@@ -68,14 +67,17 @@ app.post('/ping', (req, res) => {
 
 app.post(
     '/test-validation',
-    validate({
-        username: (v: any) => v === 'fail',
-        password: (v: any) => v === 'test',
-    }, {
-        onspam: (req, res) => {
-            res.sendStatus('test:fail');
+    validate(
+        {
+            username: (v: any) => v === 'fail',
+            password: (v: any) => v === 'test',
         },
-    }),
+        {
+            onspam: (req, res) => {
+                res.sendStatus('test:fail');
+            },
+        },
+    ),
     (req, res) => {
         res.sendStatus('test:success');
     },
@@ -179,16 +181,13 @@ app.post('/*', (req, res, next) => {
 
 const homePages = getJSONSync<string[]>('pages/home');
 
-
 app.get('/', (req, res) => {
     res.redirect('/home');
 });
 
 app.get('/*', async (req, res, next) => {
     if (homePages?.includes(req.url.slice(1))) {
-        return res.send(
-            await homeBuilder(req.url),
-        );
+        return res.send(await homeBuilder(req.url));
     }
     next();
 });
@@ -241,18 +240,20 @@ app.final<{
         status: res._status,
         userAgent: req.headers.get('user-agent') || '',
         body: req.method == 'post'
-            ? JSON.stringify((() => {
-                let { body } = req;
-                body = JSON.parse(JSON.stringify(body)) as {
-                    $$files?: any;
-                    password?: string;
-                    confirmPassword?: string;
-                };
-                delete body?.password;
-                delete body?.confirmPassword;
-                delete body?.$$files;
-                return body;
-            })())
+            ? JSON.stringify(
+                (() => {
+                    let { body } = req;
+                    body = JSON.parse(JSON.stringify(body)) as {
+                        $$files?: any;
+                        password?: string;
+                        confirmPassword?: string;
+                    };
+                    delete body?.password;
+                    delete body?.confirmPassword;
+                    delete body?.$$files;
+                    return body;
+                })(),
+            )
             : '',
         params: JSON.stringify(req.params),
         query: JSON.stringify(req.query),

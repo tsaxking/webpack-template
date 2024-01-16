@@ -1,58 +1,58 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <title>sfzMusic: Sign In</title>
-    <link rel="icon" href="../static/pictures/website/logo-square.png">
-</head>
-<body>
-    
-    <div class="container-sm">
-        <div class="row mb-3">
-            <h1>
-                sfzMusic: Sign in
-            </h1>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="style.css" />
+        <title>sfzMusic: Sign In</title>
+        <link rel="icon" href="../static/pictures/website/logo-square.png" />
+    </head>
+    <body>
+        <div class="container-sm">
+            <div class="row mb-3">
+                <h1>sfzMusic: Sign in</h1>
+            </div>
+
+            <div class="row mb-3">
+                <a href="/account/sign-up" class="link-primary nav-link"
+                    >Sign Up</a
+                >
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6" id="sign-in"></div>
+            </div>
         </div>
 
-        <div class="row mb-3">
-            <a href="/account/sign-up" class="link-primary nav-link">Sign Up</a>
-        </div>
+        <script src="lite.js"></script>
 
-        <div class="row mb-3">
-            <div class="col-md-6" id="sign-in"></div>
-        </div>
+        <script>
+            const form = CBS.createElement('form');
+            const username = form.createInput('Username or Email', 'text');
+            username.input.setAttribute(
+                'placeholder',
+                'johnsmith@gmail.com || myawesomeusername'
+            );
+            form.subcomponents.container.append(username);
 
-    </div>
+            const password = form.createInput('Password', 'password');
+            password.input.setAttribute('placeholder', '**********');
+            form.subcomponents.container.append(password);
 
+            const submit = CBS.createElement('button');
+            submit.append('Sign in');
+            submit.addClass('btn-primary');
 
-    <script src="lite.js"></script>
+            form.subcomponents.container.append(submit);
 
-    <script>
-        const form = CBS.createElement('form');
-        const username = form.createInput('Username or Email', 'text');
-        username.input.setAttribute('placeholder', 'johnsmith@gmail.com || myawesomeusername');
-        form.subcomponents.container.append(username);
+            submit.on('click', e => {
+                e.preventDefault();
+                const { value } = form;
 
-        const password = form.createInput('Password', 'password');
-        password.input.setAttribute('placeholder', '**********');
-        form.subcomponents.container.append(password);
+                ServerRequest.post('/account/sign-in', value);
+            });
 
-        const submit = CBS.createElement('button');
-        submit.append('Sign in');
-        submit.addClass('btn-primary');
-
-        form.subcomponents.container.append(submit);
-
-        submit.on('click', (e) => {
-            e.preventDefault();
-            const { value } = form;
-
-            ServerRequest.post('/account/sign-in', value);
-        });
-
-        document.getElementById('sign-in').append(form.el);
-    </script>
-</body>
+            document.getElementById('sign-in').append(form.el);
+        </script>
+    </body>
 </html>

@@ -119,8 +119,8 @@ export default class Account {
      * @returns {*}
      */
     static get unverifiedAccounts() {
-        return DB.all('account/unverified').map((a: AccountObject) =>
-            new Account(a)
+        return DB.all('account/unverified').map(
+            (a: AccountObject) => new Account(a),
         );
     }
 
@@ -248,7 +248,9 @@ export default class Account {
      * @returns {*}
      */
     static isSignedIn(req: Req<null>, res: Res, next: Next) {
-        const { session: { account } } = req;
+        const {
+            session: { account },
+        } = req;
 
         if (!account) {
             return res.sendStatus('account:not-logged-in');
@@ -268,7 +270,9 @@ export default class Account {
      * @returns {*}
      */
     static notSignedIn(req: Req, res: Res, next: Next) {
-        const { session: { account } } = req;
+        const {
+            session: { account },
+        } = req;
 
         if (account) {
             return res.sendStatus('account:logged-in');
@@ -301,9 +305,7 @@ export default class Account {
      * @returns {{salt: string, key: string}}
      */
     static newHash(password: string): { salt: string; key: string } {
-        const salt = crypto
-            .randomBytes(32)
-            .toString('hex');
+        const salt = crypto.randomBytes(32).toString('hex');
         const key = Account.hash(password, salt);
 
         return { salt, key };
@@ -425,9 +427,9 @@ export default class Account {
         if (filtered !== str) {
             valid = false;
             invalidChars.push(
-                ...str.split(' ').filter((word, i) =>
-                    word !== filtered.split(' ')[i]
-                ),
+                ...str
+                    .split(' ')
+                    .filter((word, i) => word !== filtered.split(' ')[i]),
             );
         }
 
@@ -791,9 +793,11 @@ export default class Account {
             id: this.id,
         });
 
-        return data.map((r: RoleObj) => {
-            return Role.fromName(r.name);
-        }).filter(Boolean) as Role[];
+        return data
+            .map((r: RoleObj) => {
+                return Role.fromName(r.name);
+            })
+            .filter(Boolean) as Role[];
     }
 
     /**
@@ -871,7 +875,7 @@ export default class Account {
      */
     get permissions(): Permission[] {
         const { roles } = this;
-        return (roles.flatMap((role) => role.getPermissions()));
+        return roles.flatMap((role) => role.getPermissions());
     }
 
     /**
@@ -884,7 +888,8 @@ export default class Account {
      */
     change(property: AccountDynamicProperty, to: string): AccountStatusId {
         if (
-            property !== AccountDynamicProperty.picture && !Account.isValid(to)
+            property !== AccountDynamicProperty.picture &&
+            !Account.isValid(to)
         ) {
             switch (property) {
                 case AccountDynamicProperty.firstName:
@@ -958,13 +963,10 @@ export default class Account {
             date: Date.now(),
         };
 
-        DB.run(
-            'account/request-email-change',
-            {
-                id: this.id,
-                emailChange: JSON.stringify(this.emailChange),
-            },
-        );
+        DB.run('account/request-email-change', {
+            id: this.id,
+            emailChange: JSON.stringify(this.emailChange),
+        });
 
         this.sendVerification();
 

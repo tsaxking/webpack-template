@@ -168,8 +168,10 @@ async function convertMessage(
 }
 const shouldCache = (build: any) => {
     let _a, _b;
-    return ((_a = build.initialOptions) == null ? void 0 : _a.incremental) ||
-        ((_b = build.initialOptions) == null ? void 0 : _b.watch);
+    return (
+        ((_a = build.initialOptions) == null ? void 0 : _a.incremental) ||
+        ((_b = build.initialOptions) == null ? void 0 : _b.watch)
+    );
 };
 //   const b64enc = Buffer ? (b: any) => Buffer.from(b).toString("base64") : (b: any) => btoa(encodeURIComponent(b));
 
@@ -264,7 +266,7 @@ export function sveltePlugin(options: any) {
                 );
                 const compilerOptions = {
                     css: svelteVersion < 3 ? false : 'external',
-                    ...options == null ? void 0 : options.compilerOptions,
+                    ...(options == null ? void 0 : options.compilerOptions),
                 };
                 try {
                     let source = originalSource;
@@ -341,24 +343,29 @@ export function sveltePlugin(options: any) {
                             }
                         }
                     }
-                    let contents = js.code + `
-  //# sourceMappingURL=` + toUrl(js.map.toString());
+                    let contents = js.code +
+                        `
+  //# sourceMappingURL=` +
+                        toUrl(js.map.toString());
                     if (
                         (compilerOptions.css === false ||
-                            compilerOptions.css === 'external') && css.code
+                            compilerOptions.css === 'external') &&
+                        css.code
                     ) {
-                        const cssPath = args.path.replace(
-                            '.svelte',
-                            '.esbuild-svelte-fake-css',
-                        ).replace(/\\/g, '/');
+                        const cssPath = args.path
+                            .replace('.svelte', '.esbuild-svelte-fake-css')
+                            .replace(/\\/g, '/');
                         cssCode.set(
                             cssPath,
                             css.code +
                                 `/*# sourceMappingURL=${
-                                    toUrl(css.map.toString())
+                                    toUrl(
+                                        css.map.toString(),
+                                    )
                                 } */`,
                         );
-                        contents = contents + `
+                        contents = contents +
+                            `
   import "${cssPath}";`;
                     }
                     if (options == null ? void 0 : options.filterWarnings) {
@@ -386,7 +393,8 @@ export function sveltePlugin(options: any) {
                     }
                     if (
                         ((_b = build.esbuild) == null ? void 0 : _b.context) !==
-                            void 0 || shouldCache(build)
+                            void 0 ||
+                        shouldCache(build)
                     ) {
                         result.watchFiles = Array.from(
                             dependencyModifcationTimes.keys(),
@@ -405,7 +413,8 @@ export function sveltePlugin(options: any) {
                     ];
                     if (
                         ((_c = build.esbuild) == null ? void 0 : _c.context) !==
-                            void 0 || shouldCache(build)
+                            void 0 ||
+                        shouldCache(build)
                     ) {
                         result.watchFiles = previousWatchFiles;
                     }

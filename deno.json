@@ -16,12 +16,7 @@
     },
     "compilerOptions": {
         // "noexplicitAny": false,
-        "lib": [
-            "deno.ns",
-            "dom",
-            "es2022",
-            "esnext"
-        ]
+        "lib": ["deno.ns", "dom", "es2022", "esnext"]
     },
     "lint": {
         "exclude": [

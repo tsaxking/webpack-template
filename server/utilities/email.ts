@@ -13,12 +13,14 @@ config();
  *
  * @type {*}
  */
-const transporter = nodemailer.createTransport(sgTransport({
-    service: 'gmail',
-    auth: {
-        api_key: env.SENDGRID_API_KEY,
-    },
-}));
+const transporter = nodemailer.createTransport(
+    sgTransport({
+        service: 'gmail',
+        auth: {
+            api_key: env.SENDGRID_API_KEY,
+        },
+    }),
+);
 
 /**
  * Email options
@@ -96,7 +98,7 @@ export class Email {
                 ...(constructor || {}),
                 logo: (env.DOMAIN || '') + (env.LOGO || ''),
                 homeLink: (env.DOMAIN || '') + (env.HOME_LINK || ''),
-                footer: (env.FOOTER || ''),
+                footer: env.FOOTER || '',
             };
 
             let html: string;

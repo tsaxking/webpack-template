@@ -1,0 +1,1 @@
+npx prettier . --write && deno fmt . && npx eslint . && deno test --unstable --allow-all --no-check

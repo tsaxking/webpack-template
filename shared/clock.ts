@@ -103,11 +103,11 @@ export const dateString = (format: string) => {
             // month
             .replace(/MMM/g, monthsShort[date.getMonth()].toString())
             .replace(/MM/g, (date.getMonth() + 1).toString().padStart(2, '0'))
-            .replace(/month/ig, months[date.getMonth()].toString())
+            .replace(/month/gi, months[date.getMonth()].toString())
             // day
             .replace(/DDD/g, daysShort[date.getDay()].toString())
             .replace(/DD/g, date.getDate().toString().padStart(2, '0'))
-            .replace(/day/ig, days[date.getDay()].toString())
+            .replace(/day/gi, days[date.getDay()].toString())
             // time
             .replace(/hh/g, date.getHours().toString().padStart(2, '0')) // 24 hour
             .replace(/mm/g, date.getMinutes().toString().padStart(2, '0'))
@@ -141,23 +141,23 @@ export const fullDateTime = dateString('month DD, YYYY hh:mm AM');
 export const fullDateTime24 = dateString('month DD, YYYY hh:mm');
 
 const timezoneOffsets = {
-    'EST': -5, // Eastern Standard Time
-    'EDT': -4, // Eastern Daylight Time
-    'CST': -6, // Central Standard Time
-    'CDT': -5, // Central Daylight Time
-    'MST': -7, // Mountain Standard Time
-    'MDT': -6, // Mountain Daylight Time
-    'PST': -8, // Pacific Standard Time
-    'PDT': -7, // Pacific Daylight Time
-    'AKST': -9, // Alaska Standard Time
-    'AKDT': -8, // Alaska Daylight Time
-    'HST': -10, // Hawaii Standard Time
-    'HAST': -10, // Hawaii-Aleutian Standard Time
-    'HADT': -9, // Hawaii-Aleutian Daylight Time
-    'SST': -11, // Samoa Standard Time
-    'SDT': -10, // Samoa Daylight Time
-    'CHST': 10, // Chamorro Standard Time
-    'UTC': 0, // Coordinated Universal Time
+    EST: -5, // Eastern Standard Time
+    EDT: -4, // Eastern Daylight Time
+    CST: -6, // Central Standard Time
+    CDT: -5, // Central Daylight Time
+    MST: -7, // Mountain Standard Time
+    MDT: -6, // Mountain Daylight Time
+    PST: -8, // Pacific Standard Time
+    PDT: -7, // Pacific Daylight Time
+    AKST: -9, // Alaska Standard Time
+    AKDT: -8, // Alaska Daylight Time
+    HST: -10, // Hawaii Standard Time
+    HAST: -10, // Hawaii-Aleutian Standard Time
+    HADT: -9, // Hawaii-Aleutian Daylight Time
+    SST: -11, // Samoa Standard Time
+    SDT: -10, // Samoa Daylight Time
+    CHST: 10, // Chamorro Standard Time
+    UTC: 0, // Coordinated Universal Time
 };
 
 type Timezone = keyof typeof timezoneOffsets;
@@ -169,6 +169,6 @@ type Timezone = keyof typeof timezoneOffsets;
  */
 export const changeTimezone = (to: Timezone) => (date: Date) => {
     const offset = timezoneOffsets[to];
-    const utc = date.getTime() + (date.getTimezoneOffset() * 60000);
-    return new Date(utc + (3600000 * offset));
+    const utc = date.getTime() + date.getTimezoneOffset() * 60000;
+    return new Date(utc + 3600000 * offset);
 };

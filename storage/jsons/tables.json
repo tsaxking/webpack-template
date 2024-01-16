@@ -85,56 +85,60 @@
                 "init": "phoneNumber TEXT"
             }
         },
-        "rows": [{
-            "username": "admin",
-            "key": "",
-            "salt": "",
-            "info": {},
-            "firstName": "Admin",
-            "lastName": "Account",
-            "email": "",
-            "verified": true
-        }, {
-            "username": "developer",
-            "key": "",
-            "salt": "",
-            "info": {},
-            "firstName": "Developer",
-            "lastName": "Account",
-            "email": "",
-            "verified": true
-        }, {
-            "username": "user",
-            "key": "",
-            "salt": "",
-            "info": {},
-            "firstName": "User",
-            "lastName": "Account",
-            "email": "",
-            "verified": true
-        }, {
-            "username": "board",
-            "key": "",
-            "salt": "",
-            "info": {},
-            "firstName": "Board",
-            "lastName": "Account",
-            "email": "",
-            "verified": true
-        }, {
-            "username": "guest",
-            "key": "",
-            "salt": "",
-            "info": {},
-            "firstName": "Guest",
-            "lastName": "Account",
-            "email": "",
-            "verified": false
-        }],
+        "rows": [
+            {
+                "username": "admin",
+                "key": "",
+                "salt": "",
+                "info": {},
+                "firstName": "Admin",
+                "lastName": "Account",
+                "email": "",
+                "verified": true
+            },
+            {
+                "username": "developer",
+                "key": "",
+                "salt": "",
+                "info": {},
+                "firstName": "Developer",
+                "lastName": "Account",
+                "email": "",
+                "verified": true
+            },
+            {
+                "username": "user",
+                "key": "",
+                "salt": "",
+                "info": {},
+                "firstName": "User",
+                "lastName": "Account",
+                "email": "",
+                "verified": true
+            },
+            {
+                "username": "board",
+                "key": "",
+                "salt": "",
+                "info": {},
+                "firstName": "Board",
+                "lastName": "Account",
+                "email": "",
+                "verified": true
+            },
+            {
+                "username": "guest",
+                "key": "",
+                "salt": "",
+                "info": {},
+                "firstName": "Guest",
+                "lastName": "Account",
+                "email": "",
+                "verified": false
+            }
+        ],
         "description": "All accounts in the system"
     },
-
-
 
     // 1:1 with accounts that are verified
     "MemberInfo": {
@@ -172,11 +176,6 @@
         }
     },
 
-
-
-
-
-
     "Roles": {
         "columns": {
             "id": {
@@ -206,29 +205,34 @@
                 "init": "rank INTEGER"
             }
         },
-        "rows": [{
-            "name": "admin",
-            "description": "Administrator",
-            "rank": 0
-        }, {
-            "name": "board",
-            "description": "Board",
-            "rank": 20
-        }, {
-            "name": "member",
-            "description": "Member",
-            "rank": 30
-        }, {
-            "name": "developer",
-            "description": "Developer",
-            "rank": 10
-        }, {
-            "name": "user",
-            "description": "User",
-            "rank": 100
-        }]
+        "rows": [
+            {
+                "name": "admin",
+                "description": "Administrator",
+                "rank": 0
+            },
+            {
+                "name": "board",
+                "description": "Board",
+                "rank": 20
+            },
+            {
+                "name": "member",
+                "description": "Member",
+                "rank": 30
+            },
+            {
+                "name": "developer",
+                "description": "Developer",
+                "rank": 10
+            },
+            {
+                "name": "user",
+                "description": "User",
+                "rank": 100
+            }
+        ]
     },
-
 
     // many:many with accounts
     "AccountRoles": {
@@ -244,17 +248,18 @@
                 "init": "role TEXT NOT NULL"
             }
         },
-        "rows": [{
-            "username": "tsaxking",
-            "role": "admin"
-        }, {
-            "username": "tsaxking",
-            "role": "developer"
-        }],
+        "rows": [
+            {
+                "username": "tsaxking",
+                "role": "admin"
+            },
+            {
+                "username": "tsaxking",
+                "role": "developer"
+            }
+        ],
         "type": "linking"
     },
-
-
 
     "RolePermissions": {
         "columns": {

@@ -147,9 +147,13 @@ export class SocketWrapper {
                     });
                 }
 
-                this.socket.to(room).emit(event, {
-                    time: Date.now(),
-                }, ...args);
+                this.socket.to(room).emit(
+                    event,
+                    {
+                        time: Date.now(),
+                    },
+                    ...args,
+                );
             },
         };
     }

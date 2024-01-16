@@ -80,12 +80,6 @@ export type DiscordLink = {
     username: string;
 };
 
-export type Permission =
-    | 'manageMembers'
-    | 'manageBoard';
+export type Permission = 'manageMembers' | 'manageBoard';
 
-export type RoleName =
-    | 'admin'
-    | 'developer'
-    | 'user'
-    | 'guest';
+export type RoleName = 'admin' | 'developer' | 'user' | 'guest';

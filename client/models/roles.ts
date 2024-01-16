@@ -9,14 +9,13 @@ export class Role {
             return Role.roles;
         }
 
-        return await ServerRequest.post<R[]>('/roles/all', null, {
+        return (await ServerRequest.post<R[]>('/roles/all', null, {
             cached: true,
-        })
-            .then((roles) =>
-                roles.map((r) => {
-                    new Role(r.name, r.description);
-                })
-            ) as Role[];
+        }).then((roles) =>
+            roles.map((r) => {
+                new Role(r.name, r.description);
+            })
+        )) as Role[];
     }
 
     constructor(
