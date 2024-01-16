@@ -25,7 +25,10 @@ jobs:
             - name: Retrieve git dependencies
               uses: actions/checkout@v3
               with:
+                  submodules: 'true'
                   token: ${{ secrets.GH_TOKEN }}
+
+                  
 
             - name: Ignore if changes were automated
               run: |
