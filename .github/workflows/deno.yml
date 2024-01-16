@@ -43,7 +43,10 @@ jobs:
                   node-version: '14'
 
             - name: Install dependencies
-              run: npm i 
+              run: |
+                npm i --save-dev prettier-plugin-svelte prettier @typescript-eslint/parser @typescript-eslint/eslint-plugin eslint typescript
+                npm i -g eslint prettier
+
 
             - name: Run Formatter, Linter, then Checks
               run: sh ./scripts/fmt-lint-check.sh
