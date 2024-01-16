@@ -62,7 +62,7 @@ jobs:
                   git add .
 
                   echo "Committing changes..."
-                  git commit -m --allow-empty "AUTOMATED: Format, lint, and check"
+                  git commit --allow-empty  -m "AUTOMATED: Format, lint, and check"
 
                   echo "Pushing changes..."
                   git push origin main
@@ -89,5 +89,5 @@ jobs:
                   git merge main --strategy-option=theirs --allow-unrelated-histories -m "Merging main into gh-pages"
                   git pull origin main --allow-unrelated-histories
                   git add .
-                  git commit -m --allow-empty "Merging main into deliver"
+                  git commit --allow-empty -m "Merging main into deliver"
                   git push origin deliver
