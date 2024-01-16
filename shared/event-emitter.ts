@@ -19,14 +19,6 @@ type ListenerCallback = (...args: any[]) => void;
  */
 export class EventEmitter<allowedEvents = string | number | '*'> {
     /**
-     * Creates an instance of EventEmitter.
-     * @date 10/12/2023 - 1:46:22 PM
-     *
-     * @constructor
-     */
-    constructor() {}
-
-    /**
      * All events and their listeners as a map
      * @date 10/12/2023 - 1:46:22 PM
      *
