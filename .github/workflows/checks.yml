@@ -28,11 +28,6 @@ jobs:
                   submodules: 'true'
                   token: ${{ secrets.GH_TOKEN }}
 
-                  
-
-            - name: Ignore if changes were automated
-              run: |
-
             - name: Setup Deno
               # uses: denoland/setup-deno@v1
               uses: denoland/setup-deno@61fe2df320078202e33d7d5ad347e7dcfa0e8f31 # v1.1.2
@@ -43,6 +38,13 @@ jobs:
               uses: actions/setup-node@v4
               with:
                   node-version: 16
+
+            - name: Stash current dependencies
+              run: |
+                echo "Rename package.json and package-lock.json to .package.json and .package-lock.json so that they are not picked up by npm install"
+
+                mv package.json .package.json
+                mv package-lock.json .package-lock.json
 
             - name: Install local dependencies
               run: |
@@ -76,6 +78,14 @@ jobs:
                     exit 0
                   fi
                   sh ./scripts/fmt-lint-check.sh
+
+            - name: Restore dependencies
+              run: |
+                echo "Restore package.json and package-lock.json to their original names"
+                rm package.json package-lock.json
+
+                mv .package.json package.json
+                mv .package-lock.json package-lock.json
 
             - name: Git Config
               run: |
