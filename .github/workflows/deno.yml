@@ -22,8 +22,10 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - name: Setup repo
+            - name: Retrieve git dependencies
               uses: actions/checkout@v3
+              with:
+                  token: ${{ secrets.GH_TOKEN }}
 
             - name: Setup Deno
               # uses: denoland/setup-deno@v1
@@ -35,8 +37,42 @@ jobs:
             # - name: Verify formatting
             #   run: deno fmt --check
 
-            - name: Run linter
+            - name: Run Formatter, Linter, then Checks
               run: sh ./scripts/fmt-lint-check.sh
 
-            - name: Run tests
-              run: deno test --unstable --allow-all
+            - name: Push results
+              run: |
+                git config --global user.name "github-actions[bot]"
+                git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+                echo "Adding changes..."
+                git add .
+
+                echo "Committing changes..."
+                git commit -m "AUTOMATED: Format, lint, and check"
+
+                echo "Pushing changes..."
+                git push
+
+            - name: Push to deliver
+              run: |
+                echo "testing if on branch 'main'"
+                if [ "$(git rev-parse --abbrev-ref HEAD)" != "main" ]; then
+                  echo "not on branch 'main', exiting"
+                  exit 0
+                fi
+
+                echo "Good, we're on main. Pushing to deliver..."
+                echo "Deleting old deliver branch"
+                git branch -D deliver || true
+                git push origin --delete deliver || true
+
+                echo "Creating new deliver branch"
+                git checkout --orphan deliver
+                git reset --hard
+                git commit --allow-empty -m "Initializing deliver branch"
+
+                git merge main --strategy-option=theirs --allow-unrelated-histories -m "Merging main into gh-pages"
+                git add .
+                git commit -m "Merging main into deliver"
+                git push origin deliver

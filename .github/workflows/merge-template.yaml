@@ -3,7 +3,7 @@ name: 'Merge Template'
 on:
     push:
         branches:
-            - main
+            - deliver
 
 jobs:
     merge-template:

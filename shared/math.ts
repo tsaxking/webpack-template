@@ -17,10 +17,7 @@ export class Random {
      *     }} [options]
      * @returns {string}
      */
-    static uuid(options?: {
-        length?: number;
-        charset?: string;
-    }) {
+    static uuid(options?: { length?: number; charset?: string }) {
         const length = options?.length ?? 16;
         const charset = options?.charset ??
             'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -83,7 +80,7 @@ export class Random {
  * @date 1/15/2024 - 10:44:13 PM
  *
  * @export
- * @class 
+ * @class
  * @typedef {$Math}
  */
 export class $Math {

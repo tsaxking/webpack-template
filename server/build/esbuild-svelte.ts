@@ -276,13 +276,13 @@ export function sveltePlugin(options: any) {
                     if (options == null ? void 0 : options.preprocess) {
                         let preprocessResult: any = null;
                         try {
-                            preprocessResult = await preprocess(
+                            preprocessResult = (await preprocess(
                                 originalSource,
                                 options.preprocess,
                                 {
                                     filename,
                                 },
-                            ) as any;
+                            )) as any;
                         } catch (e) {
                             if (cachedFile) {
                                 previousWatchFiles = Array.from(
