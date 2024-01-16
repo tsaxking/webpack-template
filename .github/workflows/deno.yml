@@ -44,7 +44,7 @@ jobs:
 
             - name: Install local dependencies
               run: |
-                npm i --save-dev prettier-plugin-svelte prettier @typescript-eslint/parser @typescript-eslint/eslint-plugin eslint typescript prettier-plugin-svelte
+                npm i --save-dev prettier-plugin-svelte prettier @typescript-eslint/parser @typescript-eslint/eslint-plugin eslint typescript prettier-plugin-svelte svelte
                 
                 
                 
