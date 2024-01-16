@@ -62,7 +62,7 @@ jobs:
                   git add .
 
                   echo "Committing changes..."
-                  git commit -m "AUTOMATED: Format, lint, and check"
+                  git commit -m --allow-empty "AUTOMATED: Format, lint, and check"
 
                   echo "Pushing changes..."
                   git push origin main
