@@ -305,14 +305,6 @@ export class BranchStack<T = any> {
         new EventEmitter<keyof BranchEventData<T>>();
 
     /**
-     * Creates an instance of BranchStack.
-     * @date 10/12/2023 - 2:31:40 PM
-     *
-     * @constructor
-     */
-    constructor() {}
-
-    /**
      * Returns the current branch (if it exists)
      * @date 10/12/2023 - 2:31:40 PM
      *
