@@ -39,4 +39,4 @@ jobs:
               run: sh ./scripts/fmt-lint-check.sh
 
             - name: Run tests
-              run: deno test --unstable --allow-all --no-check
+              run: deno test --unstable --allow-all

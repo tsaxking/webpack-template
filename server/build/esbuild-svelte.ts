@@ -1,4 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+// ignore in deno.json compiler
+// deno-lint-ignore-file no-explicit-any
+
 import { existsSync as exists, readFileSync as read, statSync } from 'node:fs';
 import esbuild from 'npm:esbuild';
 import { error, log, warn } from '../utilities/terminal-logging.ts';
@@ -37,7 +40,7 @@ const bail = (err: Error, ...args: any[]) => {
 
 const transform = async (input: any, options: any) => {
     let config = options;
-    const deps = [];
+    const deps: any[] = [];
 
     if (input.filename) {
         let src = input.attributes.src;
@@ -229,7 +232,7 @@ export function sveltePlugin(options: any) {
             );
             build.onLoad({ filter: svelteFilter }, async (args: any) => {
                 let _a, _b, _c;
-                let cachedFile = null;
+                let cachedFile: any = null;
                 let previousWatchFiles: any = [];
                 if (
                     (options == null ? void 0 : options.cache) === true &&
@@ -271,7 +274,7 @@ export function sveltePlugin(options: any) {
                 try {
                     let source = originalSource;
                     if (options == null ? void 0 : options.preprocess) {
-                        let preprocessResult = null;
+                        let preprocessResult: any = null;
                         try {
                             preprocessResult = await preprocess(
                                 originalSource,
@@ -279,7 +282,7 @@ export function sveltePlugin(options: any) {
                                 {
                                     filename,
                                 },
-                            );
+                            ) as any;
                         } catch (e) {
                             if (cachedFile) {
                                 previousWatchFiles = Array.from(
