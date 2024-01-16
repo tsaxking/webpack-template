@@ -1,1 +1,1 @@
-npx prettier . --write; deno fmt .; npx eslint .; deno test --unstable --allow-all
+npx prettier . --write; deno fmt .; npx eslint . --ignore-pattern ./node_modules/ --ignore-pattern **/*.js --ignore-pattern ./dist/; deno test --unstable --allow-all

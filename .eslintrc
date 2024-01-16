@@ -85,5 +85,5 @@
     },
     
     // ignore files
-    "ignorePatterns": ["node_modules/", "dist/", "**/*.min.js", "*.js"]
+    "ignorePatterns": ["node_modules/", "dist/",  "*.js"]
 }
