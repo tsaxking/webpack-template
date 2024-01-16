@@ -44,53 +44,50 @@ jobs:
 
             - name: Install local dependencies
               run: |
-                npm i --save-dev --force prettier-plugin-svelte prettier @typescript-eslint/parser @typescript-eslint/eslint-plugin@5.33.0 eslint typescript prettier-plugin-svelte svelte 
-                
-                
-                
+                  npm i --save-dev --force prettier-plugin-svelte prettier @typescript-eslint/parser @typescript-eslint/eslint-plugin@5.33.0 eslint typescript prettier-plugin-svelte svelte
+
             - name: Install global dependencies
               run: |
-                npm i -g eslint prettier svelte
-
+                  npm i -g eslint prettier svelte
 
             - name: Run Formatter, Linter, then Checks
               run: sh ./scripts/fmt-lint-check.sh
 
             - name: Push results
               run: |
-                git config --global user.name "github-actions[bot]"
-                git config --global user.email "github-actions[bot]@users.noreply.github.com"
+                  git config --global user.name "github-actions[bot]"
+                  git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-                echo "Adding changes..."
-                git add .
+                  echo "Adding changes..."
+                  git add .
 
-                echo "Committing changes..."
-                git commit -m "AUTOMATED: Format, lint, and check"
+                  echo "Committing changes..."
+                  git commit -m "AUTOMATED: Format, lint, and check"
 
-                echo "Pushing changes..."
-                git push origin main
+                  echo "Pushing changes..."
+                  git push origin main
 
             - name: Push to deliver
               run: |
-                echo "testing if on branch 'main'"
-                if [ "$(git rev-parse --abbrev-ref HEAD)" != "main" ]; then
-                  echo "not on branch 'main', exiting"
-                  exit 0
-                fi
+                  echo "testing if on branch 'main'"
+                  if [ "$(git rev-parse --abbrev-ref HEAD)" != "main" ]; then
+                    echo "not on branch 'main', exiting"
+                    exit 0
+                  fi
 
-                echo "Good, we're on main. Pushing to deliver..."
-                echo "Deleting old deliver branch"
-                git branch -D deliver || true
-                git push origin --delete deliver || true
+                  echo "Good, we're on main. Pushing to deliver..."
+                  echo "Deleting old deliver branch"
+                  git branch -D deliver || true
+                  git push origin --delete deliver || true
 
-                echo "Creating new deliver branch"
-                git checkout --orphan deliver
-                git reset --hard
-                git commit --allow-empty -m "Initializing deliver branch"
+                  echo "Creating new deliver branch"
+                  git checkout --orphan deliver
+                  git reset --hard
+                  git commit --allow-empty -m "Initializing deliver branch"
 
-                echo "Merging main into deliver"
-                git merge main --strategy-option=theirs --allow-unrelated-histories -m "Merging main into gh-pages"
-                git pull origin main --allow-unrelated-histories
-                git add .
-                git commit -m --allow-empty "Merging main into deliver"
-                git push origin deliver
+                  echo "Merging main into deliver"
+                  git merge main --strategy-option=theirs --allow-unrelated-histories -m "Merging main into gh-pages"
+                  git pull origin main --allow-unrelated-histories
+                  git add .
+                  git commit -m --allow-empty "Merging main into deliver"
+                  git push origin deliver
