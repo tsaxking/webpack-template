@@ -86,10 +86,6 @@ jobs:
 
             - name: Push to deliver
               run: |
-                  if git log -1 --pretty=%B | grep -q "AUTOMATED"; then
-                    echo "Changes were automated, exiting"
-                    exit 0
-                  fi
                   echo "testing if on branch 'main'"
                   if [ "$(git rev-parse --abbrev-ref HEAD)" != "main" ]; then
                     echo "not on branch 'main', exiting"
