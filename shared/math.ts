@@ -40,7 +40,7 @@ export class Random {
      * @param {T[]} array
      * @returns {T}
      */
-    static choose<T extends never>(array: T[]): T {
+    static choose<T = never>(array: T[]): T {
         return array[Math.floor(Math.random() * array.length)];
     }
 
@@ -52,8 +52,8 @@ export class Random {
      * @param {T[]} array
      * @returns {T[]}
      */
-    static shuffle<T extends never>(array: T[]): T[] {
-        const result = [];
+    static shuffle<T = never>(array: T[]): T[] {
+        const result: T[] = [];
         for (let i = 0; i < array.length; i++) {
             const index = Math.floor(Math.random() * array.length);
             result.push(array[index]);
@@ -95,5 +95,35 @@ export class $Math {
     static roundTo(sigFigs: number, num: number): number {
         const mult = Math.pow(10, sigFigs);
         return Math.round(num * mult) / mult;
+    }
+
+    /**
+     * Returns a function to be used in an array.map() call to calculate the moving average given a window
+     * @date 1/18/2024 - 1:55:32 AM
+     *
+     * @static
+     * @param {number} window
+     * @returns {(value: number, index: number, array: {}) => number}
+     */
+    static movingAverage(window: number): (value: number, index: number, array: number[]) => number {
+        if (window < 1) throw new Error('Window must be greater than 0');
+        if (Math.round(window) !== window) throw new Error('Window must be an integer');
+        return (value: number, index: number, array: number[]): number => {
+            if (index === 1) return value; // not enough data yet
+            if (index < window) return $Math.average(array.slice(0, index)); // average available data
+            return $Math.average(array.slice(index - window, index)); // average window
+        }
+    }
+
+    /**
+     * Returns the average of the given array
+     * @date 1/18/2024 - 1:55:32 AM
+     *
+     * @static
+     * @param {number[]} array
+     * @returns {number}
+     */
+    static average(array: number[]): number {
+        return array.reduce((a, b) => a + b) / array.length;
     }
 }
