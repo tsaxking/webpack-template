@@ -74,9 +74,9 @@ const fileTypeHeaders: {
  * @typedef {StreamEventData}
  */
 type StreamEventData = {
-    'error': Error;
-    'end': undefined;
-    'cancel': undefined;
+    error: Error;
+    end: undefined;
+    cancel: undefined;
 };
 
 /**
@@ -207,12 +207,15 @@ export class Res {
         if (this.fulfilled) {
             log('Response already fulfilled at:');
             return console.log(
-                this.trace.filter((t) => t !== 'null:null').map((t) => {
-                    t = t.replace('file://', '').replace('file:', '');
-                    t = PATH.relative(__root, t);
-                    t = `\n\t${Colors.FgYellow}${t}${Colors.Reset}`;
-                    return t;
-                }).join(''),
+                this.trace
+                    .filter((t) => t !== 'null:null')
+                    .map((t) => {
+                        t = t.replace('file://', '').replace('file:', '');
+                        t = PATH.relative(__root, t);
+                        t = `\n\t${Colors.FgYellow}${t}${Colors.Reset}`;
+                        return t;
+                    })
+                    .join(''),
             );
         }
         this.fulfilled = true;
@@ -459,9 +462,9 @@ export class Res {
                     headers: {
                         'Content-Type': 'application/octet-stream',
                         'x-content-type-options': 'nosniff',
-                        'x-content-size': new TextEncoder().encode(
-                            content.join(''),
-                        ).length.toString(),
+                        'x-content-size': new TextEncoder()
+                            .encode(content.join(''))
+                            .length.toString(),
                         'x-data-length': content.length.toString(),
                     },
                 }),

@@ -17,10 +17,7 @@ export class Random {
      *     }} [options]
      * @returns {string}
      */
-    static uuid(options?: {
-        length?: number;
-        charset?: string;
-    }) {
+    static uuid(options?: { length?: number; charset?: string }) {
         const length = options?.length ?? 16;
         const charset = options?.charset ??
             'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -43,7 +40,7 @@ export class Random {
      * @param {T[]} array
      * @returns {T}
      */
-    static choose<T>(array: T[]): T {
+    static choose<T extends never>(array: T[]): T {
         return array[Math.floor(Math.random() * array.length)];
     }
 
@@ -55,7 +52,7 @@ export class Random {
      * @param {T[]} array
      * @returns {T[]}
      */
-    static shuffle<T>(array: T[]): T[] {
+    static shuffle<T extends never>(array: T[]): T[] {
         const result = [];
         for (let i = 0; i < array.length; i++) {
             const index = Math.floor(Math.random() * array.length);
@@ -83,7 +80,7 @@ export class Random {
  * @date 1/15/2024 - 10:44:13 PM
  *
  * @export
- * @class 
+ * @class
  * @typedef {$Math}
  */
 export class $Math {

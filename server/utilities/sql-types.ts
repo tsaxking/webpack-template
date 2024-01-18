@@ -15,48 +15,50 @@ import { SessionObj } from '../structure/sessions.ts';
 
 export type Queries = {
     'sessions/delete': [
-        [{
-            id: string;
-        }],
+        [
+            {
+                id: string;
+            },
+        ],
         unknown,
     ];
-    'sessions/delete-all': [
-        [],
-        unknown,
-    ];
+    'sessions/delete-all': [[], unknown];
     'sessions/update': [
-        [{
-            id: string;
-            ip: string;
-            latestActivity: number;
-            accountId: string;
-            userAgent: string;
-            requests: number;
-            prevUrl: string;
-        }],
+        [
+            {
+                id: string;
+                ip: string;
+                latestActivity: number;
+                accountId: string;
+                userAgent: string;
+                requests: number;
+                prevUrl: string;
+            },
+        ],
         unknown,
     ];
-    'sessions/all': [
-        [],
-        SessionObj,
-    ];
+    'sessions/all': [[], SessionObj];
     'sessions/get': [
-        [{
-            id: string;
-        }],
+        [
+            {
+                id: string;
+            },
+        ],
         SessionObj,
     ];
     'sessions/new': [
-        [{
-            id: string;
-            ip: string;
-            latestActivity: number;
-            accountId: string;
-            userAgent: string;
-            prevUrl: string;
-            requests: number;
-            created: number;
-        }],
+        [
+            {
+                id: string;
+                ip: string;
+                latestActivity: number;
+                accountId: string;
+                userAgent: string;
+                prevUrl: string;
+                requests: number;
+                created: number;
+            },
+        ],
         unknown,
     ];
     'db/get-version': [
@@ -68,231 +70,281 @@ export type Queries = {
         },
     ];
     'roles/from-id': [
-        [{
-            id: string;
-        }],
+        [
+            {
+                id: string;
+            },
+        ],
         Role,
     ];
     'roles/from-name': [
-        [{
-            name: string;
-        }],
+        [
+            {
+                name: string;
+            },
+        ],
         Role,
     ];
-    'roles/all': [
-        [],
-        Role,
-    ];
+    'roles/all': [[], Role];
     'permissions/from-role': [
-        [{
-            role: string;
-        }],
+        [
+            {
+                role: string;
+            },
+        ],
         RolePermission,
     ];
     'account/from-username': [
-        [{
-            username: string;
-        }],
+        [
+            {
+                username: string;
+            },
+        ],
         Account,
     ];
     'account/from-email': [
-        [{
-            email: string;
-        }],
+        [
+            {
+                email: string;
+            },
+        ],
         Account,
     ];
     'account/from-verification-key': [
-        [{
-            verification: string;
-        }],
+        [
+            {
+                verification: string;
+            },
+        ],
         Account,
     ];
     'account/from-password-change': [
-        [{
-            passwordChange: string;
-        }],
+        [
+            {
+                passwordChange: string;
+            },
+        ],
         Account,
     ];
-    'account/unverified': [
-        [],
-        Account,
-    ];
-    'account/all': [
-        [],
-        Account,
-    ];
+    'account/unverified': [[], Account];
+    'account/all': [[], Account];
     'account/new': [
-        [{
-            id: string;
-            username: string;
-            key: string;
-            salt: string;
-            firstName: string;
-            lastName: string;
-            email: string;
-            verified: 0 | 1;
-            verification: string;
-            created: number;
-            phoneNumber: string;
-        }],
+        [
+            {
+                id: string;
+                username: string;
+                key: string;
+                salt: string;
+                firstName: string;
+                lastName: string;
+                email: string;
+                verified: 0 | 1;
+                verification: string;
+                created: number;
+                phoneNumber: string;
+            },
+        ],
         unknown,
     ];
     'account/unverify': [
-        [{
-            id: string;
-        }],
+        [
+            {
+                id: string;
+            },
+        ],
         unknown,
     ];
     'account/delete': [
-        [{
-            id: string;
-        }],
+        [
+            {
+                id: string;
+            },
+        ],
         unknown,
     ];
     'account/from-id': [
-        [{
-            id: string;
-        }],
+        [
+            {
+                id: string;
+            },
+        ],
         Account,
     ];
     'account/change-email': [
-        [{
-            id: string;
-            email: string;
-        }],
+        [
+            {
+                id: string;
+                email: string;
+            },
+        ],
         unknown,
     ];
     'account/verify': [
-        [{
-            id: string;
-        }],
+        [
+            {
+                id: string;
+            },
+        ],
         unknown,
     ];
     'account/set-verification': [
-        [{
-            id: string;
-            verification: string;
-        }],
+        [
+            {
+                id: string;
+                verification: string;
+            },
+        ],
         unknown,
     ];
     'account/roles': [
-        [{
-            id: string;
-        }],
+        [
+            {
+                id: string;
+            },
+        ],
         Role,
     ];
     'account/add-role': [
-        [{
-            accountId: string;
-            roleId: string;
-        }],
+        [
+            {
+                accountId: string;
+                roleId: string;
+            },
+        ],
         unknown,
     ];
     'account/remove-role': [
-        [{
-            accountId: string;
-            roleId: string;
-        }],
+        [
+            {
+                accountId: string;
+                roleId: string;
+            },
+        ],
         unknown,
     ];
     'account/update-picture': [
-        [{
-            id: string;
-            picture: string;
-        }],
+        [
+            {
+                id: string;
+                picture: string;
+            },
+        ],
         unknown,
     ];
     'account/change-username': [
-        [{
-            id: string;
-            username: string;
-        }],
+        [
+            {
+                id: string;
+                username: string;
+            },
+        ],
         unknown,
     ];
     'account/request-email-change': [
-        [{
-            id: string;
-            emailChange: string;
-        }],
+        [
+            {
+                id: string;
+                emailChange: string;
+            },
+        ],
         unknown,
     ];
     'account/change-password': [
-        [{
-            id: string;
-            salt: string;
-            key: string;
-            passwordChange: null;
-        }],
+        [
+            {
+                id: string;
+                salt: string;
+                key: string;
+                passwordChange: null;
+            },
+        ],
         unknown,
     ];
     'account/request-password-change': [
-        [{
-            id: string;
-            passwordChange: string;
-        }],
+        [
+            {
+                id: string;
+                passwordChange: string;
+            },
+        ],
         unknown,
     ];
     'member/from-username': [
-        [{
-            username: string;
-        }],
+        [
+            {
+                username: string;
+            },
+        ],
         Member,
     ];
-    'member/all': [
-        [],
-        Member,
-    ];
+    'member/all': [[], Member];
     'member/update-status': [
-        [{
-            status: MembershipStatus;
-            id: string;
-        }],
+        [
+            {
+                status: MembershipStatus;
+                id: string;
+            },
+        ],
         unknown,
     ];
     'member/new': [
-        [{
-            id: string;
-            status: MembershipStatus;
-        }],
+        [
+            {
+                id: string;
+                status: MembershipStatus;
+            },
+        ],
         unknown,
     ];
     'member/delete': [
-        [{
-            id: string;
-        }],
+        [
+            {
+                id: string;
+            },
+        ],
         unknown,
     ];
     'member/update-bio': [
-        [{
-            id: string;
-            bio: string;
-        }],
+        [
+            {
+                id: string;
+                bio: string;
+            },
+        ],
         unknown,
     ];
     'member/update-title': [
-        [{
-            id: string;
-            title: string;
-        }],
+        [
+            {
+                id: string;
+                title: string;
+            },
+        ],
         unknown,
     ];
     'member/update-resume': [
-        [{
-            id: string;
-            resume: string;
-        }],
+        [
+            {
+                id: string;
+                resume: string;
+            },
+        ],
         unknown,
     ];
     'member/add-to-board': [
-        [{
-            id: string;
-        }],
+        [
+            {
+                id: string;
+            },
+        ],
         unknown,
     ];
     'member/remove-from-board': [
-        [{
-            id: string;
-        }],
+        [
+            {
+                id: string;
+            },
+        ],
         unknown,
     ];
 };

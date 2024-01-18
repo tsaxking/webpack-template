@@ -22,8 +22,7 @@ export class Canvas {
     // TODO: Implement FPS
     // public fps: number = 0;
 
-    constructor(public readonly ctx: CanvasRenderingContext2D) {
-    }
+    constructor(public readonly ctx: CanvasRenderingContext2D) {}
 
     get width() {
         return this.ctx.canvas.width;
@@ -77,7 +76,7 @@ export class Canvas {
      * To change the animation, change the elements array outside of this class
      */
     animate(update?: (canvas: this) => void): () => void {
-        const stop = () => this.animating = false;
+        const stop = () => (this.animating = false);
         if (this.animating) return stop;
 
         this.animating = true;

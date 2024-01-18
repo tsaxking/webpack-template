@@ -23,9 +23,9 @@ export type PingState =
     | 'unknown';
 
 type PingEventData = {
-    'ping': number;
-    'change': PingState;
-    'error': Error;
+    ping: number;
+    change: PingState;
+    error: Error;
 };
 
 class Ping {
@@ -82,10 +82,11 @@ class Ping {
     movingAverage(num: number) {
         if (num > this.$pings.length) return this.average;
         if (num < 1) throw new Error('Moving average must be greater than 0');
-        return this.$pings.slice(this.$pings.length - num).reduce(
-            (a, b) => a + b,
-            0,
-        ) / num;
+        return (
+            this.$pings
+                .slice(this.$pings.length - num)
+                .reduce((a, b) => a + b, 0) / num
+        );
     }
 
     on<K extends keyof PingEventData>(

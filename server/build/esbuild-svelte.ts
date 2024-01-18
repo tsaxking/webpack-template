@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// ignore in deno.json compiler
+// deno-lint-ignore-file no-explicit-any
+
 import { existsSync as exists, readFileSync as read, statSync } from 'node:fs';
 import esbuild from 'npm:esbuild';
 import { error, log, warn } from '../utilities/terminal-logging.ts';
@@ -36,7 +40,7 @@ const bail = (err: Error, ...args: any[]) => {
 
 const transform = async (input: any, options: any) => {
     let config = options;
-    const deps = [];
+    const deps: any[] = [];
 
     if (input.filename) {
         let src = input.attributes.src;
@@ -64,7 +68,8 @@ const transform = async (input: any, options: any) => {
 };
 
 export const typescript = (options: any = {}) => {
-    let { tsconfig, logLevel = 'error', ...config } = options;
+    const { tsconfig, logLevel = 'error' } = options;
+    let { ...config } = options;
     config = {
         charset: 'utf8',
         logLevel,
@@ -166,8 +171,10 @@ async function convertMessage(
 }
 const shouldCache = (build: any) => {
     let _a, _b;
-    return ((_a = build.initialOptions) == null ? void 0 : _a.incremental) ||
-        ((_b = build.initialOptions) == null ? void 0 : _b.watch);
+    return (
+        ((_a = build.initialOptions) == null ? void 0 : _a.incremental) ||
+        ((_b = build.initialOptions) == null ? void 0 : _b.watch)
+    );
 };
 //   const b64enc = Buffer ? (b: any) => Buffer.from(b).toString("base64") : (b: any) => btoa(encodeURIComponent(b));
 
@@ -225,7 +232,7 @@ export function sveltePlugin(options: any) {
             );
             build.onLoad({ filter: svelteFilter }, async (args: any) => {
                 let _a, _b, _c;
-                let cachedFile = null;
+                let cachedFile: any = null;
                 let previousWatchFiles: any = [];
                 if (
                     (options == null ? void 0 : options.cache) === true &&
@@ -262,20 +269,20 @@ export function sveltePlugin(options: any) {
                 );
                 const compilerOptions = {
                     css: svelteVersion < 3 ? false : 'external',
-                    ...options == null ? void 0 : options.compilerOptions,
+                    ...(options == null ? void 0 : options.compilerOptions),
                 };
                 try {
                     let source = originalSource;
                     if (options == null ? void 0 : options.preprocess) {
-                        let preprocessResult = null;
+                        let preprocessResult: any = null;
                         try {
-                            preprocessResult = await preprocess(
+                            preprocessResult = (await preprocess(
                                 originalSource,
                                 options.preprocess,
                                 {
                                     filename,
                                 },
-                            );
+                            )) as any;
                         } catch (e) {
                             if (cachedFile) {
                                 previousWatchFiles = Array.from(
@@ -316,10 +323,13 @@ export function sveltePlugin(options: any) {
                                 });
                         }
                     }
-                    let { js, css, warnings } = compile(source, {
+                    const { js, css, ...rest } = compile(source, {
                         ...compilerOptions,
                         filename,
                     });
+
+                    let { warnings } = rest;
+
                     if (compilerOptions.sourcemap) {
                         if (js.map.sourcesContent == void 0) {
                             js.map.sourcesContent = [];
@@ -336,24 +346,29 @@ export function sveltePlugin(options: any) {
                             }
                         }
                     }
-                    let contents = js.code + `
-  //# sourceMappingURL=` + toUrl(js.map.toString());
+                    let contents = js.code +
+                        `
+  //# sourceMappingURL=` +
+                        toUrl(js.map.toString());
                     if (
                         (compilerOptions.css === false ||
-                            compilerOptions.css === 'external') && css.code
+                            compilerOptions.css === 'external') &&
+                        css.code
                     ) {
-                        const cssPath = args.path.replace(
-                            '.svelte',
-                            '.esbuild-svelte-fake-css',
-                        ).replace(/\\/g, '/');
+                        const cssPath = args.path
+                            .replace('.svelte', '.esbuild-svelte-fake-css')
+                            .replace(/\\/g, '/');
                         cssCode.set(
                             cssPath,
                             css.code +
                                 `/*# sourceMappingURL=${
-                                    toUrl(css.map.toString())
+                                    toUrl(
+                                        css.map.toString(),
+                                    )
                                 } */`,
                         );
-                        contents = contents + `
+                        contents = contents +
+                            `
   import "${cssPath}";`;
                     }
                     if (options == null ? void 0 : options.filterWarnings) {
@@ -381,7 +396,8 @@ export function sveltePlugin(options: any) {
                     }
                     if (
                         ((_b = build.esbuild) == null ? void 0 : _b.context) !==
-                            void 0 || shouldCache(build)
+                            void 0 ||
+                        shouldCache(build)
                     ) {
                         result.watchFiles = Array.from(
                             dependencyModifcationTimes.keys(),
@@ -400,7 +416,8 @@ export function sveltePlugin(options: any) {
                     ];
                     if (
                         ((_c = build.esbuild) == null ? void 0 : _c.context) !==
-                            void 0 || shouldCache(build)
+                            void 0 ||
+                        shouldCache(build)
                     ) {
                         result.watchFiles = previousWatchFiles;
                     }

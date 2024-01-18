@@ -29,7 +29,8 @@ const parse = (ts: string) => {
     };
 };
 
-console.log(parse(`
+console.log(
+    parse(`
 router.post('/get-roles', (req, res) => {
     res.json(Role.all());
 });
@@ -111,4 +112,5 @@ router.post<{
 
     res.sendStatus('account:' + status as StatusId, { username });
 });
-`));
+`),
+);

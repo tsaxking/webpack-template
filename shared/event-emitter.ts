@@ -17,15 +17,7 @@ type ListenerCallback = (...args: any[]) => void;
  * @typedef {EventEmitter}
  * @template [allowedEvents=(string | number | '*')]
  */
-export class EventEmitter<allowedEvents = (string | number | '*')> {
-    /**
-     * Creates an instance of EventEmitter.
-     * @date 10/12/2023 - 1:46:22 PM
-     *
-     * @constructor
-     */
-    constructor() {}
-
+export class EventEmitter<allowedEvents = string | number | '*'> {
     /**
      * All events and their listeners as a map
      * @date 10/12/2023 - 1:46:22 PM
@@ -73,9 +65,9 @@ export class EventEmitter<allowedEvents = (string | number | '*')> {
         }
 
         this.events.get(event)?.forEach((callback) => callback(...args));
-        this.events.get('*' as allowedEvents)?.forEach((callback) =>
-            callback(...args)
-        );
+        this.events
+            .get('*' as allowedEvents)
+            ?.forEach((callback) => callback(...args));
     }
 
     /**

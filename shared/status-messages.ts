@@ -457,7 +457,7 @@ export const messages: {
         code: 401,
         instructions: '',
     },
-    'profanity': {
+    profanity: {
         message: 'Profanity detected',
         color: 'danger',
         code: 400,
@@ -712,15 +712,9 @@ export type PermissionsStatusId =
 
 export type ProfanityStatusId = 'undefined';
 
-export type RolesStatusId =
-    | 'added'
-    | 'invalid-role'
-    | 'not-found'
-    | 'removed';
+export type RolesStatusId = 'added' | 'invalid-role' | 'not-found' | 'removed';
 
-export type ServerStatusId =
-    | 'invalid-data'
-    | 'unknown-server-error';
+export type ServerStatusId = 'invalid-data' | 'unknown-server-error';
 
 export type SkillsStatusId =
     | 'added'
@@ -731,8 +725,6 @@ export type SkillsStatusId =
 
 export type SpamStatusId = 'detected';
 
-export type TestStatusId =
-    | 'fail'
-    | 'success';
+export type TestStatusId = 'fail' | 'success';
 
 export type UnknownStatusId = 'error';

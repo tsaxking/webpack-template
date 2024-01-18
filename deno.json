@@ -15,13 +15,9 @@
         "tree": "deno run --allow-all ./scripts/dir-tree.ts"
     },
     "compilerOptions": {
-        // "noexplicitAny": false,
-        "lib": [
-            "deno.ns",
-            "dom",
-            "es2022",
-            "esnext"
-        ]
+        "noImplicitAny": false,
+        "lib": ["deno.ns", "dom", "es2022", "esnext"],
+        "allowJs": false
     },
     "lint": {
         "exclude": [

@@ -61,7 +61,4 @@ const generateStr = (tree: Directory | File, depth: number, line: boolean) => {
 
 const str = generateStr(tree, 0, false);
 
-Deno.writeFileSync(
-    './scripts/dir-tree.txt',
-    new TextEncoder().encode(str),
-);
+Deno.writeFileSync('./scripts/dir-tree.txt', new TextEncoder().encode(str));

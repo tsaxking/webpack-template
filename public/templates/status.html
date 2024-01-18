@@ -1,39 +1,40 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>sfzMusic: Error {{ code }}</title>
+        <link rel="stylesheet" href="../../dist/status.css" />
+    </head>
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>sfzMusic: Error {{ code }}</title>
-    <link rel="stylesheet" href="../../dist/status.css">
-</head>
+    <body>
+        <div class="container">
+            <div class="row">
+                <h1 class="text-center">{{ code }}: {{ title }}</h1>
+                <pre class="bg-dark text-danger p-2 w-100 rounded">
+{{ data }}</pre
+                >
 
-<body>
-    <div class="container">
-        <div class="row">
-            <h1 class="text-center">{{ code }}: {{ title }}</h1>
-            <pre class="bg-dark text-danger p-2 w-100 rounded">{{ data }}</pre>
+                <!-- Instructions -->
+                <div class="col-12">
+                    <h2 class="text-center">Instructions</h2>
+                    <p>{{ instructions }}</p>
+                    <small>
+                        All "5xx" errors are logged and reported to admins. If
+                        you believe you have received this message in error,
+                        please contact the site administrator.
+                    </small>
+                </div>
 
-            <!-- Instructions -->
-            <div class="col-12">
-                <h2 class="text-center">Instructions</h2>
-                <p>{{ instructions }}</p>
-                <small>
-                    All "5xx" errors are logged and reported to admins. If you believe you have received this message in error, please contact the site administrator.
-                </small>
-            </div>
-
-            <div class="col-12">
-                <a href="/home">Home</a>
+                <div class="col-12">
+                    <a href="/home">Home</a>
+                </div>
             </div>
         </div>
-    </div>
 
+        <div id="redirect" class="d-none">{{ redirect }}</div>
 
-    <div id="redirect" class="d-none">
-        {{ redirect }}
-    </div>
-
-    <script src="../../dist/status.js"></script>
-</body>
+        <script src="../../dist/status.js"></script>
+    </body>
+</html>

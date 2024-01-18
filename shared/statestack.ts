@@ -21,10 +21,10 @@ type StateStackOptions = {
  * @template T
  */
 export type StateStackEventData<T> = {
-    'next': State<T>;
-    'prev': State<T>;
-    'new': State<T>;
-    'change': State<T>;
+    next: State<T>;
+    prev: State<T>;
+    new: State<T>;
+    change: State<T>;
 };
 
 /**
@@ -262,10 +262,10 @@ export class StateStack<T = any> {
  * @template T
  */
 type BranchEventData<T> = {
-    'new': StateStack<T>;
-    'switch': StateStack<T>;
-    'remove': string;
-    'duplicate': StateStack<T>;
+    new: StateStack<T>;
+    switch: StateStack<T>;
+    remove: string;
+    duplicate: StateStack<T>;
 };
 
 /**
@@ -303,14 +303,6 @@ export class BranchStack<T = any> {
      */
     private readonly $emitter: EventEmitter<keyof BranchEventData<T>> =
         new EventEmitter<keyof BranchEventData<T>>();
-
-    /**
-     * Creates an instance of BranchStack.
-     * @date 10/12/2023 - 2:31:40 PM
-     *
-     * @constructor
-     */
-    constructor() {}
 
     /**
      * Returns the current branch (if it exists)

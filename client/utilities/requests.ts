@@ -40,9 +40,9 @@ export type StreamOptions = {
  * @typedef {SendFileStreamEventData}
  */
 type SendFileStreamEventData = {
-    'progress': ProgressEvent<EventTarget>;
-    'complete': ProgressEvent<EventTarget>;
-    'error': ProgressEvent<EventTarget>;
+    progress: ProgressEvent<EventTarget>;
+    complete: ProgressEvent<EventTarget>;
+    error: ProgressEvent<EventTarget>;
 };
 
 /**
@@ -53,9 +53,9 @@ type SendFileStreamEventData = {
  * @template T
  */
 type RetrieveStreamEventData<T> = {
-    'chunk': T;
-    'complete': T[];
-    'error': Error;
+    chunk: T;
+    complete: T[];
+    error: Error;
 };
 
 /**
@@ -68,8 +68,9 @@ type RetrieveStreamEventData<T> = {
  * @template [T=string]
  * @extends {EventEmitter<RetrieveStreamEvent<T>>}
  */
-export class RetrieveStreamEventEmitter<T = string>
-    extends EventEmitter<keyof RetrieveStreamEventData<T>> {
+export class RetrieveStreamEventEmitter<T = string> extends EventEmitter<
+    keyof RetrieveStreamEventData<T>
+> {
     /**
      * Creates an instance of RetrieveStreamEventEmitter.
      * @date 10/12/2023 - 1:19:15 PM
@@ -147,9 +148,9 @@ export class RetrieveStreamEventEmitter<T = string>
  * @typedef {SendStreamEventData}
  */
 type SendStreamEventData = {
-    'end': undefined;
-    'error': Error;
-    'progress': number;
+    end: undefined;
+    error: Error;
+    progress: number;
 };
 
 /**

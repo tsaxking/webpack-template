@@ -17,10 +17,10 @@ export const capitalize = (str: string): string =>
  * @returns
  */
 export const toCamelCase = (str: string): string =>
-    str.replace(
-        /(?:^\w|[A-Z]|\b\w)/g,
-        (word, index) => index === 0 ? word.toLowerCase() : word.toUpperCase(),
-    ).replace(/\s+/g, '');
+    str
+        .replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) =>
+            index === 0 ? word.toLowerCase() : word.toUpperCase())
+        .replace(/\s+/g, '');
 
 /**
  * Converts a string to snake_case
@@ -28,10 +28,9 @@ export const toCamelCase = (str: string): string =>
  * @returns
  */
 export const toSnakeCase = (str: string, del = '_'): string =>
-    str.replace(/([A-Z])/g, (g) => `${del}${g[0].toLowerCase()}`).replace(
-        /\s+/g,
-        '_',
-    );
+    str
+        .replace(/([A-Z])/g, (g) => `${del}${g[0].toLowerCase()}`)
+        .replace(/\s+/g, '_');
 
 /**
  * Converts a string from camelCase to "camel case"

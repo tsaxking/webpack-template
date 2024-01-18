@@ -1,3 +1,4 @@
+/* eslint-disable no-async-promise-executor */
 // make a class that simulates npm:express using the deno std library
 import { serve } from 'https://deno.land/std@0.150.0/http/server.ts';
 import { Server } from 'https://deno.land/x/socket_io@0.2.0/mod.ts';
@@ -128,17 +129,21 @@ export class Route {
         ...callbacks: ServerFunction<null>[]
     ): this {
         if (typeof path === 'string') {
-            this.serverFunctions.push(...callbacks.map((cb) => ({
-                path: path,
-                callback: cb,
-                method: RequestMethod.GET,
-            })));
+            this.serverFunctions.push(
+                ...callbacks.map((cb) => ({
+                    path: path,
+                    callback: cb,
+                    method: RequestMethod.GET,
+                })),
+            );
         } else {
-            this.serverFunctions.push(...[path, ...callbacks].map((cb) => ({
-                path: '/*',
-                callback: cb,
-                method: RequestMethod.GET,
-            })));
+            this.serverFunctions.push(
+                ...[path, ...callbacks].map((cb) => ({
+                    path: '/*',
+                    callback: cb,
+                    method: RequestMethod.GET,
+                })),
+            );
         }
         return this;
     }
@@ -156,17 +161,27 @@ export class Route {
         ...callbacks: ServerFunction<T>[]
     ): this {
         if (typeof path === 'string') {
-            this.serverFunctions.push(...callbacks.map((cb) => ({
-                path: path,
-                callback: cb,
-                method: RequestMethod.POST,
-            } as ServerFunctionHandler<T>)));
+            this.serverFunctions.push(
+                ...callbacks.map(
+                    (cb) =>
+                        ({
+                            path: path,
+                            callback: cb,
+                            method: RequestMethod.POST,
+                        }) as ServerFunctionHandler<T>,
+                ),
+            );
         } else {
-            this.serverFunctions.push(...[path, ...callbacks].map((cb) => ({
-                path: '/*',
-                callback: cb,
-                method: RequestMethod.POST,
-            } as ServerFunctionHandler<T>)));
+            this.serverFunctions.push(
+                ...[path, ...callbacks].map(
+                    (cb) =>
+                        ({
+                            path: '/*',
+                            callback: cb,
+                            method: RequestMethod.POST,
+                        }) as ServerFunctionHandler<T>,
+                ),
+            );
         }
         return this;
     }
@@ -184,17 +199,21 @@ export class Route {
         ...callbacks: ServerFunction<any>[]
     ): this {
         if (typeof path === 'string') {
-            this.serverFunctions.push(...callbacks.map((cb) => ({
-                path: path,
-                callback: cb,
-                method: RequestMethod.GET,
-            })));
+            this.serverFunctions.push(
+                ...callbacks.map((cb) => ({
+                    path: path,
+                    callback: cb,
+                    method: RequestMethod.GET,
+                })),
+            );
         } else {
-            this.serverFunctions.push(...[path, ...callbacks].map((cb) => ({
-                path: '/*',
-                callback: cb,
-                method: RequestMethod.GET,
-            })));
+            this.serverFunctions.push(
+                ...[path, ...callbacks].map((cb) => ({
+                    path: '/*',
+                    callback: cb,
+                    method: RequestMethod.GET,
+                })),
+            );
         }
         return this;
     }
@@ -208,11 +227,13 @@ export class Route {
      * @returns {this}
      */
     route(path: string, route: Route): this {
-        this.serverFunctions.push(...route.serverFunctions.map((sf) => ({
-            path: path + sf.path,
-            callback: sf.callback,
-            method: sf.method,
-        })));
+        this.serverFunctions.push(
+            ...route.serverFunctions.map((sf) => ({
+                path: path + sf.path,
+                callback: sf.callback,
+                method: sf.method,
+            })),
+        );
         return this;
     }
 
@@ -467,9 +488,9 @@ export class App {
                 Session.get(cookie) || Session.newSession(req, res);
             }
 
-            req.body = await req.req.json().catch(() => {}) as {
+            req.body = ((await req.req.json().catch(() => {})) as {
                 [key: string]: any;
-            } || {};
+            }) || {};
 
             const runFn = async (i: number) => {
                 return new Promise<void>(async (resolve) => {
@@ -507,19 +528,25 @@ export class App {
                     }
                     if (!ranNext && !res.fulfilled && fns[i + 1]) {
                         const site = stack().map((site: any) => {
-                            return site.getFileName() + ':' +
-                                site.getLineNumber();
+                            return (
+                                site.getFileName() + ':' + site.getLineNumber()
+                            );
                         });
-                        const str = site.filter((t: string) =>
-                            t !== 'null:null'
-                        ).map((t: string) => {
-                            t = t.replace('file://', '').replace('file:', '');
-                            t = PATH.relative(__root, t);
-                            t = `\n\t${Colors.FgYellow}${t}${Colors.Reset}`;
-                            return t;
-                        }).join('');
+                        const str = site
+                            .filter((t: string) => t !== 'null:null')
+                            .map((t: string) => {
+                                t = t
+                                    .replace('file://', '')
+                                    .replace('file:', '');
+                                t = PATH.relative(__root, t);
+                                t = `\n\t${Colors.FgYellow}${t}${Colors.Reset}`;
+                                return t;
+                            })
+                            .join('');
 
-                        log(`Request ${req.method}: ${req.pathname} was not resolved and did not call next() at ${str}`);
+                        log(
+                            `Request ${req.method}: ${req.pathname} was not resolved and did not call next() at ${str}`,
+                        );
                         resolve();
                     }
                 });
@@ -591,17 +618,21 @@ export class App {
         ...callbacks: ServerFunction<null>[]
     ): App {
         if (typeof path === 'string') {
-            this.serverFunctions.push(...callbacks.map((cb) => ({
-                path: path,
-                callback: cb,
-                method: RequestMethod.GET,
-            })));
+            this.serverFunctions.push(
+                ...callbacks.map((cb) => ({
+                    path: path,
+                    callback: cb,
+                    method: RequestMethod.GET,
+                })),
+            );
         } else {
-            this.serverFunctions.push(...[path, ...callbacks].map((cb) => ({
-                path: '/*',
-                callback: cb,
-                method: RequestMethod.GET,
-            })));
+            this.serverFunctions.push(
+                ...[path, ...callbacks].map((cb) => ({
+                    path: '/*',
+                    callback: cb,
+                    method: RequestMethod.GET,
+                })),
+            );
         }
         return this;
     }
@@ -619,17 +650,21 @@ export class App {
         ...callback: ServerFunction<any>[]
     ): App {
         if (typeof path === 'string') {
-            this.serverFunctions.push(...callback.map((cb) => ({
-                path: path,
-                callback: cb,
-                method: RequestMethod.GET,
-            })));
+            this.serverFunctions.push(
+                ...callback.map((cb) => ({
+                    path: path,
+                    callback: cb,
+                    method: RequestMethod.GET,
+                })),
+            );
         } else {
-            this.serverFunctions.push(...[path, ...callback].map((cb) => ({
-                path: '/*',
-                callback: cb,
-                method: RequestMethod.GET,
-            })));
+            this.serverFunctions.push(
+                ...[path, ...callback].map((cb) => ({
+                    path: '/*',
+                    callback: cb,
+                    method: RequestMethod.GET,
+                })),
+            );
         }
         return this;
     }
@@ -647,17 +682,27 @@ export class App {
         ...callback: ServerFunction<T>[]
     ): App {
         if (typeof path === 'string') {
-            this.serverFunctions.push(...callback.map((cb) => ({
-                path: path,
-                callback: cb,
-                method: RequestMethod.POST,
-            } as ServerFunctionHandler<T>)));
+            this.serverFunctions.push(
+                ...callback.map(
+                    (cb) =>
+                        ({
+                            path: path,
+                            callback: cb,
+                            method: RequestMethod.POST,
+                        }) as ServerFunctionHandler<T>,
+                ),
+            );
         } else {
-            this.serverFunctions.push(...[path, ...callback].map((cb) => ({
-                path: '/*',
-                callback: cb,
-                method: RequestMethod.POST,
-            } as ServerFunctionHandler<T>)));
+            this.serverFunctions.push(
+                ...[path, ...callback].map(
+                    (cb) =>
+                        ({
+                            path: '/*',
+                            callback: cb,
+                            method: RequestMethod.POST,
+                        }) as ServerFunctionHandler<T>,
+                ),
+            );
         }
         return this;
     }
@@ -671,11 +716,13 @@ export class App {
      * @returns {App}
      */
     route(path: string, route: Route): App {
-        this.serverFunctions.push(...route.serverFunctions.map((sf) => ({
-            path: path + sf.path,
-            callback: sf.callback,
-            method: sf.method,
-        })));
+        this.serverFunctions.push(
+            ...route.serverFunctions.map((sf) => ({
+                path: path + sf.path,
+                callback: sf.callback,
+                method: sf.method,
+            })),
+        );
         // this.routes[path] = route;
         return this;
     }
@@ -697,7 +744,10 @@ export class App {
  * Used to extract parameters from a path
  * @date 10/12/2023 - 2:49:36 PM
  */
-const extractParams = (path: string, url: string): {
+const extractParams = (
+    path: string,
+    url: string,
+): {
     [key: string]: string;
 } => {
     const params: {

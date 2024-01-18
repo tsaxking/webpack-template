@@ -1,5 +1,4 @@
-declare module 'pdfjs' {
-}
+declare module 'pdfjs' {}
 
 export interface PdfJsLib {
     getDocument(url: string): {
@@ -23,10 +22,12 @@ interface PdfJsDocument {
 
 export interface PdfJsPage {
     getViewport(
-        scale: number | {
-            scale: number;
-            rotation: number;
-        },
+        scale:
+            | number
+            | {
+                scale: number;
+                rotation: number;
+            },
     ): PdfJsViewport;
     getTextContent(): Promise<PdfJsTextContent>;
     getAnnotations(): Promise<PdfJsAnnotation[]>;

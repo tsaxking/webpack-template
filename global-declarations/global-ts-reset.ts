@@ -84,6 +84,7 @@ interface Storage {
     [name: string & __A]: unknown;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 declare namespace TSReset {
     type NonFalsy<T> = T extends false | 0 | '' | null | undefined | 0n ? never
         : T;

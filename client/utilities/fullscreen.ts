@@ -10,7 +10,8 @@ export const fullscreen = (target: HTMLElement) => {
         attempt(() => {
             // exit fullscreen
             if (document.fullscreenElement) {
-                document.exitFullscreen()
+                document
+                    .exitFullscreen()
                     .then(() => console.log('Exited fullscreen'));
             }
         });

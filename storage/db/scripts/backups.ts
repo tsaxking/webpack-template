@@ -6,14 +6,10 @@ import { Database } from 'https://deno.land/x/sqlite3@0.9.1/mod.ts';
 
 function makeDir() {
     try {
-        Deno.readDirSync(
-            './storage/db/backups',
-        );
+        Deno.readDirSync('./storage/db/backups');
     } catch {
         log('Creating backups directory');
-        Deno.mkdirSync(
-            './storage/db/backups',
-        );
+        Deno.mkdirSync('./storage/db/backups');
     }
 }
 
@@ -21,7 +17,8 @@ makeDir();
 
 export const makeBackup = (db: Database) => {
     try {
-        let [M, m, p] = getDBVersion(db);
+        const [M, ...rest] = getDBVersion(db);
+        let [m, p] = rest;
 
         if (!m) m = 0;
         if (!p) p = 0;
@@ -40,9 +37,7 @@ export const makeBackup = (db: Database) => {
 export const setIntervals = () => {
     // delete backups after 30 days
 
-    const files = Deno.readDirSync(
-        './storage/db/backups',
-    );
+    const files = Deno.readDirSync('./storage/db/backups');
 
     for (const file of files) {
         if (file.isFile) {
@@ -66,9 +61,9 @@ export const restore = (
     db: Database,
     version?: [number, number | undefined, number | undefined],
 ) => {
-    const files = Array.from(Deno.readDirSync(
-        resolve(__root, './storage/db/backups'),
-    ));
+    const files = Array.from(
+        Deno.readDirSync(resolve(__root, './storage/db/backups')),
+    );
 
     // sort by date, most recent first
     files.sort((a, b) => {
@@ -80,9 +75,9 @@ export const restore = (
 
     if (!version) {
         // restore most recent backup
-        const files = Array.from(Deno.readDirSync(
-            resolve(__root, './storage/db/backups'),
-        ));
+        const files = Array.from(
+            Deno.readDirSync(resolve(__root, './storage/db/backups')),
+        );
         const [file] = files;
 
         if (!file) {
@@ -98,7 +93,9 @@ export const restore = (
         return;
     }
 
-    let [M, m, p] = version;
+    const [M, ...rest] = version;
+    let [m, p] = rest;
+
     if (!m) m = 0;
     if (!p) p = 0;
 

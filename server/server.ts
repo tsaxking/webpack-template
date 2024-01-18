@@ -30,6 +30,10 @@ export const app = new App(port, domain, {
     ioPort: +(env.SOCKET_PORT || port + 1),
 });
 
+app.get('/*', (req, res) => {
+    console.log('test');
+});
+
 const builder = await runBuild();
 
 // building client listeners
@@ -56,7 +60,7 @@ app.post(
     }),
 );
 
-app.post('/test', (req, res, next) => {
+app.post('/test', (req, res) => {
     res.sendStatus('test:success');
 });
 
@@ -66,15 +70,18 @@ app.post('/ping', (req, res) => {
 
 app.post(
     '/test-validation',
-    validate({
-        username: (v: any) => v === 'fail',
-        password: (v: any) => v === 'test',
-    }, {
-        onspam: (req, res, next) => {
-            res.sendStatus('test:fail');
+    validate(
+        {
+            username: (v: any) => v === 'fail',
+            password: (v: any) => v === 'test',
         },
-    }),
-    (req, res, next) => {
+        {
+            onspam: (req, res) => {
+                res.sendStatus('test:fail');
+            },
+        },
+    ),
+    (req, res) => {
         res.sendStatus('test:success');
     },
 );
@@ -97,7 +104,7 @@ app.post('/socket-url', (req, res, next) => {
     });
 });
 
-app.get('/favicon.ico', (req, res) => {
+app.get('/favicon.ico', (req, res, next) => {
     res.sendFile(resolve(__root, './public/pictures/logo-square.png'));
 });
 
@@ -177,15 +184,13 @@ app.post('/*', (req, res, next) => {
 
 const homePages = getJSONSync<string[]>('pages/home');
 
-app.get('/', (req, res, next) => {
+app.get('/', (req, res) => {
     res.redirect('/home');
 });
 
 app.get('/*', async (req, res, next) => {
     if (homePages?.includes(req.url.slice(1))) {
-        return res.send(
-            await homeBuilder(req.url),
-        );
+        return res.send(await homeBuilder(req.url));
     }
     next();
 });
@@ -214,11 +219,11 @@ app.get('/*', (req, res, next) => {
 
 app.route('/admin', admin);
 
-app.get('/user/*', Account.isSignedIn, (req, res, next) => {
+app.get('/user/*', Account.isSignedIn, (req, res) => {
     res.sendTemplate('entries/user');
 });
 
-app.get('/admin/*', Role.allowRoles('admin'), (req, res, next) => {
+app.get('/admin/*', Role.allowRoles('admin'), (req, res) => {
     res.sendTemplate('entries/admin');
 });
 
@@ -238,18 +243,20 @@ app.final<{
         status: res._status,
         userAgent: req.headers.get('user-agent') || '',
         body: req.method == 'post'
-            ? JSON.stringify((() => {
-                let { body } = req;
-                body = JSON.parse(JSON.stringify(body)) as {
-                    $$files?: any;
-                    password?: string;
-                    confirmPassword?: string;
-                };
-                delete body?.password;
-                delete body?.confirmPassword;
-                delete body?.$$files;
-                return body;
-            })())
+            ? JSON.stringify(
+                (() => {
+                    let { body } = req;
+                    body = JSON.parse(JSON.stringify(body)) as {
+                        $$files?: any;
+                        password?: string;
+                        confirmPassword?: string;
+                    };
+                    delete body?.password;
+                    delete body?.confirmPassword;
+                    delete body?.$$files;
+                    return body;
+                })(),
+            )
             : '',
         params: JSON.stringify(req.params),
         query: JSON.stringify(req.query),

@@ -9,14 +9,16 @@ import { spawn } from 'node:child_process';
  * @typedef {Result}
  * @template T
  */
-type Result<T> = {
-    error: Error;
-    code: number;
-} | {
-    error: null;
-    code: 0;
-    result: T;
-};
+type Result<T> =
+    | {
+        error: Error;
+        code: number;
+    }
+    | {
+        error: null;
+        code: 0;
+        result: T;
+    };
 
 /**
  * Runs a deno file
@@ -31,60 +33,60 @@ export const runTask = async <T>(
     ...args: string[]
 ): Promise<Result<T>> => {
     return new Promise<Result<T>>((res) => {
-        import(
-            addFileProtocol(resolve(__root, file))
-        ).then(async (module) => {
-            if (functionName) {
-                if (typeof module[functionName] === 'function') {
-                    log('Running task:', __dirname(), file, functionName);
-                    try {
-                        const result = await module[functionName](...args); // run the function, if it's async it will wait, otherwise it will just run
-                        return res({
-                            error: null,
-                            code: 0,
-                            result: result as T,
-                        });
-                    } catch (e) {
+        import(addFileProtocol(resolve(__root, file)))
+            .then(async (module) => {
+                if (functionName) {
+                    if (typeof module[functionName] === 'function') {
+                        log('Running task:', __dirname(), file, functionName);
+                        try {
+                            const result = await module[functionName](...args); // run the function, if it's async it will wait, otherwise it will just run
+                            return res({
+                                error: null,
+                                code: 0,
+                                result: result as T,
+                            });
+                        } catch (e) {
+                            error(
+                                'Error running task:',
+                                __dirname(),
+                                'function',
+                                functionName,
+                                e,
+                            );
+                            return res({
+                                error: e,
+                                code: 1,
+                            });
+                        }
+                    } else {
                         error(
                             'Error running task:',
                             __dirname(),
                             'function',
                             functionName,
-                            e,
+                            'not found',
                         );
                         return res({
-                            error: e,
+                            error: new Error('Function not found'),
                             code: 1,
                         });
                     }
-                } else {
-                    error(
-                        'Error running task:',
-                        __dirname(),
-                        'function',
-                        functionName,
-                        'not found',
-                    );
-                    return res({
-                        error: new Error('Function not found'),
-                        code: 1,
-                    });
                 }
-            }
 
-            log('Running task:', __dirname(), file);
-            res({
-                error: null,
-                code: 0,
-                result: null as T,
+                log('Running task:', __dirname(), file);
+                res({
+                    error: null,
+                    code: 0,
+                    result: null as T,
+                });
+            })
+            .catch((err) => {
+                error('Error running task:', __dirname(), err);
+                res({
+                    error: err,
+                    code: 1,
+                });
             });
-        }).catch((err) => {
-            error('Error running task:', __dirname(), err);
-            res({
-                error: err,
-                code: 1,
-            });
-        });
     });
 };
 

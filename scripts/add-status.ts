@@ -17,9 +17,9 @@ export const addSocket = (name: string) => {
 
     const [, end] = decoded.split('export type SocketEvent =');
 
-    let events = end.split('|').map((i) =>
-        i.trim().replace(';', '').replace(/\n/g, '')
-    );
+    let events = end
+        .split('|')
+        .map((i) => i.trim().replace(';', '').replace(/\n/g, ''));
     events.push(`'${name}'`);
 
     events.sort((a, b) => {
@@ -52,7 +52,7 @@ export const addStatus = (data: {
     code: StatusCode;
     instructions: string;
 }) => {
-    const value = data.group + ':' + data.name as StatusId;
+    const value = (data.group + ':' + data.name) as StatusId;
     const obj = {
         message: data.message,
         color: data.color as StatusColor,
@@ -68,23 +68,27 @@ export const addStatus = (data: {
 
     messages[value] = obj;
 
-    const str: string = (Object.keys(messages).sort((a, b) => {
-        const [a1, a2] = a.split(':');
-        const [b1, b2] = b.split(':');
+    const str: string = (
+        Object.keys(messages).sort((a, b) => {
+            const [a1, a2] = a.split(':');
+            const [b1, b2] = b.split(':');
 
-        if (a1 === b1) {
-            return a2.localeCompare(b2);
-        }
+            if (a1 === b1) {
+                return a2.localeCompare(b2);
+            }
 
-        return a1.localeCompare(b1);
-    }) as StatusId[]).map((key: StatusId) => {
-        return `    '${key}': {
+            return a1.localeCompare(b1);
+        }) as StatusId[]
+    )
+        .map((key: StatusId) => {
+            return `    '${key}': {
     message: '${messages[key].message.replace(/'/g, "\\'")}',
     color: '${messages[key].color}',
     code: ${messages[key].code},
     instructions: '${messages[key].instructions}'
 }`;
-    }).join(',\n');
+        })
+        .join(',\n');
 
     const groups = Object.keys(messages).reduce((acc, key) => {
         if (!acc[key.split(':')[0]]) acc[key.split(':')[0]] = [];
@@ -98,9 +102,10 @@ export const addStatus = (data: {
 
     const [, end] = decoded.split('export type StatusId =');
 
-    let ids = end.split(';')[0].split('|').map((i) =>
-        i.trim().replace(';', '').replace(/\n/g, '')
-    );
+    let ids = end
+        .split(';')[0]
+        .split('|')
+        .map((i) => i.trim().replace(';', '').replace(/\n/g, ''));
 
     ids.push(`'${value}'`);
 
@@ -134,13 +139,19 @@ ${str}
 export type StatusId = ${ids.join('\n\t| ')}\n;
 
 ${
-        Object.keys(groups).map((key) => {
-            return `export type ${
-                capitalize(toCamelCase(fromSnakeCase(key, '-')))
-            }StatusId = ${
-                groups[key].map((i: string) => `'${i}'`).join('\n\t| ')
-            };`;
-        }).join('\n\n\n')
+        Object.keys(groups)
+            .map((key) => {
+                return `export type ${
+                    capitalize(
+                        toCamelCase(fromSnakeCase(key, '-')),
+                    )
+                }StatusId = ${
+                    groups[key]
+                        .map((i: string) => `'${i}'`)
+                        .join('\n\t| ')
+                };`;
+            })
+            .join('\n\n\n')
     }
 `;
 
@@ -160,9 +171,11 @@ export const addStatusPrompt = () => {
 
     const parse = (str: string, trim?: boolean) => {
         if (trim) str = str.trim();
-        return str.toLowerCase().split('').filter((i) =>
-            allowedCharacters.includes(i)
-        ).join('');
+        return str
+            .toLowerCase()
+            .split('')
+            .filter((i) => allowedCharacters.includes(i))
+            .join('');
     };
     const filter = (str: string): boolean => {
         if (str.length < 3) return false;

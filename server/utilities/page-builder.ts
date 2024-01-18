@@ -44,9 +44,7 @@ const builds: {
 export const builder = async (req: Req, res: Res, next: Next) => {
     const { url } = req;
     if (builds[url]) {
-        res.send(
-            await homeBuilder(url),
-        );
+        res.send(await homeBuilder(url));
     } else {
         next();
     }
