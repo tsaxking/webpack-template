@@ -13,6 +13,7 @@ import Role from './structure/roles.ts';
 import { validate } from './middleware/data-type.ts';
 import { retrieveStream } from './middleware/stream.ts';
 import os from 'https://deno.land/x/dos@v0.11.0/mod.ts';
+import { stdin } from './utilities/utilties.ts';
 
 console.log('Platform:', os.platform());
 
@@ -36,6 +37,8 @@ builder.on('build', () => {
     if (env.ENVIRONMENT === 'dev') app.io.emit('reload');
     log('Build complete');
 });
+
+stdin.on('build', () => builder.emit('build'));
 
 builder.on('error', (e) => log('Build error:', e));
 
