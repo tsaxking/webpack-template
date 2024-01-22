@@ -79,35 +79,36 @@ type BuildEventData = {
 export const runBuild = async () => {
     const builder = new EventEmitter<keyof BuildEventData>();
 
-    const build = () =>  esbuild.build({
-        entryPoints: entries,
-        bundle: true,
-        // minify: true,
-        outdir: './dist',
-        mainFields: ['svelte', 'browser', 'module', 'main'],
-        conditions: ['svelte', 'browser'],
-        watch: {
-            onRebuild(error: Error, result: any) {
-                if (error) builder.emit('error', error);
-                else builder.emit('build', result);
+    const build = () =>
+        esbuild.build({
+            entryPoints: entries,
+            bundle: true,
+            // minify: true,
+            outdir: './dist',
+            mainFields: ['svelte', 'browser', 'module', 'main'],
+            conditions: ['svelte', 'browser'],
+            watch: {
+                onRebuild(error: Error, result: any) {
+                    if (error) builder.emit('error', error);
+                    else builder.emit('build', result);
+                },
             },
-        },
-        // trust me, it works
-        plugins: [
-            (sveltePlugin as any)({
-                preprocess: [typescript()],
-            }),
-        ],
-        logLevel: 'info',
-        loader: {
-            '.png': 'dataurl',
-            '.woff': 'dataurl',
-            '.woff2': 'dataurl',
-            '.eot': 'dataurl',
-            '.ttf': 'dataurl',
-            '.svg': 'dataurl',
-        },
-    });
+            // trust me, it works
+            plugins: [
+                (sveltePlugin as any)({
+                    preprocess: [typescript()],
+                }),
+            ],
+            logLevel: 'info',
+            loader: {
+                '.png': 'dataurl',
+                '.woff': 'dataurl',
+                '.woff2': 'dataurl',
+                '.eot': 'dataurl',
+                '.ttf': 'dataurl',
+                '.svg': 'dataurl',
+            },
+        });
 
     builder.on('build', () => {
         entries = readDir('./client/entries');
