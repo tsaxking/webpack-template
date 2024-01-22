@@ -5,6 +5,7 @@ import Ping from './commands/ping.ts';
 export type Command = {
     name: string;
     description: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     execute: (interaction: any) => void;
     data?: SlashCommandBuilder;
 };

@@ -1,10 +1,5 @@
 {
-    "deno.enablePaths": [
-        "./server",
-        "./storage/db/scripts",
-        "./scripts",
-        "./shared"
-    ],
+    "deno.enablePaths": ["./server", "./storage/db/scripts", "./scripts"],
     "deno.disablePaths": ["./client"],
     "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
     "editor.formatOnPaste": false, // required

@@ -4,7 +4,7 @@
 
 import { existsSync as exists, readFileSync as read, statSync } from 'node:fs';
 import esbuild from 'npm:esbuild';
-import { error, log, warn } from '../utilities/terminal-logging.ts';
+import { error, warn } from '../utilities/terminal-logging.ts';
 import { compile, preprocess, VERSION } from 'npm:svelte@3.39.0/compiler';
 import { originalPositionFor, TraceMap } from 'npm:@jridgewell/trace-mapping';
 import {
@@ -219,7 +219,7 @@ export function sveltePlugin(options: any) {
                     filter: svelteFilter,
                     namespace: 'esbuild-svelte-direct-import',
                 },
-                async (args: any) => {
+                async (_args: unknown) => {
                     return {
                         errors: [
                             {

@@ -1,11 +1,14 @@
 import { __root } from '../../utilities/env.ts';
 import PATH from 'npm:path';
 import { log } from '../../utilities/terminal-logging.ts';
-import stack from 'npm:callsite';
 import { Colors } from '../../utilities/colors.ts';
 import { StatusCode, StatusId } from '../../../shared/status-messages.ts';
 import { Status } from '../../utilities/status.ts';
-import { getTemplate, getTemplateSync } from '../../utilities/files.ts';
+import {
+    Constructor,
+    getTemplate,
+    getTemplateSync,
+} from '../../utilities/files.ts';
 import { setCookie } from 'https://deno.land/std@0.203.0/http/cookie.ts';
 import { App } from './app.ts';
 import { Req } from './req.ts';
@@ -14,6 +17,7 @@ import { ResponseStatus } from './app.ts';
 import { FileType } from './app.ts';
 import { EventEmitter } from '../../../shared/event-emitter.ts';
 import { streamDelimiter } from '../../../shared/text.ts';
+import * as blog from 'https://deno.land/x/blog@0.3.3/deps.ts';
 import { sleep } from '../../../shared/sleep.ts';
 
 /**
@@ -220,8 +224,10 @@ export class Res {
         }
         this.fulfilled = true;
 
+        const stack = blog.callsites();
+
         this.trace.push(
-            ...stack().map((site: any) => {
+            ...stack.map((site) => {
                 return site.getFileName() + ':' + site.getLineNumber();
             }),
         );
@@ -234,7 +240,7 @@ export class Res {
      * @param {*} data
      * @returns {ResponseStatus}
      */
-    json(data: any): ResponseStatus {
+    json(data: unknown): ResponseStatus {
         this.isFulfilled();
         try {
             const d = JSON.stringify(data);
@@ -382,9 +388,9 @@ export class Res {
      * @param {?*} [data]
      * @returns {ResponseStatus}
      */
-    sendStatus(id: StatusId, data?: any): ResponseStatus {
+    sendStatus(id: StatusId, data?: unknown): ResponseStatus {
         try {
-            Status.from(id, this.req, data).send(this);
+            Status.from(id, this.req, JSON.stringify(data)).send(this);
             return ResponseStatus.success;
         } catch (error) {
             log('Error sending status', error);
@@ -400,10 +406,11 @@ export class Res {
      * @param {?*} [options]
      * @returns {ResponseStatus}
      */
-    sendTemplate(template: string, options?: any): ResponseStatus {
+    sendTemplate(template: string, options?: Constructor): ResponseStatus {
         try {
             const t = getTemplateSync(template, options);
-            this.send(t, 'html');
+            if (t.isErr()) throw new Error(t.error);
+            this.send(t.value, 'html');
             return ResponseStatus.success;
         } catch (e) {
             log('Error sending template', e);
@@ -487,10 +494,11 @@ export class Res {
      * @param {*} constructor
      * @returns {*}
      */
-    async render(template: string, constructor: any) {
+    async render(template: string, constructor: Constructor) {
         try {
             const t = await getTemplate(template, constructor);
-            this.send(t, 'html');
+            if (t.isErr()) throw new Error(t.error);
+            this.send(t.value, 'html');
         } catch (e) {
             log('Error rendering template', e);
             this.sendStatus('server:unknown-server-error');

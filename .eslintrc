@@ -69,7 +69,9 @@
         "no-console": "off",
 
         // typescript
-        "@typescript-eslint/no-explicit-any": "error"
+        "@typescript-eslint/no-explicit-any": "error",
+
+        "no-else-return": "warn"
     },
 
     "parser": "@typescript-eslint/parser",
@@ -85,5 +87,5 @@
     },
     
     // ignore files
-    "ignorePatterns": ["node_modules/", "dist/",  "*.js"]
+    "ignorePatterns": ["node_modules/", "dist/",  "*.js", "**/submodules/"]
 }

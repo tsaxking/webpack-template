@@ -34,7 +34,7 @@ const generateLine = (depth: number) => {
 
 const isDir = (tree: Directory | File): tree is Directory => 'children' in tree;
 
-const generateStr = (tree: Directory | File, depth: number, line: boolean) => {
+const generateStr = (tree: Directory | File, depth: number, _line: boolean) => {
     // generate the tree structure
 
     let str = '';
@@ -42,7 +42,7 @@ const generateStr = (tree: Directory | File, depth: number, line: boolean) => {
     str += `${tree.name}\n`;
 
     if (isDir(tree)) {
-        tree.children.forEach((child, i) => {
+        tree.children.forEach((child, _i) => {
             // console.log(isDir(child));
             // if (isDir(child)) {
             // str += `${generateLine(depth)} ${child.name}\n`;

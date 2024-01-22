@@ -8,7 +8,7 @@ const parse = (ts: string) => {
     const middleware = /(router|app)\.(get|post|use|final)\(([\s\S]+?)\)/g;
 
     const generics = Array.from(ts.matchAll(generic)).map((m) => {
-        const [_, router, method, generic] = m as string[];
+        const [_, _router, _method, generic] = m as string[];
 
         return {
             generic,
@@ -16,7 +16,7 @@ const parse = (ts: string) => {
     });
 
     const middlewares = Array.from(ts.matchAll(middleware)).map((m) => {
-        const [_, router, method, middleware] = m as string[];
+        const [_, _router, _method, middleware] = m as string[];
 
         return {
             middleware,

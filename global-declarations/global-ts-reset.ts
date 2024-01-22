@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 type __A = Record<string | number | symbol, never>;
 interface JSON {
     /**

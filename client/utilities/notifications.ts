@@ -72,7 +72,7 @@ export const notify = (data: StatusJson): Promise<void> => {
  * @async
  */
 export const alert = async (message: string): Promise<void> => {
-    return new Promise<void>((res, rej) => {
+    return new Promise<void>((res) => {
         const id = 'alert-' + Math.random().toString(36).substring(2, 9);
         const m = new Modal({
             target: document.body,
@@ -105,7 +105,7 @@ export const alert = async (message: string): Promise<void> => {
  * @returns {Promise<boolean>}
  */
 export const confirm = async (message: string): Promise<boolean> => {
-    return new Promise<boolean>((res, rej) => {
+    return new Promise<boolean>((res) => {
         const id = 'alert-' + Math.random().toString(36).substring(2, 9);
         const m = new Modal({
             target: document.body,
@@ -148,7 +148,7 @@ export const confirm = async (message: string): Promise<boolean> => {
  * @returns {Promise<string|null>}
  */
 export const prompt = async (question: string): Promise<string | null> => {
-    return new Promise<string | null>((res, rej) => {
+    return new Promise<string | null>((res) => {
         const id = 'alert-' + Math.random().toString(36).substring(2, 9);
         const m = new Modal({
             target: document.body,

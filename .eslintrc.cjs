@@ -18,5 +18,5 @@ module.exports = {
         // tsconfigRootDir: __dirname,
     },
 
-    ignorePatterns: ['node_modules/', 'dist/', '**/*.js'],
+    ignorePatterns: ['node_modules/', 'dist/', '**/*.js', '**/submodules/'],
 };

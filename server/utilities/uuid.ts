@@ -1,12 +1,12 @@
 // The point of this file is to work with another server that generates ids and pulls them form random.org
 
 import * as randomString from 'npm:uuid';
-import axios from 'npm:axios';
-import * as fsPromises from 'node:fs/promises';
-import * as fs from 'node:fs';
-import env from './env.ts';
+// import axios from 'npm:axios';
+// import * as fsPromises from 'node:fs/promises';
+// import * as fs from 'node:fs';
+// import env from './env.ts';
 
-export const uuid = (...args: any[]) => randomString.v4();
+export const uuid = (..._args: unknown[]) => randomString.v4();
 
 // const uuidv4 = randomString.v4;
 

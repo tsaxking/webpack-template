@@ -4,16 +4,14 @@
 import { DB } from '../utilities/databases.ts';
 import Account from './accounts.ts';
 import { EmailType } from '../utilities/email.ts';
-import { Status } from '../utilities/status.ts';
 import { io } from '../structure/socket.ts';
 import { deleteUpload } from '../utilities/files.ts';
 import {
     Member as MemberObj,
     MemberSafe,
     MembershipStatus,
-    Skill,
 } from '../../shared/db-types.ts';
-import { Next, ServerFunction } from './app/app.ts';
+import { Next } from './app/app.ts';
 import { Req } from './app/req.ts';
 import { Res } from './app/res.ts';
 
@@ -29,7 +27,13 @@ export enum MemberReturnStatus {
 }
 
 export class Member {
-    static async canManage(req: Req, res: Res, next: Next) {
+    static async canManage(
+        req: Req<{
+            username: string;
+        }>,
+        res: Res,
+        next: Next,
+    ) {
         const { username } = req.body;
         const self = req.session.account;
         if (!self) return res.sendStatus('account:not-logged-in');

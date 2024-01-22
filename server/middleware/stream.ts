@@ -1,4 +1,3 @@
-import { Status } from '../utilities/status.ts';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { uuid } from '../utilities/uuid.ts';
@@ -13,7 +12,6 @@ import { Req } from '../structure/app/req.ts';
 import { Res } from '../structure/app/res.ts';
 import { StatusId } from '../../shared/status-messages.ts';
 import { EventEmitter } from '../../shared/event-emitter.ts';
-import { datacatalog_v1 } from 'npm:googleapis';
 
 /**
  * Options for file upload streams
@@ -46,7 +44,7 @@ export type FileUpload = {
  * @param {FileStreamOptions} opts
  * @returns {(req: any, res: any, next: any) => unknown}
  */
-export const fileStream = (opts?: FileStreamOptions): ServerFunction<any> => {
+export const fileStream = (opts?: FileStreamOptions): ServerFunction => {
     createUploadsFolder();
     return async (req: Req, res: Res, next: Next) => {
         let { maxFileSize, extensions } = opts || {};
@@ -59,7 +57,7 @@ export const fileStream = (opts?: FileStreamOptions): ServerFunction<any> => {
 
         let sent = false;
 
-        const sendStatus = (status: StatusId, data: any) => {
+        const sendStatus = (status: StatusId, data: unknown) => {
             if (!sent) {
                 sent = true;
                 res.sendStatus(status, data);
@@ -68,7 +66,7 @@ export const fileStream = (opts?: FileStreamOptions): ServerFunction<any> => {
 
         const reqBody = await req.req.formData();
         const bodyStr = req.headers.get('X-Body'); // had to put body in headers because FormData is already in there
-        let body: any;
+        let body: unknown;
         if (bodyStr) body = JSON.parse(bodyStr);
         else body = {};
 
@@ -78,7 +76,7 @@ export const fileStream = (opts?: FileStreamOptions): ServerFunction<any> => {
         if (opts?.maxFiles && files.length > opts.maxFiles) {
             return res.sendStatus('files:too-many-files', {
                 maxFiles: opts.maxFiles,
-                ...body,
+                ...(body || {}),
             });
         }
 
@@ -96,7 +94,7 @@ export const fileStream = (opts?: FileStreamOptions): ServerFunction<any> => {
                         name,
                         ext,
                         extensions,
-                        ...body,
+                        ...(body || {}),
                     });
                 }
 
@@ -105,7 +103,7 @@ export const fileStream = (opts?: FileStreamOptions): ServerFunction<any> => {
                         name,
                         size: formatBytes(size),
                         maxFileSize: formatBytes(maxFileSize as number),
-                        ...body,
+                        ...(body || {}),
                     });
                 }
 
@@ -145,7 +143,7 @@ type StreamEvents = {
  *
  * @typedef {EM}
  */
-type EM = EventEmitter<keyof StreamEvents>;
+type _EM = EventEmitter<keyof StreamEvents>;
 
 /**
  * Stream event middleware options
@@ -169,7 +167,21 @@ type StreamOptions = {
  */
 export const retrieveStream = (
     options: Partial<StreamOptions>,
-): ServerFunction<any> => {
+): ServerFunction<
+    | {
+        type: 'data';
+        index: number;
+        data: string;
+        size: number;
+    }
+    | {
+        type: 'end';
+    }
+    | {
+        type: 'error';
+        error: Error;
+    }
+> => {
     const cached = new Map<number, string>();
 
     let sentIndex = 0;
@@ -206,7 +218,7 @@ export const retrieveStream = (
             switch (type) {
                 case 'data':
                     (() => {
-                        const { index, data, size } = req.body;
+                        const { index, data, size: _size } = req.body;
                         if (index === sentIndex) {
                             send(data);
                         } else {

@@ -1,9 +1,6 @@
 // const SpamScanner = require('spamscanner');
 import { validate } from 'npm:deep-email-validator';
-import { App, Next, ServerFunction } from '../structure/app/app.ts';
-import { Req } from '../structure/app/req.ts';
-import { Res } from '../structure/app/res.ts';
-import { log } from '../utilities/terminal-logging.ts';
+import { ServerFunction } from '../structure/app/app.ts';
 /**
  * Options for the spam detection middleware
  * @date 1/9/2024 - 1:19:48 PM
@@ -19,7 +16,7 @@ export type Options = {
      * @param next
      * @returns
      */
-    onspam?: ServerFunction<any>;
+    onspam?: ServerFunction;
 
     /**
      * Called when an error occurs
@@ -28,7 +25,7 @@ export type Options = {
      * @param next
      * @returns
      */
-    onerror?: ServerFunction<any>;
+    onerror?: ServerFunction;
 
     /**
      * Whether or not to continue to the next middleware function (default: false)
@@ -72,21 +69,27 @@ export type Options = {
 export const emailValidation = (
     keys: string[],
     options: Options = {},
-): ServerFunction<any> => {
-    return (req: Req, res: Res, next: Next) => {
-        const arr = keys.map((key) => req.body[key]).filter(Boolean);
+): ServerFunction => {
+    return (req, res, next) => {
+        const arr = keys
+            .map((key) => (req.body ? req.body[key] : ''))
+            .filter(Boolean);
 
         if (!arr.length) return next();
 
-        Promise.all(arr.map((value) => validate({ email: value })))
+        Promise.all(
+            arr.map(async (value) => {
+                if (typeof value !== 'string') return { valid: false };
+                return validate({ email: value });
+            }),
+        )
             .then((results) => {
                 const valid = results.every((result) => result.valid);
                 if (valid) return next();
-                req.body.__emailResults = results;
                 if (options.onspam) return options.onspam(req, res, next);
                 if (options.goToNext) next();
             })
-            .catch((err) => {
+            .catch((_err) => {
                 if (options.onerror) return options.onerror(req, res, next);
                 // console.error(err);
                 next();

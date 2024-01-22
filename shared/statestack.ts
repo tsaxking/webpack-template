@@ -10,7 +10,7 @@ import { EventEmitter } from './event-emitter.ts';
  */
 type StateStackOptions = {
     max?: number;
-    copy?: (data: any) => any;
+    copy?: (data: unknown) => unknown;
 };
 
 /**
@@ -20,7 +20,7 @@ type StateStackOptions = {
  * @typedef {StateStackEventData}
  * @template T
  */
-export type StateStackEventData<T> = {
+export type StateStackEventData<T = unknown> = {
     next: State<T>;
     prev: State<T>;
     new: State<T>;
@@ -36,7 +36,7 @@ export type StateStackEventData<T> = {
  * @typedef {State}
  * @template T
  */
-export class State<T> {
+export class State<T = unknown> {
     /**
      * Date the state was created
      * @date 10/12/2023 - 2:31:40 PM
@@ -88,9 +88,9 @@ export class State<T> {
  * @export
  * @class StateStack
  * @typedef {StateStack}
- * @template [T=any]
+ * @template [T=unknown]
  */
-export class StateStack<T = any> {
+export class StateStack<T = unknown> {
     /**
      * Event emitter for state stack events
      * @date 10/12/2023 - 2:31:40 PM
@@ -261,7 +261,7 @@ export class StateStack<T = any> {
  * @typedef {BranchEventData}
  * @template T
  */
-type BranchEventData<T> = {
+type BranchEventData<T = unknown> = {
     new: StateStack<T>;
     switch: StateStack<T>;
     remove: string;
@@ -275,9 +275,9 @@ type BranchEventData<T> = {
  * @export
  * @class BranchStack
  * @typedef {BranchStack}
- * @template [T=any]
+ * @template [T=unknown]
  */
-export class BranchStack<T = any> {
+export class BranchStack<T = unknown> {
     /**
      * List of branches in the stack
      * @date 10/12/2023 - 2:31:40 PM
@@ -375,7 +375,7 @@ export class BranchStack<T = any> {
 
         for (const s of b.states) {
             let d = s.data;
-            if (newBranch.options?.copy) d = newBranch.options.copy(d);
+            if (newBranch.options?.copy) d = newBranch.options.copy(d) as T;
 
             newBranch.add(s.data);
         }

@@ -4,12 +4,10 @@
 import { __root } from './env.ts';
 import {
     Account,
-    AccountRole,
     Member,
     MembershipStatus,
     Role,
     RolePermission,
-    Skill,
 } from '../../shared/db-types.ts';
 import { SessionObj } from '../structure/sessions.ts';
 

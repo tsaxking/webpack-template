@@ -1,6 +1,6 @@
-import callsite from 'npm:callsite';
 import { Colors } from './colors.ts';
 import os from 'https://deno.land/x/dos@v0.11.0/mod.ts';
+import * as blog from 'https://deno.land/x/blog@0.3.3/deps.ts';
 
 /**
  * Makes paths consistent across platforms
@@ -99,7 +99,7 @@ export const relative = (from: string, to: string): string => {
     }
 
     let result = '';
-    for (const part of path1Parts) {
+    for (const _ of path1Parts) {
         result += '../';
     }
 
@@ -157,7 +157,7 @@ export const __templates: string = resolve(__root, './public/templates/');
  * @date 10/12/2023 - 3:24:39 PM
  */
 export const __dirname = () => {
-    const site = callsite()[1];
+    const site = blog.callsites()[1];
     let p = relative(
         __root,
         site.getFileName()?.replace('file://', '').substring(1) || '',
@@ -173,7 +173,7 @@ export const __dirname = () => {
  * @date 1/9/2024 - 12:16:52 PM
  */
 export const __filename = () => {
-    const site = callsite()[1];
+    const site = blog.callsites()[1];
     let p = relative(
         __root,
         site.getFileName()?.replace('file://', '').substring(1) || '',

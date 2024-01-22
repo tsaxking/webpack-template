@@ -23,7 +23,7 @@ type SocketMetadata = {
  */
 type SocketQueue = {
     event: string;
-    args: any[];
+    args: unknown[];
     room?: string;
     metadata: SocketMetadata;
 };
@@ -103,7 +103,7 @@ export class SocketWrapper {
      * @param {...any[]} args
      * @returns {*}
      */
-    emit(event: string, ...args: any[]) {
+    emit(event: string, ...args: unknown[]) {
         log('Emitting', event, 'with', args);
         if (!this.socket.connected) {
             return this.queue.push({
@@ -134,7 +134,7 @@ export class SocketWrapper {
      */
     to(room: string) {
         return {
-            emit: (event: string, ...args: any[]) => {
+            emit: (event: string, ...args: unknown[]) => {
                 // add to queue if not connected
                 if (!this.socket.connected) {
                     return this.queue.push({
@@ -173,7 +173,7 @@ export let io: Server | null = null;
  */
 export const initSocket = (server: Server) => {
     io = server;
-    io.on('connection', (socket) => {
+    io.on('connection', (_socket) => {
         console.log('a user connected');
         // Session.addSocket(socket);
     });

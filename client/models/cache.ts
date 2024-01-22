@@ -4,9 +4,15 @@ import { EventEmitter } from '../../shared/event-emitter';
  * Global updates for all caches
  * @date 10/12/2023 - 1:04:42 PM
  *
- * @typedef {Updates}
+ * @typedef {CacheUpdates}
  */
-type Updates = 'create' | 'update' | 'delete' | 'archive' | 'restore' | '*';
+export type CacheUpdates =
+    | 'create'
+    | 'update'
+    | 'delete'
+    | 'archive'
+    | 'restore'
+    | '*';
 
 /**
  * Cache is a class which allows you to store data in memory and listen for updates
@@ -28,7 +34,7 @@ type Updates = 'create' | 'update' | 'delete' | 'archive' | 'restore' | '*';
  * @class Cache
  * @typedef {Cache}
  */
-export class Cache<data = any> {
+export class Cache<data = unknown> {
     /**
      * Cache for storing data (any)
      * @date 10/12/2023 - 1:04:42 PM
@@ -36,7 +42,7 @@ export class Cache<data = any> {
      * @readonly
      * @type {Map<string, any>}
      */
-    readonly $cache: Map<string, any> = new Map<string, any>();
+    readonly $cache = new Map<string, unknown>();
     /**
      * Event emitter for cache object updates (passed in as a generic)
      * @date 10/12/2023 - 1:04:42 PM

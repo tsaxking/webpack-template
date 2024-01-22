@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-async-promise-executor */
 // make a class that simulates npm:express using the deno std library
 import { serve } from 'https://deno.land/std@0.150.0/http/server.ts';
@@ -11,6 +12,7 @@ import { Colors } from '../../utilities/colors.ts';
 import { parseCookie } from '../../../shared/cookie.ts';
 import { Req } from './req.ts';
 import { Res } from './res.ts';
+import { ReqBody } from './req.ts';
 
 /**
  * All file types that can be sent (can be expanded)
@@ -114,7 +116,7 @@ export class Route {
      * @readonly
      * @type {FinalFunction[]}
      */
-    public readonly finalFunctions: FinalFunction<any>[] = [];
+    public readonly finalFunctions: FinalFunction<unknown>[] = [];
 
     /**
      * Adds a get middleware function to the route
@@ -194,10 +196,7 @@ export class Route {
      * @param {...ServerFunction[]} callbacks
      * @returns {this}
      */
-    use(
-        path: string | ServerFunction<any>,
-        ...callbacks: ServerFunction<any>[]
-    ): this {
+    use(path: string | ServerFunction, ...callbacks: ServerFunction[]): this {
         if (typeof path === 'string') {
             this.serverFunctions.push(
                 ...callbacks.map((cb) => ({
@@ -302,7 +301,7 @@ export type FinalFunction<T> = (req: Req<T>, res: Res) => any;
  *
  * @typedef {ServerFunctionHandler}
  */
-type ServerFunctionHandler<T> = {
+type ServerFunctionHandler<T = ReqBody> = {
     path: string;
     callback: ServerFunction<T>;
     method: RequestMethod;
@@ -447,10 +446,10 @@ export class App {
         denoReq: Request,
         info: Deno.ServeHandlerInfo,
     ): Promise<Response> {
-        return new Promise<Response>(async (resolve, reject) => {
+        return new Promise<Response>(async (resolve, _reject) => {
             const url = new URL(denoReq.url, this.domain);
 
-            const finals = this.finalFunctions;
+            // const finals = this.finalFunctions;
 
             const fns = this.serverFunctions.filter((sf) => {
                 // get rid of query
@@ -599,7 +598,7 @@ export class App {
      * @param {string} filePath
      */
     static(path: string, filePath: string) {
-        this.get(path + '/*', async (req, res, next) => {
+        this.get(path + '/*', async (req, res) => {
             // log('Sending file:', filePath + req.pathname.replace(path, ''), req.pathname);
             res.sendFile(filePath + req.pathname.replace(path, ''));
         });
@@ -645,10 +644,7 @@ export class App {
      * @param {...ServerFunction[]} callback
      * @returns {App}
      */
-    use(
-        path: string | ServerFunction<any>,
-        ...callback: ServerFunction<any>[]
-    ): App {
+    use(path: string | ServerFunction, ...callback: ServerFunction[]): App {
         if (typeof path === 'string') {
             this.serverFunctions.push(
                 ...callback.map((cb) => ({

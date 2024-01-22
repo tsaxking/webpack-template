@@ -160,7 +160,7 @@ export class Session {
      * @param {?SessionOptions} [options]
      * @returns {ServerFunction}
      */
-    static middleware(options?: SessionOptions): ServerFunction<any> {
+    static middleware(options?: SessionOptions): ServerFunction {
         if (options) {
             if (options.request) {
                 Session.requestsInfo = options.request;
@@ -341,7 +341,7 @@ export class Session {
      * @param {string} event
      * @param {...any[]} args
      */
-    emit(event: string, ...args: any[]) {
+    emit(event: string, ...args: unknown[]) {
         app.io.to(this.id).emit(event, ...args);
     }
 }

@@ -90,11 +90,16 @@ export const addStatus = (data: {
         })
         .join(',\n');
 
-    const groups = Object.keys(messages).reduce((acc, key) => {
-        if (!acc[key.split(':')[0]]) acc[key.split(':')[0]] = [];
-        acc[key.split(':')[0]].push(key.split(':')[1]);
-        return acc;
-    }, {} as any);
+    const groups = Object.keys(messages).reduce(
+        (acc, key) => {
+            if (!acc[key.split(':')[0]]) acc[key.split(':')[0]] = [];
+            acc[key.split(':')[0]].push(key.split(':')[1]);
+            return acc;
+        },
+        {} as {
+            [key: string]: string[];
+        },
+    );
 
     const file = Deno.readFileSync('./shared/status-messages.ts');
     const decoder = new TextDecoder();

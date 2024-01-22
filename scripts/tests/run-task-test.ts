@@ -1,9 +1,9 @@
-export const asyncFn = async (...params: any[]) => {
-    return new Promise<any[]>((resolve, reject) => {
+export const asyncFn = async (...params: unknown[]) => {
+    return new Promise<unknown[]>((resolve) => {
         resolve(params);
     });
 };
 
-export const syncFn = (...params: any[]) => {
+export const syncFn = (...params: unknown[]) => {
     return params;
 };

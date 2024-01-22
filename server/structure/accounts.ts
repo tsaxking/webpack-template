@@ -6,13 +6,7 @@ import { Status } from '../utilities/status.ts';
 import { Email, EmailOptions, EmailType } from '../utilities/email.ts';
 import Filter from 'npm:bad-words';
 import { Member } from './member.ts';
-import {
-    Account as AccountObject,
-    Member as MemberObj,
-    MembershipStatus,
-    Permission,
-    Skill,
-} from '../../shared/db-types.ts';
+import { Account as AccountObject, Permission } from '../../shared/db-types.ts';
 import env from '../utilities/env.ts';
 import { deleteUpload } from '../utilities/files.ts';
 import { Next, ServerFunction } from './app/app.ts';
@@ -68,16 +62,16 @@ export default class Account {
      * @param {('id' | 'username')} type
      * @returns {ServerFunction<any>}
      */
-    static validate(type: 'id' | 'username'): ServerFunction<any> {
+    static validate(type: 'id' | 'username'): ServerFunction {
         switch (type) {
             case 'id':
                 return validate({
-                    id: (v: any) =>
+                    id: (v: unknown) =>
                         typeof v === 'string' && !!Account.fromId(v),
                 });
             case 'username':
                 return validate({
-                    username: (v: any) =>
+                    username: (v: unknown) =>
                         typeof v === 'string' && !!Account.fromUsername(v),
                 });
         }
@@ -95,8 +89,8 @@ export default class Account {
      * @param {?string} [username]
      * @returns {ServerFunction<any>}
      */
-    static autoSignIn(username?: string): ServerFunction<any> {
-        return (req: Req<any>, res: Res, next: Next) => {
+    static autoSignIn(username?: string): ServerFunction {
+        return (req, _res, next) => {
             if (env.ENVIRONMENT === 'production') return next();
 
             if (!username) return next();
@@ -212,8 +206,8 @@ export default class Account {
      * @param {...string[]} permission
      * @returns {ServerFunction<any>}
      */
-    static allowPermissions(...permission: string[]): ServerFunction<any> {
-        return (req: Req, res: Res, next: Next) => {
+    static allowPermissions(...permission: string[]): ServerFunction {
+        return (req, res, next) => {
             const { session } = req;
             const { account } = session;
 

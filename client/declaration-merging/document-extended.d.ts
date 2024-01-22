@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Creates an element with the specified tag name.
  * @date 1/21/2024 - 8:39:08 PM

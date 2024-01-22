@@ -205,6 +205,6 @@ export type StatusJson = StatusMessage & {
     title: string;
     status: string;
     data?: {
-        [key: string]: any;
+        [key: string]: unknown;
     };
 };

@@ -8,7 +8,6 @@
         "@typescript-eslint/eslint-plugin": "^6.19.0",
         "@typescript-eslint/parser": "^6.19.0",
         "eslint": "^8.56.0",
-        "jquery-ui": "^1.13.2",
         "prettier": "^3.2.2",
         "prettier-plugin-svelte": "^3.1.2",
         "svelte": "^4.2.8",
@@ -18,7 +17,6 @@
         "typescript": "^5.3.3"
     },
     "dependencies": {
-        "@total-typescript/ts-reset": "^0.5.1",
         "@types/bootstrap": "^5.2.10",
         "@types/jqueryui": "^1.12.21",
         "bootstrap": "^5.3.2",

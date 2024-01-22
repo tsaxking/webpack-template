@@ -1,10 +1,7 @@
 import { DB } from '../utilities/databases.ts';
-import { Status } from '../utilities/status.ts';
 import { Permission, RoleName, RolePermission } from '../../shared/db-types.ts';
 import { Role as RoleObject } from '../../shared/db-types.ts';
-import { Next, ServerFunction } from './app/app.ts';
-import { Req } from './app/req.ts';
-import { Res } from './app/res.ts';
+import { ServerFunction } from './app/app.ts';
 
 /**
  * Role object, contains permission information and role name
@@ -23,8 +20,8 @@ export default class Role {
      * @param {...RoleName[]} role
      * @returns {ServerFunction<any>}
      */
-    static allowRoles(...role: RoleName[]): ServerFunction<any> {
-        return async (req: Req, res: Res, next: Next) => {
+    static allowRoles(...role: RoleName[]): ServerFunction {
+        return async (req, res, next) => {
             const { session } = req;
             const { account } = session;
 
@@ -50,8 +47,8 @@ export default class Role {
      * @param {...RoleName[]} role
      * @returns {ServerFunction<any>}
      */
-    static preventRoles(...role: RoleName[]): ServerFunction<any> {
-        return async (req: Req, res: Res, next: Next) => {
+    static preventRoles(...role: RoleName[]): ServerFunction {
+        return async (req, res, next) => {
             const { session } = req;
             const { account } = session;
 

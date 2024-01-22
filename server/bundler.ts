@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as esbuild from 'https://deno.land/x/esbuild@v0.11.12/mod.js';
 import { log } from './utilities/terminal-logging.ts';
 import { sveltePlugin, typescript } from './build/esbuild-svelte.ts';
@@ -28,31 +29,31 @@ const readDir = (dirPath: string): string[] => {
             '/' +
             e.name.replace('.ts', '.html');
 
-        saveTemplateSync(
-            '/' + file,
-            getTemplateSync('index', {
-                script: relative(
-                    resolve(__templates, file),
-                    resolve(
-                        __root,
-                        'dist',
-                        dirPath.split('/').slice(3).join('/'),
-                        e.name.replace('.ts', '.js'),
-                    ),
+        const result = getTemplateSync('index', {
+            script: relative(
+                resolve(__templates, file),
+                resolve(
+                    __root,
+                    'dist',
+                    dirPath.split('/').slice(3).join('/'),
+                    e.name.replace('.ts', '.js'),
                 ),
-                style: relative(
-                    resolve(__templates, file),
-                    resolve(
-                        __root,
-                        'dist',
-                        dirPath.split('/').slice(3).join('/'),
-                        e.name.replace('.ts', '.css'),
-                    ),
+            ),
+            style: relative(
+                resolve(__templates, file),
+                resolve(
+                    __root,
+                    'dist',
+                    dirPath.split('/').slice(3).join('/'),
+                    e.name.replace('.ts', '.css'),
                 ),
-                title: env.TITLE || 'Untitled',
-            }),
-        );
+            ),
+            title: env.TITLE || 'Untitled',
+        });
 
+        if (result.isOk()) {
+            saveTemplateSync('/' + file, result.value);
+        }
         return `${dirPath}/${e.name}`;
     });
 };

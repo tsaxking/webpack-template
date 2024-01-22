@@ -1,9 +1,10 @@
 import nodemailer from 'npm:nodemailer';
 import sgTransport from 'npm:nodemailer-sendgrid-transport';
 import { config } from 'npm:dotenv';
-import { getTemplateSync } from './files.ts';
+import { Constructor, FileError, getTemplateSync } from './files.ts';
 import env from './env.ts';
 import { error } from './terminal-logging.ts';
+import { Result } from '../../shared/attempt.ts';
 
 config();
 
@@ -34,12 +35,11 @@ export type EmailOptions = {
         filename: string;
         path: string;
     }[];
-    constructor: {
+    constructor: Constructor & {
         link?: string;
         linkText?: string;
         title: string;
         message: string;
-        [key: string]: any;
     };
 };
 
@@ -101,26 +101,27 @@ export class Email {
                 footer: env.FOOTER || '',
             };
 
-            let html: string;
-            let temp: string | boolean;
+            let r: Result<string, FileError> | undefined;
 
             switch (type) {
                 case EmailType.link:
-                    temp = getTemplateSync('./emails/link', constructor);
-                    html = typeof temp === 'string' ? temp : '';
+                    r = getTemplateSync('./emails/link', constructor);
                     break;
                 case EmailType.text:
-                    temp = getTemplateSync('./emails/text', constructor);
-                    html = typeof temp === 'string' ? temp : '';
+                    r = getTemplateSync('./emails/text', constructor);
                     break;
                 case EmailType.error:
-                    temp = getTemplateSync('./emails/error', constructor);
-                    html = typeof temp === 'string' ? temp : '';
+                    r = getTemplateSync('./emails/error', constructor);
                     break;
                 default:
-                    html = '';
                     break;
             }
+
+            if (!r) {
+                throw new Error('Unable to get email template');
+            }
+
+            const html = r.isOk() ? r.value : r.error;
 
             const mailOptions = {
                 from: env.SENDGRID_DEFAULT_FROM,
@@ -130,7 +131,7 @@ export class Email {
                 attachments,
             };
 
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve) => {
                 transporter.sendMail(
                     mailOptions,
                     (err: Error, info: { response: string }) => {

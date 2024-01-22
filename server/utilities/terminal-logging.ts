@@ -20,7 +20,7 @@ const getSite = () => {
  * Creates a log message, including the file path, line number, and function name
  * @date 10/12/2023 - 3:26:33 PM
  */
-export const log = (...args: any[]) => {
+export const log = (...args: unknown[]) => {
     const { filePath, lineNumber, fn } = getSite();
     console.log(
         Colors.FgGreen,
@@ -36,7 +36,7 @@ export const log = (...args: any[]) => {
  * Creates an error message, including the file path, line number, and function name
  * @date 10/12/2023 - 3:26:33 PM
  */
-export const error = (...args: any[]) => {
+export const error = (...args: unknown[]) => {
     const { filePath, lineNumber, fn } = getSite();
     console.log(
         Colors.FgRed,
@@ -52,7 +52,7 @@ export const error = (...args: any[]) => {
  * Creates a warning message, including the file path, line number, and function name
  * @date 10/12/2023 - 3:26:32 PM
  */
-export const warn = (...args: any[]) => {
+export const warn = (...args: unknown[]) => {
     const { filePath, lineNumber, fn } = getSite();
     console.log(
         Colors.FgYellow,

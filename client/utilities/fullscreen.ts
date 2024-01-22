@@ -2,10 +2,10 @@ import { attempt } from '../../shared/attempt';
 
 /**
  * Creates a fullscreen request
- * @param target Fullscreen target
+ * @param _target Fullscreen target
  * @returns A function that exits fullscreen
  */
-export const fullscreen = (target: HTMLElement) => {
+export const fullscreen = (_target: HTMLElement) => {
     const end = () =>
         attempt(() => {
             // exit fullscreen

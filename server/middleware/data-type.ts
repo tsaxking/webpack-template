@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Req } from '../structure/app/req.ts';
 import { Res } from '../structure/app/res.ts';
 import { Next, ServerFunction } from '../structure/app/app.ts';
@@ -49,24 +50,26 @@ export const validate = (
         const { body } = req;
 
         for (const key in data) {
-            if (!data[key](body[key])) {
-                if (options?.onInvalid) options.onInvalid(key, body[key]);
-                if (options?.onMissing && body[key] === undefined) {
-                    options.onMissing(key);
+            if (!data[key](body ? body[key] : '')) {
+                if (options?.onInvalid) {
+                    options.onInvalid(key, body ? body[key] : '');
+                }
+                if (options?.onMissing && body ? body[key] : '' === undefined) {
+                    options?.onMissing?.(key);
                 }
 
-                if (options?.onspam && body[key] === undefined) {
-                    options.onspam(req, res, next);
+                if (options?.onspam && body ? body[key] : '' === undefined) {
+                    options?.onspam?.(req, res, next);
                 } else res.sendStatus('server:invalid-data');
 
                 if (!options?.onInvalid && !options?.onMissing) {
                     console.log(
                         `Error on ${req.method} request: ${req.url}`,
                         `${Colors.FgRed}[Data Validation]${Colors.Reset} Invalid data: { "${Colors.FgCyan}${key}${Colors.Reset}" = "${Colors.FgYellow}${
-                            body[key]
-                        }${Colors.Reset}" } (${Colors.FgGreen}${typeof body[
-                            key
-                        ]}${Colors.Reset})`,
+                            body ? body[key] : ''
+                        }${Colors.Reset}" } (${Colors.FgGreen}${typeof (body
+                            ? body[key]
+                            : '')}${Colors.Reset})`,
                     );
                 }
 

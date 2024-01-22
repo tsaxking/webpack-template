@@ -3,7 +3,7 @@ import { EventEmitter } from '../../shared/event-emitter';
 const ping = async (): Promise<number> => {
     const start = Date.now();
 
-    const response = await fetch('/ping', {
+    await fetch('/ping', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -32,7 +32,7 @@ class Ping {
     #interval = 1000;
     public state: PingState = 'disconnected';
     private readonly $pings: number[] = [];
-    private timeout?: any;
+    private timeout?: NodeJS.Timeout;
     private readonly $emitter: EventEmitter<keyof PingEventData> =
         new EventEmitter<keyof PingEventData>();
 

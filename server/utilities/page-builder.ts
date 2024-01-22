@@ -7,6 +7,7 @@ import { capitalize, fromSnakeCase } from '../../shared/text.ts';
 import { Req } from '../structure/app/req.ts';
 import { Res } from '../structure/app/res.ts';
 import { Next } from '../structure/app/app.ts';
+import { attemptAsync } from '../../shared/attempt.ts';
 
 /**
  * Object containing all the pages that can be built
@@ -44,7 +45,11 @@ const builds: {
 export const builder = async (req: Req, res: Res, next: Next) => {
     const { url } = req;
     if (builds[url]) {
-        res.send(await homeBuilder(url));
+        const r = await homeBuilder(url);
+        if (r.isOk()) res.send(r.value);
+        else {
+            res.sendStatus('server:unknown-server-error');
+        }
     } else {
         next();
     }
@@ -57,13 +62,26 @@ export const builder = async (req: Req, res: Res, next: Next) => {
  * @async
  */
 export const homeBuilder = async (url: string) => {
-    return await getTemplate('home/index', {
-        pageTitle: capitalize(fromSnakeCase(url, '-')).slice(1),
-        content: builds[url] ? await builds[url]() : '',
-        footer: await getTemplate('components/footer', {
-            year: new Date().getFullYear(),
-        }),
-        navbar: await navBuilder(url, false),
+    return attemptAsync(async () => {
+        const [footerResult, navbarResult] = await Promise.all([
+            getTemplate('components/footer', {
+                year: new Date().getFullYear(),
+            }),
+            navBuilder(url, false),
+        ]);
+
+        if (footerResult.isErr()) throw new Error(footerResult.error);
+        if (navbarResult.isErr()) throw new Error(navbarResult.error);
+
+        const r = await getTemplate('home/index', {
+            pageTitle: capitalize(fromSnakeCase(url, '-')).slice(1),
+            content: builds[url] ? await builds[url]() : '',
+            footer: footerResult.value,
+            navbar: navbarResult.value,
+        });
+
+        if (r.isErr()) throw new Error(r.error);
+        return r.value;
     });
 };
 
@@ -78,16 +96,15 @@ export const navBuilder = async (url: string, offcanvas: boolean) => {
         offcanvas: {
             offcanvas,
         },
-        navbarRepeat: await getJSON<string[]>('pages/home').then(
-            (data: any) => {
-                return data.map((page: string) => {
-                    return {
-                        active: '/' + page === url,
-                        name: capitalize(fromSnakeCase(page, '-')),
-                        link: '/' + page,
-                    };
-                });
-            },
-        ),
+        navbarRepeat: await getJSON<string[]>('pages/home').then((r) => {
+            if (r.isErr()) throw new Error(r.error);
+            return r.value.map((page: string) => {
+                return {
+                    active: '/' + page === url,
+                    name: capitalize(fromSnakeCase(page, '-')),
+                    link: '/' + page,
+                };
+            });
+        }),
     });
 };

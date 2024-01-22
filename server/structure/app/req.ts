@@ -4,15 +4,15 @@ import { Session } from '../sessions.ts';
 import { parseCookie } from '../../../shared/cookie.ts';
 import { FileUpload } from '../../middleware/stream.ts';
 
-/**
- * File body type
- * @date 1/9/2024 - 1:15:22 PM
- *
- * @typedef {FileBody}
- */
-type FileBody = {
+type B = {
+    [key: string]: unknown;
+};
+
+type FileBody = B & {
     $$files: FileUpload[];
 };
+
+export type ReqBody = B | FileBody;
 
 /**
  * This class represents a request
@@ -22,11 +22,7 @@ type FileBody = {
  * @class Req
  * @typedef {Req}
  */
-export class Req<
-    T = {
-        [key: string]: unknown;
-    },
-> {
+export class Req<T = unknown> {
     /**
      * The cookie object
      * @date 10/12/2023 - 3:02:56 PM

@@ -1,4 +1,4 @@
-import { getTemplateSync, log } from './files.ts';
+import { FileError, getTemplateSync, log } from './files.ts';
 import { Session } from '../structure/sessions.ts';
 import {
     messages,
@@ -10,7 +10,7 @@ import {
 import { Next, ServerFunction } from '../structure/app/app.ts';
 import { Req } from '../structure/app/req.ts';
 import { Res } from '../structure/app/res.ts';
-import Account from '../structure/accounts.ts';
+import { Result } from '../../shared/attempt.ts';
 
 /**
  * Status class, used to send pre-made status messages to the client
@@ -35,7 +35,7 @@ export class Status {
     static middleware(
         id: StatusId,
         test: (session: Session) => boolean,
-    ): ServerFunction<any> {
+    ): ServerFunction {
         return (req: Req, res: Res, next: Next) => {
             if (test(req.session)) {
                 next();
@@ -56,13 +56,13 @@ export class Status {
      * @param {?*} [data]
      * @returns {Status}
      */
-    static from(id: StatusId, req: Req, data?: any): Status {
+    static from(id: StatusId, req: Req, data?: unknown): Status {
+        let dataStr = 'No data';
         try {
-            data = JSON.stringify(data);
+            dataStr = JSON.stringify(data);
         } catch (e) {
             console.error('Unable to stringify data for status message.', e);
             console.log('Data:', data);
-            data = undefined;
         }
 
         const message = messages[id];
@@ -78,7 +78,7 @@ export class Status {
                 },
                 'Unknown Status Message',
                 'Unknown',
-                data,
+                dataStr,
                 req,
             );
         }
@@ -91,7 +91,7 @@ export class Status {
 
         const [title, status] = id.split(':');
 
-        return new Status(message, title, status, data, req);
+        return new Status(message, title, status, dataStr, req);
     }
 
     /**
@@ -131,15 +131,6 @@ export class Status {
      */
     public readonly instructions: string;
     /**
-     * Data to be stored in logs
-     * @date 10/12/2023 - 3:26:23 PM
-     *
-     * @public
-     * @readonly
-     * @type {string}
-     */
-    public readonly data: string;
-    /**
      * URL to redirect to
      * @date 10/12/2023 - 3:26:23 PM
      *
@@ -173,14 +164,13 @@ export class Status {
         message: StatusMessage,
         public readonly title: string,
         public readonly status: string,
-        data: any,
+        public readonly data: string,
         req: Req,
     ) {
         this.message = message.message;
         this.color = message.color;
         this.code = message.code;
         this.instructions = message.instructions;
-        this.data = data;
         this.redirect = message.redirect;
         this.request = req;
 
@@ -229,7 +219,7 @@ export class Status {
      */
     get html() {
         return getTemplateSync('status', {
-            ...this,
+            ...this.json,
             data: this.data ? JSON.stringify(this.data) : 'No data provided.',
         });
     }
@@ -261,16 +251,26 @@ export class Status {
      * @param {Res} res
      */
     send(res: Res) {
+        let r: Result<string, FileError> | undefined;
         switch (this.request.method) {
             case 'GET':
-                res.status(this.code).send(this.html);
+                r = this.html;
                 break;
             case 'POST':
-                res.status(this.code).json(this.json);
-                break;
+                return res.status(this.code).json(this.json);
             default:
-                res.status(this.code).send(this.html);
+                r = this.html;
                 break;
         }
+
+        if (!r) {
+            throw new Error('Unable to get status template');
+        }
+
+        if (r.isErr()) {
+            throw new Error(r.error);
+        }
+
+        res.status(this.code).send(r.value);
     }
 }

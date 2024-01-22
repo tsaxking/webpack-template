@@ -35,94 +35,81 @@
             https://cdn.jsdelivr.net/npm/jquery-ui@1.13.2/dist/jquery-ui.min.js
         "></script>
         <script>
-            const create = (tag, attrs = {}) => {
-                if (!tag) return null;
-                // is a word regex, starts with a letter, followed by letters or numbers
+            const { create, createDeep, find, findAll } = (() => {
+                const setAttributes = element => {
+                    for (const key in attrs) {
+                        if (key == 'style') {
+                            const styles = attrs[key];
+                            for (const styleKey in styles) {
+                                if (styles.hasOwnProperty(styleKey)) {
+                                    const styleValue = styles[styleKey];
+                                    element.style[styleKey] = styleValue;
+                                }
+                            }
+                            continue;
+                        }
+
+                        if (attrs.hasOwnProperty(key)) {
+                            const value = attrs[key];
+                            element.setAttribute(key, value);
+                        }
+                    }
+                };
                 const isWordRegex = /^[a-zA-Z][a-zA-Z0-9]*$/;
                 const isHTML = /<([a-z][a-z0-9]*)\b[^>]*>(.*?)<\/\1>/i;
 
-                const setAttributes = element => {
-                    for (const key in attrs) {
-                        if (key == 'style') {
-                            const styles = attrs[key];
-                            for (const styleKey in styles) {
-                                if (styles.hasOwnProperty(styleKey)) {
-                                    const styleValue = styles[styleKey];
-                                    element.style[styleKey] = styleValue;
-                                }
-                            }
-                            continue;
-                        }
+                const create = (tag, attrs = {}) => {
+                    if (!tag) return null;
+                    // is a word regex, starts with a letter, followed by letters or numbers
 
-                        if (attrs.hasOwnProperty(key)) {
-                            const value = attrs[key];
-                            element.setAttribute(key, value);
-                        }
+                    // If tag is an HTML string, create a DOM element
+                    if (isHTML.test(tag)) {
+                        const element = document.createElement('div');
+                        element.innerHTML = tag.trim();
+                        setAttributes(element.firstChild);
+                        return element.firstChild;
                     }
+
+                    // If tag is a string, create an element
+                    if (isWordRegex.test(tag)) {
+                        const element = document.createElement(tag);
+                        setAttributes(element);
+                        return element;
+                    }
+
+                    // Otherwise, return null
+                    return null;
                 };
 
-                // If tag is an HTML string, create a DOM element
-                if (isHTML.test(tag)) {
-                    const element = document.createElement('div');
-                    element.innerHTML = tag.trim();
-                    setAttributes(element.firstChild);
-                    return element.firstChild;
-                }
-
-                // If tag is a string, create an element
-                if (isWordRegex.test(tag)) {
-                    const element = document.createElement(tag);
-                    setAttributes(element);
-                    return element;
-                }
-
-                // Otherwise, return null
-                return null;
-            };
-
-            const createDeep = (html, attrs = {}) => {
-                const isHTML = /<([a-z][a-z0-9]*)\b[^>]*>(.*?)<\/\1>/i;
-
-                const setAttributes = element => {
-                    for (const key in attrs) {
-                        if (key == 'style') {
-                            const styles = attrs[key];
-                            for (const styleKey in styles) {
-                                if (styles.hasOwnProperty(styleKey)) {
-                                    const styleValue = styles[styleKey];
-                                    element.style[styleKey] = styleValue;
-                                }
-                            }
-                            continue;
-                        }
-
-                        if (attrs.hasOwnProperty(key)) {
-                            const value = attrs[key];
-                            element.setAttribute(key, value);
-                        }
+                const createDeep = (html, attrs = {}) => {
+                    if (isHTML.test(html)) {
+                        const element = document.createElement('div');
+                        element.innerHTML = html.trim();
+                        setAttributes(element.firstChild);
+                        return Array.from(element.querySelectorAll('*'));
                     }
+
+                    console.warn(
+                        'createDeep: html is not a valid HTML string:'
+                    );
+                    console.warn(html);
+
+                    return [];
                 };
 
-                if (isHTML.test(html)) {
-                    const element = document.createElement('div');
-                    element.innerHTML = html.trim();
-                    setAttributes(element.firstChild);
-                    return Array.from(element.querySelectorAll('*'));
-                }
+                const find = (selector, parent = document) =>
+                    parent.querySelector(selector);
 
-                console.warn('createDeep: html is not a valid HTML string:');
-                console.warn(html);
+                const findAll = (selector, parent = document) =>
+                    Array.from(parent.querySelectorAll(selector));
 
-                return [];
-            };
-
-            const find = (selector, parent = document) => {
-                return parent.querySelector(selector);
-            };
-
-            const findAll = (selector, parent = document) => {
-                return Array.from(parent.querySelectorAll(selector));
-            };
+                return {
+                    create,
+                    createDeep,
+                    find,
+                    findAll
+                };
+            })();
         </script>
         <script src="{{ script }}"></script>
     </body>

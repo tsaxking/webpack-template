@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Callback for event listeners
  * @date 10/12/2023 - 1:46:22 PM

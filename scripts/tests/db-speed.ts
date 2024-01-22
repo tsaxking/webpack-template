@@ -17,7 +17,7 @@ const create = () => {
 
 const insert = (i: number) => {
     try {
-        return new Promise<void>((res, rej) => {
+        return new Promise<void>((res) => {
             DB.unsafe.run(
                 `
                 INSERT INTO test (name) VALUES(?)
@@ -70,7 +70,7 @@ export const test = (num: number): number => {
     for (let i = 0; i < num; i++) {
         insert(i);
     }
-    let result: any[] = [];
+    let result: unknown[] = [];
     try {
         result = select();
 
