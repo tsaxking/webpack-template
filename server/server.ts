@@ -67,17 +67,10 @@ app.post('/ping', (req, res) => {
 
 app.post(
     '/test-validation',
-    validate(
-        {
-            username: (v: string) => v === 'fail',
-            password: (v: string) => v === 'test',
-        },
-        {
-            onspam: (req, res) => {
-                res.sendStatus('test:fail');
-            },
-        },
-    ),
+    validate({
+        username: ['fail'],
+        password: ['test'],
+    }),
     (req, res) => {
         res.sendStatus('test:success');
     },

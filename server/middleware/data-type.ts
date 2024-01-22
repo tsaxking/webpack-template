@@ -1,8 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Req } from '../structure/app/req.ts';
-import { Res } from '../structure/app/res.ts';
-import { Next, ServerFunction } from '../structure/app/app.ts';
-import { Colors } from '../utilities/colors.ts';
+import { ServerFunction } from '../structure/app/app.ts';
 
 /**
  * Options for the validate function
@@ -28,13 +25,16 @@ type ValidateOptions = {
      */
     onMissing?: (key: string) => void;
 
-    /**
-     * Called when a value is missing or is flagged as spam
-     *
-     * The flagging system is not yet implemented
-     */
-    onspam?: ServerFunction<any>;
+    log?: true;
 };
+
+type AllowedPrimitive = 'string' | 'number' | 'boolean' | 'undefined';
+
+type IsValid =
+    | AllowedPrimitive
+    | AllowedPrimitive[]
+    | (string | number | boolean)[]
+    | ((data: any) => boolean);
 
 /**
  * Creates a middleware function that validates the req.body, ensuring that all data is both present and the correct type
@@ -42,41 +42,114 @@ type ValidateOptions = {
  */
 export const validate = (
     data: {
-        [key: string]: (value: any) => boolean;
+        [key: string]: IsValid;
     },
     options?: ValidateOptions,
 ): ServerFunction<any> => {
-    return (req: Req, res: Res, next: Next) => {
+    return (req, res, next) => {
         const { body } = req;
 
+        let passed = true;
+        const missing: string[] = [];
+        const failed: string[] = [];
+
         for (const key in data) {
-            if (!data[key](body ? body[key] : '')) {
-                if (options?.onInvalid) {
-                    options.onInvalid(key, body ? body[key] : '');
-                }
-                if (options?.onMissing && body ? body[key] : '' === undefined) {
-                    options?.onMissing?.(key);
-                }
+            const log = (...args: any[]) => {
+                if (options?.log) console.log('[validate]', key, ...args);
+            };
 
-                if (options?.onspam && body ? body[key] : '' === undefined) {
-                    options?.onspam?.(req, res, next);
-                } else res.sendStatus('server:invalid-data');
+            const isValid = data[key];
 
-                if (!options?.onInvalid && !options?.onMissing) {
-                    console.log(
-                        `Error on ${req.method} request: ${req.url}`,
-                        `${Colors.FgRed}[Data Validation]${Colors.Reset} Invalid data: { "${Colors.FgCyan}${key}${Colors.Reset}" = "${Colors.FgYellow}${
-                            body ? body[key] : ''
-                        }${Colors.Reset}" } (${Colors.FgGreen}${typeof (body
-                            ? body[key]
-                            : '')}${Colors.Reset})`,
-                    );
+            if (!body || body[key] === undefined) {
+                passed = false;
+                missing.push(key);
+                continue;
+            }
+
+            // is it an array?
+            if (Array.isArray(isValid)) {
+                log('is array');
+                // is it a primitive array?
+                const isPrimitive = isValid.every((value) =>
+                    ['string', 'number', 'boolean'].includes(
+                        value as AllowedPrimitive,
+                    )
+                );
+                // if not, it's just a normal array
+
+                if (isPrimitive) {
+                    log('is primitive array');
+                    if (
+                        !(isValid as AllowedPrimitive[]).includes(
+                            typeof body[key] as AllowedPrimitive,
+                        )
+                    ) {
+                        log('invalid primitive array');
+                        // invalid, not a primitive
+                        passed = false;
+                        failed.push(key);
+                        continue;
+                    }
+                } else {
+                    log('is normal array');
+                    if (isValid.includes(body[key] as never)) {
+                        log('valid normal array');
+                        // valid
+                        continue;
+                    } else {
+                        log('invalid normal array');
+                        // invalid
+                        passed = false;
+                        failed.push(key);
+                        continue;
+                    }
                 }
+            } else {
+                log('is not array');
+                // is it a primitive?
+                const isPrimitive = ['string', 'number', 'boolean'].includes(
+                    isValid as unknown as AllowedPrimitive,
+                );
 
-                return;
+                if (isPrimitive) {
+                    log('is primitive');
+                    if (typeof body[key] !== isValid) {
+                        log('invalid primitive');
+                        // invalid, not a primitive
+                        passed = false;
+                        failed.push(key);
+                        continue;
+                    }
+                } else {
+                    log('is not primitive');
+                    if ((isValid as (data: any) => boolean)(body[key])) {
+                        log('valid non-primitive');
+                        // valid
+                        continue;
+                    } else {
+                        log('invalid non-primitive');
+                        passed = false;
+                        failed.push(key);
+                        continue;
+                    }
+                }
             }
         }
 
-        next();
+        if (passed) return next();
+
+        if (options?.onInvalid) {
+            for (const key of failed) {
+                options.onInvalid(key, body[key]);
+            }
+        }
+
+        if (options?.onMissing) {
+            for (const key of missing) {
+                options.onMissing(key);
+            }
+        }
+
+        return res.sendStatus('server:invalid-data', body);
     };
 };
