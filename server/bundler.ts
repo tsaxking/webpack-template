@@ -63,9 +63,7 @@ const readDir = (dirPath: string): string[] => {
  *
  * @type {{}}
  */
-let entries: string[] = [];
-
-entries = readDir('./client/entries');
+let entries: string[] = readDir('./client/entries');
 
 /**
  * Event data for the build event
@@ -80,7 +78,8 @@ type BuildEventData = {
 
 export const runBuild = async () => {
     const builder = new EventEmitter<keyof BuildEventData>();
-    const result = await esbuild.build({
+
+    const build = () =>  esbuild.build({
         entryPoints: entries,
         bundle: true,
         // minify: true,
@@ -110,7 +109,19 @@ export const runBuild = async () => {
         },
     });
 
-    builder.on('build', () => (entries = readDir('./client/entries')));
+    builder.on('build', () => {
+        entries = readDir('./client/entries');
+        build();
+    });
+
+    await build();
 
     return builder;
 };
+
+// if this file is the main file, run the build
+if (import.meta.main) {
+    runBuild()
+        .then(() => Deno.exit(0))
+        .catch(() => Deno.exit(1));
+}
