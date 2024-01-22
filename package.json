@@ -23,6 +23,7 @@
         "esbuild-svelte": "^0.8.0",
         "fuzzy-search": "^3.2.1",
         "jquery": "^3.7.1",
+        "jquery-ui": "^1.13.2",
         "material-icons": "^1.13.12",
         "socket.io": "^4.7.4",
         "socket.io-client": "^4.7.4",

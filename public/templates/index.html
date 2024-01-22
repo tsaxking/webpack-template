@@ -4,6 +4,12 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>{{ title }}</title>
+        <link
+            href="
+        https://cdn.jsdelivr.net/npm/jquery-ui@1.13.2/themes/base/selectmenu.min.css
+        "
+            rel="stylesheet"
+        />
         <link rel="stylesheet" href="{{ style }}" />
     </head>
     <body>
@@ -25,6 +31,9 @@
             integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
             crossorigin="anonymous"
         ></script>
+        <script src="
+            https://cdn.jsdelivr.net/npm/jquery-ui@1.13.2/dist/jquery-ui.min.js
+        "></script>
         <script>
             const create = (tag, attrs = {}) => {
                 if (!tag) return null;
@@ -107,8 +116,12 @@
                 return [];
             };
 
-            const select = (selector, parent = document) => {
+            const find = (selector, parent = document) => {
                 return parent.querySelector(selector);
+            };
+
+            const findAll = (selector, parent = document) => {
+                return Array.from(parent.querySelectorAll(selector));
             };
         </script>
         <script src="{{ script }}"></script>

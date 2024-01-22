@@ -32,3 +32,5 @@ const streamer = ServerRequest.stream('/test-stream-data');
 })();
 
 streamer.send();
+
+$(find('button'))
