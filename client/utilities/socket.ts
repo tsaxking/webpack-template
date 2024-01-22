@@ -11,18 +11,23 @@ import { uptime } from '../../shared/clock';
  * @type {*}
  */
 const initialized = new Promise<void>((res) => {
-    ServerRequest.post<{ url: string }>('/socket-url').then(({ url }) => {
-        res();
-        const s = io(url);
-        s.on('disconnect', () => {
-            s.io['reconnect'](); // reconnect is private, but it is still accessible if I do this
-        });
+    ServerRequest.post<{ url: string }>('/socket-url').then((data) => {
+        if (data.isOk()) {
+            const { value } = data;
+            res();
+            const s = io(value.url);
+            s.on('disconnect', () => {
+                s.io['reconnect'](); // reconnect is private, but it is still accessible if I do this
+            });
 
-        s.on('reload', () => {
-            if (uptime() > 1000) location.reload();
-        });
+            s.on('reload', () => {
+                if (uptime() > 1000) location.reload();
+            });
 
-        socket.socket = s;
+            socket.socket = s;
+        } else {
+            console.error(data.error);
+        }
     });
 });
 

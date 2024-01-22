@@ -4,6 +4,7 @@ import { EventEmitter } from '../../shared/event-emitter';
 import { StatusJson } from '../../shared/status';
 import { streamDelimiter } from '../../shared/text';
 import { uuid as _uuid } from '../../server/utilities/uuid';
+import { attemptAsync, Result } from '../../shared/attempt';
 
 /**
  * These are optional options for a request
@@ -286,19 +287,23 @@ export class SendStream {
                         type: 'data',
                     })
                         .then((data) => {
-                            switch (data.status) {
-                                case 'received':
-                                    this.emit('progress', i);
-                                    break;
-                                case 'end':
-                                    this.emit('end', undefined);
-                                    break;
-                                case 'error':
-                                    this.emit(
-                                        'error',
-                                        new Error('Server error'),
-                                    );
-                                    break;
+                            if (data.isOk()) {
+                                const { value } = data;
+
+                                switch (value.status) {
+                                    case 'received':
+                                        this.emit('progress', i);
+                                        break;
+                                    case 'end':
+                                        this.emit('end', undefined);
+                                        break;
+                                    case 'error':
+                                        this.emit(
+                                            'error',
+                                            new Error('Server error'),
+                                        );
+                                        break;
+                                }
                             }
                         })
                         .catch((error: Error) => {
@@ -432,9 +437,11 @@ export class ServerRequest<T = unknown> {
         url: string,
         body?: unknown,
         options?: RequestOptions,
-    ): Promise<T> {
-        const r = new ServerRequest<T>(url, 'post', body, options);
-        return r.send();
+    ): Promise<Result<T>> {
+        return attemptAsync(async () => {
+            const r = new ServerRequest<T>(url, 'post', body, options);
+            return r.send();
+        });
     }
 
     /**
@@ -448,9 +455,14 @@ export class ServerRequest<T = unknown> {
      * @param {?RequestOptions} [options]
      * @returns {Promise<T>}
      */
-    static async get<T>(url: string, options?: RequestOptions): Promise<T> {
-        const r = new ServerRequest<T>(url, 'get', undefined, options);
-        return r.send();
+    static async get<T>(
+        url: string,
+        options?: RequestOptions,
+    ): Promise<Result<T>> {
+        return attemptAsync(async () => {
+            const r = new ServerRequest<T>(url, 'get', undefined, options);
+            return r.send();
+        });
     }
 
     /**
