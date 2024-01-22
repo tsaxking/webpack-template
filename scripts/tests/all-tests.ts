@@ -65,7 +65,8 @@ export const runTests = async () => {
         const missing: string[] = [];
 
         // simulate a request
-        validate(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        validate<any>(
             {
                 passBoolean: 'boolean',
                 failBoolean: 'boolean',

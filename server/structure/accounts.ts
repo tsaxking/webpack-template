@@ -65,12 +65,14 @@ export default class Account {
     static validate(type: 'id' | 'username'): ServerFunction {
         switch (type) {
             case 'id':
-                return validate({
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                return validate<any>({
                     id: (v: unknown) =>
                         typeof v === 'string' && !!Account.fromId(v),
                 });
             case 'username':
-                return validate({
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                return validate<any>({
                     username: (v: unknown) =>
                         typeof v === 'string' && !!Account.fromUsername(v),
                 });
