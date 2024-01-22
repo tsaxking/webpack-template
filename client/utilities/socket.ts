@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { io, Socket } from 'socket.io-client';
 import { SocketEvent } from '../../shared/socket';
 import { ServerRequest } from './requests';
@@ -249,7 +250,7 @@ export class SocketWrapper {
      */
     async on(
         event: SocketEvent,
-        dataUpdate: (...args: unknown[]) => void,
+        dataUpdate: (...args: any[]) => void,
     ): Promise<SocketListener> {
         // wait for the socket to be initialized, if it already has been initialized then this will resolve immediately
         await initialized;
@@ -263,7 +264,7 @@ export class SocketWrapper {
 
         this.$$socket?.on(
             event,
-            (/* metadata: SocketMetadata, */ ...args: unknown[]) => {
+            (/* metadata: SocketMetadata, */ ...args: any[]) => {
                 console.log('socket.on', event, ...args);
                 dataUpdate(...args);
 
