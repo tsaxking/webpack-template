@@ -40,12 +40,13 @@ type IsValid =
  * Creates a middleware function that validates the req.body, ensuring that all data is both present and the correct type
  * @date 1/9/2024 - 1:16:19 PM
  */
-export const validate = (
+export const validate = <type = unknown>(
     data: {
-        [key: string]: IsValid;
+        // each key is a key in the type generic
+        [key in keyof type]: IsValid;
     },
     options?: ValidateOptions,
-): ServerFunction<any> => {
+): ServerFunction<type> => {
     return (req, res, next) => {
         const { body } = req;
 
