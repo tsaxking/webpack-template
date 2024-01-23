@@ -36,7 +36,7 @@
         "></script>
         <script>
             const { create, createDeep, find, findAll } = (() => {
-                const setAttributes = element => {
+                const setAttributes = (element, attrs) => {
                     for (const key in attrs) {
                         if (key == 'style') {
                             const styles = attrs[key];
@@ -66,7 +66,7 @@
                     if (isHTML.test(tag)) {
                         const element = document.createElement('div');
                         element.innerHTML = tag.trim();
-                        setAttributes(element.firstChild);
+                        setAttributes(element.firstChild, attrs);
                         return element.firstChild;
                     }
 
@@ -85,7 +85,7 @@
                     if (isHTML.test(html)) {
                         const element = document.createElement('div');
                         element.innerHTML = html.trim();
-                        setAttributes(element.firstChild);
+                        setAttributes(element.firstChild, attrs);
                         return Array.from(element.querySelectorAll('*'));
                     }
 
