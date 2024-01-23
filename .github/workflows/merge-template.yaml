@@ -22,7 +22,8 @@ jobs:
                         personal-website,
                         cadre,
                         audio-part-picker,
-                        scouting-webcam
+                        scouting-webcam,
+                        random
                     ]
 
         steps:
