@@ -1,7 +1,7 @@
-import { Drawable, DrawableEvent } from "./drawable";
-import { EventEmitter } from "../../../shared/event-emitter";
+import { Drawable, DrawableEvent } from './drawable';
+import { EventEmitter } from '../../../shared/event-emitter';
 import { attempt } from '../../../shared/attempt';
-import { Point2D } from "../../../shared/submodules/calculations/src/linear-algebra/point";
+import { Point2D } from '../../../shared/submodules/calculations/src/linear-algebra/point';
 
 /**
  * Description placeholder
