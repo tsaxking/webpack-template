@@ -26,9 +26,9 @@ export interface PdfJsPage {
         scale:
             | number
             | {
-                scale: number;
-                rotation: number;
-            },
+                  scale: number;
+                  rotation: number;
+              }
     ): PdfJsViewport;
     getTextContent(): Promise<PdfJsTextContent>;
     getAnnotations(): Promise<PdfJsAnnotation[]>;

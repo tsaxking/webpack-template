@@ -1,6 +1,5 @@
-import { Point2D } from "../../../shared/submodules/calculations/src/linear-algebra/point";
-import { Drawable } from "./drawable";
-
+import { Point2D } from '../../../shared/submodules/calculations/src/linear-algebra/point';
+import { Drawable } from './drawable';
 
 export class SVG extends Drawable<SVG> {
     private readonly $img: HTMLImageElement = new Image();
@@ -26,7 +25,6 @@ export class SVG extends Drawable<SVG> {
         };
     }
 
-    
     draw(ctx: CanvasRenderingContext2D) {
         if (!this.$ready) return;
 

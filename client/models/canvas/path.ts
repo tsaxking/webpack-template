@@ -3,9 +3,7 @@ import { Point2D } from "../../../shared/submodules/calculations/src/linear-alge
 
 
 export class Path extends Drawable<Path> {
-    constructor(
-        public points: Point2D[],
-    ) {
+    constructor(public points: Point2D[]) {
         super();
     }
 
@@ -22,8 +20,12 @@ export class Path extends Drawable<Path> {
             this.points[0][0] * ctx.canvas.width,
             this.points[0][1] * ctx.canvas.height,
         );
-        if (this.$properties?.line?.color) ctx.strokeStyle = this.$properties.line?.color;
-        if (this.$properties?.line?.width) ctx.lineWidth = this.$properties.line?.width;
+        if (this.$properties?.line?.color) {
+            ctx.strokeStyle = this.$properties.line?.color;
+        }
+        if (this.$properties?.line?.width) {
+            ctx.lineWidth = this.$properties.line?.width;
+        }
         for (let i = 1; i < this.points.length; i++) {
             ctx.lineTo(
                 this.points[i][0] * ctx.canvas.width,

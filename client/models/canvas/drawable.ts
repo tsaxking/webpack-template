@@ -29,18 +29,18 @@ export class DrawableEvent<event = unknown> {
  * @typedef {DrawableEvents}
  */
 type DrawableEvents = {
-    'draw': void;
-    'click': DrawableEvent;
-    'touchstart': DrawableEvent;
-    'touchmove': DrawableEvent;
-    'touchend': DrawableEvent;
-    'touchcancel': DrawableEvent;
-    'mousemove': DrawableEvent;
-    'mousedown': DrawableEvent;
-    'mouseup': DrawableEvent;
-    'mouseover': DrawableEvent;
-    'mouseleave': DrawableEvent;
-    'mouseenter': DrawableEvent;
+    draw: void;
+    click: DrawableEvent;
+    touchstart: DrawableEvent;
+    touchmove: DrawableEvent;
+    touchend: DrawableEvent;
+    touchcancel: DrawableEvent;
+    mousemove: DrawableEvent;
+    mousedown: DrawableEvent;
+    mouseup: DrawableEvent;
+    mouseover: DrawableEvent;
+    mouseleave: DrawableEvent;
+    mouseenter: DrawableEvent;
 };
 
 /**
@@ -122,7 +122,10 @@ export class Drawable<T = any> {
      * @param {(data: DrawableEvents[K]) => void} listener
      * @returns {void) => void}
      */
-    on<K extends keyof DrawableEvents>(event: K, listener: (data: DrawableEvents[K]) => void) {
+    on<K extends keyof DrawableEvents>(
+        event: K,
+        listener: (data: DrawableEvents[K]) => void,
+    ) {
         this.$emitter.on(event, listener);
     }
 
@@ -135,7 +138,10 @@ export class Drawable<T = any> {
      * @param {(data: DrawableEvents[K]) => void} listener
      * @returns {void) => void}
      */
-    off<K extends keyof DrawableEvents>(event: K, listener: (data: DrawableEvents[K]) => void) {
+    off<K extends keyof DrawableEvents>(
+        event: K,
+        listener: (data: DrawableEvents[K]) => void,
+    ) {
         this.$emitter.off(event, listener);
     }
 
@@ -148,7 +154,10 @@ export class Drawable<T = any> {
      * @param {(data: DrawableEvents[K]) => void} listener
      * @returns {void) => void}
      */
-    once<K extends keyof DrawableEvents>(event: K, listener: (data: DrawableEvents[K]) => void) {
+    once<K extends keyof DrawableEvents>(
+        event: K,
+        listener: (data: DrawableEvents[K]) => void,
+    ) {
         this.$emitter.once(event, listener);
     }
 
@@ -185,9 +194,6 @@ export class Drawable<T = any> {
         console.warn('Method not implemented on ' + this.constructor.name);
         return false;
     }
-
-
-
 
     /**
      * Hide the drawable

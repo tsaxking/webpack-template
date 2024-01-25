@@ -10,7 +10,7 @@
  */
 declare function create<K extends keyof HTMLElementTagNameMap>(
     tag: K,
-    attrs?: any,
+    attrs?: any
 ): HTMLElementTagNameMap[K];
 /**
  * Creates an element with the specified tag name.
@@ -23,7 +23,7 @@ declare function create<K extends keyof HTMLElementTagNameMap>(
  */
 declare function create<K extends keyof HTMLElementDeprecatedTagNameMap>(
     tag: string,
-    attrs?: any,
+    attrs?: any
 ): HTMLElementDeprecatedTagNameMap[K];
 /**
  * Creates an element with the specified tag name.
@@ -58,7 +58,7 @@ declare function create(html: string, attrs?: any): HTMLElement;
  */
 declare function createDeep(
     tag: string,
-    attrs?: any,
+    attrs?: any
 ): (
     | HTMLElementDeprecatedTagNameMap[keyof HTMLElementDeprecatedTagNameMap]
     | HTMLElementTagNameMap[keyof HTMLElementTagNameMap]
@@ -74,7 +74,7 @@ declare function createDeep(
  * @returns {HTMLElementTagNameMap[K]}
  */
 declare function find<K extends keyof HTMLElementTagNameMap>(
-    selector: K,
+    selector: K
 ): HTMLElementTagNameMap[K];
 /**
  * Using querySelector, returns the first element that matches the selector
@@ -85,7 +85,7 @@ declare function find<K extends keyof HTMLElementTagNameMap>(
  * @returns {HTMLElementDeprecatedTagNameMap[K]}
  */
 declare function find<K extends keyof HTMLElementDeprecatedTagNameMap>(
-    selector: string,
+    selector: string
 ): HTMLElementDeprecatedTagNameMap[K];
 /**
  * Using querySelector, returns the first element that matches the selector
@@ -105,7 +105,7 @@ declare function find(selector: string): HTMLElement;
  * @returns {HTMLElementTagNameMap[K][]}
  */
 declare function findAll<K extends keyof HTMLElementTagNameMap>(
-    selector: K,
+    selector: K
 ): HTMLElementTagNameMap[K][];
 
 /**
@@ -117,7 +117,7 @@ declare function findAll<K extends keyof HTMLElementTagNameMap>(
  * @returns {HTMLElementDeprecatedTagNameMap[K][]}
  */
 declare function findAll<K extends keyof HTMLElementDeprecatedTagNameMap>(
-    selector: string,
+    selector: string
 ): HTMLElementDeprecatedTagNameMap[K][];
 
 /**
