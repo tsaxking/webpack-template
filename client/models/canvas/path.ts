@@ -1,5 +1,5 @@
 import { Drawable } from "./drawable";
-import { Point, Point2D } from "../../../shared/submodules/calculations/src/linear-algebra/point";
+import { Point2D } from "../../../shared/submodules/calculations/src/linear-algebra/point";
 
 
 export class Path extends Drawable<Path> {

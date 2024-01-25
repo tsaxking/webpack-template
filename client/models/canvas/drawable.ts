@@ -52,7 +52,8 @@ type DrawableEvents = {
  * @typedef {Drawable}
  * @template [T=unknown]
  */
-export class Drawable<T = unknown> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export class Drawable<T = any> {
     /**
      * Event emitter
      * @date 1/25/2024 - 1:25:32 PM
