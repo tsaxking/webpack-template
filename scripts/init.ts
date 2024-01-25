@@ -145,12 +145,7 @@ const createEnv = () => {
     );
 
     const e = Object.keys(values)
-        .map(
-            (key) =>
-                `${key} = '${
-                    values[key]
-                }'`,
-        )
+        .map((key) => `${key} = '${values[key]}'`)
         .join('\n');
     Deno.writeTextFileSync(resolve(__root, './.env'), e);
 
