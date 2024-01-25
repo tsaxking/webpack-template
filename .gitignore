@@ -17,6 +17,8 @@ deno.lock
 credentials.json
 token.json
 
+cached-ids.json
+
 # *.js
 # !require.js
 

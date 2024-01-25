@@ -3,9 +3,14 @@
 import * as randomString from 'npm:uuid';
 import env from './env.ts';
 import { attemptAsync, Result } from '../../shared/attempt.ts';
+import { getJSON, saveJSON } from './files.ts';
 
 // limit 5 keys in cache at a time
-const cache: string[] = [];
+let cache: string[] = [];
+
+const res =  await getJSON<string[]>('cached-ids');
+
+if (res.isOk()) cache = res.value;
 
 const retrieve = async (): Promise<Result<string[]>> => {
     return attemptAsync(async () => {
@@ -22,8 +27,17 @@ const retrieve = async (): Promise<Result<string[]>> => {
         if (data.ok) {
             console.log('Retrieved keys!');
             const json = await data.json();
-            
 
+            if (!Array.isArray(json)) {
+                throw new Error('Failed to retrieve keys, invalid response');
+            }
+
+            cache = json;
+            const res = await saveJSON('cached-ids', json);
+
+            if (res.isErr()) {
+                console.error('Failed to save cached ids');
+            }
 
             return json as string[];
         }
