@@ -6,7 +6,7 @@ import { Status } from '../utilities/status.ts';
 import { Email, EmailOptions, EmailType } from '../utilities/email.ts';
 import Filter from 'npm:bad-words';
 import { Member } from './member.ts';
-import { Account as AccountObject, Permission } from '../../shared/db-types.ts';
+import { Account as AccountObject, Permission, AccountSettings } from '../../shared/db-types.ts';
 import env from '../utilities/env.ts';
 import { deleteUpload } from '../utilities/files.ts';
 import { Next, ServerFunction } from './app/app.ts';
@@ -1040,4 +1040,22 @@ export default class Account {
      * @date 1/9/2024 - 12:53:19 PM
      */
     save() {}
+
+
+
+    get settings(): AccountSettings | undefined {
+        return DB.get('account/get-settings', {
+            accountId: this.id
+        });
+    }
+
+    set settings(settings: unknown) {
+        const str = JSON.stringify(settings);
+
+        DB.run('account/save-settings', {
+            accountId: this.id,
+            settings: str
+        });
+    }
 }
+

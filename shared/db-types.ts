@@ -83,3 +83,8 @@ export type DiscordLink = {
 export type Permission = 'manageMembers' | 'manageBoard';
 
 export type RoleName = 'admin' | 'developer' | 'user' | 'guest';
+
+export type AccountSettings = {
+    accountId: string;
+    settings: string;
+}

@@ -54,6 +54,14 @@ type DrawableEvents = {
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class Drawable<T = any> {
+    constructor() {
+        this.show();
+
+        this.$emitter.on('draw', () => {
+            this.$drawn = true;
+        });
+    }
+
     /**
      * Event emitter
      * @date 1/25/2024 - 1:25:32 PM
@@ -94,7 +102,7 @@ export class Drawable<T = any> {
      * @public
      * @type {number}
      */
-    public $fadeFrames = 0;
+    public $fadeFrames = 1;
     /**
      * The current frame of the fade
      * @date 1/25/2024 - 1:25:32 PM
@@ -102,7 +110,7 @@ export class Drawable<T = any> {
      * @public
      * @type {number}
      */
-    public $currentFadeFrame = 0;
+    public $currentFadeFrame = 1;
     /**
      * All properties of the drawable
      * @date 1/25/2024 - 1:25:32 PM
@@ -223,5 +231,7 @@ export class Drawable<T = any> {
      */
     fade(frames: number) {
         this.$fadeFrames = frames;
+        this.$currentFadeFrame = 1;
+        this.$fadeDirection = 1;
     }
 }

@@ -32,6 +32,8 @@ export class Img extends Drawable<Img> {
     ) {
         super();
 
+        this.img.src = src;
+
         this.img.onload = () => {
             const canvas = document.createElement('canvas');
             canvas.width = this.img.width;

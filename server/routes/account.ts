@@ -298,3 +298,38 @@ router.post<{
         res.sendStatus(('role:' + status) as StatusId, { username, role });
     },
 );
+
+router.post<{
+    settings: string;
+}>(
+    '/set-settings',
+    validate({
+        settings: 'string',
+    }),
+    (req, res) => {
+        const { settings } = req.body;
+
+        const account = req.session.account;
+        if (!account) return res.sendStatus('account:not-logged-in');
+
+        try {
+            account.settings = JSON.parse(settings);
+        } catch (e) {
+            return res.sendStatus('account:invalid-settings');
+        }
+
+        res.sendStatus('account:settings-set', {
+            settings,
+            id: account.id
+        });
+
+        req.session.emit('account:settings-set', settings);
+    },
+);
+
+router.post('/get-settings', (req, res) => {
+    const account = req.session.account;
+    if (!account) return res.sendStatus('account:not-logged-in');
+
+    res.json(account.settings);
+});

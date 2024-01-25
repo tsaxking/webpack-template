@@ -429,34 +429,41 @@ export class Canvas {
 
             // forces the canvas to draw the drawable at a lower opacity
             const fadeScale = drawable.$currentFadeFrame / drawable.$fadeFrames;
+            // console.log(fadeScale);
             if (fadeScale < 1) {
                 this.$ctx.globalAlpha = fadeScale;
             } else {
                 this.$ctx.globalAlpha = 1;
             }
 
+            let draw = true;
+
             if (!drawable.$doDraw) {
                 this.$ctx.globalAlpha = 0;
+                draw = false;
             }
 
             if (drawable.$properties?.doDraw) {
                 if (!drawable.$properties.doDraw(drawable)) {
+                    // drawable.hide();
                     this.$ctx.globalAlpha = 0;
+                    draw = false;
                 }
+            } else {
+                // drawable.show();
             }
 
             const res = attempt(() => drawable.draw(this.$ctx));
             this.$ctx.restore();
             if (res.isOk()) {
                 if (
-                    drawable.$currentFadeFrame > 0 &&
+                    drawable.$currentFadeFrame > 1 &&
                     drawable.$currentFadeFrame < drawable.$fadeFrames
                 ) {
                     drawable.$currentFadeFrame += drawable.$fadeDirection;
                 }
 
-                if (!drawable.$drawn) {
-                    drawable.$drawn = true;
+                if (!drawable.$drawn && draw) {
                     drawable.emit('draw', undefined);
                 }
             }
