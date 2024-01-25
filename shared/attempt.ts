@@ -94,7 +94,7 @@ export type Result<T, E = Error> = Ok<T> | Err<E>;
  * @date 1/22/2024 - 2:56:57 AM
  */
 export const attempt = <T = unknown, E = Error>(
-    fn: (...params: unknown[]) => T,
+    fn: () => T,
     parseError?: (error: Error) => E,
 ): Result<T, E> => {
     try {
@@ -123,7 +123,7 @@ export const attempt = <T = unknown, E = Error>(
  * @async
  */
 export const attemptAsync = async <T = unknown, E = Error>(
-    fn: (...params: unknown[]) => Promise<T>,
+    fn: () => Promise<T>,
     parseError?: (error: Error) => E,
 ): Promise<Result<T, E>> => {
     try {
