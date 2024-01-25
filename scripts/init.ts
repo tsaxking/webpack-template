@@ -1,7 +1,6 @@
 import { init } from '../storage/db/scripts/init.ts';
 import { repeatPrompt } from './prompt.ts';
-import { fromCamelCase, toSnakeCase } from '../shared/text.ts';
-import env, { __root, resolve } from '../server/utilities/env.ts';
+import { __root, resolve } from '../server/utilities/env.ts';
 
 const runPrompt = (
     message: string,
@@ -24,6 +23,20 @@ const createEnv = () => {
         SESSION_DURATION: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
     };
 
+    try {
+        const file = resolve(__root, './.env');
+        const data = Deno.readTextFileSync(file);
+        const lines = data.split('\n');
+        for (const line of lines) {
+            const [key, value] = line.split('=');
+            values[key.trim()] = value.replace(/"/g, '').replace(/'/g, '').trim();
+        }
+    } catch {
+        console.error(
+            'Unable to read .env file, please make sure it exists and is formatted correctly.',
+        );
+    }
+
     const setKey = (
         key: string,
         message: string,
@@ -31,12 +44,17 @@ const createEnv = () => {
         validation?: (data: string) => boolean,
         allowBlank = true,
     ) => {
-        if (typeof env[key] !== 'undefined') return;
+        if (typeof values[key] !== 'undefined') return;
         const value = runPrompt(message, defaultValue, validation, allowBlank);
         if (value) {
             values[key] = value;
+
+            if (key === 'SEND_STATUS_EMAILS') {
+                values[key] = values[key] === 'y' ? 'TRUE' : 'FALSE';
+            }
+        } else {
+            values[key] = defaultValue || '';
         }
-        return value;
     };
 
     setKey(
@@ -63,14 +81,14 @@ const createEnv = () => {
     setKey(
         'DOMAIN',
         'Domain: (default: localhost)',
-        'http://localhost:' + env.PORT,
+        'http://localhost:' + values['PORT'],
         (i) => i.length > 0,
         true,
     );
     setKey(
         'SOCKET_DOMAIN',
         'Socket Domain: (default: localhost)',
-        'http://localhost:' + env.SOCKET_PORT,
+        'http://localhost:' + values['SOCKET_PORT'],
         (i) => i.length > 0,
         true,
     );
@@ -98,7 +116,7 @@ const createEnv = () => {
     setKey(
         'SEND_STATUS_EMAILS',
         'Send Status Emails: (default: false) (y/n)',
-        'false',
+        'FALSE',
         (i) => ['y', 'n'].includes(i),
         true,
     );
