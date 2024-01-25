@@ -29,7 +29,10 @@ const createEnv = () => {
         const lines = data.split('\n');
         for (const line of lines) {
             const [key, value] = line.split('=');
-            values[key.trim()] = value.replace(/"/g, '').replace(/'/g, '').trim();
+            values[key.trim()] = value
+                .replace(/"/g, '')
+                .replace(/'/g, '')
+                .trim();
         }
     } catch {
         console.error(
