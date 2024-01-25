@@ -3,7 +3,7 @@ import { ServerRequest } from '../utilities/requests';
 import { socket } from '../utilities/socket';
 
 type SettingsEvents = {
-    'change': string | undefined;
+    change: string | undefined;
 };
 
 export class Settings {
@@ -100,7 +100,9 @@ export class Settings {
     }
 
     static async init() {
-        const res = await ServerRequest.post<[string, unknown][] | undefined>('account/get-settings');
+        const res = await ServerRequest.post<[string, unknown][] | undefined>(
+            'account/get-settings',
+        );
         if (res.isOk()) {
             const settings = res.value;
             Settings.$settings.clear();

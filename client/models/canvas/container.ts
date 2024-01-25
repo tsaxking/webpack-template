@@ -31,9 +31,9 @@ export class Container extends Drawable<Container> {
             arr: (Drawable | null)[],
         ) => boolean,
     ) {
-        this.$filtered = this.$children.filter(fn).filter((child) =>
-            child !== null
-        ) as Drawable[];
+        this.$filtered = this.$children
+            .filter(fn)
+            .filter((child) => child !== null) as Drawable[];
     }
 
     sort(fn: (a: Drawable, b: Drawable) => number) {

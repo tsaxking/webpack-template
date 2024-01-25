@@ -87,4 +87,4 @@ export type RoleName = 'admin' | 'developer' | 'user' | 'guest';
 export type AccountSettings = {
     accountId: string;
     settings: string;
-}
+};

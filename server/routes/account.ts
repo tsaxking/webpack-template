@@ -320,7 +320,7 @@ router.post<{
 
         res.sendStatus('account:settings-set', {
             settings,
-            id: account.id
+            id: account.id,
         });
 
         req.session.emit('account:settings-set', settings);

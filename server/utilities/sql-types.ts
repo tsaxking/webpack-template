@@ -4,11 +4,11 @@
 import { __root } from './env.ts';
 import {
     Account,
+    AccountSettings,
     Member,
     MembershipStatus,
     Role,
     RolePermission,
-    AccountSettings
 } from '../../shared/db-types.ts';
 import { SessionObj } from '../structure/sessions.ts';
 
@@ -145,18 +145,15 @@ export type Queries = {
         ],
         unknown,
     ];
-    'account/save-settings': [
-        [
-            AccountSettings
-        ],
-        unknown
-    ];
+    'account/save-settings': [[AccountSettings], unknown];
     'account/get-settings': [
-        [{
-            accountId: string;
-        }],
-        AccountSettings
-    ]
+        [
+            {
+                accountId: string;
+            },
+        ],
+        AccountSettings,
+    ];
     'account/unverify': [
         [
             {
