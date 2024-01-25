@@ -105,6 +105,9 @@ export const setVersions = async (db: Database) => {
                 );
             }
 
+            // console.log('current', M, m, p);
+            // console.log('test', _M, _m, _p);
+
             const installedStr = 'Skipping version ' +
                 _M +
                 '.' +
@@ -113,17 +116,27 @@ export const setVersions = async (db: Database) => {
                 _p +
                 ' because it is already installed';
 
+            const runLog = () => log(installedStr);
+
             if (M > _M) {
-                log(installedStr);
+                // console.log('lower major');
+                runLog();
                 continue;
-            }
-            if (m && m > _m) {
-                log(installedStr);
-                continue;
-            }
-            if (p && p >= _p) {
-                log(installedStr);
-                continue;
+            } else if (M === _M) {
+                // console.log('same major');
+                if (m !== undefined && m > _m) {
+                    // console.log('lower minor');
+                    runLog();
+                    continue;
+                } else if (m === _m) {
+                    // console.log('same minor');
+                    // console.log(M, m, p, _M, _m, _p);
+                    if (p !== undefined && p >= _p) {
+                        // console.log('same patch')
+                        runLog();
+                        continue;
+                    }
+                }
             }
 
             log('Updating database to version', _M + '.' + _m + '.' + _p);
