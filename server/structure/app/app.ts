@@ -455,7 +455,9 @@ export class App {
             const fns = this.serverFunctions.filter((sf) => {
                 // get rid of query
                 const path = url.pathname.split('?')[0];
-                if (sf.method !== denoReq.method && sf.method !== 'USE') return false;
+                if (sf.method !== denoReq.method && sf.method !== 'USE') {
+                    return false;
+                }
                 const pathParts = sf.path.split('/');
                 const urlParts = path.split('/');
 

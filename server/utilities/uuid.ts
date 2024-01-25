@@ -8,7 +8,7 @@ import { getJSON, saveJSON } from './files.ts';
 // limit 5 keys in cache at a time
 let cache: string[] = [];
 
-const res =  await getJSON<string[]>('cached-ids');
+const res = await getJSON<string[]>('cached-ids');
 
 if (res.isOk()) cache = res.value;
 

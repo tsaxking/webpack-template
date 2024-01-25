@@ -21,7 +21,7 @@ const runPrompt = (
 
 const createEnv = () => {
     const values = {
-        'SESSION_DURATION': 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
+        SESSION_DURATION: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
     };
 
     const setKey = (
