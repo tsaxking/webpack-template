@@ -1,7 +1,6 @@
-import { Drawable } from "./drawable";
-import { ShapeProperties } from "./properties";
-import { Point2D } from "../../../shared/submodules/calculations/src/linear-algebra/point";
-
+import { Drawable } from './drawable';
+import { ShapeProperties } from './properties';
+import { Point2D } from '../../../shared/submodules/calculations/src/linear-algebra/point';
 
 /**
  * Polygon
@@ -23,7 +22,7 @@ export class Polygon extends Drawable<Polygon> {
      */
     constructor(
         public points: Point2D[],
-        public readonly $properties: Partial<ShapeProperties<Polygon>> = {}
+        public readonly $properties: Partial<ShapeProperties<Polygon>> = {},
     ) {
         super();
     }
@@ -64,7 +63,7 @@ export class Polygon extends Drawable<Polygon> {
     }
 
     /**
-     * Check if the given point is inside the polygon 
+     * Check if the given point is inside the polygon
      * @date 1/25/2024 - 12:36:59 PM
      *
      * @param {Point2D} point

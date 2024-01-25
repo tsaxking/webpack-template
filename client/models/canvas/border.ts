@@ -1,6 +1,5 @@
-import { Point2D } from "../../../shared/submodules/calculations/src/linear-algebra/point";
-import { Polygon } from "./polygon";
-
+import { Point2D } from '../../../shared/submodules/calculations/src/linear-algebra/point';
+import { Polygon } from './polygon';
 
 export class Border extends Polygon {
     isIn(point: Point2D) {

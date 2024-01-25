@@ -1,8 +1,8 @@
-import { Drawable } from "./drawable";
-import { EventEmitter } from "../../../shared/event-emitter";
+import { Drawable } from './drawable';
+import { EventEmitter } from '../../../shared/event-emitter';
 import { attempt } from '../../../shared/attempt';
-import { Point2D } from "../../../shared/submodules/calculations/src/linear-algebra/point";
-import { DrawableEvent } from "./drawable";
+import { Point2D } from '../../../shared/submodules/calculations/src/linear-algebra/point';
+import { DrawableEvent } from './drawable';
 
 /**
  * Description placeholder
@@ -11,21 +11,21 @@ import { DrawableEvent } from "./drawable";
  * @typedef {CanvasEvents}
  */
 type CanvasEvents = {
-    'animatestart': void;
-    'animateend': void;
-    'draw': void;
-    'click': DrawableEvent;
-    'touchstart': DrawableEvent;
-    'touchmove': DrawableEvent;
-    'touchend': DrawableEvent;
-    'touchcancel': DrawableEvent;
-    'mousemove': DrawableEvent;
-    'mousedown': DrawableEvent;
-    'mouseup': DrawableEvent;
-    'mouseover': DrawableEvent;
-    'mouseleave': DrawableEvent;
-    'mouseenter': DrawableEvent;
-}
+    animatestart: void;
+    animateend: void;
+    draw: void;
+    click: DrawableEvent;
+    touchstart: DrawableEvent;
+    touchmove: DrawableEvent;
+    touchend: DrawableEvent;
+    touchcancel: DrawableEvent;
+    mousemove: DrawableEvent;
+    mousedown: DrawableEvent;
+    mouseup: DrawableEvent;
+    mouseover: DrawableEvent;
+    mouseleave: DrawableEvent;
+    mouseenter: DrawableEvent;
+};
 
 /**
  * Options for the canvas
@@ -34,7 +34,6 @@ type CanvasEvents = {
  * @typedef {CanvasOptions}
  */
 type CanvasOptions = {
-    
     /**
      * All events that the canvas should listen for (this will be deduped)
      * @date 1/25/2024 - 12:51:53 PM
@@ -42,7 +41,7 @@ type CanvasOptions = {
      * @type {(keyof CanvasEvents)[]}
      */
     events: (keyof CanvasEvents)[];
-}
+};
 
 /**
  * A class to manage the canvas and drawables
@@ -123,16 +122,21 @@ export class Canvas {
      * @param {CanvasRenderingContext2D} ctx
      * @param {Partial<CanvasOptions>} [options={}]
      */
-    constructor(ctx: CanvasRenderingContext2D, options: Partial<CanvasOptions> = {}) {
+    constructor(
+        ctx: CanvasRenderingContext2D,
+        options: Partial<CanvasOptions> = {},
+    ) {
         this.$canvas = ctx.canvas;
         this.$ctx = ctx;
         this.$options = options;
 
         if (this.$options.events) {
-            this.$options.events = this.$options.events.filter((e, i, a) => a.indexOf(e) === i);
+            this.$options.events = this.$options.events.filter(
+                (e, i, a) => a.indexOf(e) === i,
+            );
             for (const event of this.$options.events) {
                 switch (event) {
-                    case 'click': 
+                    case 'click':
                         this.$canvas.addEventListener('click', (event) => {
                             const e = new DrawableEvent(event);
                             this.emit('click', e);
@@ -150,7 +154,10 @@ export class Canvas {
                             this.emit('touchstart', e);
                             const points = this.getXY(event);
                             for (const drawable of this.$drawables) {
-                                if (drawable.$doDraw && points.some((point) => drawable.isIn(point))) {
+                                if (
+                                    drawable.$doDraw &&
+                                    points.some((point) => drawable.isIn(point))
+                                ) {
                                     drawable.emit('touchstart', e);
                                 }
                             }
@@ -162,7 +169,10 @@ export class Canvas {
                             this.emit('touchmove', e);
                             const points = this.getXY(event);
                             for (const drawable of this.$drawables) {
-                                if (drawable.$doDraw && points.some((point) => drawable.isIn(point))) {
+                                if (
+                                    drawable.$doDraw &&
+                                    points.some((point) => drawable.isIn(point))
+                                ) {
                                     drawable.emit('touchmove', e);
                                 }
                             }
@@ -174,23 +184,34 @@ export class Canvas {
                             this.emit('touchend', e);
                             const points = this.getXY(event);
                             for (const drawable of this.$drawables) {
-                                if (drawable.$doDraw && points.some((point) => drawable.isIn(point))) {
+                                if (
+                                    drawable.$doDraw &&
+                                    points.some((point) => drawable.isIn(point))
+                                ) {
                                     drawable.emit('touchend', e);
                                 }
                             }
                         });
                         break;
                     case 'touchcancel':
-                        this.$canvas.addEventListener('touchcancel', (event) => {
-                            const e = new DrawableEvent(event);
-                            this.emit('touchcancel', e);
-                            const points = this.getXY(event);
-                            for (const drawable of this.$drawables) {
-                                if (drawable.$doDraw && points.some((point) => drawable.isIn(point))) {
-                                    drawable.emit('touchcancel', e);
+                        this.$canvas.addEventListener(
+                            'touchcancel',
+                            (event) => {
+                                const e = new DrawableEvent(event);
+                                this.emit('touchcancel', e);
+                                const points = this.getXY(event);
+                                for (const drawable of this.$drawables) {
+                                    if (
+                                        drawable.$doDraw &&
+                                        points.some((point) =>
+                                            drawable.isIn(point)
+                                        )
+                                    ) {
+                                        drawable.emit('touchcancel', e);
+                                    }
                                 }
-                            }
-                        });
+                            },
+                        );
                         break;
                     case 'mousemove':
                         this.$canvas.addEventListener('mousemove', (event) => {
@@ -306,7 +327,10 @@ export class Canvas {
      * @param {(data: CanvasEvents[K]) => void} listener
      * @returns {void) => void}
      */
-    on<K extends keyof CanvasEvents>(event: K, listener: (data: CanvasEvents[K]) => void) {
+    on<K extends keyof CanvasEvents>(
+        event: K,
+        listener: (data: CanvasEvents[K]) => void,
+    ) {
         this.$emitter.on(event, listener);
     }
 
@@ -319,7 +343,10 @@ export class Canvas {
      * @param {(data: CanvasEvents[K]) => void} listener
      * @returns {void) => void}
      */
-    off<K extends keyof CanvasEvents>(event: K, listener: (data: CanvasEvents[K]) => void) {
+    off<K extends keyof CanvasEvents>(
+        event: K,
+        listener: (data: CanvasEvents[K]) => void,
+    ) {
         this.$emitter.off(event, listener);
     }
 
@@ -332,7 +359,10 @@ export class Canvas {
      * @param {(data: CanvasEvents[K]) => void} listener
      * @returns {void) => void}
      */
-    once<K extends keyof CanvasEvents>(event: K, listener: (data: CanvasEvents[K]) => void) {
+    once<K extends keyof CanvasEvents>(
+        event: K,
+        listener: (data: CanvasEvents[K]) => void,
+    ) {
         this.$emitter.once(event, listener);
     }
 
@@ -380,7 +410,7 @@ export class Canvas {
     clear() {
         this.$ctx.clearRect(0, 0, this.width, this.height);
     }
-    
+
     /**
      * Removes all drawables from the canvas
      * @date 1/25/2024 - 12:50:18 PM
@@ -419,7 +449,10 @@ export class Canvas {
             const res = attempt(() => drawable.draw(this.$ctx));
             this.$ctx.restore();
             if (res.isOk()) {
-                if (drawable.$currentFadeFrame > 0 && drawable.$currentFadeFrame < drawable.$fadeFrames) {
+                if (
+                    drawable.$currentFadeFrame > 0 &&
+                    drawable.$currentFadeFrame < drawable.$fadeFrames
+                ) {
                     drawable.$currentFadeFrame += drawable.$fadeDirection;
                 }
 

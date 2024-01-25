@@ -1,6 +1,5 @@
-import { Drawable } from "./drawable";
-import { Point2D } from "../../../shared/submodules/calculations/src/linear-algebra/point";
-
+import { Drawable } from './drawable';
+import { Point2D } from '../../../shared/submodules/calculations/src/linear-algebra/point';
 
 /**
  * Location and size of the image
@@ -47,7 +46,6 @@ export class Img extends Drawable<Img> {
         };
     }
 
-    
     /**
      * X coordinate of the image (left side)
      * @date 1/9/2024 - 11:50:23 AM
@@ -128,7 +126,7 @@ export class Img extends Drawable<Img> {
         this.options.height = height;
     }
 
-        /**
+    /**
      * Draw the image
      * @date 1/9/2024 - 11:48:39 AM
      *
@@ -147,7 +145,7 @@ export class Img extends Drawable<Img> {
         );
     }
 
-            /**
+    /**
      * Determines if the given point is inside the image
      * @date 1/9/2024 - 11:50:23 AM
      *
