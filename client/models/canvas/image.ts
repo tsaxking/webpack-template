@@ -23,7 +23,7 @@ export class Img extends Drawable<Img> {
      * @readonly
      * @type {HTMLImageElement}
      */
-    public readonly img: HTMLImageElement;
+    public readonly img: HTMLImageElement = new Image();
     private data: HTMLImageElement | null = null;
 
     constructor(
