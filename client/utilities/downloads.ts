@@ -1,4 +1,4 @@
-import { attemptAsync, attempt, Result } from '../../shared/attempt';
+import { attempt, attemptAsync, Result } from '../../shared/attempt';
 
 /**
  * Download a file from a URL
@@ -16,7 +16,7 @@ export const downloadUrl = async (url: string, filename: string) => {
         element.click();
         document.body.removeChild(element);
     });
-}
+};
 
 /**
  * Downloads a blob
@@ -29,7 +29,7 @@ export const downloadBlob = async (blob: Blob, filename: string) => {
         const url = window.URL.createObjectURL(blob);
         return downloadUrl(url, filename);
     });
-}
+};
 
 /**
  * Downloads a text file
@@ -39,12 +39,11 @@ export const downloadBlob = async (blob: Blob, filename: string) => {
  */
 export const downloadText = async (text: string, filename: string) => {
     return downloadBlob(new Blob([text]), filename);
-}
+};
 
 /**
  * Returns a file list from the user
  * @date 1/26/2024 - 1:03:25 AM
- *
  */
 export const loadFiles = (): Result<FileList> => {
     return attempt(() => {
@@ -62,33 +61,38 @@ export const loadFiles = (): Result<FileList> => {
 
         return files;
     });
-}
+};
 
 /**
  * Returns the contents of files from the user
  * @date 1/26/2024 - 1:03:25 AM
- *
  */
-export const loadFileContents = (): Promise<Result<{
-    name: string;
-    text: string;
-}[]>> => {
+export const loadFileContents = (): Promise<
+    Result<
+        {
+            name: string;
+            text: string;
+        }[]
+    >
+> => {
     return attemptAsync(async () => {
         const res = loadFiles();
         if (res.isOk()) {
             const files = Array.from(res.value);
 
-            const contents = await Promise.all(files.map(async file => {
-                const text = await file.text();
-                if (!text) {
-                    throw new Error(`File ${file.name} is empty`);
-                }
-                return { name: file.name, text };
-            }));
+            const contents = await Promise.all(
+                files.map(async (file) => {
+                    const text = await file.text();
+                    if (!text) {
+                        throw new Error(`File ${file.name} is empty`);
+                    }
+                    return { name: file.name, text };
+                }),
+            );
 
             return contents;
         } else {
             throw res.error;
         }
     });
-}
+};
