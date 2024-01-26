@@ -1,9 +1,11 @@
 import { Drawable } from './drawable';
-import { Point, Point2D } from '../../../shared/submodules/calculations/src/linear-algebra/point';
+import {
+    Point,
+    Point2D,
+} from '../../../shared/submodules/calculations/src/linear-algebra/point';
 import { copy } from '../../../shared/copy';
 
 export class Circle extends Drawable<Circle> {
-
     /**
      * Creates an instance of Circle.
      * @date 1/9/2024 - 11:47:29 AM

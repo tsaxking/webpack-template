@@ -1,14 +1,14 @@
-import { Drawable } from "./drawable";
-import { Spline as S } from "../../../shared/submodules/calculations/src/linear-algebra/spline";
+import { Drawable } from './drawable';
+import { Spline as S } from '../../../shared/submodules/calculations/src/linear-algebra/spline';
 
 type SplineOptions = {
     frames: number;
-}
+};
 
 export class Spline extends Drawable<Spline> {
     constructor(
         public readonly spline: S,
-        public readonly options: Partial<SplineOptions> = {}
+        public readonly options: Partial<SplineOptions> = {},
     ) {
         super();
     }

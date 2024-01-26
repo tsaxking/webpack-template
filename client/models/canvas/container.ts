@@ -50,7 +50,9 @@ export class Container extends Drawable<Container> {
     }
 
     clone(): Container {
-        const c = new Container(...this.$children.map((child) => child?.clone() || null));
+        const c = new Container(
+            ...this.$children.map((child) => child?.clone() || null),
+        );
         copy(this, c);
         return c;
     }
