@@ -1,5 +1,5 @@
-import { Point } from "../../../shared/submodules/calculations/src/linear-algebra/point";
-import { Drawable } from "./drawable";
+import { Point } from '../../../shared/submodules/calculations/src/linear-algebra/point';
+import { Drawable } from './drawable';
 
 export class Sphere extends Drawable<Sphere> {
     constructor(
