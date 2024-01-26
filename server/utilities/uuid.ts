@@ -25,7 +25,7 @@ const retrieve = async (): Promise<Result<string[]>> => {
         });
 
         if (data.ok) {
-            console.log('Retrieved keys!');
+            // console.log('Retrieved keys!');
             const json = await data.json();
 
             if (!Array.isArray(json)) {
@@ -36,7 +36,7 @@ const retrieve = async (): Promise<Result<string[]>> => {
             const res = await saveJSON('cached-ids', json);
 
             if (res.isErr()) {
-                console.error('Failed to save cached ids');
+                // console.error('Failed to save cached ids');
             }
 
             return json as string[];

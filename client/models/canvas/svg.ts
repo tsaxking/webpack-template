@@ -1,3 +1,4 @@
+import { copy } from '../../../shared/copy';
 import { Point2D } from '../../../shared/submodules/calculations/src/linear-algebra/point';
 import { Drawable } from './drawable';
 
@@ -25,6 +26,27 @@ export class SVG extends Drawable<SVG> {
         };
     }
 
+    get x() {
+        return this.center[0];
+    }
+
+    set x(x: number) {
+        this.center[0] = x;
+    }
+
+    get y() {
+        return this.center[1];
+    }
+
+    set y(y: number) {
+        this.center[1] = y;
+    }
+
+    set color(color: string) {
+        if (!this.$properties.text) this.$properties.text = {};
+        this.$properties.text!.color = color;
+    }
+
     draw(ctx: CanvasRenderingContext2D) {
         if (!this.$ready) return;
 
@@ -43,5 +65,11 @@ export class SVG extends Drawable<SVG> {
             this.$img.width,
             this.$img.height,
         );
+    }
+
+    clone(): SVG {
+        const s = new SVG(this.src, this.center);
+        copy(this, s);
+        return s;
     }
 }

@@ -1,3 +1,4 @@
+import { copy } from '../../../shared/copy';
 import { Point2D } from '../../../shared/submodules/calculations/src/linear-algebra/point';
 import { Drawable } from './drawable';
 
@@ -46,5 +47,11 @@ export class Container extends Drawable<Container> {
 
     isIn(point: Point2D) {
         return this.$filtered.some((child) => child.isIn(point));
+    }
+
+    clone(): Container {
+        const c = new Container(...this.$children.map((child) => child?.clone() || null));
+        copy(this, c);
+        return c;
     }
 }

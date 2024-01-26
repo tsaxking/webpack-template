@@ -106,13 +106,13 @@ export const attempt = <T = unknown, E = Error>(
                 (e) => 'Error parsing error: ' + e,
             );
             if (err.isOk()) {
-                console.warn(err.value);
+                // console.warn(err.value);
                 return new Err(err.value);
             }
-            console.warn(err.error, e);
+            // console.warn(err.error, e);
             return new Err(e);
         }
-        console.warn(e);
+        // console.warn(e);
         return new Err(e);
     }
 };
@@ -135,13 +135,13 @@ export const attemptAsync = async <T = unknown, E = Error>(
                 (e) => 'Error parsing error: ' + e,
             );
             if (err.isOk()) {
-                console.warn(err.value);
+                // console.warn(err.value);
                 return new Err(err.value);
             }
-            console.warn(err.error, e);
+            // console.warn(err.error, e);
             return new Err(e);
         }
-        console.warn(e);
+        // console.warn(e);
         return new Err(e);
     }
 };

@@ -1,5 +1,6 @@
 import { Drawable } from './drawable';
 import { Point2D } from '../../../shared/submodules/calculations/src/linear-algebra/point';
+import { copy } from '../../../shared/copy';
 
 export class Path extends Drawable<Path> {
     constructor(public points: Point2D[]) {
@@ -36,5 +37,15 @@ export class Path extends Drawable<Path> {
 
     add(...points: Point2D[]) {
         this.points.push(...points);
+    }
+
+    isIn(point: Point2D) {
+        return this.points.some((p) => p[0] === point[0] && p[1] === point[1]);
+    }
+
+    clone(): Path {
+        const p = new Path(this.points.map((p) => [...p]));
+        copy(this, p);
+        return p;
     }
 }

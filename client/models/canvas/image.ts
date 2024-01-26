@@ -1,5 +1,6 @@
 import { Drawable } from './drawable';
 import { Point2D } from '../../../shared/submodules/calculations/src/linear-algebra/point';
+import { copy } from '../../../shared/copy';
 
 /**
  * Location and size of the image
@@ -163,5 +164,11 @@ export class Img extends Drawable<Img> {
             y >= this.y &&
             y <= this.y + this.height
         );
+    }
+
+    clone(): Img {
+        const i = new Img(this.src, this.options);
+        copy(this, i);
+        return i;
     }
 }

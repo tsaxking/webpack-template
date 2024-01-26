@@ -1,6 +1,7 @@
 import { Drawable } from './drawable';
 import { ShapeProperties } from './properties';
 import { Point2D } from '../../../shared/submodules/calculations/src/linear-algebra/point';
+import { copy } from '../../../shared/copy';
 
 /**
  * Polygon
@@ -88,5 +89,11 @@ export class Polygon extends Drawable<Polygon> {
         }
 
         return inside;
+    }
+
+    clone(): Polygon {
+        const p = new Polygon(this.points.map((p) => [...p]));
+        copy(this, p);
+        return p;
     }
 }
