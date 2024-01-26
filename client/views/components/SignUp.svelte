@@ -176,7 +176,7 @@ const isPasswordValid = (password: string): string[] => {
                     />
                     <label class="form-label" for="password">Password</label> -->
                     <Password
-                        bind:value={password}
+                        bind:value="{password}"
                         on:input="{onInput}"
                         placeholder="Password"
                         label="Password"
@@ -207,8 +207,8 @@ const isPasswordValid = (password: string): string[] => {
                     <label class="form-label" for="confirmPassword"
                         >Confirm Password</label
                     > -->
-                    <Password 
-                        bind:value={confirmPassword}
+                    <Password
+                        bind:value="{confirmPassword}"
                         on:input="{onInput}"
                         placeholder="Confirm Password"
                         label="Confirm Password"
