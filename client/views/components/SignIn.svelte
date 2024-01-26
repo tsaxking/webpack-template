@@ -1,5 +1,6 @@
 <script lang="ts">
 import { ServerRequest } from '../../utilities/requests';
+import Password from './Password.svelte';
 
 export let title: string;
 
@@ -91,7 +92,7 @@ const onInput = () => {
                         {/if}
                     {/if}
                 </div>
-                <div class="mb-3 form-floating">
+                <!-- <div class="mb-3 form-floating">
                     <input
                         class="form-control"
                         type="password"
@@ -102,7 +103,13 @@ const onInput = () => {
                         on:input="{onInput}"
                     />
                     <label class="form-label" for="password">Password</label>
-                </div>
+                </div> -->
+                <Password
+                    bind:value={password}
+                    on:input="{onInput}"
+                    placeholder="Password"
+                    label="Password"
+                />
 
                 <input
                     type="submit"

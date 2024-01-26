@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+// this needs to be upgraded, but esbuild has not integrated "watch" yet
 import * as esbuild from 'https://deno.land/x/esbuild@v0.11.12/mod.js';
 import { log } from './utilities/terminal-logging.ts';
 import { sveltePlugin, typescript } from './build/esbuild-svelte.ts';
@@ -113,7 +114,7 @@ export const runBuild = async () => {
 
     builder.on('build', () => {
         entries = readDir('./client/entries');
-        build();
+        // build();
     });
 
     await build();

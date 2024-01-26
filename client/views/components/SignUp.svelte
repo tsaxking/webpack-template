@@ -1,5 +1,6 @@
 <script lang="ts">
 import { ServerRequest } from '../../utilities/requests';
+import Password from './Password.svelte';
 
 export let title: string;
 document.title = title + ': Sign up';
@@ -164,7 +165,7 @@ const isPasswordValid = (password: string): string[] => {
                     <label class="form-label" for="lastName">Last Name</label>
                 </div>
                 <div class="mb-3 form-floating">
-                    <input
+                    <!-- <input
                         class="form-control"
                         type="password"
                         name="password"
@@ -173,7 +174,13 @@ const isPasswordValid = (password: string): string[] => {
                         placeholder="Password"
                         on:input="{onInput}"
                     />
-                    <label class="form-label" for="password">Password</label>
+                    <label class="form-label" for="password">Password</label> -->
+                    <Password
+                        bind:value={password}
+                        on:input="{onInput}"
+                        placeholder="Password"
+                        label="Password"
+                    />
                     {#if isPasswordValid(password).length > 0}
                         <small class="text-danger">
                             Password must have the following properties:
@@ -188,7 +195,7 @@ const isPasswordValid = (password: string): string[] => {
                     {/if}
                 </div>
                 <div class="mb-3 form-floating">
-                    <input
+                    <!-- <input
                         class="form-control"
                         type="password"
                         name="confirmPassword"
@@ -199,7 +206,13 @@ const isPasswordValid = (password: string): string[] => {
                     />
                     <label class="form-label" for="confirmPassword"
                         >Confirm Password</label
-                    >
+                    > -->
+                    <Password 
+                        bind:value={confirmPassword}
+                        on:input="{onInput}"
+                        placeholder="Confirm Password"
+                        label="Confirm Password"
+                    />
                     {#if password.length > 0}
                         {#if password !== confirmPassword}
                             <small class="text-danger">
