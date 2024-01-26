@@ -105,7 +105,7 @@ const onInput = () => {
                     <label class="form-label" for="password">Password</label>
                 </div> -->
                 <Password
-                    bind:value={password}
+                    bind:value="{password}"
                     on:input="{onInput}"
                     placeholder="Password"
                     label="Password"
