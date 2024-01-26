@@ -27,7 +27,8 @@ const ctx = canvas.getContext('2d');
 if (!ctx) throw new Error('Canvas context is null');
 
 const c = new Canvas(ctx, {
-    events: ['click', 'mousedown', 'mouseup','mousemove', 'mouseleave','touchstart', 'touchend', 'touchmove', 'touchcancel']
+    events: ['click', 'mousedown', 'mouseup','mousemove', 'mouseleave','touchstart', 'touchend', 'touchmove', 'touchcancel'],
+    background: Color.fromBootstrap('dark')
 });
 
 const stop = () => (c.$animating = false);
