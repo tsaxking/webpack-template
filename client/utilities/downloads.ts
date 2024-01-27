@@ -62,7 +62,7 @@ export const loadFiles = (): Promise<Result<FileList>> => {
                 } else {
                     rej(new Error('No files selected'));
                 }
-            }
+            };
         });
     });
 };
