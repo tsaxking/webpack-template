@@ -129,8 +129,6 @@ export class Settings {
 }
 
 socket.on('account:settings-set', (settings: string) => {
-    console.log('settings-set', settings);
-
     Settings.$settings.clear();
 
     const parsed = JSON.parse(settings) as [string, unknown][];
