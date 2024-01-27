@@ -31,17 +31,17 @@ export const notify = (data: StatusJson): Promise<void> => {
             fromSnakeCase(fromCamelCase(data.title), '-'),
         );
 
-        let message = `${status}: ${
+        const message = `${status}: ${
             capitalize(
                 fromSnakeCase(fromCamelCase(data.$status), '-'),
             )
         }`;
 
-        if (data.data) {
-            for (const [key, value] of Object.entries(data.data)) {
-                message += `\n${key}: ${value}`;
-            }
-        }
+        // if (data.data) {
+        //     for (const [key, value] of Object.entries(data.data)) {
+        //         message += `\n${key}: ${value}`;
+        //     }
+        // }
 
         const t = new Toast({
             target: document.createElement('div'),
