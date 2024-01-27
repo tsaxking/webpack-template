@@ -59,7 +59,7 @@ export const notify = (data: StatusJson): Promise<void> => {
                         default:
                             return 'white';
                     }
-                })()
+                })(),
             },
         });
 
