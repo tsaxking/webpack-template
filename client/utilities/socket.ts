@@ -223,12 +223,11 @@ export class SocketWrapper {
         if (socket) {
             ServerRequest.post<{
                 ssid: string;
-            }>('/socket-init')
-                .then((res) => {
-                    if (res.isOk()) {
-                        socket.emit('ssid', res.value.ssid);
-                    }
-                })
+            }>('/socket-init').then((res) => {
+                if (res.isOk()) {
+                    socket.emit('ssid', res.value.ssid);
+                }
+            });
         }
     }
 
