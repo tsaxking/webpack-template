@@ -50,7 +50,16 @@ export const notify = (data: StatusJson): Promise<void> => {
                 message: data.message,
                 show: true,
                 color: data.color,
-                bodyTextColor: 'white',
+                bodyTextColor: (() => {
+                    switch (data.color) {
+                        case 'warning':
+                            return 'dark';
+                        case 'info':
+                            return 'dark';
+                        default:
+                            return 'white';
+                    }
+                })()
             },
         });
 
