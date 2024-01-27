@@ -332,6 +332,8 @@ router.post('/get-settings', (req, res) => {
     if (!account) return res.sendStatus('account:not-logged-in');
 
     res.json(
-        account.settings ? JSON.parse(account.settings.settings || "[]") : undefined
+        account.settings
+            ? JSON.parse(account.settings.settings || '[]')
+            : undefined,
     );
 });
