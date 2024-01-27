@@ -3,7 +3,15 @@ import { ServerRequest } from '../utilities/requests';
 import { socket } from '../utilities/socket';
 
 type SettingsEvents = {
-    change: string | undefined;
+    change: [string, unknown];
+};
+
+export type SettingsType<T = unknown> = {
+    name: string;
+    type: 'range' | 'switch' | 'select';
+    value?: T;
+    options?: string[] | [number, number];
+    bindTo?: string;
 };
 
 export class Settings {
@@ -66,7 +74,7 @@ export class Settings {
     }
 
     static async change() {
-        await ServerRequest.post('account/set-settings', {
+        await ServerRequest.post('/account/set-settings', {
             settings: JSON.stringify([...this.$settings]),
         });
     }
@@ -101,7 +109,7 @@ export class Settings {
 
     static async init() {
         const res = await ServerRequest.post<[string, unknown][] | undefined>(
-            'account/get-settings',
+            '/account/get-settings',
         );
         if (res.isOk()) {
             const settings = res.value;
@@ -114,13 +122,15 @@ export class Settings {
                 // set without loop
                 if (Settings.$settings.get(key) === value) continue; // no change
                 Settings.$settings.set(key, value);
-                Settings.emit('change', key);
+                Settings.emit('change', [key, value]);
             }
         }
     }
 }
 
 socket.on('account:settings-set', (settings: string) => {
+    console.log('settings-set', settings);
+
     Settings.$settings.clear();
 
     const parsed = JSON.parse(settings) as [string, unknown][];
@@ -128,6 +138,6 @@ socket.on('account:settings-set', (settings: string) => {
         // set without loop
         if (Settings.$settings.get(key) === value) continue; // no change
         Settings.$settings.set(key, value);
-        Settings.emit('change', key);
+        Settings.emit('change', [key, value]);
     }
 });

@@ -219,6 +219,17 @@ export class SocketWrapper {
     set socket(socket: Socket | undefined) {
         if (this.$$socket) throw new Error('Socket is already initialized');
         this.$$socket = socket;
+
+        if (socket) {
+            ServerRequest.post<{
+                ssid: string;
+            }>('/socket-init')
+                .then((res) => {
+                    if (res.isOk()) {
+                        socket.emit('ssid', res.value.ssid);
+                    }
+                })
+        }
     }
 
     /**

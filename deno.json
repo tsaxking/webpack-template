@@ -1,7 +1,7 @@
 {
     "tasks": {
         "start": "deno run --allow-all --unstable-ffi --unstable-sloppy-imports ./server/server.ts",
-        "dev": "deno run --allow-all --unstable-ffi --unstable-sloppy-imports --watch ./server/server.ts",
+        "dev": "deno run --allow-all --unstable-ffi --unstable-sloppy-imports --watch ./server/server.ts --allow-stdin",
         "build": "deno run --allow-all ./server/bundler.ts",
         "init": "deno run --allow-all --allow-run --unstable-ffi --unstable-sloppy-imports ./scripts/init.ts",
         "update": "deno run --allow-all --allow-run --unstable-ffi --unstable-sloppy-imports ./storage/db/scripts/init.ts --update",

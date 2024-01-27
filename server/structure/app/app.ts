@@ -403,11 +403,12 @@ export class App {
             // socket.join(socket.id);
 
             // join tab session
-            const { ssid } = parseCookie(
-                socket.handshake.headers.get('cookie') || '',
-            );
-            if (ssid) socket.join(ssid);
+            socket.on('ssid', (ssid: string) => {
+                socket.join(ssid);
+                socket.off('ssid');
+            });
 
+            // reload on file change
             if (env.ENVIRONMENT === 'dev') {
                 socket.emit('reload');
             }

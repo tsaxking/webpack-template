@@ -15,6 +15,7 @@ import { FileUpload, retrieveStream } from './middleware/stream.ts';
 import os from 'https://deno.land/x/dos@v0.11.0/mod.ts';
 import { stdin } from './utilities/utilties.ts';
 import { ReqBody } from './structure/app/req.ts';
+import { parseCookie } from '../shared/cookie.ts';
 
 console.log('Platform:', os.platform());
 
@@ -63,6 +64,11 @@ app.post('/test', (req, res) => {
 
 app.post('/ping', (req, res) => {
     res.send('pong');
+});
+
+app.post('/socket-init', (req, res) => {
+    const cookie = req.headers.get('cookie');
+    res.json(parseCookie(cookie));
 });
 
 app.post(

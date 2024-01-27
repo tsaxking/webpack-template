@@ -2,7 +2,9 @@
  * Parses cookie string into object
  * @date 10/12/2023 - 1:45:45 PM
  */
-export const parseCookie = (cookie: string) => {
+export const parseCookie = (cookie: string | null) => {
+    if (!cookie) return {};
+
     const list: { [key: string]: string } = {};
 
     let _tempCookie: string;

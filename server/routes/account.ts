@@ -331,5 +331,7 @@ router.post('/get-settings', (req, res) => {
     const account = req.session.account;
     if (!account) return res.sendStatus('account:not-logged-in');
 
-    res.json(account.settings);
+    res.json(
+        account.settings ? JSON.parse(account.settings.settings || "[]") : undefined
+    );
 });
