@@ -45,21 +45,25 @@ export const downloadText = async (text: string, filename: string) => {
  * Returns a file list from the user
  * @date 1/26/2024 - 1:03:25 AM
  */
-export const loadFiles = (): Result<FileList> => {
-    return attempt(() => {
-        const element = document.createElement('input');
-        element.setAttribute('type', 'file');
-        element.style.display = 'none';
-        document.body.appendChild(element);
-        element.click();
-        document.body.removeChild(element);
-        const files = element.files;
+export const loadFiles = (): Promise<Result<FileList>> => {
+    return attemptAsync(async () => {
+        return new Promise<FileList>((res, rej) => {
+            const element = document.createElement('input');
+            element.setAttribute('type', 'file');
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
 
-        if (!files || files.length === 0) {
-            throw new Error('No files selected');
-        }
-
-        return files;
+            element.onchange = () => {
+                const { files } = element;
+                if (files) {
+                    res(files);
+                } else {
+                    rej(new Error('No files selected'));
+                }
+            }
+        });
     });
 };
 
@@ -76,7 +80,7 @@ export const loadFileContents = (): Promise<
     >
 > => {
     return attemptAsync(async () => {
-        const res = loadFiles();
+        const res = await loadFiles();
         if (res.isOk()) {
             const files = Array.from(res.value);
 

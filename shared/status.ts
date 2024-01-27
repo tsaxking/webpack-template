@@ -203,7 +203,7 @@ export enum ServerCode {
 
 export type StatusJson = StatusMessage & {
     title: string;
-    status: string;
+    $status: string;
     data?: {
         [key: string]: unknown;
     };

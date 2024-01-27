@@ -33,7 +33,7 @@ export const notify = (data: StatusJson): Promise<void> => {
 
         let message = `${status}: ${
             capitalize(
-                fromSnakeCase(fromCamelCase(data.status), '-'),
+                fromSnakeCase(fromCamelCase(data.$status), '-'),
             )
         }`;
 
