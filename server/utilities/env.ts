@@ -49,43 +49,46 @@ export const unify = (path: string) => {
  * Combines multiple paths into one
  * @date 1/9/2024 - 12:12:32 PM
  */
-export const resolve = (...paths: string[]): string => {
-    // replace resolve with this function
-    const move = (path1: string, path2: string): string => {
-        path1 = unify(path1);
-        path2 = unify(path2);
+export const resolve = (...paths: string[]): string => path.resolve(...paths.map(unify));
+// export const resolve = (...paths: string[]): string => {
+//     // replace resolve with this function
+//     const move = (path1: string, path2: string): string => {
+//         path1 = unify(path1);
+//         path2 = unify(path2);
 
-        const path1Parts = path1.split('/');
-        const path2Parts = path2.split('/');
+//         const path1Parts = path1.split('/');
+//         const path2Parts = path2.split('/');
 
-        for (const part of path2Parts) {
-            switch (part) {
-                case '.':
-                    break;
-                case '..':
-                    path1Parts.pop();
-                    break;
-                default:
-                    path1Parts.push(part);
-                    break;
-            }
-        }
+//         for (const part of path2Parts) {
+//             switch (part) {
+//                 case '.':
+//                     break;
+//                 case '..':
+//                     path1Parts.pop();
+//                     break;
+//                 default:
+//                     path1Parts.push(part);
+//                     break;
+//             }
+//         }
 
-        return path1Parts.join('/');
-    };
+//         return path1Parts.join('/');
+//     };
 
-    let result = paths[0];
-    for (let i = 1; i < paths.length; i++) {
-        result = move(result, paths[i]);
-    }
+//     let result = paths[0];
+//     for (let i = 1; i < paths.length; i++) {
+//         result = move(result, paths[i]);
+//     }
 
-    return platformify(result);
-};
+//     return platformify(result);
+// };
+
 
 /**
  * Finds the relative path from one file to another
  * @date 1/9/2024 - 12:12:32 PM
  */
+export const relative = (from: string, to: string): string => path.relative(unify(from), unify(to));
 // export const relative = (from: string, to: string): string => {
 //     from = unify(from);
 //     to = unify(to);
@@ -108,7 +111,6 @@ export const resolve = (...paths: string[]): string => {
 //     return platformify('./' + result + path2Parts.join('/'));
 // };
 
-export const relative = (from: string, to: string): string => path.relative(unify(from), unify(to));
 
 /**
  * Root directory of the project
@@ -227,11 +229,8 @@ const env: {
     [key: string]: string | undefined;
 } = Deno.env.toObject();
 
-log('Loading environment variables...');
 
-// if (Object.keys(env).length === 56) {
-// console.log(Colors.FgYellow, 'Environment were not loaded, loading manually from .env file... (This may not work properly, if you see errors, just restart)', Colors.Reset);
-// force load from .env file
+// force load from .env file because Deno.env.toObject() doesn't always read it the first time
 try {
     const file = resolve(__root, './.env');
     const data = Deno.readTextFileSync(file);
@@ -245,8 +244,5 @@ try {
         'Unable to read .env file, please make sure it exists and is formatted correctly.',
     );
 }
-// }
-
-log('Environment variables loaded!');
 
 export default env;

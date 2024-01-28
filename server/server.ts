@@ -17,8 +17,6 @@ import { stdin } from './utilities/utilties.ts';
 import { ReqBody } from './structure/app/req.ts';
 import { parseCookie } from '../shared/cookie.ts';
 
-console.log('Platform:', os.platform());
-
 const port = +(env.PORT || 3000);
 const domain = env.DOMAIN || `http://localhost:${port}`;
 
@@ -32,55 +30,29 @@ export const app = new App(port, domain, {
     ioPort: +(env.SOCKET_PORT || port + 1),
 });
 
-const builder = await runBuild();
+if (env.ENVIRONMENT === 'dev') {
+    const builder = await runBuild();
+    // building client listeners
+    builder.on('build', () => {
+        if (env.ENVIRONMENT === 'dev') app.io.emit('reload');
+        log('Build complete');
+    });
+    stdin.on('rb', () => builder.emit('build'));
+    builder.on('error', (e) => log('Build error:', e));
+}
 
-// building client listeners
-builder.on('build', () => {
-    if (env.ENVIRONMENT === 'dev') app.io.emit('reload');
-    log('Build complete');
+
+app.post('/env', (req, res) => {
+    res.json({
+        ENVIRONMENT: env.ENVIRONMENT,
+    });
 });
 
-stdin.on('rb', () => builder.emit('build'));
-
-builder.on('error', (e) => log('Build error:', e));
-
-app.post('/test-stream', (req, res) => {
-    const data = new Array(1000).fill('').map((_, i) => i.toString());
-    res.stream(data);
-});
-
-app.post(
-    '/test-stream-data',
-    retrieveStream({
-        onData: console.log,
-        onError: console.error,
-        onEnd: console.log,
-    }),
-);
-
-app.post('/test', (req, res) => {
-    res.sendStatus('test:success');
-});
-
-app.post('/ping', (req, res) => {
-    res.send('pong');
-});
 
 app.post('/socket-init', (req, res) => {
     const cookie = req.headers.get('cookie');
     res.json(parseCookie(cookie));
 });
-
-app.post(
-    '/test-validation',
-    validate({
-        username: ['fail'],
-        password: ['test'],
-    }),
-    (req, res) => {
-        res.sendStatus('test:success');
-    },
-);
 
 app.use('/*', (req, res, next) => {
     log(`[${req.method}] ${req.url}`);
@@ -159,9 +131,9 @@ app.post('/*', (req, res, next) => {
         delete b?.password;
         delete b?.confirmPassword;
         delete b?.$$files;
-        console.log(b);
+        log(b);
     } catch {
-        console.log(req.body);
+        log(req.body);
     }
 
     next();

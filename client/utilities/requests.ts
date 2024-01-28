@@ -5,6 +5,7 @@ import { StatusJson } from '../../shared/status';
 import { streamDelimiter } from '../../shared/text';
 import { uuid as _uuid } from '../../server/utilities/uuid';
 import { attemptAsync, Result } from '../../shared/attempt';
+import { log, error, warn } from './logging';
 
 /**
  * These are optional options for a request
@@ -586,7 +587,7 @@ export class ServerRequest<T = unknown> {
 
                     if (value) {
                         const d = new TextDecoder().decode(value);
-                        // console.log(done, d);
+                        // log(done, d);
                         const split = d.split(streamDelimiter);
                         if (last) split[0] = last + split[0];
                         last = split.pop();
@@ -754,8 +755,8 @@ export class ServerRequest<T = unknown> {
             })
                 .then((r) => r.json())
                 .then(async (data) => {
-                    if (this.cached) console.log(data, '(cached)');
-                    else console.log(data);
+                    if (this.cached) log(data, '(cached)');
+                    else log(data);
 
                     if (data?.$status) {
                         // this is a notification
