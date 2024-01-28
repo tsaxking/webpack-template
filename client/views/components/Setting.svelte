@@ -21,7 +21,7 @@ export let value: any = undefined;
 
 onMount(() => {
     if (bindTo) {
-        Settings.on('change', ([setting, v]) => {
+        Settings.on('set', ([setting, v]) => {
             if (setting === bindTo) {
                 value = v;
             }
@@ -59,7 +59,9 @@ const onChange = (v: any) => {
             class="col-{labelwidth} d-flex justify-content-center align-items-center"
         >
             <label for="{ids.range}" class="form-label m-0"
-                >{name}
+                >
+                {name}
+                <slot />
                 <!-- <span class="badge bg-secondary ms-2">{value !== undefined ? value : ''}</span> -->
             </label>
         </div>
@@ -82,6 +84,7 @@ const onChange = (v: any) => {
         >
             <label class="form-check-label m-0" for="{ids.switch}">{name}</label
             >
+            <slot />
             <!-- <span class="badge bg-secondary ms-2">{value !== undefined ? value : ''}</span> -->
         </div>
         <div class="col-{inputWidth}">
@@ -102,6 +105,7 @@ const onChange = (v: any) => {
         <div
             class="col-{labelwidth} d-flex justify-content-center align-items-center"
         >
+            <slot />
             <label for="{ids.select}" class="form-label m-0">{name}</label>
             <!-- <span class="badge bg-secondary ms-2">{value !== undefined ? value : ''}</span> -->
         </div>

@@ -1,5 +1,8 @@
 <script lang="ts">
+    import Setting from '../Setting.svelte';
 import { capitalize, fromSnakeCase } from '../../../../shared/text';
+import { Settings } from '../../../models/settings';
+import ThemeSwitch from '../ThemeSwitch.svelte';
 export let title: string;
 export let navItems: string[] = [];
 
@@ -64,6 +67,7 @@ export let accountLinks: (string | null)[] = [];
     </div>
     <div class="me-3">
         <slot />
+        <ThemeSwitch />
     </div>
 
     <a
@@ -91,6 +95,11 @@ export let accountLinks: (string | null)[] = [];
         aria-labelledby="navbarDropdown"
         id="navbarDropdown"
     >
+        <li>
+            <a href="/settings">
+                <i class="material-icons">settings</i>
+            </a>
+        </li>
         {#each accountLinks as link}
             {#if link}
                 <li>

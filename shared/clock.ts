@@ -91,11 +91,12 @@ export const currentDay = () => days[new Date().getDay()];
 
 /**
  * Curry function that takes a date and returns a string formatted with the date and/or time
+ * If no date is passed, it will use the current date
  * @param format A string that will be formatted with the date
  * @returns A function that takes a date and returns a string
  */
 export const dateString = (format: string) => {
-    return (date: Date) =>
+    return (date = new Date()) =>
         format
             // year
             .replace(/YYYY/g, date.getFullYear().toString())

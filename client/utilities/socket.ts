@@ -3,6 +3,7 @@ import { io, Socket } from 'socket.io-client';
 import { SocketEvent } from '../../shared/socket';
 import { ServerRequest } from './requests';
 import { uptime } from '../../shared/clock';
+import { log, error } from './logging';
 
 /**
  * This waits for the server to send the socket url before initializing the socket, this is so that the socket url can be defined only in one location (the .env file)
@@ -26,7 +27,7 @@ const initialized = new Promise<void>((res) => {
 
             socket.socket = s;
         } else {
-            console.error(data.error);
+            error(data.error);
         }
     });
 });
@@ -73,7 +74,7 @@ export class SocketListener {
      */
     private static addListener(listener: SocketListener) {
         if (SocketListener.listeners.has(listener.event)) {
-            return console.error(
+            return error(
                 new Error(`Event ${listener.event} already has a listener`),
             );
         } else SocketListener.listeners.set(listener.event, listener);
@@ -149,12 +150,12 @@ export class ViewUpdate {
     destroy() {
         const listener = SocketWrapper.listeners[this.event];
         if (!listener) {
-            return console.error(`Event ${this.event} does not exist`);
+            return error(`Event ${this.event} does not exist`);
         }
 
         const index = listener.updates.indexOf(this);
         if (index === -1) {
-            return console.error(`ViewUpdate ${this.event} does not exist`);
+            return error(`ViewUpdate ${this.event} does not exist`);
         }
 
         listener.updates.splice(index, 1);
@@ -271,7 +272,7 @@ export class SocketWrapper {
         await initialized;
 
         if (SocketWrapper.listeners[event]) {
-            console.error(`Event ${event} already has a listener`);
+            error(`Event ${event} already has a listener`);
             return SocketWrapper.listeners[event];
         }
         const listener = new SocketListener(event);
@@ -280,13 +281,13 @@ export class SocketWrapper {
         this.$$socket?.on(
             event,
             (/* metadata: SocketMetadata, */ ...args: any[]) => {
-                console.log('socket.on', event, ...args);
+                log('socket.on', event, ...args);
                 dataUpdate(...args);
 
                 for (const vu of listener.updates) {
                     // filter is a custom function that returns true if the view should update based on the data received
                     if (vu.filter && !vu.filter(...args)) {
-                        console.log('filtering out', vu);
+                        log('filtering out', vu);
                         continue;
                     }
                     vu.callback(...args);

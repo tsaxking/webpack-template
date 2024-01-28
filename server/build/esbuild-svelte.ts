@@ -95,9 +95,9 @@ export const typescript = (options: any = {}) => {
             if (tsconfig) {
                 bail(err, 'Could not read tsconfig file:', tsconfig);
             }
-            warn(
-                'Attempt to autoload "tsconfig.json" failed. Using default options.',
-            );
+            // warn(
+            //     'Attempt to autoload "tsconfig.json" failed. Using default options.',
+            // );
             contents = { extends: true };
         }
     }

@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // this needs to be upgraded, but esbuild has not integrated "watch" yet
 import * as esbuild from 'https://deno.land/x/esbuild@v0.11.12/mod.js';
-import { log } from './utilities/terminal-logging.ts';
 import { sveltePlugin, typescript } from './build/esbuild-svelte.ts';
 import { EventEmitter } from '../shared/event-emitter.ts';
 import { getTemplateSync, saveTemplateSync } from './utilities/files.ts';
@@ -12,10 +11,6 @@ import env, {
     relative,
     resolve,
 } from './utilities/env.ts';
-
-log('Deno version:', Deno.version.deno);
-log('Typescript version:', Deno.version.typescript);
-log('V8 version:', Deno.version.v8);
 
 /**
  * Recursively reads a directory, saves the template, and returns the file paths

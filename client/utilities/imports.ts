@@ -18,5 +18,4 @@ import './socket';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 // settings
-import { Settings } from '../models/settings';
-Settings.init();
+import './settings';
