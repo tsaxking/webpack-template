@@ -3,7 +3,7 @@ import { io, Socket } from 'socket.io-client';
 import { SocketEvent } from '../../shared/socket';
 import { ServerRequest } from './requests';
 import { uptime } from '../../shared/clock';
-import { log, error } from './logging';
+import { error, log } from './logging';
 
 /**
  * This waits for the server to send the socket url before initializing the socket, this is so that the socket url can be defined only in one location (the .env file)

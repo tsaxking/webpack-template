@@ -11,9 +11,7 @@ export const fullscreen = (_target: HTMLElement) => {
         attempt(() => {
             // exit fullscreen
             if (document.fullscreenElement) {
-                document
-                    .exitFullscreen()
-                    .then(() => log('Exited fullscreen'));
+                document.exitFullscreen().then(() => log('Exited fullscreen'));
             }
         });
 

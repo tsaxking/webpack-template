@@ -39,13 +39,11 @@ if (env.ENVIRONMENT === 'dev') {
     builder.on('error', (e) => log('Build error:', e));
 }
 
-
 app.post('/env', (req, res) => {
     res.json({
         ENVIRONMENT: env.ENVIRONMENT,
     });
 });
-
 
 app.post('/socket-init', (req, res) => {
     const cookie = req.headers.get('cookie');
