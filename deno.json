@@ -10,7 +10,7 @@
         "socket": "deno run --allow-all ./scripts/add-status.ts socket",
         "type-route": "deno run --allow-all ./scripts/type-route.ts",
         "discord": "deno run --allow-all --unstable-ffi ./server/utilities/discord/discord.ts",
-        "test": "deno test --allow-all --unstable-ffi --no-check ./scripts/test.ts --default",
+        "test": "deno test --allow-all --unstable-ffi --no-check ./scripts/test.ts",
         "view-paths": "deno run --allow-all ./scripts/view-paths.ts",
         "tree": "deno run --allow-all ./scripts/dir-tree.ts"
     },

@@ -57,39 +57,39 @@ export const unify = (path: string) => {
  * Combines multiple paths into one
  * @date 1/9/2024 - 12:12:32 PM
  */
-export const resolve = (...paths: string[]): string => path.resolve(...paths.map(unify));
-// export const resolve = (...paths: string[]): string => {
-//     // replace resolve with this function
-//     const move = (path1: string, path2: string): string => {
-//         path1 = unify(path1);
-//         path2 = unify(path2);
+export const resolve = (...paths: string[]): string => {
+    // replace resolve with this function
+    const move = (path1: string, path2: string): string => {
+        path1 = unify(path1);
+        path2 = unify(path2);
 
-//         const path1Parts = path1.split('/');
-//         const path2Parts = path2.split('/');
+        const path1Parts = path1.split('/');
+        const path2Parts = path2.split('/');
 
-//         for (const part of path2Parts) {
-//             switch (part) {
-//                 case '.':
-//                     break;
-//                 case '..':
-//                     path1Parts.pop();
-//                     break;
-//                 default:
-//                     path1Parts.push(part);
-//                     break;
-//             }
-//         }
+        for (const part of path2Parts) {
+            switch (part) {
+                case '.':
+                    break;
+                case '..':
+                    path1Parts.pop();
+                    break;
+                default:
+                    path1Parts.push(part);
+                    break;
+            }
+        }
 
-//         return path1Parts.join('/');
-//     };
+        return path1Parts.join('/');
+    };
 
-//     let result = paths[0];
-//     for (let i = 1; i < paths.length; i++) {
-//         result = move(result, paths[i]);
-//     }
+    let result = paths[0];
+    for (let i = 1; i < paths.length; i++) {
+        result = move(result, paths[i]);
+    }
 
-//     return platformify(result);
-// };
+    return platformify(result);
+};
+// export const resolve = (...paths: string[]): string => path.resolve(...paths.map(unify));
 
 
 /**
