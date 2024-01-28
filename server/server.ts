@@ -10,24 +10,24 @@ import { router as admin } from './routes/admin.ts';
 import { router as account } from './routes/account.ts';
 import { router as api } from './routes/api.ts';
 import Role from './structure/roles.ts';
-import { validate } from './middleware/data-type.ts';
-import { FileUpload, retrieveStream } from './middleware/stream.ts';
-import os from 'https://deno.land/x/dos@v0.11.0/mod.ts';
+import { FileUpload } from './middleware/stream.ts';
 import { stdin } from './utilities/utilties.ts';
 import { ReqBody } from './structure/app/req.ts';
 import { parseCookie } from '../shared/cookie.ts';
 
 const port = +(env.PORT || 3000);
-const domain = env.DOMAIN || `http://localhost:${port}`;
 
-export const app = new App(port, domain, {
+export const app = new App(
+    port,
+    env.DOMAIN || `http://localhost:${port}`, 
+    {
     // onListen: () => {
     // log(`Listening on ${domain}`);
     // },
     // onConnection: (socket) => {
     // log('New connection:', socket.id);
     // },
-    ioPort: +(env.SOCKET_PORT || port + 1),
+    ioPort: +(env.SOCKET_PORT || port),
 });
 
 if (env.ENVIRONMENT === 'dev') {

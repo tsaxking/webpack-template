@@ -4,6 +4,7 @@ import * as esbuild from 'https://deno.land/x/esbuild@v0.11.12/mod.js';
 import { sveltePlugin, typescript } from './build/esbuild-svelte.ts';
 import { EventEmitter } from '../shared/event-emitter.ts';
 import { getTemplateSync, saveTemplateSync } from './utilities/files.ts';
+import { minify } from 'npm:minify';
 
 import env, {
     __root,
@@ -11,6 +12,7 @@ import env, {
     relative,
     resolve,
 } from './utilities/env.ts';
+import { stdin } from './utilities/utilties.ts';
 
 /**
  * Recursively reads a directory, saves the template, and returns the file paths
@@ -54,13 +56,6 @@ const readDir = (dirPath: string): string[] => {
     });
 };
 
-/**
- * All entry points to the front end app
- * @date 10/12/2023 - 3:26:56 PM
- *
- * @type {{}}
- */
-let entries: string[] = readDir('./client/entries');
 
 /**
  * Event data for the build event
@@ -69,50 +64,79 @@ let entries: string[] = readDir('./client/entries');
  * @typedef {BuildEventData}
  */
 type BuildEventData = {
-    build: any;
-    error: Error;
+    'build': void;
+    'error': Error;
+    'minify': void;
 };
 
 export const runBuild = async () => {
+    let entries: string[] = readDir('./client/entries');
     const builder = new EventEmitter<keyof BuildEventData>();
 
-    const build = () =>
-        esbuild.build({
-            entryPoints: entries,
-            bundle: true,
-            // minify: true,
-            outdir: './dist',
-            mainFields: ['svelte', 'browser', 'module', 'main'],
-            conditions: ['svelte', 'browser'],
-            watch: {
-                onRebuild(error: Error, result: any) {
-                    if (error) builder.emit('error', error);
-                    else builder.emit('build', result);
-                },
+    await esbuild.build({
+        entryPoints: entries,
+        bundle: true,
+        // minify: Deno.args.includes('--minify'),
+        outdir: './dist',
+        mainFields: ['svelte', 'browser', 'module', 'main'],
+        conditions: ['svelte', 'browser'],
+        watch: {
+            onRebuild(error: Error, result: any) {
+                if (error) builder.emit('error', error);
+                else builder.emit('build', result);
             },
-            // trust me, it works
-            plugins: [
-                (sveltePlugin as any)({
-                    preprocess: [typescript()],
-                }),
-            ],
-            logLevel: 'info',
-            loader: {
-                '.png': 'dataurl',
-                '.woff': 'dataurl',
-                '.woff2': 'dataurl',
-                '.eot': 'dataurl',
-                '.ttf': 'dataurl',
-                '.svg': 'dataurl',
-            },
-        });
-
-    builder.on('build', () => {
-        entries = readDir('./client/entries');
-        // build();
+        },
+        // trust me, it works
+        plugins: [
+            (sveltePlugin as any)({
+                preprocess: [typescript()],
+            }),
+        ],
+        logLevel: 'info',
+        loader: {
+            '.png': 'dataurl',
+            '.woff': 'dataurl',
+            '.woff2': 'dataurl',
+            '.eot': 'dataurl',
+            '.ttf': 'dataurl',
+            '.svg': 'dataurl',
+        },
     });
 
-    await build();
+    builder.on('build', async () => {
+        console.log('Built!');
+        if (Deno.args.includes('minify')) {
+            console.log('minifying...');
+            // await Promise.all(
+            //     entries.map((entry) =>                 
+            //         minify(entry, {
+            //             js: {
+            //                 removeUnusedVariables: true,
+            //                 removeConsole: true,
+            //                 removeUselessSpread: true
+            //             },
+            //             html: {
+            //                 removeComments: true,
+            //                 removeEmptyAttributes: true,
+            //                 removeRedundantAttributes: true,
+            //                 removeScriptTypeAttributes: true,
+            //                 removeStyleLinkTypeAttributes: true,
+            //                 removeOptionalTags: true,
+            //             },
+            //             css: {
+            //                 compatibility: '*',
+            //             }
+            //         })
+            //     )
+            // )
+        }
+    });
+
+    stdin.on('rb', () => entries = readDir('./client/entries'));
+
+    builder.emit('build');
+
+    console.log('Watching for changes...');
 
     return builder;
 };
