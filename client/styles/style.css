@@ -3,6 +3,10 @@
     --topNavbarHeight: 54px;
 }
 
+body {
+    transition: background-color ease 0.25s;
+}
+
 .sidebar-nav {
     width: var(--offCanvas-width) !important;
     z-index: 1041;

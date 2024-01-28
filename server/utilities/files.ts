@@ -468,7 +468,7 @@ export function formatBytes(
  * @export
  * @typedef {LogType}
  */
-export type LogType = 'request' | 'error' | 'debugger' | 'status';
+export type LogType = 'request' | 'error' | 'debugger' | 'status' | 'console';
 
 /**
  * The allowed types of data in a log (prevents deep objects)

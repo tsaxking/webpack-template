@@ -1,9 +1,10 @@
 import { EventEmitter } from '../../shared/event-emitter';
 import { ServerRequest } from '../utilities/requests';
 import { socket } from '../utilities/socket';
+import { Account } from './account';
 
 type SettingsEvents = {
-    change: [string, unknown];
+    set: [string, unknown];
 };
 
 export type SettingsType<T = unknown> = {
@@ -74,6 +75,7 @@ export class Settings {
     }
 
     static async change() {
+        if (!Account.current) return; // local changes only
         await ServerRequest.post('/account/set-settings', {
             settings: JSON.stringify([...this.$settings]),
         });
@@ -115,14 +117,14 @@ export class Settings {
             const settings = res.value;
             Settings.$settings.clear();
 
-            if (!settings) return;
+            if (!settings) throw new Error('No settings found');
             if (!Array.isArray(settings)) return; // data is corrupted
 
             for (const [key, value] of settings) {
                 // set without loop
                 if (Settings.$settings.get(key) === value) continue; // no change
                 Settings.$settings.set(key, value);
-                Settings.emit('change', [key, value]);
+                Settings.emit('set', [key, value]);
             }
         }
     }
@@ -136,6 +138,6 @@ socket.on('account:settings-set', (settings: string) => {
         // set without loop
         if (Settings.$settings.get(key) === value) continue; // no change
         Settings.$settings.set(key, value);
-        Settings.emit('change', [key, value]);
+        Settings.emit('set', [key, value]);
     }
 });
