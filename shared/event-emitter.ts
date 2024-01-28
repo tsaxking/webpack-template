@@ -16,19 +16,19 @@ type ListenerCallback = (...args: any[]) => void;
  * @export
  * @class EventEmitter
  * @typedef {EventEmitter}
- * @template [allowedEvents=(string | number | '*')]
+ * @template [events=(string | number | '*')]
  */
-export class EventEmitter<allowedEvents = string | number | '*'> {
+export class EventEmitter<events = string | number | '*'> {
     /**
      * All events and their listeners as a map
      * @date 10/12/2023 - 1:46:22 PM
      *
      * @public
      * @readonly
-     * @type {Map<allowedEvents, ListenerCallback[]>}
+     * @type {Map<events, ListenerCallback[]>}
      */
-    public readonly events: Map<allowedEvents, ListenerCallback[]> = new Map<
-        allowedEvents,
+    public readonly events: Map<events, ListenerCallback[]> = new Map<
+        events,
         ListenerCallback[]
     >();
 
@@ -36,10 +36,10 @@ export class EventEmitter<allowedEvents = string | number | '*'> {
      * Adds a listener for the given event
      * @date 10/12/2023 - 1:46:22 PM
      *
-     * @param {allowedEvents} event
+     * @param {events} event
      * @param {ListenerCallback} callback
      */
-    on(event: allowedEvents, callback: ListenerCallback) {
+    on(event: events, callback: ListenerCallback) {
         if (typeof event !== 'string' && typeof event !== 'number') {
             throw new Error('Event must be a string');
         }
@@ -54,10 +54,10 @@ export class EventEmitter<allowedEvents = string | number | '*'> {
      * Emits an event with the given arguments
      * @date 10/12/2023 - 1:46:22 PM
      *
-     * @param {allowedEvents} event
+     * @param {events} event
      * @param {...unknown[]} args
      */
-    emit(event: allowedEvents, ...args: unknown[]) {
+    emit(event: events, ...args: unknown[]) {
         if (typeof event !== 'string' && typeof event !== 'number') {
             throw new Error('Event must be a string');
         }
@@ -65,20 +65,23 @@ export class EventEmitter<allowedEvents = string | number | '*'> {
             return;
         }
 
-        this.events.get(event)?.forEach((callback) => callback(...args));
-        this.events
-            .get('*' as allowedEvents)
-            ?.forEach((callback) => callback(...args));
+        for (const callback of this.events.get(event) ?? []) {
+            callback(...args);
+        }
+
+        for (const callback of this.events.get('*' as events) ?? []) {
+            callback(event, ...args);
+        }
     }
 
     /**
      * Removes a listener for the given event
      * @date 10/12/2023 - 1:46:22 PM
      *
-     * @param {allowedEvents} event
+     * @param {events} event
      * @param {?ListenerCallback} [callback]
      */
-    off(event: allowedEvents, callback?: ListenerCallback) {
+    off(event: events, callback?: ListenerCallback) {
         if (typeof event !== 'string' && typeof event !== 'number') {
             throw new Error('Event must be a string');
         }
@@ -101,7 +104,7 @@ export class EventEmitter<allowedEvents = string | number | '*'> {
      * @param event
      * @param callback
      */
-    once(event: allowedEvents, callback: ListenerCallback) {
+    once(event: events, callback: ListenerCallback) {
         const onceCallback = (...args: unknown[]) => {
             callback(...args);
             this.off(event, onceCallback);
@@ -116,7 +119,7 @@ export class EventEmitter<allowedEvents = string | number | '*'> {
      */
     destroy() {
         for (const event of Object.keys(this.events)) {
-            this.off(event as allowedEvents);
+            this.off(event as events);
         }
     }
 }
