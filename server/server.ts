@@ -146,8 +146,6 @@ app.post('/*', (req, res, next) => {
 //     // }
 // }));
 
-
-
 app.get('/', (req, res) => {
     res.redirect('/home');
 });
