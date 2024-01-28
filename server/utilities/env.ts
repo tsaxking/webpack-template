@@ -1,7 +1,7 @@
 import os from 'https://deno.land/x/dos@v0.11.0/mod.ts';
 import * as blog from 'https://deno.land/x/blog@0.3.3/deps.ts';
 import path from 'node:path';
-import { log, error } from './terminal-logging.ts';
+import { error, log } from './terminal-logging.ts';
 
 /**
  * Makes paths consistent across platforms
@@ -10,13 +10,21 @@ import { log, error } from './terminal-logging.ts';
 export const platformify = (path: string) => {
     switch (os.platform()) {
         case 'linux':
-            return path;
+            return clean(path);
         case 'windows':
-            return path.replace(/\//g, '\\');
+            return clean(path.replace(/\//g, '\\'));
         default:
             throw new Error('Unsupported platform: ' + os.platform());
     }
 };
+
+export const clean = (path: string) => {
+    // remove all unnecessary slashes, etc.
+    path  = path.replace(/\/\//g, '/');
+    path = path.replace(/\/\.\//g, '/');
+
+    return path;
+}
 
 /**
  * Adds the file:// protocol to a path if the platform requires it
@@ -25,9 +33,9 @@ export const platformify = (path: string) => {
 export const addFileProtocol = (path: string) => {
     switch (os.platform()) {
         case 'linux':
-            return path;
+            return clean(path);
         case 'windows':
-            return 'file://' + path;
+            return 'file://' + clean(path);
         default:
             throw new Error('Unsupported platform: ' + os.platform());
     }
@@ -38,10 +46,10 @@ export const addFileProtocol = (path: string) => {
  * @date 1/9/2024 - 12:12:32 PM
  */
 export const unify = (path: string) => {
-    return path
+    return clean(path
         .replace(/\\/g, '/')
         .replaceAll('file://', '')
-        .replace(/\/\//g, '/');
+        .replace(/\/\//g, '/'));
 };
 
 /**
@@ -80,11 +88,14 @@ export const resolve = (...paths: string[]): string => {
 
     return platformify(result);
 };
+// export const resolve = (...paths: string[]): string => clean(path.resolve(...paths.map(unify)));
 
 /**
  * Finds the relative path from one file to another
  * @date 1/9/2024 - 12:12:32 PM
  */
+export const relative = (from: string, to: string): string =>
+    clean(path.relative(unify(from), unify(to)));
 // export const relative = (from: string, to: string): string => {
 //     from = unify(from);
 //     to = unify(to);
@@ -107,7 +118,6 @@ export const resolve = (...paths: string[]): string => {
 //     return platformify('./' + result + path2Parts.join('/'));
 // };
 
-export const relative = (from: string, to: string): string => path.relative(unify(from), unify(to));
 
 /**
  * Root directory of the project

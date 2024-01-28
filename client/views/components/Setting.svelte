@@ -58,8 +58,7 @@ const onChange = (v: any) => {
         <div
             class="col-{labelwidth} d-flex justify-content-center align-items-center"
         >
-            <label for="{ids.range}" class="form-label m-0"
-                >
+            <label for="{ids.range}" class="form-label m-0">
                 {name}
                 <slot />
                 <!-- <span class="badge bg-secondary ms-2">{value !== undefined ? value : ''}</span> -->

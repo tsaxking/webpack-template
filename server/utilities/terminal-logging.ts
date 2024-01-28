@@ -30,7 +30,8 @@ const runLog = (type: 'log' | 'error' | 'warn', ...args: unknown[]) => {
         case 'warn':
             color = Colors.FgYellow;
             break;
-        default: break;
+        default:
+            break;
     }
 
     const { filePath, lineNumber, fn } = getSite();

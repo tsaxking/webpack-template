@@ -11,7 +11,6 @@ export let settings: SettingsType[] = [
         value: 'Light'
     }
 ];
-
 </script>
 
 <SettingsGroup {settings} />
