@@ -61,6 +61,7 @@ export const runTests = async () => {
 
         const pass = () => assertEquals(true, true);
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const invalid: [string, any][] = [];
         const missing: string[] = [];
 

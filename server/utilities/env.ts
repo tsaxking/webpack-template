@@ -1,7 +1,7 @@
 import os from 'https://deno.land/x/dos@v0.11.0/mod.ts';
 import * as blog from 'https://deno.land/x/blog@0.3.3/deps.ts';
 import path from 'node:path';
-import { error, log } from './terminal-logging.ts';
+import { error } from './terminal-logging.ts';
 
 /**
  * Makes paths consistent across platforms

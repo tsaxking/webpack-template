@@ -28,11 +28,13 @@ router.post('/get-roles', (req, res) => {
     res.json(Role.all());
 });
 
-router.get('/sign-in', (_req, res) => {
+router.get('/sign-in', (req, res, next) => {
+    if (req.session.account) return next();
     res.sendTemplate('entries/account/sign-in');
 });
 
-router.get('/sign-up', (_req, res) => {
+router.get('/sign-up', (req, res, next)=> {
+    if (req.session.account) return next();
     res.sendTemplate('entries/account/sign-up');
 });
 

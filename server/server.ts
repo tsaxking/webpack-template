@@ -2,7 +2,7 @@ import env, { __root, resolve } from './utilities/env.ts';
 import { log } from './utilities/terminal-logging.ts';
 import { App, ResponseStatus } from './structure/app/app.ts';
 import { Session } from './structure/sessions.ts';
-import { getJSONSync, log as serverLog } from './utilities/files.ts';
+import { getJSON, log as serverLog } from './utilities/files.ts';
 import { homeBuilder } from './utilities/page-builder.ts';
 import Account from './structure/accounts.ts';
 import { runBuild } from './bundler.ts';
@@ -10,9 +10,7 @@ import { router as admin } from './routes/admin.ts';
 import { router as account } from './routes/account.ts';
 import { router as api } from './routes/api.ts';
 import Role from './structure/roles.ts';
-import { validate } from './middleware/data-type.ts';
-import { FileUpload, retrieveStream } from './middleware/stream.ts';
-import os from 'https://deno.land/x/dos@v0.11.0/mod.ts';
+import { FileUpload } from './middleware/stream.ts';
 import { stdin } from './utilities/utilties.ts';
 import { ReqBody } from './structure/app/req.ts';
 import { parseCookie } from '../shared/cookie.ts';
@@ -150,13 +148,14 @@ app.post('/*', (req, res, next) => {
 //     // }
 // }));
 
-const homePages = getJSONSync<string[]>('pages/home');
+
 
 app.get('/', (req, res) => {
     res.redirect('/home');
 });
 
 app.get('/*', async (req, res, next) => {
+    const homePages = await getJSON<string[]>('pages/home');
     if (homePages.isOk()) {
         if (homePages.value.includes(req.url.slice(1))) {
             const r = await homeBuilder(req.url);
