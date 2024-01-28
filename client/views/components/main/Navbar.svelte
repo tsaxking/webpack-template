@@ -1,5 +1,5 @@
 <script lang="ts">
-    import Setting from '../Setting.svelte';
+import Setting from '../Setting.svelte';
 import { capitalize, fromSnakeCase } from '../../../../shared/text';
 import { Settings } from '../../../models/settings';
 import ThemeSwitch from '../ThemeSwitch.svelte';
