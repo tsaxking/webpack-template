@@ -20,11 +20,11 @@ export const platformify = (path: string) => {
 
 export const clean = (path: string) => {
     // remove all unnecessary slashes, etc.
-    path  = path.replace(/\/\//g, '/');
+    path = path.replace(/\/\//g, '/');
     path = path.replace(/\/\.\//g, '/');
 
     return path;
-}
+};
 
 /**
  * Adds the file:// protocol to a path if the platform requires it
@@ -46,11 +46,13 @@ export const addFileProtocol = (path: string) => {
  * @date 1/9/2024 - 12:12:32 PM
  */
 export const unify = (path: string) => {
-    return clean(path
-        .replace(/\\/g, '/')
-        .replace(/\/+/g, '/')
-        .replace(/^(file:\/)/, '')
-        .replace(/\/\//g, '/'));
+    return clean(
+        path
+            .replace(/\\/g, '/')
+            .replace(/\/+/g, '/')
+            .replace(/^(file:\/)/, '')
+            .replace(/\/\//g, '/'),
+    );
 };
 
 /**
@@ -91,7 +93,6 @@ export const resolve = (...paths: string[]): string => {
 };
 // export const resolve = (...paths: string[]): string => path.resolve(...paths.map(unify));
 
-
 /**
  * Finds the relative path from one file to another
  * @date 1/9/2024 - 12:12:32 PM
@@ -119,7 +120,6 @@ export const relative = (from: string, to: string): string =>
 
 //     return platformify('./' + result + path2Parts.join('/'));
 // };
-
 
 /**
  * Root directory of the project
@@ -237,7 +237,6 @@ export const extname = (path: string) => {
 const env: {
     [key: string]: string | undefined;
 } = Deno.env.toObject();
-
 
 // force load from .env file because Deno.env.toObject() doesn't always read it the first time
 try {

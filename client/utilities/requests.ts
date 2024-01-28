@@ -5,7 +5,7 @@ import { StatusJson } from '../../shared/status';
 import { streamDelimiter } from '../../shared/text';
 import { uuid as _uuid } from '../../server/utilities/uuid';
 import { attemptAsync, Result } from '../../shared/attempt';
-import { log, error, warn } from './logging';
+import { error, log, warn } from './logging';
 
 /**
  * These are optional options for a request
