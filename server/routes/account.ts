@@ -33,7 +33,7 @@ router.get('/sign-in', (req, res, next) => {
     res.sendTemplate('entries/account/sign-in');
 });
 
-router.get('/sign-up', (req, res, next)=> {
+router.get('/sign-up', (req, res, next) => {
     if (req.session.account) return next();
     res.sendTemplate('entries/account/sign-up');
 });
