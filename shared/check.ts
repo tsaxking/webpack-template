@@ -185,9 +185,16 @@ export const check = (data: unknown, type: (Primitive | O | A)): boolean => {
     const isObject = (data: unknown): data is O => (typeof data === 'object' && data !== null);
     const isArray = (data: unknown): data is A => Array.isArray(data);
     try {
+        JSON.stringify(data);
+    } catch (error) {
+        console.error('Invalid data, it is likely that you have a circular reference in your "data" definition');
+        return false;
+    }
+
+    try {
         JSON.stringify(type);
     } catch (error) {
-        console.error('Invalid type', type, error);
+        console.error('Invalid type, it is likely that you have a circular reference in your "type" definition');
         return false;
     }
 
