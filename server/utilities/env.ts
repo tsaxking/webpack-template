@@ -40,7 +40,8 @@ export const addFileProtocol = (path: string) => {
 export const unify = (path: string) => {
     return path
         .replace(/\\/g, '/')
-        .replaceAll('file://', '')
+        .replace(/\/+/g, '/')
+        .replace(/^(file:\/)/, '')
         .replace(/\/\//g, '/');
 };
 

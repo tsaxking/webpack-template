@@ -11,6 +11,7 @@ import { dateTime } from '../../shared/clock.ts';
  */
 const getSite = () => {
     const site = blog.callsites()[3];
+    const p = site.getFileName() || '';
     return {
         filePath: relative(__root, unify(site.getFileName() || '')),
         lineNumber: (site.getLineNumber() || 0) + 1,
