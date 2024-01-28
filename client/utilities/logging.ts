@@ -1,19 +1,13 @@
 import { env } from "./env";
 import { dateTime } from "../../shared/clock";
-import { callsite } from 'callsite';
 import { ServerRequest } from "./requests";
 
 const runLog = (type: 'log' | 'error' | 'warn', ...args: unknown[]) => {
     const d = dateTime();
-    const site = callsite()[3];
-    const p = site.getFileName() || '';
-    const fn = site.getFunctionName() + '()' || 'Global | Unnamed';
 
     if (env.ENVIRONMENT === 'dev') {
         console[type](
             `[${d}]`,
-            `[${p}:${(site.getLineNumber() || 0) + 1}]`,
-            `[${fn}]`,
             ...args,
         );
 
@@ -21,9 +15,6 @@ const runLog = (type: 'log' | 'error' | 'warn', ...args: unknown[]) => {
             ServerRequest.post('/error', {
                 type,
                 date: d,
-                file: p,
-                line: (site.getLineNumber() || 0) + 1,
-                fn,
                 args: args ? JSON.stringify(args) : '',
             });
         }

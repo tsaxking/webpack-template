@@ -4,9 +4,13 @@ export const env: {
     [key: string]: string;
 } = {};
 
-ServerRequest.post('/env')
+
+setTimeout(() => ServerRequest.post('/env')
     .then((res) => {
         if (res.isOk()) {
             Object.assign(env, res.value);
+            Object.assign(window, {
+                __env: env
+            });
         }
-    });
+    }));
