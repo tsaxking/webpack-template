@@ -38,6 +38,14 @@ router.get('/sign-up', (req, res, next) => {
     res.sendTemplate('entries/account/sign-up');
 });
 
+router.get('/reset-password/:key', (req, res, next) => {
+    const { key } = req.params;
+    if (!key) return next();
+    const a = Account.fromPasswordChangeKey(key);
+    if (!a) return res.sendStatus('account:invalid-password-reset-key');
+    res.sendTemplate('entries/account/reset-password');
+});
+
 router.post<{
     username: string;
     password: string;
@@ -338,4 +346,38 @@ router.post('/get-settings', (req, res) => {
             ? JSON.parse(account.settings.settings || '[]')
             : undefined,
     );
+});
+
+
+router.post('/request-password-reset', validate({}), (req, res) => {
+    const a = req.session.account;
+    if (!a) return res.sendStatus('account:not-logged-in');
+
+    a.requestPasswordChange();
+
+    res.sendStatus('account:password-reset-request');
+});
+
+router.post<{
+    password: string;
+    confirmPassword: string;
+    key: string;
+}>('/reset-password', validate({
+    password: 'string',
+    confirmPassword: 'string',
+    key: 'string'
+}), (req, res) => {
+    const { password, confirmPassword, key } = req.body;
+
+    const a = Account.fromPasswordChangeKey(key);
+
+    if (!a) return res.sendStatus('account:invalid-password-reset-key');
+
+    if (password !== confirmPassword) {
+        return res.sendStatus('account:password-mismatch');
+    }
+
+    a.changePassword(key, password);
+
+    res.sendStatus('account:password-reset-success');
 });

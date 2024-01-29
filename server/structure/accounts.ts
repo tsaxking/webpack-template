@@ -987,6 +987,15 @@ export default class Account {
             id: this.id,
             passwordChange: key,
         });
+
+        this.sendEmail('Password change request', EmailType.link, {
+            constructor: {
+                link: `${env.DOMAIN}/account/change-password/${key}`,
+                linkText: 'Click here to change your password',
+                title: 'Password change request',
+                message: 'Click the button below to change your password',
+            }
+        });
         return key;
     }
 
