@@ -994,7 +994,7 @@ export default class Account {
                 linkText: 'Click here to change your password',
                 title: 'Password change request',
                 message: 'Click the button below to change your password',
-            }
+            },
         });
         return key;
     }

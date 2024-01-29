@@ -1,4 +1,7 @@
-console.warn('[shared/attempt.ts]', 'This file will be changed to /shared/check.ts in the future. Please update your imports.');
+console.warn(
+    '[shared/attempt.ts]',
+    'This file will be changed to /shared/check.ts in the future. Please update your imports.',
+);
 
 /**
  * Ok Result

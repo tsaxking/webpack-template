@@ -348,7 +348,6 @@ router.post('/get-settings', (req, res) => {
     );
 });
 
-
 router.post('/request-password-reset', validate({}), (req, res) => {
     const a = req.session.account;
     if (!a) return res.sendStatus('account:not-logged-in');
@@ -362,22 +361,26 @@ router.post<{
     password: string;
     confirmPassword: string;
     key: string;
-}>('/reset-password', validate({
-    password: 'string',
-    confirmPassword: 'string',
-    key: 'string'
-}), (req, res) => {
-    const { password, confirmPassword, key } = req.body;
+}>(
+    '/reset-password',
+    validate({
+        password: 'string',
+        confirmPassword: 'string',
+        key: 'string',
+    }),
+    (req, res) => {
+        const { password, confirmPassword, key } = req.body;
 
-    const a = Account.fromPasswordChangeKey(key);
+        const a = Account.fromPasswordChangeKey(key);
 
-    if (!a) return res.sendStatus('account:invalid-password-reset-key');
+        if (!a) return res.sendStatus('account:invalid-password-reset-key');
 
-    if (password !== confirmPassword) {
-        return res.sendStatus('account:password-mismatch');
-    }
+        if (password !== confirmPassword) {
+            return res.sendStatus('account:password-mismatch');
+        }
 
-    a.changePassword(key, password);
+        a.changePassword(key, password);
 
-    res.sendStatus('account:password-reset-success');
-});
+        res.sendStatus('account:password-reset-success');
+    },
+);
