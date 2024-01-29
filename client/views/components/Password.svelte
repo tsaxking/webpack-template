@@ -28,7 +28,7 @@ const toggle = (t: 'text' | 'password') => {
 
 <div class="container-fluid">
     <div class="row p-0 mb-3">
-        <div class="col-11 p-0 m-0">
+        <div class="col-10 p-0 m-0">
             <div class="form-floating">
                 <input
                     class="form-control"
@@ -42,7 +42,7 @@ const toggle = (t: 'text' | 'password') => {
                 <label class="form-label" for="{id}">{label}</label>
             </div>
         </div>
-        <div class="col d-flex align-items-center">
+        <div class="col-2 d-flex align-items-center">
             <i
                 class="material-icons cursor-pointer mx-auto"
                 on:click="{() => toggle(type)}"
