@@ -1,5 +1,4 @@
 import { Drawable } from './drawable';
-import { ShapeProperties } from './properties';
 import { Point2D } from '../../../shared/submodules/calculations/src/linear-algebra/point';
 import { copy } from '../../../shared/copy';
 
@@ -23,7 +22,6 @@ export class Polygon extends Drawable<Polygon> {
      */
     constructor(
         public points: Point2D[],
-        public readonly $$properties: Partial<ShapeProperties<Polygon>> = {},
     ) {
         super();
     }

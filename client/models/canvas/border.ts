@@ -9,7 +9,7 @@ export class Border extends Polygon {
     draw(ctx: CanvasRenderingContext2D) {
         const region = new Path2D();
 
-        const points = this.points.map(p => this.reflect(p));
+        const points = this.points.map((p) => this.reflect(p));
 
         region.moveTo(
             points[0][0] * ctx.canvas.width,

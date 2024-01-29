@@ -53,9 +53,11 @@ export class Circle extends Drawable<Circle> {
         if (this.$properties?.fill?.color) {
             context.fillStyle = this.$properties.fill.color;
         }
+        // console.log(this.center);
+        const [x, y] = this.reflect(this.center);
         context.arc(
-            this.x * context.canvas.width,
-            this.y * context.canvas.height,
+            x * context.canvas.width,
+            y * context.canvas.height,
             this.radius * context.canvas.height,
             0,
             2 * Math.PI,

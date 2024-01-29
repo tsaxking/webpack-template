@@ -15,8 +15,7 @@ export class Path extends Drawable<Path> {
      */
     draw(ctx: CanvasRenderingContext2D) {
         ctx.beginPath();
-        const points = this.points.map(p => this.reflect(p));
-
+        const points = this.points.map((p) => this.reflect(p));
 
         if (!points[0]) return;
         ctx.moveTo(
@@ -44,7 +43,7 @@ export class Path extends Drawable<Path> {
 
     isIn(point: Point2D) {
         const [px, py] = point;
-        return this.points.some(p => {
+        return this.points.some((p) => {
             const [x, y] = this.reflect(p);
             return px === x && py === y;
         });

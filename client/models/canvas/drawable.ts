@@ -1,6 +1,11 @@
 import { Point2D } from '../../../shared/submodules/calculations/src/linear-algebra/point';
 import { EventEmitter } from '../../../shared/event-emitter';
-import { ShapeProperties, FillProperties, LineProperties, TextProperties } from './properties';
+import {
+    FillProperties,
+    LineProperties,
+    ShapeProperties,
+    TextProperties,
+} from './properties';
 import { Canvas } from './canvas';
 
 /**
@@ -134,10 +139,24 @@ export class Drawable<T = any> {
      * @readonly
      * @type {Partial<ShapeProperties<T>>}
      */
-    public readonly $$properties: Partial<ShapeProperties<T>> = {};
+    public readonly $$properties: ShapeProperties<T> = {
+        fill: {},
+        line: {},
+        text: {},
+        doDraw: () => true,
+        mirror: {
+            x: false,
+            y: false
+        }
+    };
+
+    private $warned = false;
 
     get $properties() {
-        console.warn('Drawable.$properties will be deprecated in the future, use Drawable.properties instead')
+        if (!this.$warned) console.warn(
+            'Drawable.$properties will be deprecated in the future, use Drawable.properties instead',
+        );
+        this.$warned = true;
         return this.$$properties;
     }
 
@@ -256,22 +275,23 @@ export class Drawable<T = any> {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    clone(): Drawable<any> {
+    clone(): any {
         throw new Error(`Method not implemented for ${this.constructor.name}`);
     }
 
     reflect(point: Point2D): Point2D {
+        let [px, py] = point;
         if (this.$properties.mirror) {
             const { x, y } = this.$properties.mirror;
             if (x) {
-                point[0] = 1 - point[0];
+                px = 1 - point[0];
             }
             if (y) {
-                point[1] = 1 - point[1];
+                py = 1 - point[1];
             }
         }
 
-        return point;
+        return [px, py];
     }
 
     get properties() {
@@ -279,26 +299,34 @@ export class Drawable<T = any> {
     }
 
     get fill() {
-        return this.$properties.fill;
+        return this.$properties.fill || {};
     }
 
-    set fill(fill: Partial<FillProperties<T> | undefined>) {
+    set fill(fill: Partial<FillProperties<T>>) {
         this.$properties.fill = fill;
     }
 
     get line() {
-        return this.$properties.line;
+        return this.$properties.line || {};
     }
 
-    set line(line: Partial<LineProperties<T> | undefined>) {
+    set line(line: Partial<LineProperties<T>>) {
         this.$properties.line = line;
     }
 
     get text() {
-        return this.$properties.text;
+        return this.$properties.text || {};
     }
 
-    set text(text: Partial<TextProperties<T> | undefined>) {
+    set text(text: Partial<TextProperties<T>>) {
         this.$properties.text = text;
+    }
+
+    set mirror(mirror: { x?: boolean; y?: boolean }) {
+        this.$properties.mirror = mirror;
+    }
+
+    get mirror() {
+        return this.$properties.mirror || {};
     }
 }
