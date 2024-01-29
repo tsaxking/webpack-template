@@ -403,6 +403,61 @@ export class Canvas<T = unknown> {
         this.$canvas.height = height;
     }
 
+    private $ratio = 1;
+
+    get ratio() {
+        return this.$ratio;
+    }
+
+    set ratio(number: number) {
+        this.$ratio = number;
+    }
+
+    private $adaptable = false;
+
+    set adaptable(adaptable: boolean) {
+        this.$adaptable = adaptable;
+        const { parentElement } = this.$canvas;
+        if (parentElement) {
+            parentElement.style.position = 'relative';
+            this.$canvas.style.position = 'absolute';
+        }
+    }
+
+    get adaptable() {
+        return this.$adaptable;
+    }
+
+    private setView() {
+        if (!this.adaptable) return;
+        const { parentElement } = this.$canvas;
+
+        if (parentElement) {
+            const { width, height } = parentElement.getBoundingClientRect();
+            if (width / height > this.ratio) {
+                // ratio is too wide
+                const xOffset = (width - height * this.ratio) / 2;
+                this.$canvas.style.width = height * this.ratio + 'px';
+                this.$canvas.style.height = height + 'px';
+                this.$canvas.style.left = xOffset + 'px';
+                this.$canvas.style.top = '0px';
+            } else if (width / height < this.ratio) {
+                // ratio is too tall
+                const yOffset = (height - width / this.ratio) / 2;
+                this.$canvas.style.width = width + 'px';
+                this.$canvas.style.height = width / this.ratio + 'px';
+                this.$canvas.style.left = '0px';
+                this.$canvas.style.top = yOffset + 'px';
+            } else {
+                // ratio is exactly the same
+                this.$canvas.style.width = width + 'px';
+                this.$canvas.style.height = height + 'px';
+                this.$canvas.style.left = '0px';
+                this.$canvas.style.top = '0px';
+            }
+        }
+    }
+
     /**
      * Adds an event listener to the canvas
      * @date 1/25/2024 - 12:50:18 PM
@@ -516,6 +571,7 @@ export class Canvas<T = unknown> {
      */
     draw() {
         this.clear();
+        this.setView();
         for (const drawable of this.$drawables) {
             this.$ctx.save();
 

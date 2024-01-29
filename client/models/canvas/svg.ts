@@ -58,10 +58,12 @@ export class SVG extends Drawable<SVG> {
             console.warn("You can't set the font of an SVG");
         }
 
+        const center = this.reflect(this.center);
+
         ctx.drawImage(
             this.$img,
-            this.center[0] * ctx.canvas.width,
-            this.center[1] * ctx.canvas.height,
+            center[0] * ctx.canvas.width,
+            center[1] * ctx.canvas.height,
             this.$img.width,
             this.$img.height,
         );
@@ -71,5 +73,18 @@ export class SVG extends Drawable<SVG> {
         const s = new SVG(this.src, this.center);
         copy(this, s);
         return s;
+    }
+
+    isIn(point: Point2D) {
+        let { x, y } = this;
+        [x, y] = this.reflect([x, y]);
+        const { width, height } = this.$img;
+        const [px, py] = point;
+        return (
+            px >= x - width / 2 &&
+            px <= x + width / 2 &&
+            py >= y - height / 2 &&
+            py <= y + height / 2
+        );
     }
 }

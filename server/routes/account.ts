@@ -339,7 +339,7 @@ router.post<{
 
 router.post('/get-settings', (req, res) => {
     const account = req.session.account;
-    if (!account) return res.sendStatus('account:not-logged-in');
+    if (!account) return res.status(404).json({ error: 'Not logged in' });
 
     res.json(
         account.settings

@@ -15,10 +15,12 @@ export class Path extends Drawable<Path> {
      */
     draw(ctx: CanvasRenderingContext2D) {
         ctx.beginPath();
-        if (!this.points[0]) return;
+        const points = this.points.map((p) => this.reflect(p));
+
+        if (!points[0]) return;
         ctx.moveTo(
-            this.points[0][0] * ctx.canvas.width,
-            this.points[0][1] * ctx.canvas.height,
+            points[0][0] * ctx.canvas.width,
+            points[0][1] * ctx.canvas.height,
         );
         if (this.$properties?.line?.color) {
             ctx.strokeStyle = this.$properties.line?.color;
@@ -28,8 +30,8 @@ export class Path extends Drawable<Path> {
         }
         for (let i = 1; i < this.points.length; i++) {
             ctx.lineTo(
-                this.points[i][0] * ctx.canvas.width,
-                this.points[i][1] * ctx.canvas.height,
+                points[i][0] * ctx.canvas.width,
+                points[i][1] * ctx.canvas.height,
             );
         }
         ctx.stroke();
@@ -40,7 +42,11 @@ export class Path extends Drawable<Path> {
     }
 
     isIn(point: Point2D) {
-        return this.points.some((p) => p[0] === point[0] && p[1] === point[1]);
+        const [px, py] = point;
+        return this.points.some((p) => {
+            const [x, y] = this.reflect(p);
+            return px === x && py === y;
+        });
     }
 
     clone(): Path {

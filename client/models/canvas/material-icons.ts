@@ -58,6 +58,7 @@ export class Icon extends Drawable<MaterialIcon> {
         const { color } = this;
 
         size = size * ctx.canvas.height;
+        [x, y] = this.reflect([x, y]);
         x = x * ctx.canvas.width - size / 2;
         y = y * ctx.canvas.height + size / 2;
 
@@ -67,13 +68,13 @@ export class Icon extends Drawable<MaterialIcon> {
     }
 
     isIn(point: Point2D) {
-        const { x, y, size } = this;
-
-        const s = size / 2;
-
+        let { x, y, size } = this;
+        [x, y] = this.reflect([x, y]);
+        size = size / 2;
         const [px, py] = point;
 
-        return px >= x - s && px <= x + s && py >= y - s && py <= y + s;
+        return px >= x - size && px <= x + size && py >= y - size &&
+            py <= y + size;
     }
 
     clone(): Icon {

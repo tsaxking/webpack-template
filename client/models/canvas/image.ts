@@ -41,6 +41,20 @@ export class Img extends Drawable<Img> {
             canvas.height = this.img.height;
             const ctx = canvas.getContext('2d');
             if (!ctx) return;
+
+            if (this.properties?.mirror) {
+                const { x, y } = this.properties.mirror;
+                if (x) {
+                    ctx.translate(canvas.width, 0);
+                    ctx.scale(-1, 1);
+                }
+
+                if (y) {
+                    ctx.translate(0, canvas.height);
+                    ctx.scale(1, -1);
+                }
+            }
+
             ctx.drawImage(this.img, 0, 0);
             // to data url
             const i = document.createElement('img');
@@ -157,12 +171,15 @@ export class Img extends Drawable<Img> {
      * @returns {boolean}
      */
     isIn(point: Point2D) {
-        const [x, y] = point;
+        const [px, py] = point;
+
+        const [x, y] = this.reflect([this.x, this.y]);
+
         return (
-            x >= this.x &&
-            x <= this.x + this.width &&
-            y >= this.y &&
-            y <= this.y + this.height
+            px >= x &&
+            px <= x + this.width &&
+            py >= y &&
+            py <= y + this.height
         );
     }
 

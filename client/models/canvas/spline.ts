@@ -23,7 +23,8 @@ export class Spline extends Drawable<Spline> {
         ctx.strokeStyle = this.$properties.line?.color || 'black';
 
         ctx.beginPath();
-        const { x, y } = this.spline.ft(0);
+        let { x, y } = this.spline.ft(0);
+        [x, y] = this.reflect([x, y]);
         ctx.moveTo(x * width, y * height);
 
         const frames = this.options.frames || 100;
