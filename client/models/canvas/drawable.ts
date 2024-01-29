@@ -1,6 +1,6 @@
 import { Point2D } from '../../../shared/submodules/calculations/src/linear-algebra/point';
 import { EventEmitter } from '../../../shared/event-emitter';
-import { ShapeProperties } from './properties';
+import { ShapeProperties, FillProperties, LineProperties, TextProperties } from './properties';
 import { Canvas } from './canvas';
 
 /**
@@ -134,7 +134,12 @@ export class Drawable<T = any> {
      * @readonly
      * @type {Partial<ShapeProperties<T>>}
      */
-    public readonly $properties: Partial<ShapeProperties<T>> = {};
+    public readonly $$properties: Partial<ShapeProperties<T>> = {};
+
+    get $properties() {
+        console.warn('Drawable.$properties will be deprecated in the future, use Drawable.properties instead')
+        return this.$$properties;
+    }
 
     /**
      * Add a listener to the given event
@@ -253,5 +258,47 @@ export class Drawable<T = any> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     clone(): Drawable<any> {
         throw new Error(`Method not implemented for ${this.constructor.name}`);
+    }
+
+    reflect(point: Point2D): Point2D {
+        if (this.$properties.mirror) {
+            const { x, y } = this.$properties.mirror;
+            if (x) {
+                point[0] = 1 - point[0];
+            }
+            if (y) {
+                point[1] = 1 - point[1];
+            }
+        }
+
+        return point;
+    }
+
+    get properties() {
+        return this.$properties;
+    }
+
+    get fill() {
+        return this.$properties.fill;
+    }
+
+    set fill(fill: Partial<FillProperties<T> | undefined>) {
+        this.$properties.fill = fill;
+    }
+
+    get line() {
+        return this.$properties.line;
+    }
+
+    set line(line: Partial<LineProperties<T> | undefined>) {
+        this.$properties.line = line;
+    }
+
+    get text() {
+        return this.$properties.text;
+    }
+
+    set text(text: Partial<TextProperties<T> | undefined>) {
+        this.$properties.text = text;
     }
 }

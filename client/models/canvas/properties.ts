@@ -23,4 +23,9 @@ export type ShapeProperties<T = any> = Partial<{
     fill: Partial<FillProperties<T>>;
     text: Partial<TextProperties<T>>;
     doDraw: (element: T) => boolean;
+
+    mirror: {
+        x?: boolean;
+        y?: boolean;
+    }
 }>;

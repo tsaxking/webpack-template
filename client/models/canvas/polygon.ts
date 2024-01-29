@@ -23,7 +23,7 @@ export class Polygon extends Drawable<Polygon> {
      */
     constructor(
         public points: Point2D[],
-        public readonly $properties: Partial<ShapeProperties<Polygon>> = {},
+        public readonly $$properties: Partial<ShapeProperties<Polygon>> = {},
     ) {
         super();
     }
@@ -36,14 +36,17 @@ export class Polygon extends Drawable<Polygon> {
      */
     draw(ctx: CanvasRenderingContext2D) {
         ctx.beginPath();
-        const x0 = this.points[0][0] * ctx.canvas.width;
-        const y0 = this.points[0][1] * ctx.canvas.height;
+        const points = this.points.map((p) => this.reflect(p));
+        if (!points[0]) return;
+
+        const x0 = points[0][0] * ctx.canvas.width;
+        const y0 = points[0][1] * ctx.canvas.height;
         ctx.moveTo(x0, y0);
 
-        for (let i = 1; i < this.points.length; i++) {
+        for (let i = 1; i < points.length; i++) {
             ctx.lineTo(
-                this.points[i][0] * ctx.canvas.width,
-                this.points[i][1] * ctx.canvas.height,
+                points[i][0] * ctx.canvas.width,
+                points[i][1] * ctx.canvas.height,
             );
         }
         ctx.closePath();
@@ -73,15 +76,18 @@ export class Polygon extends Drawable<Polygon> {
     isIn(point: Point2D) {
         const [x, y] = point;
         let inside = false;
+
+        const points = this.points.map((p) => this.reflect(p));
+
         for (
-            let i = 0, j = this.points.length - 1;
-            i < this.points.length;
+            let i = 0, j = length - 1;
+            i < points.length;
             j = i++
         ) {
-            const xi = this.points[i][0],
-                yi = this.points[i][1];
-            const xj = this.points[j][0],
-                yj = this.points[j][1];
+            const xi = points[i][0],
+                yi = points[i][1];
+            const xj = points[j][0],
+                yj = points[j][1];
 
             const intersect = yi > y !== yj > y &&
                 x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
