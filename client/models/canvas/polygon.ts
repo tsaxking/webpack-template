@@ -20,9 +20,7 @@ export class Polygon extends Drawable<Polygon> {
      * @param {Point2D[]} points
      * @param {Partial<ShapeProperties<Polygon>>} [$properties={}]
      */
-    constructor(
-        public points: Point2D[],
-    ) {
+    constructor(public points: Point2D[]) {
         super();
     }
 
@@ -77,11 +75,7 @@ export class Polygon extends Drawable<Polygon> {
 
         const points = this.points.map((p) => this.reflect(p));
 
-        for (
-            let i = 0, j = length - 1;
-            i < points.length;
-            j = i++
-        ) {
+        for (let i = 0, j = length - 1; i < points.length; j = i++) {
             const xi = points[i][0],
                 yi = points[i][1];
             const xj = points[j][0],
