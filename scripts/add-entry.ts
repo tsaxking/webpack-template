@@ -1,4 +1,4 @@
-import { __root, dirname, relative, resolve } from '../server/utilities/env.ts';
+import { __root, dirname, relative, resolve, unify } from '../server/utilities/env.ts';
 import { attempt } from '../shared/attempt.ts';
 
 const [, ...args] = Deno.args;
@@ -28,7 +28,7 @@ export const addEntry = (name: string) => {
         resolve(__root, 'client', 'utilities', 'imports'),
     );
 
-    const imports = `import '${importsRelative}';`;
+    const imports = `import '${unify(importsRelative)}';`;
 
     Deno.writeFileSync(filepath, new TextEncoder().encode(imports));
 };
