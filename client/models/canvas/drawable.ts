@@ -283,13 +283,13 @@ export class Drawable<T = any> {
 
     reflect(point: Point2D): Point2D {
         let [px, py] = point;
-        if (this.$properties.mirror) {
-            const { x, y } = this.$properties.mirror;
+        if (this.properties.mirror) {
+            const { x, y } = this.properties.mirror;
             if (x) {
-                px = 1 - point[0];
+                px = 1 - px;
             }
             if (y) {
-                py = 1 - point[1];
+                py = 1 - py;
             }
         }
 
