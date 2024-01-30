@@ -1,4 +1,10 @@
-import { __root, dirname, relative, resolve, unify } from '../server/utilities/env.ts';
+import {
+    __root,
+    dirname,
+    relative,
+    resolve,
+    unify,
+} from '../server/utilities/env.ts';
 import { attempt } from '../shared/attempt.ts';
 
 const [, ...args] = Deno.args;
