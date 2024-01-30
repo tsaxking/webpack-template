@@ -213,7 +213,10 @@ export const check = (data: unknown, type: Primitive | O | A): boolean => {
         }
 
         if (isArray(type)) {
-            return isArray(data) && data.every((item) => type.some((t) => runCheck(item, t)));
+            return (
+                isArray(data) &&
+                data.every((item) => type.some((t) => runCheck(item, t)))
+            );
         }
 
         if (isObject(data) && isObject(type)) {

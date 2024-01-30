@@ -176,10 +176,7 @@ export class Img extends Drawable<Img> {
         const [x, y] = this.reflect([this.x, this.y]);
 
         return (
-            px >= x &&
-            px <= x + this.width &&
-            py >= y &&
-            py <= y + this.height
+            px >= x && px <= x + this.width && py >= y && py <= y + this.height
         );
     }
 

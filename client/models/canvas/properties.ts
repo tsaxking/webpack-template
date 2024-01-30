@@ -28,4 +28,4 @@ export type ShapeProperties<T = any> = {
         x?: boolean;
         y?: boolean;
     };
-}
+};

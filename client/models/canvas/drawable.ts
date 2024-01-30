@@ -146,16 +146,18 @@ export class Drawable<T = any> {
         doDraw: () => true,
         mirror: {
             x: false,
-            y: false
-        }
+            y: false,
+        },
     };
 
     private $warned = false;
 
     get $properties() {
-        if (!this.$warned) console.warn(
-            'Drawable.$properties will be deprecated in the future, use Drawable.properties instead',
-        );
+        if (!this.$warned) {
+            console.warn(
+                'Drawable.$properties will be deprecated in the future, use Drawable.properties instead',
+            );
+        }
         this.$warned = true;
         return this.$$properties;
     }

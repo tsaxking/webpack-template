@@ -1,7 +1,5 @@
 import { Drawable } from './drawable';
-import {
-    Point2D,
-} from '../../../shared/submodules/calculations/src/linear-algebra/point';
+import { Point2D } from '../../../shared/submodules/calculations/src/linear-algebra/point';
 import { copy } from '../../../shared/copy';
 
 export class Circle extends Drawable<Circle> {
@@ -31,8 +29,7 @@ export class Circle extends Drawable<Circle> {
         const [px, py] = point;
         const [x, y] = this.reflect(this.center);
         return (
-            Math.sqrt(Math.pow(px - x, 2) + Math.pow(py - y, 2)) <
-                this.radius
+            Math.sqrt(Math.pow(px - x, 2) + Math.pow(py - y, 2)) < this.radius
         );
     }
 

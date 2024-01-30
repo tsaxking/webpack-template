@@ -73,8 +73,9 @@ export class Icon extends Drawable<MaterialIcon> {
         size = size / 2;
         const [px, py] = point;
 
-        return px >= x - size && px <= x + size && py >= y - size &&
-            py <= y + size;
+        return (
+            px >= x - size && px <= x + size && py >= y - size && py <= y + size
+        );
     }
 
     clone(): Icon {
