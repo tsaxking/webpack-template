@@ -16,7 +16,7 @@ export let id: string = 'modal-' + Math.random().toString(36);
                     class="btn-close"
                     data-bs-dismiss="modal"
                     aria-label="Close"
-                    on:click="{() => dispatch('close')}"
+                    on:click="{() => dispatch('hide')}"
                 ></button>
             </div>
             <div class="modal-body">

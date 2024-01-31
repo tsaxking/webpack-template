@@ -98,6 +98,10 @@ export const alert = async (message: string): Promise<void> => {
             $(modal).modal('hide');
         });
 
+        m.$on('hide', () => {
+            $(modal).modal('hide');
+        });
+
         $(modal).modal('show');
 
         $(modal).on('hidden.bs.modal', () => {
@@ -113,8 +117,8 @@ export const alert = async (message: string): Promise<void> => {
  *  @param {string} message The prompt to display to the user
  * @returns {Promise<boolean>}
  */
-export const confirm = async (message: string): Promise<boolean> => {
-    return new Promise<boolean>((res) => {
+export const confirm = async (message: string): Promise<boolean | null> => {
+    return new Promise<boolean | null>((res) => {
         const id = 'alert-' + Math.random().toString(36).substring(2, 9);
         const m = new Modal({
             target: document.body,
@@ -147,7 +151,17 @@ export const confirm = async (message: string): Promise<boolean> => {
             res(false);
         });
 
+        m.$on('hide', () => {
+            $(modal).modal('hide');
+            res(null);
+        })
+
         $(modal).modal('show');
+
+        $(modal).on('hidden.bs.modal', () => {
+            m.$destroy();
+            res(null);
+        });
     });
 };
 
@@ -208,6 +222,136 @@ export const prompt = async (question: string): Promise<string | null> => {
             res(null);
         });
 
+        m.$on('hide', () => {
+            $(modal).modal('hide');
+            res(null);
+        });
+
+        $(modal).modal('show');
+
+        $(modal).on('hidden.bs.modal', () => {
+            m.$destroy();
+            res(null);
+        });
+    });
+};
+
+export const select = async (question: string, options: string[]): Promise<number> => {
+    return new Promise<number>((res) => {
+        const id = 'alert-' + Math.random().toString(36).substring(2, 9);
+        const m = new Modal({
+            target: document.body,
+            props: {
+                title: 'Choose',
+                message: question,
+                id,
+            },
+        });
+
+        const modal = m.$$.root.querySelector('#' + id) as HTMLElement;
+
+        const select = document.createElement('select');
+        select.classList.add('form-control', 'mt-3');
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '-1';
+        defaultOption.innerText = 'Select an option...';
+        select.appendChild(defaultOption);
+        modal.querySelector('.modal-body')?.appendChild(select);
+
+        options.forEach((option, i) => {
+            const o = document.createElement('option');
+            o.value = i.toString();
+            o.innerText = option;
+            select.appendChild(o);
+        });
+
+        const submitButton = new Button({
+            target: modal.querySelector('.modal-footer') as HTMLElement,
+            props: {
+                text: 'Confirm',
+                color: 'primary',
+            },
+        });
+
+        const submit = () => {
+            $(modal).modal('hide');
+            res(parseInt(select.value));
+        };
+
+        select.addEventListener('keydown', (e) => {
+            switch (e.key) {
+                case 'Enter':
+                    return submit();
+                case 'Escape':
+                    return res(-1);
+            }
+        });
+
+        submitButton.$$.root
+            .querySelector('button.btn-primary')
+            ?.addEventListener('click', submit);
+
+
+        m.$on('close', () => {
+            $(modal).modal('hide');
+            res(-1);
+        });
+
+        m.$on('hide', () => {
+            $(modal).modal('hide');
+            res(-1);
+        });
+
+        $(modal).on('hidden.bs.modal', () => {
+            m.$destroy();
+            res(-1);
+        });
+
         $(modal).modal('show');
     });
 };
+
+export const choose = async <A extends string, B extends string>(question: string, option1: A, option2: B): Promise<null | A | B> => {
+    return new Promise<null | A | B>((res) => {
+        const id = 'alert-' + Math.random().toString(36).substring(2, 9);
+        const m = new Modal({
+            target: document.body,
+            props: {
+                title: 'Choose',
+                message: question,
+                id,
+            },
+        });
+
+        const modal = m.$$.root.querySelector('#' + id) as HTMLElement;
+
+        const submit = (i: null | A | B) => {
+            $(modal).modal('hide');
+            res(i);
+        };
+
+        const createButton = (text: string, value: null | A | B) => {
+            const b = document.createElement('button');
+            b.innerText = text;
+            b.classList.add('btn', 'btn-primary');
+            b.onclick = () => submit(value);
+            modal.querySelector('.modal-footer')?.appendChild(b);
+
+            return b;
+        }
+
+        createButton(option1, option1);
+        createButton(option2, option2);
+
+        m.$on('hide', () => submit(null));
+
+        m.$on('close', () => submit(null));
+
+        $(modal).on('hidden.bs.modal', () => {
+            m.$destroy();
+            res(null);
+        });
+
+        $(modal).modal('show');
+    });
+}
