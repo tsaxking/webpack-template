@@ -75,7 +75,7 @@ export class Polygon extends Drawable<Polygon> {
 
         const points = this.points.map((p) => this.reflect(p));
 
-        for (let i = 0, j = length - 1; i < points.length; j = i++) {
+        for (let i = 0, j = points.length - 1; i < points.length; j = i++) {
             const xi = points[i][0],
                 yi = points[i][1];
             const xj = points[j][0],
