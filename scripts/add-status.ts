@@ -215,7 +215,7 @@ export const addStatusPrompt = () => {
     });
 };
 
-if (Deno.args.includes('status')) addStatusPrompt();
+if (import.meta.main) addStatusPrompt();
 if (Deno.args.includes('socket')) {
     const name = repeatPrompt('Socket event name');
     addSocket(name);

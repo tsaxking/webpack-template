@@ -7,6 +7,9 @@ import { attemptAsync, Result } from '../shared/check.ts';
 import { Permission } from '../shared/permissions.ts';
 import { DB } from '../server/utilities/databases.ts';
 import { RolePermission } from '../shared/db-types.ts';
+import { resolve, __root, relative } from '../server/utilities/env.ts';
+import { addEntry } from './add-entry.ts';
+import { addStatus } from './add-status.ts';
 
 const backToMain = async (message: string) => {
     console.log(message);
@@ -54,6 +57,73 @@ const selectAccount = async (
         );
     });
 };
+
+const selectFile = async (dir: string, message = 'Select a file or directory', test?: (file: string) => boolean): Promise<Result<string>> => {
+    const root = relative(__root, dir);
+    dir = root;
+    const fileIcon = '📄';
+    const dirIcon = '📁';
+
+    const rootTest = (file: string) => {
+        const rel = relative(dir, file);
+        return !rel.startsWith('..');
+    };
+
+    const run = async (dir: string): Promise<string | null> => {
+        const entries = Array.from(Deno.readDirSync(dir));
+        entries.push({
+            name: '..',
+            isDirectory: true,
+            isFile: false,
+            isSymlink: false
+        });
+
+        const data = await select(
+            message,
+            entries.map(e => ({
+                name: e.isDirectory ? `${dirIcon} ${e.name}` : `${fileIcon} ${e.name}`,
+                value: e,
+            }))
+        );
+
+        if (data) {
+            if (data.isDirectory) {
+                return run(`${dir}/${data.name}`);
+            } else {
+                if (test && !test(`${dir}/${data.name}`)) {
+                    console.log('Invalid file, please select another');
+                    return run(dir);
+                }
+
+                if (!rootTest(`${dir}/${data.name}`)) {
+                    console.log(`Invalid file, the file must be in ${root}`);
+                    return run(dir);
+                }
+
+                return resolve(`${dir}/${data.name}`);
+            }
+        }
+
+        return null;
+    }
+
+    const data = await attemptAsync(async () => {
+        const res = await run(resolve(dir));
+        if (res) {
+            return relative(__root, res);
+        } else {
+            throw new Error('no-dir');
+        }
+    });
+
+    if (data.isOk()) console.log(data.value);
+
+    return data;
+}
+
+
+
+
 
 const createRole = async () => {
     title('Create a new role');
@@ -246,6 +316,51 @@ const verifyAccount = async () => {
     }
 };
 
+const createEntry = async () => {
+    title('Create a new front end entrypoint');
+    const entryName = repeatPrompt('Enter the file name (relative to client/entries)', undefined, (data) => !!data.length, false);
+
+    // check if file exists
+    const file = resolve(__root, 'client', 'entries', entryName + '.ts');
+    if (Deno.statSync(file)) {
+        const isGood = await confirm(`File ${entryName}.ts already exists, do you want to overwrite it?`);
+        if (!isGood) {
+            return backToMain('Entry not created');
+        }
+    }
+
+
+    const importFile = await selectFile('/client/views', 'Select a file to import', (file) => file.endsWith('.svelte'));
+
+    if (importFile.isOk()) {
+        addEntry(
+            entryName, 
+            importFile.value
+        );
+        backToMain(`Entry ${entryName} created`);
+    } else {
+        addEntry(entryName);
+        backToMain('No svelte file selected, created entry and going back to main menu');
+    }
+};
+
+const createStatus = async () => {
+    title('Create a new status message');
+
+    const allStatuses = Deno.readTextFileSync('/shared/status-messages.ts')
+        .matchAll(/('[\w:-]+'):/g); // match all status message names
+
+    const group = await select('Select a status group:',  [])
+
+};
+
+const addSocketEvent = async () => {
+    title('Create a socket event');
+
+
+};
+
+
 const main = async () => {
     title('Welcome to the Deno Task Manager!');
     type MainCommands =
@@ -256,9 +371,20 @@ const main = async () => {
         | 'add-permissions'
         | 'remove-permissions'
         | 'exit'
-        | 'verify-account';
+        | 'verify-account'
+        | 'create-entrypoint'
+        | 'create-status'
+        | 'add-socket-event';
 
     const data = await select<MainCommands>('Please select a task', [
+        {
+            name: 'Create a new front end entrypoint (replaces deno task entry)',
+            value: 'create-entrypoint',
+        },
+        {
+            name: 'Create a new status message (replaces deno task status)',
+            value: 'create-status'
+        },
         {
             name: 'Create a new role',
             value: 'create-role',
@@ -288,6 +414,10 @@ const main = async () => {
             value: 'verify-account',
         },
         {
+            name: 'Add a socket event',
+            value: 'add-socket-event',
+        },
+        {
             name: 'Exit',
             value: 'exit',
         },
@@ -315,9 +445,20 @@ const main = async () => {
         case 'verify-account':
             await attemptAsync(verifyAccount);
             break;
+        case 'create-entrypoint':
+            await attemptAsync(createEntry);
+            break;
+        case 'create-status':
+            await attemptAsync(createStatus);
+            break;
+        case 'add-socket-event':
+            await attemptAsync(addSocketEvent);
+            break;
         case 'exit':
             Deno.exit(0);
     }
+
+    backToMain('Task completed, going back to main menu');
 };
 
 main();

@@ -481,7 +481,7 @@ export const messages: {
         code: 401,
         instructions: '',
     },
-    profanity: {
+    'profanity': {
         message: 'Profanity detected',
         color: 'danger',
         code: 400,
