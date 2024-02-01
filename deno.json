@@ -13,7 +13,7 @@
         "test": "deno test --allow-all --unstable-ffi --no-check ./scripts/test.ts",
         "view-paths": "deno run --allow-all ./scripts/view-paths.ts",
         "tree": "deno run --allow-all ./scripts/dir-tree.ts",
-        "manage": "deno run --allow-all --unstable-ffi ./scripts/manage.ts"
+        "manager": "deno run --allow-all --unstable-ffi ./scripts/manager.ts"
     },
     "compilerOptions": {
         "noImplicitAny": false,

@@ -87,7 +87,7 @@ export const addStatus = (data: {
     message: '${messages[key].message.replace(/'/g, "\\'")}',
     color: '${messages[key].color}',
     code: ${messages[key].code},
-    instructions: '${messages[key].instructions}'${
+    instructions: '${messages[key].instructions}',${
                 messages[key].redirect
                     ? `\n    redirect: '${messages[key].redirect}'`
                     : ''
