@@ -27,6 +27,7 @@ export type AccountSafe = {
     created: number;
     phoneNumber: string;
     picture?: string;
+    id: string;
 };
 
 export type MembershipStatus =
@@ -80,7 +81,7 @@ export type DiscordLink = {
     username: string;
 };
 
-export type Permission = 'manageMembers' | 'manageBoard';
+export type Permission = 'admin' | 'editRoles' | 'manageMembers';
 
 export type RoleName = 'admin' | 'developer' | 'user' | 'guest';
 

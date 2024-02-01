@@ -80,6 +80,12 @@ export const messages: {
         code: 400,
         instructions: 'Please log out.',
     },
+    'account:cannot-edit-other-account': {
+        message: 'You cannot edit or view information about another account',
+        color: 'danger',
+        code: 400,
+        instructions: '',
+    },
     'account:cannot-edit-self': {
         message: 'You cannot edit this part of your account presently',
         color: 'danger',
@@ -128,6 +134,12 @@ export const messages: {
         color: 'danger',
         code: 400,
         instructions: 'Please try again.',
+    },
+    'account:insufficient-permissions': {
+        message: 'You do not have the permissions to send that request',
+        color: 'danger',
+        code: 403,
+        instructions: '',
     },
     'account:invalid-email': {
         message: 'That email is invalid.',
@@ -184,14 +196,12 @@ export const messages: {
         color: 'success',
         code: 200,
         instructions: 'You will be redirected to the home page.',
-        redirect: '/home',
     },
     'account:logged-out': {
         message: 'You have been logged out.',
         color: 'success',
         code: 200,
         instructions: 'You will be redirected to the home page.',
-        redirect: '/home',
     },
     'account:no-role': {
         message: 'This account does not have this role',
@@ -235,7 +245,6 @@ export const messages: {
         color: 'success',
         code: 200,
         instructions: '',
-        redirect: '/account/sign-in',
     },
     'account:picture-updated': {
         message: 'Added a picture to this account',
@@ -478,6 +487,12 @@ export const messages: {
         code: 400,
         instructions: 'Please try again.',
     },
+    'role:not-found': {
+        message: 'Role was not found',
+        color: 'danger',
+        code: 404,
+        instructions: '',
+    },
     'roles:added': {
         message: 'Role added',
         color: 'success',
@@ -573,6 +588,7 @@ export const messages: {
 
 export type StatusId =
     | 'account:already-logged-in'
+    | 'account:cannot-edit-other-account'
     | 'account:cannot-edit-self'
     | 'account:cannot-reject-verified'
     | 'account:check-email'
@@ -581,6 +597,7 @@ export type StatusId =
     | 'account:email-taken'
     | 'account:has-role'
     | 'account:incorrect-username-or-password'
+    | 'account:insufficient-permissions'
     | 'account:invalid-email'
     | 'account:invalid-first-name'
     | 'account:invalid-last-name'
@@ -638,6 +655,7 @@ export type StatusId =
     | 'permissions:invalid'
     | 'permissions:unauthorized'
     | 'profanity'
+    | 'role:not-found'
     | 'roles:added'
     | 'roles:invalid-role'
     | 'roles:not-found'
@@ -656,6 +674,7 @@ export type StatusId =
 
 export type AccountStatusId =
     | 'already-logged-in'
+    | 'cannot-edit-other-account'
     | 'cannot-edit-self'
     | 'cannot-reject-verified'
     | 'check-email'
@@ -664,6 +683,7 @@ export type AccountStatusId =
     | 'email-taken'
     | 'has-role'
     | 'incorrect-username-or-password'
+    | 'insufficient-permissions'
     | 'invalid-email'
     | 'invalid-first-name'
     | 'invalid-last-name'
@@ -686,12 +706,12 @@ export type AccountStatusId =
     | 'role-added'
     | 'role-removed'
     | 'server-error'
+    | 'settings-set'
     | 'unverified'
     | 'updated'
     | 'username-changed'
     | 'username-taken'
-    | 'verified'
-    | 'settings-set';
+    | 'verified';
 
 export type AdminStatusId = 'invalid-key';
 
@@ -747,3 +767,5 @@ export type SpamStatusId = 'detected';
 export type TestStatusId = 'fail' | 'success';
 
 export type UnknownStatusId = 'error';
+
+export type RoleStatusId = 'not-found';
