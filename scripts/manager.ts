@@ -161,41 +161,45 @@ export const main = async () => {
         Deno.exit(0);
     };
 
-    const makeObj = (name: string, data: {
-        icon: string;
-        value: () => void;
-    }[], icon: string) => {
-
+    const makeObj = (
+        name: string,
+        data: {
+            icon: string;
+            value: () => void;
+        }[],
+        icon: string,
+    ) => {
         return {
             name: `${icon} [${name}]`,
             value: async () => {
                 title(name);
-                const res = await select(
-                    `Please select a task for ${name}`,
-                    [
-                        ...data.map((d) => ({
-                            name: `${d.icon} ${
-                                capitalize(fromCamelCase(d.value.name))
-                            }`,
-                            value: () => {
-                                title(
-                                    `${name} > ${
-                                        capitalize(fromCamelCase(d.value.name))
-                                    }`,
-                                );
-                                return d.value();
-                            },
-                        })),
-                        {
-                            name: `${icons.back} [Back]`,
-                            value: main,
+                const res = await select(`Please select a task for ${name}`, [
+                    ...data.map((d) => ({
+                        name: `${d.icon} ${
+                            capitalize(
+                                fromCamelCase(d.value.name),
+                            )
+                        }`,
+                        value: () => {
+                            title(
+                                `${name} > ${
+                                    capitalize(
+                                        fromCamelCase(d.value.name),
+                                    )
+                                }`,
+                            );
+                            return d.value();
                         },
-                        {
-                            name: `${icons.exit} Exit`,
-                            value: exit,
-                        },
-                    ],
-                );
+                    })),
+                    {
+                        name: `${icons.back} [Back]`,
+                        value: main,
+                    },
+                    {
+                        name: `${icons.exit} Exit`,
+                        value: exit,
+                    },
+                ]);
 
                 if (res) {
                     return res();
@@ -206,21 +210,18 @@ export const main = async () => {
         };
     };
 
-    const fn = await select<() => unknown>(
-        'Please select a task',
-        [
-            makeObj('General', general, icons.entry),
-            makeObj('Accounts', accounts, icons.account),
-            makeObj('Roles', roles, icons.role),
-            makeObj('Statuses', statuses, icons.status),
-            makeObj('Permissions', permissions, icons.permission),
-            makeObj('Databases', databases, icons.database),
-            {
-                name: `${icons.exit} Exit`,
-                value: exit,
-            },
-        ],
-    );
+    const fn = await select<() => unknown>('Please select a task', [
+        makeObj('General', general, icons.entry),
+        makeObj('Accounts', accounts, icons.account),
+        makeObj('Roles', roles, icons.role),
+        makeObj('Statuses', statuses, icons.status),
+        makeObj('Permissions', permissions, icons.permission),
+        makeObj('Databases', databases, icons.database),
+        {
+            name: `${icons.exit} Exit`,
+            value: exit,
+        },
+    ]);
 
     await fn();
 };

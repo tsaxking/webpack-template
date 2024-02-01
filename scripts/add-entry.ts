@@ -40,10 +40,7 @@ ${
         importFile
             ? `import App from '${
                 unify(
-                    relative(
-                        dir,
-                        resolve(__root, importFile),
-                    ),
+                    relative(dir, resolve(__root, importFile)),
                 )
             }';
 
@@ -57,6 +54,8 @@ const myApp = new App({ target: document.body });
 };
 
 if (import.meta.main) {
-    console.warn(`⚠️ ${Colors.FgYellow}Running this script will be deprecated soon, please use "deno task manager" and select [General] -> Create Entry instead.${Colors.Reset} ⚠️`);
+    console.warn(
+        `⚠️ ${Colors.FgYellow}Running this script will be deprecated soon, please use "deno task manager" and select [General] -> Create Entry instead.${Colors.Reset} ⚠️`,
+    );
     runEntryPrompt();
 }

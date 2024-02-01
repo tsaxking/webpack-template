@@ -39,10 +39,7 @@ const createEntry = async () => {
     );
 
     if (importFile.isOk()) {
-        addEntry(
-            entryName,
-            importFile.value,
-        );
+        addEntry(entryName, importFile.value);
         backToMain(`Entry ${entryName} created`);
     } else {
         addEntry(entryName);
@@ -52,17 +49,18 @@ const createEntry = async () => {
     }
 };
 
-export const general = [{
-    icon: '📄',
-    value: createEntry,
-// }, {
-//     icon: '📝',
-//     value: format,
-// }, {
-//     icon: '🔍',
-//     value: check,
-// }, {
-//     icon: '🔨',
-//     value: build,
-}
+export const general = [
+    {
+        icon: '📄',
+        value: createEntry,
+        // }, {
+        //     icon: '📝',
+        //     value: format,
+        // }, {
+        //     icon: '🔍',
+        //     value: check,
+        // }, {
+        //     icon: '🔨',
+        //     value: build,
+    },
 ];

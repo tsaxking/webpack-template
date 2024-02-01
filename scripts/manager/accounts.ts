@@ -1,5 +1,5 @@
 import { backToMain } from '../manager.ts';
-import { select, repeatPrompt } from '../prompt.ts';
+import { repeatPrompt, select } from '../prompt.ts';
 import Account from '../../server/structure/accounts.ts';
 import { attemptAsync, Result } from '../../shared/check.ts';
 import { addRole, removeRole } from './roles.ts';
@@ -104,7 +104,7 @@ export const createAccount = async () => {
     const email = repeatPrompt(
         'Enter the email',
         undefined,
-        (data) => !!data.length && (/^.+@.+\..+$/).test(data),
+        (data) => !!data.length && /^.+@.+\..+$/.test(data),
         false,
     );
     const firstName = repeatPrompt(
@@ -120,13 +120,7 @@ export const createAccount = async () => {
         false,
     );
 
-    const a = Account.create(
-        username,
-        password,
-        email,
-        firstName,
-        lastName
-    );
+    const a = Account.create(username, password, email, firstName, lastName);
 
     if (a === 'created') {
         backToMain(`Account ${username} created`);
