@@ -1,0 +1,1 @@
+ALTER TABLE Permissions ADD COLUMN description TEXT DEFAULT '';

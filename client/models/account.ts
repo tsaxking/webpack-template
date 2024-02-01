@@ -1,6 +1,7 @@
 import { EventEmitter } from '../../shared/event-emitter';
 import { Cache } from './cache';
-import { AccountSafe, Permission as P, Role as R } from '../../shared/db-types';
+import { AccountSafe, Role as R } from '../../shared/db-types';
+import { Permission as P } from '../../shared/permissions';
 import { attemptAsync, Result } from '../../shared/attempt';
 import { ServerRequest } from '../utilities/requests';
 import { Role } from './roles';

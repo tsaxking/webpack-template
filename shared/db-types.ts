@@ -64,8 +64,9 @@ export type AccountRole = {
 };
 
 export type RolePermission = {
-    id: string;
+    roleId: string;
     permission: string;
+    description: string;
 };
 
 export type Skill = {
@@ -80,8 +81,6 @@ export type DiscordLink = {
     created: number;
     username: string;
 };
-
-export type Permission = 'admin' | 'editRoles' | 'manageMembers';
 
 export type RoleName = 'admin' | 'developer' | 'user' | 'guest';
 

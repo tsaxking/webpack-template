@@ -1,7 +1,9 @@
 import { DB } from '../utilities/databases.ts';
-import { Permission, RoleName, RolePermission } from '../../shared/db-types.ts';
+import { RoleName, RolePermission } from '../../shared/db-types.ts';
+import { Permission } from '../../shared/permissions.ts';
 import { Role as RoleObject } from '../../shared/db-types.ts';
 import { ServerFunction } from './app/app.ts';
+import { uuid } from '../utilities/uuid.ts';
 
 /**
  * Role object, contains permission information and role name
@@ -112,6 +114,22 @@ export default class Role {
             .sort((a: Role, b: Role) => a.rank - b.rank);
     }
 
+    static new(name: string, description: string, rank: number): Role {
+        const id = uuid();
+        DB.run('roles/new', {
+            name,
+            description,
+            id,
+            rank,
+        });
+        return new Role({
+            name,
+            description,
+            id,
+            rank,
+        });
+    }
+
     /**
      * The name of the role
      * @date 1/9/2024 - 12:48:41 PM
@@ -163,8 +181,29 @@ export default class Role {
      */
     getPermissions(): Permission[] {
         const data = DB.all('permissions/from-role', {
-            role: this.name,
+            roleId: this.id,
         });
         return data.map((d: RolePermission) => d.permission) as Permission[];
+    }
+
+    addPermission(permission: Permission, description: string) {
+        DB.run('permissions/new', {
+            roleId: this.id,
+            permission,
+            description,
+        });
+    }
+
+    removePermission(permission: Permission) {
+        DB.run('permissions/delete', {
+            roleId: this.id,
+            permission,
+        });
+    }
+
+    delete() {
+        DB.run('roles/delete', {
+            id: this.id,
+        });
     }
 }

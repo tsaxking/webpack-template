@@ -1,3 +1,5 @@
+import * as cliffy from 'https://deno.land/x/cliffy@v1.0.0-rc.3/prompt/select.ts';
+
 export const repeatPrompt = (
     message: string,
     original?: string,
@@ -25,3 +27,51 @@ export const repeatPrompt = (
     }
     return i;
 };
+
+type Option<T = unknown> = {
+    name: string;
+    value: T;
+};
+
+export const select = <T = unknown>(
+    message: string,
+    data: (Option<T> | string)[],
+    options: {
+        selected?: string;
+        exit?: boolean;
+        return?: boolean;
+    } = {
+        exit: false
+    }
+): Promise<T> => {
+    if (options.return) data.push({
+        name: 'Return',
+        value: '$$return$$' as unknown as T
+    });
+    if (options.exit) data.push({
+        name: 'Exit',
+        value: '$$exit$$' as unknown as T
+    });
+    const res = cliffy.Select.prompt({
+        message: message,
+        options: data,
+        selected: options.selected,
+    });
+
+    if (res === '$$exit$$') {
+        if (options.exit) {
+            Deno.exit(0);
+        }
+        throw new Error('exit');
+    }
+
+    if (res === '$$return$$') {
+        throw new Error('return');
+    }
+
+    return res;
+}
+
+export const confirm = async (message = 'Confirm'): Promise<boolean> => {
+    return (await select(message, ['Yes', 'No'])) === 'Yes';
+}

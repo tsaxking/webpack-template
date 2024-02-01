@@ -85,12 +85,58 @@ export type Queries = {
         Role,
     ];
     'roles/all': [[], Role];
+    'roles/new': [[
+        {
+            name: string;
+            description: string;
+            id: string;
+            rank: number;
+        },
+    ], unknown];
+    'roles/update': [[
+        {
+            name: string;
+            description: string;
+            id: string;
+            rank: number;
+        },
+    ], unknown];
+    'roles/delete': [
+        [
+            {
+                id: string;
+            },
+        ],
+        unknown,
+    ];
     'permissions/from-role': [
         [
             {
-                role: string;
+                roleId: string;
             },
         ],
+        RolePermission,
+    ];
+    'permissions/delete': [
+        [
+            {
+                roleId: string;
+                permission: string;
+            },
+        ],
+        unknown,
+    ];
+    'permissions/new': [
+        [
+            {
+                roleId: string;
+                permission: string;
+                description: string;
+            },
+        ],
+    ];
+    'permissions/all': [
+        [],
         RolePermission,
     ];
     'account/from-username': [

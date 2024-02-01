@@ -1,2 +1,2 @@
 SELECT * FROM Permissions
-WHERE roleId = :role;
+WHERE roleId = :roleId;
