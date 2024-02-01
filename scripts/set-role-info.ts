@@ -28,8 +28,6 @@ const saveDefault = () => {
     );
 };
 
-
-
 export const resetRoles = () => {
     DB.unsafe.run('DELETE FROM Permissions');
     DB.unsafe.run('DELETE FROM RolePermissions');
@@ -80,17 +78,13 @@ export const resetRoles = () => {
         Deno.writeTextFileSync(
             'shared/permissions.ts',
             `export type Permission = ${
-                permissions.length ?
-                permissions
-                    .map((p) => `'${p.permission}'`)
-                    .join(' | ') :
-                "''"
+                permissions.length
+                    ? permissions.map((p) => `'${p.permission}'`).join(' | ')
+                    : "''"
             };\nexport type RoleName = ${
-                roles.length ?
-                roles
-                    .map((r) => `'${r.name}'`)
-                    .join(' | ') :
-                "''"
+                roles.length
+                    ? roles.map((r) => `'${r.name}'`).join(' | ')
+                    : "''"
             };`,
         );
     } else {

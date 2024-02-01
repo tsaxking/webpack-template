@@ -1,5 +1,9 @@
 import { DB } from '../../../../server/utilities/databases.ts';
-import { addRole, addPermission, addPermissionToRole } from '../../../../scripts/set-role-info.ts';
+import {
+    addPermission,
+    addPermissionToRole,
+    addRole,
+} from '../../../../scripts/set-role-info.ts';
 
 const permissions = DB.unsafe.all('SELECT * FROM Permissions') as {
     roleId: string;
@@ -29,13 +33,14 @@ const rolePermissionsObj = {
         name: r.name,
         description: r.description,
         rank: r.rank,
-        permissions: permissions.filter((p) => p.roleId === r.id).map((p) =>
-            p.permission
-        ).filter((p, i, arr) => arr.indexOf(p) === i),
+        permissions: permissions
+            .filter((p) => p.roleId === r.id)
+            .map((p) => p.permission)
+            .filter((p, i, arr) => arr.indexOf(p) === i),
     })),
-    permissions: permissions.map((p) => p.permission).filter((p, i, arr) =>
-        arr.indexOf(p) === i
-    ),
+    permissions: permissions
+        .map((p) => p.permission)
+        .filter((p, i, arr) => arr.indexOf(p) === i),
 };
 
 for (const role of rolePermissionsObj.roles) {

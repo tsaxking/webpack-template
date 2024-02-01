@@ -17,19 +17,16 @@ export const addPermissions = async () => {
         const role = roleRes.value;
 
         const allPerms = Role.allPermissions;
-        let perm = await select<Permission>(
-            'Select a permission to add',
-            [
-                ...allPerms.map((p) => ({
-                    name: p,
-                    value: p,
-                })),
-                {
-                    name: '[New]',
-                    value: '$$New$$' as unknown as Permission,
-                },
-            ],
-        ) as Permission | '$$New$$';
+        let perm = (await select<Permission>('Select a permission to add', [
+            ...allPerms.map((p) => ({
+                name: p,
+                value: p,
+            })),
+            {
+                name: '[New]',
+                value: '$$New$$' as unknown as Permission,
+            },
+        ])) as Permission | '$$New$$';
 
         const perms = role.getPermissions();
 

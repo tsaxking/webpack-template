@@ -69,8 +69,8 @@ export default class Role {
     }
 
     static get allPermissions(): Permission[] {
-        return DB.all('permissions/all').map((p: RolePermission) =>
-            p.permission as Permission
+        return DB.all('permissions/all').map(
+            (p: RolePermission) => p.permission as Permission,
         );
     }
 

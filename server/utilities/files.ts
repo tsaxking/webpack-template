@@ -98,23 +98,26 @@ const removeComments = (content: string) => {
 export function getJSONSync<type = unknown>(
     file: string,
 ): Result<type, JSONError> {
-    return attempt<type, JSONError>(() => {
-        const filePath = filePathBuilder(file, '.json', './storage/jsons/');
-        const data = Deno.readFileSync(filePath);
-        const decoder = new TextDecoder();
-        const decoded = decoder.decode(data);
+    return attempt<type, JSONError>(
+        () => {
+            const filePath = filePathBuilder(file, '.json', './storage/jsons/');
+            const data = Deno.readFileSync(filePath);
+            const decoder = new TextDecoder();
+            const decoded = decoder.decode(data);
 
-        return JSON.parse(removeComments(decoded));
-    }, (e) => {
-        // if error
-        return (
-            matchInstance<Error, JSONError>(
-                e,
-                [SyntaxError, () => 'InvalidJSON'],
-                [Error, () => 'Unknown'],
-            ) ?? 'InvalidJSON'
-        );
-    });
+            return JSON.parse(removeComments(decoded));
+        },
+        (e) => {
+            // if error
+            return (
+                matchInstance<Error, JSONError>(
+                    e,
+                    [SyntaxError, () => 'InvalidJSON'],
+                    [Error, () => 'Unknown'],
+                ) ?? 'InvalidJSON'
+            );
+        },
+    );
 }
 
 /**
