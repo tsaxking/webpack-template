@@ -253,8 +253,6 @@ export const createStatus = async () => {
 
     const groups = allStatuses.map((i) => i[0].match(/[\w]+/));
 
-    // console.log(groups);
-
     let group = await select<string>(
         'Select a status group:',
         [
