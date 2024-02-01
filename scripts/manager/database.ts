@@ -63,7 +63,9 @@ const newVersion = async () => {
     if (DB.hasVersion(version)) {
         backToMain(
             `Version ${
-                version.join('.')
+                version.join(
+                    '.',
+                )
             } already implemented (Current Version: ${DB.version.join('.')})`,
         );
         return;
