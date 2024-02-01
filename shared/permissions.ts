@@ -1,1 +1,2 @@
-export type Permission = 'admin' | 'editRoles' | 'manageMembers';
+export type Permission = 'editRoles' | 'admin';
+export type RoleName = 'admin';

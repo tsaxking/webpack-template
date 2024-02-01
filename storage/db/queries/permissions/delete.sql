@@ -1,1 +1,1 @@
-DELETE FROM permissions WHERE roleId = :roleId and permission = :permission;
+DELETE FROM permissions WHERE permission = :permission;

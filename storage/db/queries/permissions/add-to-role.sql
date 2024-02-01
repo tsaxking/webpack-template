@@ -1,9 +1,7 @@
-INSERT INTO Permissions (
+INSERT INTO RolePermissions (
     roleId,
-    description,
     permission
 ) VALUES (
     :roleId,
-    :description,
     :permission
 );

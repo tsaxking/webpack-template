@@ -4,6 +4,7 @@ import { selectAccount } from './accounts.ts';
 import { confirm, repeatPrompt, select } from '../prompt.ts';
 import { attemptAsync, Result } from '../../shared/check.ts';
 import { addPermissions, removePermissions } from './permissions.ts';
+import { addRole, removeRole } from '../set-role-info.ts';
 
 export const selectRole = async (
     message = 'Select a role',
@@ -39,7 +40,7 @@ export const createRole = async () => {
         false,
     );
 
-    Role.new(roleName, roleDescription, roleRank);
+    addRole(roleName, roleDescription, roleRank);
 
     backToMain(`Role ${roleName} created`);
 };
@@ -52,7 +53,7 @@ export const deleteRole = async () => {
         );
 
         if (isGood) {
-            res.value.delete();
+            removeRole(res.value.id);
             backToMain(`Role ${res.value.name} deleted`);
         } else {
             backToMain('Role not deleted');
@@ -62,7 +63,7 @@ export const deleteRole = async () => {
     }
 };
 
-export const addRole = async () => {
+export const addRoleToAccount = async () => {
     const roleRes = await selectRole();
 
     if (roleRes.isOk()) {
@@ -87,7 +88,7 @@ export const addRole = async () => {
     }
 };
 
-export const removeRole = async () => {
+export const removeRoleFromAccount = async () => {
     const accountRes = await selectAccount();
 
     if (accountRes.isOk()) {
@@ -129,11 +130,11 @@ export const roles = [
     },
     {
         icon: '➕',
-        value: addRole,
+        value: addRoleToAccount,
     },
     {
         icon: '➖',
-        value: removeRole,
+        value: removeRoleFromAccount,
     },
     {
         icon: '🔒',

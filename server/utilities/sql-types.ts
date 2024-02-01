@@ -126,22 +126,30 @@ export type Queries = {
     'permissions/delete': [
         [
             {
+                permission: string;
+            },
+        ],
+        unknown,
+    ];
+    'permissions/all': [[], RolePermission];
+    'permissions/add-to-role': [
+        [
+            {
                 roleId: string;
                 permission: string;
             },
         ],
         unknown,
     ];
-    'permissions/new': [
+    'permissions/remove-from-role': [
         [
             {
                 roleId: string;
                 permission: string;
-                description: string;
             },
         ],
+        unknown,
     ];
-    'permissions/all': [[], RolePermission];
     'account/from-username': [
         [
             {

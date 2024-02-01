@@ -1,1 +1,1 @@
-ALTER TABLE Permissions ADD COLUMN description TEXT DEFAULT '';
+-- For 1-2-0.ts to run

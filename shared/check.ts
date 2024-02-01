@@ -47,7 +47,7 @@ export class Ok<T = unknown> {
  * @typedef {Err}
  * @template [E=Error]
  */
-export class Err<E = Error> {
+export class Err<E = Error, T = unknown> {
     /**
      * Creates an instance of Err.
      * @date 1/22/2024 - 2:56:57 AM
@@ -76,6 +76,10 @@ export class Err<E = Error> {
     isErr(): this is Err<E> {
         return true;
     }
+
+    handle(value: T) {
+        return new Ok(value);
+    }
 }
 
 /**
@@ -87,7 +91,7 @@ export class Err<E = Error> {
  * @template T
  * @template [E=Error]
  */
-export type Result<T, E = Error> = Ok<T> | Err<E>;
+export type Result<T, E = Error> = Ok<T> | Err<E, T>;
 
 /**
  * Attempts to run a function, returning a Result

@@ -11,7 +11,7 @@ import {
     resolve,
 } from './env.ts';
 import fs from 'node:fs';
-import { attempt, attemptAsync, Result } from '../../shared/attempt.ts';
+import { attempt, attemptAsync, Result } from '../../shared/check.ts';
 import { match, matchInstance } from '../../shared/match.ts';
 
 export type JSONError = 'InvalidJSON' | 'Unknown';
@@ -98,24 +98,23 @@ const removeComments = (content: string) => {
 export function getJSONSync<type = unknown>(
     file: string,
 ): Result<type, JSONError> {
-    const filePath = filePathBuilder(file, '.json', './storage/jsons/');
-    const data = Deno.readFileSync(filePath);
-    const decoder = new TextDecoder();
-    const decoded = decoder.decode(data);
+    return attempt<type, JSONError>(() => {
+        const filePath = filePathBuilder(file, '.json', './storage/jsons/');
+        const data = Deno.readFileSync(filePath);
+        const decoder = new TextDecoder();
+        const decoded = decoder.decode(data);
 
-    return attempt<type, JSONError>(
-        () => JSON.parse(removeComments(decoded)),
-        (e) => {
-            // if error
-            return (
-                matchInstance<Error, JSONError>(
-                    e,
-                    [SyntaxError, () => 'InvalidJSON'],
-                    [Error, () => 'Unknown'],
-                ) ?? 'InvalidJSON'
-            );
-        },
-    );
+        return JSON.parse(removeComments(decoded));
+    }, (e) => {
+        // if error
+        return (
+            matchInstance<Error, JSONError>(
+                e,
+                [SyntaxError, () => 'InvalidJSON'],
+                [Error, () => 'Unknown'],
+            ) ?? 'InvalidJSON'
+        );
+    });
 }
 
 /**

@@ -29,7 +29,7 @@ export const getDBVersion = (
  * Initializes the database
  * @date 12/7/2023 - 1:37:31 PM
  */
-export const init = (name: string) => {
+export const init = async (name: string) => {
     if (!name) {
         error('No database name provided');
         Deno.exit();
@@ -49,7 +49,7 @@ export const init = (name: string) => {
         log('Database already exists');
     }
 
-    setVersions(db);
+    return setVersions(db);
 };
 
 /**

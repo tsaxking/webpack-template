@@ -2,39 +2,54 @@ import { backToMain } from '../manager.ts';
 import { repeatPrompt, select } from '../prompt.ts';
 import { selectRole } from './roles.ts';
 import { Permission } from '../../shared/permissions.ts';
-import { DB } from '../../server/utilities/databases.ts';
-import { RolePermission } from '../../shared/db-types.ts';
+import Role from '../../server/structure/roles.ts';
+import {
+    addPermission,
+    addPermissionToRole,
+    removePermission,
+    removePermissionFromRole,
+} from '../set-role-info.ts';
 
 export const addPermissions = async () => {
     const roleRes = await selectRole('Select a role to add permissions to');
 
     if (roleRes.isOk()) {
         const role = roleRes.value;
+
+        const allPerms = Role.allPermissions;
+        let perm = await select<Permission>(
+            'Select a permission to add',
+            [
+                ...allPerms.map((p) => ({
+                    name: p,
+                    value: p,
+                })),
+                {
+                    name: '[New]',
+                    value: '$$New$$' as unknown as Permission,
+                },
+            ],
+        ) as Permission | '$$New$$';
+
         const perms = role.getPermissions();
 
-        const permName = repeatPrompt(
-            'Enter the permission name',
-            undefined,
-            (data) => !perms.some((p) => p === data),
-            false,
-        );
+        if (perm === '$$New$$') {
+            perm = repeatPrompt(
+                'Enter the permission name',
+                undefined,
+                (data) =>
+                    !perms.some((p) => p === data) &&
+                    !allPerms.some((p) => p === data),
+                false,
+            ) as unknown as Permission;
+        }
+
         const description = repeatPrompt('Enter the permission description');
-        role.addPermission(permName as unknown as Permission, description);
 
-        const allPermissions = DB.all('permissions/all');
-        const uniqueNames = allPermissions
-            .map((p: RolePermission) => p.permission)
-            .filter(
-                (p: string, i: number, arr: string[]) => arr.indexOf(p) === i,
-            );
-        const ts = `export type Permission = ${
-            uniqueNames
-                .map((n) => `'${n}'`)
-                .join(' | ')
-        };`;
-        Deno.writeTextFileSync('./shared/permissions.ts', ts);
+        backToMain(`Permission ${perm} added to role ${role.name}`);
 
-        backToMain(`Permission ${permName} added to role ${role.name}`);
+        addPermission(perm, description);
+        addPermissionToRole(role.id, perm);
     } else {
         backToMain('No roles to add permissions to');
     }
@@ -60,7 +75,8 @@ export const removePermissions = async () => {
             );
 
             if (perm) {
-                role.removePermission(perm);
+                removePermission(perm);
+                removePermissionFromRole(role.id, perm);
                 backToMain(`Permission ${perm} removed from role ${role.name}`);
             } else {
                 backToMain('No permissions to remove');

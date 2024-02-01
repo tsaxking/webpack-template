@@ -1,6 +1,6 @@
 import { DB } from '../utilities/databases.ts';
-import { RoleName, RolePermission } from '../../shared/db-types.ts';
-import { Permission } from '../../shared/permissions.ts';
+import { RolePermission } from '../../shared/db-types.ts';
+import { Permission, RoleName } from '../../shared/permissions.ts';
 import { Role as RoleObject } from '../../shared/db-types.ts';
 import { ServerFunction } from './app/app.ts';
 import { uuid } from '../utilities/uuid.ts';
@@ -66,6 +66,12 @@ export default class Role {
                 return next();
             }
         };
+    }
+
+    static get allPermissions(): Permission[] {
+        return DB.all('permissions/all').map((p: RolePermission) =>
+            p.permission as Permission
+        );
     }
 
     /**
@@ -186,16 +192,15 @@ export default class Role {
         return data.map((d: RolePermission) => d.permission) as Permission[];
     }
 
-    addPermission(permission: Permission, description: string) {
-        DB.run('permissions/new', {
-            roleId: this.id,
+    addPermission(permission: Permission) {
+        DB.run('permissions/add-to-role', {
             permission,
-            description,
+            roleId: this.id,
         });
     }
 
     removePermission(permission: Permission) {
-        DB.run('permissions/delete', {
+        DB.run('permissions/remove-from-role', {
             roleId: this.id,
             permission,
         });

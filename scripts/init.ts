@@ -1,6 +1,7 @@
 import { init } from '../storage/db/scripts/init.ts';
 import { repeatPrompt } from './prompt.ts';
 import { __root, resolve } from '../server/utilities/env.ts';
+import { getJSONSync } from '../server/utilities/files.ts';
 
 const runPrompt = (
     message: string,
@@ -155,113 +156,16 @@ const createEnv = () => {
     return values;
 };
 
-// const _createEnv = () => {
-//     if (
-//         Deno.args.includes('--no-env') ||
-//         fs.existsSync(resolve(__root, './.env'))
-//     ) {
-//         log('Skipping .env file creation...');
-//         return {
-//             databaseLink: 'main',
-//         };
-//     }
-//     log('Creating .env file...');
-//     const values: {
-//         [key: string]: string | number | boolean | null | undefined;
-//     } = {
-//         session_duration: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
-//     };
+const setPermissions = () => {
+    const rolePermissions = getJSONSync('role-info');
 
-//     values.port = runPrompt(
-//         'Port: (default: 3000)',
-//         '3000',
-//         (i) => +i > 0 && +i < 65535,
-//         true,
-//     );
-//     values.sessionPort = +values.port + 1;
-//     values.environment = runPrompt(
-//         'Environment: (default: dev)',
-//         'dev',
-//         (i) => ['dev', 'prod'].includes(i),
-//         true,
-//     );
-//     values.domain = runPrompt(
-//         'Domain: (default: localhost)',
-//         'http://localhost:' + values.port,
-//         (i) => i.length > 0,
-//         true,
-//     );
-//     values.socketDomain = runPrompt(
-//         'Socket Domain: (default: localhost)',
-//         'http://localhost:' + values.sessionPort,
-//         (i) => i.length > 0,
-//         true,
-//     );
-//     values.title = runPrompt(
-//         'Title: (default: My App)',
-//         'My App',
-//         (i) => i.length > 0,
-//         true,
-//     );
-//     values.sendgridApiKey = runPrompt(
-//         'Sendgrid API Key: (no default)',
-//         '',
-//         undefined,
-//         true,
-//     );
-//     values.sendgridDefaultFrom = runPrompt(
-//         'Sendgrid Default From: (no default)',
-//         '',
-//         undefined,
-//         true,
-//     );
-//     values.sendStatusEmails = runPrompt(
-//             'Send Status Emails: (default: false) (y/n)',
-//             'false',
-//             (i) => ['y', 'n'].includes(i),
-//             true,
-//         ) === 'y'
-//         ? 'TRUE'
-//         : 'FALSE';
-//     values.autoSignIn = runPrompt(
-//         'Auto Sign In: (no default)',
-//         '',
-//         undefined,
-//         true,
-//     );
-//     values.tbaKey = runPrompt('TBA Key: (no default)', '', undefined, true);
-//     values.databaseLink = runPrompt(
-//         'Database Link: (default: main)',
-//         'main',
-//         (i) => i.length > 0,
-//         true,
-//     );
-//     values.randomKeyAuth = runPrompt(
-//         'Random Key Auth: (no default)',
-//         '',
-//         undefined,
-//         true,
-//     );
-//     values.randomKeyLink = runPrompt(
-//         'Random Key Link: (no default)',
-//         '',
-//         undefined,
-//         true,
-//     );
-
-//     const e = Object.keys(values)
-//         .map(
-//             (key) =>
-//                 `${toSnakeCase(fromCamelCase(key)).toUpperCase()} = '${
-//                     values[key]
-//                 }'`,
-//         )
-//         .join('\n');
-//     Deno.writeTextFileSync(resolve(__root, './.env'), e);
-
-//     return values;
-// };
+    if (rolePermissions.isOk()) {
+        // do something!
+    }
+};
 
 const vals = createEnv();
 
-init(vals['DATABASE_LINK'] as string);
+await init(vals['DATABASE_LINK'] as string);
+
+setPermissions();
