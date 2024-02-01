@@ -124,6 +124,12 @@ export default class Account {
         );
     }
 
+    static get verifiedAccounts() {
+        return DB.all('account/verified').map(
+            (a: AccountObject) => new Account(a),
+        );
+    }
+
     /**
      * Retrieves an account from the database given its id
      * @date 1/9/2024 - 12:53:19 PM
@@ -453,13 +459,13 @@ export default class Account {
      * @param {string} lastName
      * @returns {Promise<AccountStatusId>}
      */
-    static async create(
+    static create(
         username: string,
         password: string,
         email: string,
         firstName: string,
         lastName: string,
-    ): Promise<AccountStatusId> {
+    ): AccountStatusId {
         if (Account.fromUsername(username)) return 'username-taken';
         if (Account.fromEmail(email)) return 'email-taken';
 

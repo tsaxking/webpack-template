@@ -1,4 +1,4 @@
-import { backToMain, title } from '../manager.ts';
+import { backToMain } from '../manager.ts';
 import { repeatPrompt, select } from '../prompt.ts';
 import { selectRole } from './roles.ts';
 import { Permission } from '../../shared/permissions.ts';

@@ -175,6 +175,7 @@ export type Queries = {
         Account,
     ];
     'account/unverified': [[], Account];
+    'account/verified': [[], Account];
     'account/all': [[], Account];
     'account/new': [
         [

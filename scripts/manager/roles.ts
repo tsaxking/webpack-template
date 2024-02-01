@@ -1,4 +1,4 @@
-import { backToMain, title } from '../manager.ts';
+import { backToMain } from '../manager.ts';
 import Role from '../../server/structure/roles.ts';
 import { selectAccount } from './accounts.ts';
 import { confirm, repeatPrompt, select } from '../prompt.ts';
@@ -45,7 +45,6 @@ export const createRole = async () => {
 };
 
 export const deleteRole = async () => {
-
     const res = await selectRole();
     if (res.isOk()) {
         const isGood = await confirm(

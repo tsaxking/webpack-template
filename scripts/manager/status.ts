@@ -326,24 +326,25 @@ export const addSocketEvent = async () => {
     addSocket(socketEvent);
 };
 
-export const removeStatus = async () => {};
-export const removeSocketEvent = async () => {};
+// TODO: remove status and remove socket event
+// export const removeStatus = async () => {};
+// export const removeSocketEvent = async () => {};
 
 export const statuses = [
     {
         icon: '📝',
         value: createStatus,
     },
-    {
-        icon: '🗑️',
-        value: removeStatus,
-    },
+    // {
+    //     icon: '🗑️',
+    //     value: removeStatus,
+    // },
     {
         icon: '🔌',
         value: addSocketEvent,
     },
-    {
-        icon: '🗑️',
-        value: removeSocketEvent,
-    },
+    // {
+    //     icon: '🗑️',
+    //     value: removeSocketEvent,
+    // },
 ];
