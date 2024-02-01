@@ -28,6 +28,8 @@ const saveDefault = () => {
     );
 };
 
+
+
 export const resetRoles = () => {
     DB.unsafe.run('DELETE FROM Permissions');
     DB.unsafe.run('DELETE FROM RolePermissions');
@@ -78,13 +80,17 @@ export const resetRoles = () => {
         Deno.writeTextFileSync(
             'shared/permissions.ts',
             `export type Permission = ${
-                permissions.length
-                    ? permissions.map((p) => `'${p.permission}'`).join(' | ')
-                    : "''"
+                permissions.length ?
+                permissions
+                    .map((p) => `'${p.permission}'`)
+                    .join(' | ') :
+                "''"
             };\nexport type RoleName = ${
-                roles.length
-                    ? roles.map((r) => `'${r.name}'`).join(' | ')
-                    : "''"
+                roles.length ?
+                roles
+                    .map((r) => `'${r.name}'`)
+                    .join(' | ') :
+                "''"
             };`,
         );
     } else {
@@ -92,6 +98,14 @@ export const resetRoles = () => {
         resetRoles();
     }
 };
+
+{
+    // do in a block to avoid polluting the global scope and to use the garbage collector
+    const res = getJSONSync<RoleInfoJSON>('role-info');
+    if (res.isErr()) {
+        saveDefault();
+    }
+}
 
 export const addRole = (name: string, description: string, rank: number) => {
     const id = uuid();
@@ -270,5 +284,3 @@ export const removePermissionFromRole = (
         whenOk(res.value);
     }
 };
-
-resetRoles(); // always reset roles

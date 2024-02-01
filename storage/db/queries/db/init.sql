@@ -41,7 +41,8 @@ CREATE TABLE IF NOT EXISTS AccountRoles (
 );
 
 CREATE TABLE IF NOT EXISTS Permissions (
-    roleId TEXT NOT NULL, -- removed in 1-2-0.sql
+    -- removed in 1-2-0.sql
+    roleId TEXT NOT NULL,
     permission TEXT NOT NULL
 
     -- added description in 1-2-0.sql
