@@ -35,15 +35,21 @@ export const addEntry = (name: string, importFile?: string) => {
     );
 
     const imports = `import '${unify(importsRelative)}';
-${importFile ? `import App from '${unify(
-    relative(
-        dir,
-        resolve(__root, importFile),
-    )
-)}';
+${
+        importFile
+            ? `import App from '${
+                unify(
+                    relative(
+                        dir,
+                        resolve(__root, importFile),
+                    ),
+                )
+            }';
 
 const myApp = new App({ target: document.body });
-` : ''}
+`
+            : ''
+    }
 `;
 
     Deno.writeFileSync(filepath, new TextEncoder().encode(imports));

@@ -51,6 +51,7 @@ export const addStatus = (data: {
     color: string;
     code: StatusCode;
     instructions: string;
+    redirect?: string;
 }) => {
     const value = (data.group + ':' + data.name) as StatusId;
     const obj = {
@@ -58,6 +59,7 @@ export const addStatus = (data: {
         color: data.color as StatusColor,
         code: data.code as StatusCode,
         instructions: data.instructions,
+        redirect: data.redirect,
     };
 
     if (messages[value]) {
@@ -85,7 +87,11 @@ export const addStatus = (data: {
     message: '${messages[key].message.replace(/'/g, "\\'")}',
     color: '${messages[key].color}',
     code: ${messages[key].code},
-    instructions: '${messages[key].instructions}'
+    instructions: '${messages[key].instructions}'${
+                messages[key].redirect
+                    ? `\n    redirect: '${messages[key].redirect}'`
+                    : ''
+            }
 }`;
         })
         .join(',\n');
@@ -204,6 +210,7 @@ export const addStatusPrompt = () => {
         (i) => validCodes.includes(+i as StatusCode),
     );
     const instructions = prompt('Status instructions:') || '';
+    const redirect = prompt('Redirect') || undefined;
 
     addStatus({
         group: parse(group, true),
@@ -212,6 +219,7 @@ export const addStatusPrompt = () => {
         color,
         code: +code as StatusCode,
         instructions: parse(instructions),
+        redirect,
     });
 };
 
