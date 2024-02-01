@@ -807,17 +807,14 @@ export default class Account {
      * @param {string} role
      * @returns {(AccountStatusId|RolesStatusId)}
      */
-    addRole(role: string): AccountStatusId | RolesStatusId {
-        const r = Role.fromName(role);
-        if (!r) return 'not-found';
-
-        if (this.roles.find((_r) => _r.name === r.name)) {
+    addRole(role: Role): AccountStatusId | RolesStatusId {
+        if (this.roles.find((_r) => _r.name === role.name)) {
             return 'has-role';
         }
 
         DB.run('account/add-role', {
             accountId: this.id,
-            roleId: r.id,
+            roleId: role.id,
         });
 
         return 'role-added';
@@ -830,17 +827,14 @@ export default class Account {
      * @param {string} role
      * @returns {(AccountStatusId|RolesStatusId)}
      */
-    removeRole(role: string): AccountStatusId | RolesStatusId {
-        const r = Role.fromName(role);
-        if (!r) return 'not-found';
-
-        if (!this.roles.find((_r) => _r.name === r.name)) {
+    removeRole(role: Role): AccountStatusId | RolesStatusId {
+        if (!this.roles.find((_r) => _r.name === role.name)) {
             return 'no-role';
         }
 
         DB.run('account/remove-role', {
             accountId: this.id,
-            roleId: r.id,
+            roleId: role.id,
         });
 
         return 'role-removed';

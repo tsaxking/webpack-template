@@ -4,7 +4,7 @@ import { attemptAsync, Result } from '../../shared/attempt';
 import { Cache } from './cache';
 
 type Events = {
-    'new': Role;
+    new: Role;
 };
 
 export class Role extends Cache<Events> {
@@ -34,9 +34,7 @@ export class Role extends Cache<Events> {
     public readonly description: string;
     public readonly rank: number;
 
-    constructor(
-        data: R,
-    ) {
+    constructor(data: R) {
         super();
         this.id = data.id;
         this.name = data.name;

@@ -5,19 +5,68 @@ import { attemptAsync, Result } from '../../shared/attempt';
 import { ServerRequest } from '../utilities/requests';
 import { Role } from './roles';
 
+/**
+ * All account events
+ * @date 2/1/2024 - 12:54:21 AM
+ *
+ * @typedef {Events}
+ */
 type Events = {
     new: Account;
 };
 
+/**
+ * All account specific events
+ * @date 2/1/2024 - 12:54:21 AM
+ *
+ * @typedef {AccountEvents}
+ */
 type AccountEvents = {
     update: Account;
 };
 
+/**
+ * Account class used to manage account data
+ * @date 2/1/2024 - 12:54:21 AM
+ *
+ * @export
+ * @class Account
+ * @typedef {Account}
+ * @extends {Cache<AccountEvents>}
+ */
 export class Account extends Cache<AccountEvents> {
+    /**
+     * Current account, if any
+     * @date 2/1/2024 - 12:54:21 AM
+     *
+     * @public
+     * @static
+     * @type {?Account}
+     */
     public static current?: Account;
 
+    /**
+     * Account emitter
+     * @date 2/1/2024 - 12:54:21 AM
+     *
+     * @public
+     * @static
+     * @readonly
+     * @type {*}
+     */
     public static readonly emitter = new EventEmitter<keyof Events>();
 
+    /**
+     * adds a listener to the account emitter
+     * @date 2/1/2024 - 12:54:21 AM
+     *
+     * @public
+     * @static
+     * @template {keyof Events} T
+     * @param {T} event
+     * @param {(data: Events[T]) => void} listener
+     * @returns {void) => void}
+     */
     public static on<T extends keyof Events>(
         event: T,
         listener: (data: Events[T]) => void,
@@ -25,6 +74,17 @@ export class Account extends Cache<AccountEvents> {
         this.emitter.on(event, listener);
     }
 
+    /**
+     *  removes a listener from the account emitter
+     * @date 2/1/2024 - 12:54:21 AM
+     *
+     * @public
+     * @static
+     * @template {keyof Events} T
+     * @param {T} event
+     * @param {(data: Events[T]) => void} listener
+     * @returns {void) => void}
+     */
     public static off<T extends keyof Events>(
         event: T,
         listener: (data: Events[T]) => void,
@@ -32,10 +92,29 @@ export class Account extends Cache<AccountEvents> {
         this.emitter.off(event, listener);
     }
 
+    /**
+     * emits an event from the account emitter
+     * @date 2/1/2024 - 12:54:21 AM
+     *
+     * @public
+     * @static
+     * @template {keyof Events} T
+     * @param {T} event
+     * @param {Events[T]} data
+     */
     public static emit<T extends keyof Events>(event: T, data: Events[T]) {
         this.emitter.emit(event, data);
     }
 
+    /**
+     * Gets all accounts
+     * @date 2/1/2024 - 12:54:21 AM
+     *
+     * @public
+     * @static
+     * @async
+     * @returns {Promise<Result<Account[]>>}
+     */
     public static async all(): Promise<Result<Account[]>> {
         return attemptAsync(async () => {
             const res = await ServerRequest.get<AccountSafe[]>('/account/all');
@@ -48,18 +127,98 @@ export class Account extends Cache<AccountEvents> {
         });
     }
 
+    /**
+     * Cache of all accounts
+     * @date 2/1/2024 - 12:54:21 AM
+     *
+     * @public
+     * @static
+     * @readonly
+     * @type {*}
+     */
     public static readonly $cache = new Map<string, Account>();
 
+    /**
+     * Account id
+     * @date 2/1/2024 - 12:54:21 AM
+     *
+     * @public
+     * @readonly
+     * @type {string}
+     */
     public readonly id: string;
+    /**
+     * Account username
+     * @date 2/1/2024 - 12:54:21 AM
+     *
+     * @public
+     * @type {string}
+     */
     public username: string;
+    /**
+     * Account first name
+     * @date 2/1/2024 - 12:54:21 AM
+     *
+     * @public
+     * @type {string}
+     */
     public firstName: string;
+    /**
+     * Account last name
+     * @date 2/1/2024 - 12:54:21 AM
+     *
+     * @public
+     * @type {string}
+     */
     public lastName: string;
+    /**
+     * Account email
+     * @date 2/1/2024 - 12:54:21 AM
+     *
+     * @public
+     * @type {string}
+     */
     public email: string;
+    /**
+     * Account verification status
+     * @date 2/1/2024 - 12:54:21 AM
+     *
+     * @public
+     * @type {(0 | 1)}
+     */
     public verified: 0 | 1;
+    /**
+     * Account creation date
+     * @date 2/1/2024 - 12:54:21 AM
+     *
+     * @public
+     * @type {number}
+     */
     public created: number;
+    /**
+     * Account phone number
+     * @date 2/1/2024 - 12:54:21 AM
+     *
+     * @public
+     * @type {string}
+     */
     public phoneNumber: string;
+    /**
+     * Account picture
+     * @date 2/1/2024 - 12:54:21 AM
+     *
+     * @public
+     * @type {?string}
+     */
     public picture?: string;
 
+    /**
+     * Creates an instance of Account.
+     * @date 2/1/2024 - 12:54:20 AM
+     *
+     * @constructor
+     * @param {AccountSafe} data
+     */
     constructor(data: AccountSafe) {
         super();
         this.id = data.id;
@@ -79,6 +238,14 @@ export class Account extends Cache<AccountEvents> {
         Account.$cache.set(this.id, this);
     }
 
+    /**
+     * Retrieves all roles for the account
+     * @date 2/1/2024 - 12:54:20 AM
+     *
+     * @public
+     * @async
+     * @returns {Promise<Result<Role[]>>}
+     */
     public async getRoles(): Promise<Result<Role[]>> {
         return attemptAsync(async () => {
             const res = await ServerRequest.post<R[]>('/account/get-roles', {
@@ -86,13 +253,21 @@ export class Account extends Cache<AccountEvents> {
             });
 
             if (res.isOk()) {
-                return res.value;
+                return res.value.map((r) => new Role(r));
             }
 
             throw res.error;
         });
     }
 
+    /**
+     * Retrieves all permissions for the account
+     * @date 2/1/2024 - 12:54:20 AM
+     *
+     * @public
+     * @async
+     * @returns {Promise<Result<P[]>>}
+     */
     public async getPermissions(): Promise<Result<P[]>> {
         return attemptAsync(async () => {
             const res = await ServerRequest.post<P[]>(
@@ -110,11 +285,20 @@ export class Account extends Cache<AccountEvents> {
         });
     }
 
+    /**
+     * Adds a role to the account (if permitted)
+     * @date 2/1/2024 - 12:54:20 AM
+     *
+     * @public
+     * @async
+     * @param {Role} role
+     * @returns {Promise<Result<void>>}
+     */
     public async addRole(role: Role): Promise<Result<void>> {
         return attemptAsync(async () => {
             const res = await ServerRequest.post<void>('/account/add-role', {
                 accountId: this.id,
-                name: role.name,
+                roleId: role.id,
             });
 
             if (res.isOk()) {
@@ -125,11 +309,20 @@ export class Account extends Cache<AccountEvents> {
         });
     }
 
+    /**
+     * Removes a role from the account (if permitted)
+     * @date 2/1/2024 - 12:54:20 AM
+     *
+     * @public
+     * @async
+     * @param {Role} role
+     * @returns {Promise<Result<void>>}
+     */
     public async removeRole(role: Role): Promise<Result<void>> {
         return attemptAsync(async () => {
             const res = await ServerRequest.post<void>('/account/remove-role', {
                 accountId: this.id,
-                name: role.name,
+                roleId: role.id,
             });
 
             if (res.isOk()) {
@@ -140,6 +333,14 @@ export class Account extends Cache<AccountEvents> {
         });
     }
 
+    /**
+     * Verifies the account (if permitted)
+     * @date 2/1/2024 - 12:54:20 AM
+     *
+     * @public
+     * @async
+     * @returns {Promise<Result<void>>}
+     */
     public async verify(): Promise<Result<void>> {
         return attemptAsync(async () => {
             const res = await ServerRequest.post<void>('/account/verify', {
@@ -155,6 +356,14 @@ export class Account extends Cache<AccountEvents> {
         });
     }
 
+    /**
+     * Unverifies the account (if permitted)
+     * @date 2/1/2024 - 12:54:20 AM
+     *
+     * @public
+     * @async
+     * @returns {Promise<Result<void>>}
+     */
     public async unverify(): Promise<Result<void>> {
         return attemptAsync(async () => {
             const res = await ServerRequest.post<void>('/account/unverify', {
@@ -170,6 +379,38 @@ export class Account extends Cache<AccountEvents> {
         });
     }
 
+    /**
+     * Description placeholder
+     * @date 2/1/2024 - 12:54:20 AM
+     *
+     * @public
+     * @async
+     * @returns {Promise<Result<void>>}
+     */
+    public async reject(): Promise<Result<void>> {
+        return attemptAsync(async () => {
+            const res = await ServerRequest.post<void>('/account/reject', {
+                id: this.id,
+            });
+
+            if (res.isOk()) {
+                Account.$cache.delete(this.id);
+                this.destroy();
+                return;
+            }
+
+            throw res.error;
+        });
+    }
+
+    /**
+     * Deletes the account (if permitted)
+     * @date 2/1/2024 - 12:54:20 AM
+     *
+     * @public
+     * @async
+     * @returns {Promise<Result<void>>}
+     */
     public async delete(): Promise<Result<void>> {
         return attemptAsync(async () => {
             const res = await ServerRequest.post<void>('/account/delete', {

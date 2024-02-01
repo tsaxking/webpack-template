@@ -487,6 +487,12 @@ export const messages: {
         code: 400,
         instructions: 'Please try again.',
     },
+    'role:not-found': {
+        message: 'Role was not found',
+        color: 'danger',
+        code: 404,
+        instructions: '',
+    },
     'roles:added': {
         message: 'Role added',
         color: 'success',
@@ -649,6 +655,7 @@ export type StatusId =
     | 'permissions:invalid'
     | 'permissions:unauthorized'
     | 'profanity'
+    | 'role:not-found'
     | 'roles:added'
     | 'roles:invalid-role'
     | 'roles:not-found'
@@ -676,6 +683,7 @@ export type AccountStatusId =
     | 'email-taken'
     | 'has-role'
     | 'incorrect-username-or-password'
+    | 'insufficient-permissions'
     | 'invalid-email'
     | 'invalid-first-name'
     | 'invalid-last-name'
@@ -703,8 +711,7 @@ export type AccountStatusId =
     | 'updated'
     | 'username-changed'
     | 'username-taken'
-    | 'verified'
-    | 'insufficient-permissions';
+    | 'verified';
 
 export type AdminStatusId = 'invalid-key';
 
@@ -760,3 +767,5 @@ export type SpamStatusId = 'detected';
 export type TestStatusId = 'fail' | 'success';
 
 export type UnknownStatusId = 'error';
+
+export type RoleStatusId = 'not-found';
