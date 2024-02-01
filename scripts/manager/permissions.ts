@@ -6,7 +6,6 @@ import { DB } from '../../server/utilities/databases.ts';
 import { RolePermission } from '../../shared/db-types.ts';
 
 export const addPermissions = async () => {
-    title('Add permissions to a role');
     const roleRes = await selectRole('Select a role to add permissions to');
 
     if (roleRes.isOk()) {
@@ -42,7 +41,6 @@ export const addPermissions = async () => {
 };
 
 export const removePermissions = async () => {
-    title('Remove permissions from a role');
     const roleRes = await selectRole(
         'Select a role to remove permissions from',
     );
@@ -76,12 +74,10 @@ export const removePermissions = async () => {
 export const permissions = [
     {
         icon: '📝',
-        name: 'Add Permission',
         value: addPermissions,
     },
     {
         icon: '🗑️',
-        name: 'Remove Permission',
         value: removePermissions,
     },
 ];

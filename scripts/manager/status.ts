@@ -246,7 +246,6 @@ export const selectStatusCode = async (): Promise<number> => {
 };
 
 export const createStatus = async () => {
-    title('Create a new status message');
     const text = Deno.readTextFileSync('shared/status-messages.ts');
 
     const allStatuses = Array.from(text
@@ -333,22 +332,18 @@ export const removeSocketEvent = async () => {};
 export const statuses = [
     {
         icon: '📝',
-        name: 'Create Status',
         value: createStatus,
     },
     {
         icon: '🗑️',
-        name: 'Remove Status',
         value: removeStatus,
     },
     {
         icon: '🔌',
-        name: 'Create Socket Event',
         value: addSocketEvent,
     },
     {
         icon: '🗑️',
-        name: 'Remove Socket Event',
         value: removeSocketEvent,
     },
 ];

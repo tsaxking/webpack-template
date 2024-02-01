@@ -25,7 +25,6 @@ export const selectRole = async (
 };
 
 export const createRole = async () => {
-    title('Create a new role');
     const roleName = repeatPrompt(
         'Enter the new role name',
         undefined,
@@ -46,7 +45,6 @@ export const createRole = async () => {
 };
 
 export const deleteRole = async () => {
-    title('Delete a role');
 
     const res = await selectRole();
     if (res.isOk()) {
@@ -66,7 +64,6 @@ export const deleteRole = async () => {
 };
 
 export const addRole = async () => {
-    title('Add a role to an account');
     const roleRes = await selectRole();
 
     if (roleRes.isOk()) {
@@ -92,7 +89,6 @@ export const addRole = async () => {
 };
 
 export const removeRole = async () => {
-    title('Remove a role from an account');
     const accountRes = await selectAccount();
 
     if (accountRes.isOk()) {
@@ -126,32 +122,26 @@ export const removeRole = async () => {
 export const roles = [
     {
         icon: '📝',
-        name: 'Create Role',
         value: createRole,
     },
     {
         icon: '🗑️',
-        name: 'Delete Role',
         value: deleteRole,
     },
     {
         icon: '➕',
-        name: 'Add Role',
         value: addRole,
     },
     {
         icon: '➖',
-        name: 'Remove Role',
         value: removeRole,
     },
     {
         icon: '🔒',
-        name: 'Add Permission',
         value: addPermissions,
     },
     {
         icon: '🔓',
-        name: 'Remove Permission',
         value: removePermissions,
     },
 ];

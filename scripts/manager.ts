@@ -32,6 +32,7 @@ import { roles } from './manager/roles.ts';
 import { statuses } from './manager/status.ts';
 import { permissions } from './manager/permissions.ts';
 import { databases } from './manager/database.ts';
+import { capitalize, fromCamelCase } from '../shared/text.ts';
 
 export const filter = (str: string): boolean => {
     if (str.length < 3) return false;
@@ -203,7 +204,6 @@ export const main = async () => {
 
     const makeObj = (name: string, data: {
         icon: string;
-        name: string;
         value: () => void;
     }[], icon: string) => {
         title(name);
@@ -214,7 +214,7 @@ export const main = async () => {
                 const res = await select(
                     `Please select a task for ${name}`,
                     [...data.map((d) => ({
-                        name: `${d.icon} ${d.name}`,
+                        name: `${d.icon} ${capitalize(fromCamelCase(d.value.name))}`,
                         value: d.value,
                     })), {
                         name: `${icons.back} [Back]`,

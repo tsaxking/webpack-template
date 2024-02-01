@@ -24,7 +24,6 @@ export const selectAccount = async (
 };
 
 export const verifyAccount = async () => {
-    title('Verify an account');
     const accounts = Account.unverifiedAccounts;
     if (!accounts.length) return backToMain('No accounts to verify');
 
@@ -47,39 +46,54 @@ export const verifyAccount = async () => {
     }
 };
 
-export const unverifyAccount = async () => {};
+export const unverifyAccount = async () => {
+    const accounts = Account.verifiedAccounts;
+    if (!accounts.length) return backToMain('No accounts to unverify');
+
+    const account = await select<Account>(
+        'Select an account to unverify',
+        accounts.map((a) => ({
+            name: a.username,
+            value: a,
+        })),
+        {
+            return: true,
+        },
+    );
+
+    if (account) {
+        account.unverify();
+        backToMain(`Account ${account.username} unverified`);
+    } else {
+        backToMain('Could not find account :(');
+    }
+};
 export const removeAccount = async () => {};
 export const createAccount = async () => {};
 
 export const accounts = [
     {
         icon: '🔍',
-        name: 'Verify Account',
         value: verifyAccount,
     },
     {
         icon: '🗑️',
-        name: 'Delete Account',
         value: removeAccount,
     },
     {
         icon: '📝',
-        name: 'Create Account',
         value: createAccount,
     },
     {
         icon: '🔄',
-        name: 'Unverify Account',
         value: unverifyAccount,
     },
     {
         icon: '➕',
-        name: 'Add Role',
         value: addRole,
     },
     {
         icon: '➖',
-        name: 'Remove Role',
         value: removeRole,
     },
 ];
