@@ -33,29 +33,31 @@ type Option<T = unknown> = {
     value: T;
 };
 
-export const select = <T = unknown>(
+export const select = async <T = unknown>(
     message: string,
     data: (Option<T> | string)[],
     options: {
-        selected?: string;
         exit?: boolean;
         return?: boolean;
     } = {
-        exit: false
-    }
+        exit: false,
+    },
 ): Promise<T> => {
-    if (options.return) data.push({
-        name: 'Return',
-        value: '$$return$$' as unknown as T
-    });
-    if (options.exit) data.push({
-        name: 'Exit',
-        value: '$$exit$$' as unknown as T
-    });
-    const res = cliffy.Select.prompt({
+    if (options.return) {
+        data.push({
+            name: 'Return',
+            value: '$$return$$' as unknown as T,
+        });
+    }
+    if (options.exit) {
+        data.push({
+            name: 'Exit',
+            value: '$$exit$$' as unknown as T,
+        });
+    }
+    const res = await cliffy.Select.prompt({
         message: message,
         options: data,
-        selected: options.selected,
     });
 
     if (res === '$$exit$$') {
@@ -69,9 +71,9 @@ export const select = <T = unknown>(
         throw new Error('return');
     }
 
-    return res;
-}
+    return res as T;
+};
 
 export const confirm = async (message = 'Confirm'): Promise<boolean> => {
     return (await select(message, ['Yes', 'No'])) === 'Yes';
-}
+};

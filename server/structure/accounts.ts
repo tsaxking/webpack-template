@@ -9,7 +9,6 @@ import { Member } from './member.ts';
 import {
     Account as AccountObject,
     AccountSettings,
-    Permission,
 } from '../../shared/db-types.ts';
 import env from '../utilities/env.ts';
 import { deleteUpload } from '../utilities/files.ts';
@@ -22,6 +21,7 @@ import {
 } from '../../shared/status-messages.ts';
 import { validate } from '../middleware/data-type.ts';
 import { Role as RoleObj } from '../../shared/db-types.ts';
+import { Permission } from '../../shared/permissions.ts';
 
 /**
  * Properties that can be changed dynamically

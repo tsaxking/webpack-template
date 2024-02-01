@@ -31,7 +31,7 @@ const selectRole = async (message = 'Select a role'): Promise<Result<Role>> => {
             roles.map((role) => ({
                 name: role.name,
                 value: role,
-            }))
+            })),
         );
     });
 };
@@ -50,7 +50,7 @@ const selectAccount = async (
             accounts.map((account) => ({
                 name: account.username,
                 value: account,
-            }))
+            })),
         );
     });
 };
@@ -172,11 +172,15 @@ const addPermissions = async () => {
         role.addPermission(permName as unknown as Permission, description);
 
         const allPermissions = DB.all('permissions/all');
-        const uniqueNames = allPermissions.map((p: RolePermission) =>
-            p.permission
-        ).filter((p: string, i: number, arr: string[]) => arr.indexOf(p) === i);
+        const uniqueNames = allPermissions
+            .map((p: RolePermission) => p.permission)
+            .filter(
+                (p: string, i: number, arr: string[]) => arr.indexOf(p) === i,
+            );
         const ts = `export type Permission = ${
-            uniqueNames.map((n) => `'${n}'`).join(' | ')
+            uniqueNames
+                .map((n) => `'${n}'`)
+                .join(' | ')
         };`;
         Deno.writeTextFileSync('./shared/permissions.ts', ts);
 
@@ -185,8 +189,6 @@ const addPermissions = async () => {
         backToMain('No roles to add permissions to');
     }
 };
-
-
 
 const removePermissions = async () => {
     title('Remove permissions from a role');
@@ -220,8 +222,6 @@ const removePermissions = async () => {
     }
 };
 
-
-
 const verifyAccount = async () => {
     title('Verify an account');
     const accounts = Account.unverifiedAccounts;
@@ -234,8 +234,8 @@ const verifyAccount = async () => {
             value: a,
         })),
         {
-            return: true
-        }
+            return: true,
+        },
     );
 
     if (account) {
@@ -258,31 +258,40 @@ const main = async () => {
         | 'exit'
         | 'verify-account';
 
-    const data = await select<MainCommands>('Please select a task', [{
-        name: 'Create a new role',
-        value: 'create-role',
-    }, {
-        name: 'Delete a role',
-        value: 'delete-role',
-    }, {
-        name: 'Add a role to an account',
-        value: 'add-role',
-    }, {
-        name: 'Remove a role from an account',
-        value: 'remove-role',
-    }, {
-        name: 'Add permissions to a role',
-        value: 'add-permissions',
-    }, {
-        name: 'Remove permissions from a role',
-        value: 'remove-permissions',
-    }, {
-        name: 'Verify an account',
-        value: 'verify-account',
-    }, {
-        name: 'Exit',
-        value: 'exit',
-    }]);
+    const data = await select<MainCommands>('Please select a task', [
+        {
+            name: 'Create a new role',
+            value: 'create-role',
+        },
+        {
+            name: 'Delete a role',
+            value: 'delete-role',
+        },
+        {
+            name: 'Add a role to an account',
+            value: 'add-role',
+        },
+        {
+            name: 'Remove a role from an account',
+            value: 'remove-role',
+        },
+        {
+            name: 'Add permissions to a role',
+            value: 'add-permissions',
+        },
+        {
+            name: 'Remove permissions from a role',
+            value: 'remove-permissions',
+        },
+        {
+            name: 'Verify an account',
+            value: 'verify-account',
+        },
+        {
+            name: 'Exit',
+            value: 'exit',
+        },
+    ]);
 
     switch (data) {
         case 'create-role':
