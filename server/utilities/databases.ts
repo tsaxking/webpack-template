@@ -56,8 +56,14 @@ export class DB {
     static get latestVersion(): [number, number, number] {
         const versions = Deno.readDirSync('storage/db/queries/db/versions');
         const [latest] = Array.from(versions).sort((a, b) => {
-            const [M1, m1, p1] = a.name.replace('.sql','').split('-').map((n) => parseInt(n));
-            const [M2, m2, p2] = b.name.replace('.sql','').split('-').map((n) => parseInt(n));
+            const [M1, m1, p1] = a.name
+                .replace('.sql', '')
+                .split('-')
+                .map((n) => parseInt(n));
+            const [M2, m2, p2] = b.name
+                .replace('.sql', '')
+                .split('-')
+                .map((n) => parseInt(n));
 
             if (M1 > M2) return -1;
             if (M1 < M2) return 1;
@@ -67,7 +73,10 @@ export class DB {
             if (p1 < p2) return 1;
             return 0;
         });
-        return latest.name.replace('.sql','').split('-').map((n) => parseInt(n)) as [number, number, number];
+        return latest.name
+            .replace('.sql', '')
+            .split('-')
+            .map((n) => parseInt(n)) as [number, number, number];
     }
 
     /**

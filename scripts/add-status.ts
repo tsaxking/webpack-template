@@ -224,11 +224,15 @@ export const addStatusPrompt = () => {
 };
 
 if (import.meta.main) {
-    console.warn(`⚠️ ${Colors.FgYellow}Running this script will be deprecated soon, please use "deno task manager" and select [Status] -> Create Status instead.${Colors.Reset} ⚠️`);
+    console.warn(
+        `⚠️ ${Colors.FgYellow}Running this script will be deprecated soon, please use "deno task manager" and select [Status] -> Create Status instead.${Colors.Reset} ⚠️`,
+    );
     addStatusPrompt();
 }
 if (Deno.args.includes('socket')) {
-    console.warn(`⚠️ ${Colors.FgYellow}Running this script will be deprecated soon, please use "deno task manager" and select [Status] -> Create Socket Event instead.${Colors.Reset} ⚠️`);
+    console.warn(
+        `⚠️ ${Colors.FgYellow}Running this script will be deprecated soon, please use "deno task manager" and select [Status] -> Create Socket Event instead.${Colors.Reset} ⚠️`,
+    );
 
     const name = repeatPrompt('Socket event name');
     addSocket(name);
