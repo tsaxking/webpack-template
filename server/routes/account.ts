@@ -24,7 +24,7 @@ router.post('/get-account', async (req, res) => {
 });
 
 // gets all roles available
-router.post('/get-roles', (req, res) => {
+router.post('/get-all-roles', (req, res) => {
     res.json(Role.all());
 });
 
@@ -384,3 +384,85 @@ router.post<{
         res.sendStatus('account:password-reset-success');
     },
 );
+
+router.post<{
+    id: string;
+}>(
+    '/get-roles',
+    validate({
+        id: 'string',
+    }),
+    (req, res) => {
+        const { id } = req.body;
+
+        const { account } = req.session;
+        if (!account) return res.sendStatus('account:not-logged-in');
+
+        if (account.id !== id) {
+            const perms = account.permissions;
+            if (perms.includes('admin') || perms.includes('editRoles')) {
+                const roles = Account.fromId(id)?.roles;
+                if (roles) {
+                    return res.json(roles);
+                } else {
+                    return res.json([]);
+                }
+            }
+
+            return res.sendStatus('account:cannot-edit-other-account');
+        }
+
+        res.json(account.roles);
+    },
+);
+
+router.post<{
+    id: string;
+}>(
+    '/get-permissions',
+    validate({
+        id: 'string',
+    }),
+    (req, res) => {
+        const { id } = req.body;
+
+        const { account } = req.session;
+        if (!account) return res.sendStatus('account:not-logged-in');
+
+        if (account.id !== id) {
+            const perms = account.permissions;
+            if (perms.includes('admin') || perms.includes('editRoles')) {
+                const permissions = Account.fromId(id)?.permissions;
+                if (permissions) {
+                    return res.json(permissions);
+                } else {
+                    return res.json([]);
+                }
+            }
+
+            return res.sendStatus('account:cannot-edit-other-account');
+        }
+
+        res.json(account.permissions);
+    },
+);
+
+router.post('/all', (req, res) => {
+    const { account } = req.session;
+    if (!account) return res.sendStatus('account:not-logged-in');
+
+    if (account.permissions.includes('admin')) {
+        return res.json(
+            Account.all.map((a) =>
+                a.safe({
+                    roles: true,
+                    email: true,
+                    memberInfo: true,
+                    permissions: true,
+                })
+            ),
+        );
+    }
+
+    return res.sendStatus('account:insufficient-permissions');
+});
