@@ -1,10 +1,9 @@
-import { title, backToMain } from '../manager.ts';
+import { backToMain, title } from '../manager.ts';
 import { repeatPrompt, select } from '../prompt.ts';
 import { selectRole } from './roles.ts';
 import { Permission } from '../../shared/permissions.ts';
 import { DB } from '../../server/utilities/databases.ts';
 import { RolePermission } from '../../shared/db-types.ts';
-
 
 export const addPermissions = async () => {
     title('Add permissions to a role');
@@ -74,26 +73,15 @@ export const removePermissions = async () => {
     }
 };
 
-export const permissions = async () => {
-    title('Permissions');
-
-    type PermissionCommands = 'add' | 'remove';
-
-    const data = await select<PermissionCommands>(
-        'Please select a permission command',
-        [{
-            name: 'Add to Role',
-            value: 'add'
-        }, {
-            name: 'Remove from role',
-            value: 'remove'
-        }]
-    );
-
-    switch (data) {
-        case 'add':
-            return addPermissions();
-        case 'remove':
-            return removePermissions();
-    }
-};
+export const permissions = [
+    {
+        icon: '📝',
+        name: 'Add Permission',
+        value: addPermissions,
+    },
+    {
+        icon: '🗑️',
+        name: 'Remove Permission',
+        value: removePermissions,
+    },
+];

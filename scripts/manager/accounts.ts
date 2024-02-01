@@ -1,8 +1,8 @@
-import { title, backToMain } from '../manager.ts';
+import { backToMain, title } from '../manager.ts';
 import { select } from '../prompt.ts';
 import Account from '../../server/structure/accounts.ts';
 import { attemptAsync, Result } from '../../shared/check.ts';
-import { removeRole, addRole } from './roles.ts';
+import { addRole, removeRole } from './roles.ts';
 
 export const selectAccount = async (
     message = 'select an account',
@@ -22,7 +22,6 @@ export const selectAccount = async (
         );
     });
 };
-
 
 export const verifyAccount = async () => {
     title('Verify an account');
@@ -52,53 +51,35 @@ export const unverifyAccount = async () => {};
 export const removeAccount = async () => {};
 export const createAccount = async () => {};
 
-
-export const accounts = async () => {
-    title('Accounts');
-    type AccountCommands = 'add-role' | 'remove-role' | 'verify' | 'unverify' | 'delete' | 'create';
-
-    const data = await select<AccountCommands>(
-        'Please select an account task',
-        [
-            {
-                name: 'Add Role',
-                value: 'add-role'
-            },
-            {
-                name: 'Remove Role',
-                value: 'remove-role'
-            },
-            {
-                name: 'Verify',
-                value: 'verify',
-            },
-            {
-                name: 'Unverify',
-                value: 'unverify'
-            },
-            {
-                name: 'Delete',
-                value: 'delete'
-            },
-            {
-                name: 'Create',
-                value: 'create'
-            }
-        ]
-    );
-
-    switch (data) {
-        case 'add-role':
-            return addRole();
-        case 'remove-role':
-            return removeRole();
-        case 'verify':
-            return verifyAccount();
-        case 'unverify':
-            return unverifyAccount();
-        case 'delete':
-            return removeAccount();
-        case 'create':
-            return createAccount();
-    }
-};
+export const accounts = [
+    {
+        icon: '🔍',
+        name: 'Verify Account',
+        value: verifyAccount,
+    },
+    {
+        icon: '🗑️',
+        name: 'Delete Account',
+        value: removeAccount,
+    },
+    {
+        icon: '📝',
+        name: 'Create Account',
+        value: createAccount,
+    },
+    {
+        icon: '🔄',
+        name: 'Unverify Account',
+        value: unverifyAccount,
+    },
+    {
+        icon: '➕',
+        name: 'Add Role',
+        value: addRole,
+    },
+    {
+        icon: '➖',
+        name: 'Remove Role',
+        value: removeRole,
+    },
+];

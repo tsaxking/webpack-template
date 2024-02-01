@@ -7,13 +7,31 @@ import { addEntry } from './add-entry.ts';
 import Filter from 'npm:bad-words';
 
 
+
+export const icons = {
+    success: '✅',
+    error: '❌',
+    warning: '⚠️',
+    info: 'ℹ️',
+    account: '👤',
+    role: '🔐',
+    status: '🔵',
+    permission: '🔒',
+    database: '📂',
+    entry: '📄',
+    exit: '🚪',
+    verify: '🔍',
+    remove: '🗑️',
+    create: '➕',
+    restore: '🔄',
+    back: '⬅️',
+};
+
 import { accounts } from './manager/accounts.ts';
 import { roles } from './manager/roles.ts';
 import { statuses } from './manager/status.ts';
 import { permissions } from './manager/permissions.ts';
 import { databases } from './manager/database.ts';
-
-
 
 export const filter = (str: string): boolean => {
     if (str.length < 3) return false;
@@ -36,9 +54,6 @@ export const title = (t: string) => {
     console.clear();
     console.log(Colors.FgGreen, t, Colors.Reset);
 };
-
-
-
 
 export const selectBootstrapColor = async (
     message = 'Select a color',
@@ -69,8 +84,6 @@ export const selectBootstrapColor = async (
 
     return runSelect();
 };
-
-
 
 export const selectFile = async (
     dir: string,
@@ -141,10 +154,6 @@ export const selectFile = async (
     return data;
 };
 
-
-
-
-
 const createEntry = async () => {
     title('Create a new front end entrypoint');
     const entryName = repeatPrompt(
@@ -185,81 +194,66 @@ const createEntry = async () => {
     }
 };
 
-
-
-
-
-
-
-
-
-
-
-const main = async () => {
+export const main = async () => {
     title('Welcome to the Deno Task Manager!');
-
-    type MainCommands = 
-        'roles' |
-        'entry' |
-        'status' |
-        'database' |
-        'permissions' |
-        'accounts' |
-        'exit';
-
-    const data = await select<MainCommands>('Please select a task or task group', [
-        {
-            name: 'New Entry (replaces deno task entry)',
-            value: 'entry'
-        },
-        {
-            name: '[Roles]',
-            value: 'roles'
-        },
-        {
-            name: '[Status]',
-            value: 'status'
-        },
-        {
-            name: '[Database]',
-            value: 'database'
-        },
-        {
-            name: '[Permissions]',
-            value: 'permissions',
-        },
-        {
-            name: '[Accounts]',
-            value: 'accounts'
-        },
-        {
-            name: 'Exit',
-            value: 'exit'
-        }
-    ]);
-
-    switch (data) {
-        case 'entry':
-            await attemptAsync(createEntry);
-            break;
-        case 'roles':
-            await attemptAsync(roles);
-            break;
-        case 'status':
-            await attemptAsync(statuses);
-            break;
-        case 'database':
-            await attemptAsync(databases);
-            break;
-        case 'permissions':
-            await attemptAsync(permissions);
-            break;
-        case 'accounts':
-            await attemptAsync(accounts);
-            break;
-        case 'exit':
-            Deno.exit(0);
+    const exit = () => {
+        console.log('Goodbye!');
+        Deno.exit(0);
     }
+
+    const makeObj = (name: string, data: {
+        icon: string;
+        name: string;
+        value: () => void;
+    }[], icon: string) => {
+        title(name);
+
+        return {
+            name: `${icon} [${name}]`,
+            value: async () => {
+                const res = await select(
+                    `Please select a task for ${name}`,
+                    [...data.map((d) => ({
+                        name: `${d.icon} ${d.name}`,
+                        value: d.value,
+                    })), {
+                        name: `${icons.back} [Back]`,
+                        value: main,
+                    }, {
+                        name: `${icons.exit} Exit`,
+                        value: exit,
+                    }],
+                );
+
+                if (res) {
+                    return res();
+                } else {
+                    backToMain('No tasks selected');
+                }
+            },
+        };
+    };
+
+    const fn = await select<() => unknown>(
+        'Please select a task',
+        [
+            {
+                name: `${icons.create} Create Front End Entry Point`,
+                value: createEntry,
+            },
+            makeObj('Accounts', accounts, icons.account),
+            makeObj('Roles', roles, icons.role),
+            makeObj('Statuses', statuses, icons.status),
+            makeObj('Permissions', permissions, icons.permission),
+            makeObj('Databases', databases, icons.database),
+            {
+                name: `${icons.exit} Exit`,
+                value: exit,
+            }
+        ],
+    );
+
+    await fn();
 
     backToMain('Task completed, going back to main menu');
 };

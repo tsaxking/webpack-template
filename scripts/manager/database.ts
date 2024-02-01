@@ -1,2 +1,1 @@
-
-export const databases = async () => {}
+export const databases = [];

@@ -1,9 +1,7 @@
-import { title, filter, selectBootstrapColor } from '../manager.ts';
+import { filter, selectBootstrapColor, title } from '../manager.ts';
 import { repeatPrompt, select } from '../prompt.ts';
 import { StatusCode } from '../../shared/status-messages.ts';
-import { addStatus, addSocket } from '../add-status.ts';
-
-
+import { addSocket, addStatus } from '../add-status.ts';
 
 export const selectStatusCode = async (): Promise<number> => {
     const level = await select(
@@ -247,7 +245,6 @@ export const selectStatusCode = async (): Promise<number> => {
     }
 };
 
-
 export const createStatus = async () => {
     title('Create a new status message');
     const text = Deno.readTextFileSync('shared/status-messages.ts');
@@ -333,43 +330,25 @@ export const addSocketEvent = async () => {
 export const removeStatus = async () => {};
 export const removeSocketEvent = async () => {};
 
-
-
-export const statuses = async () => {
-    title('Statuses');
-
-    type StatusCommands = 'create-status' | 'remove-status' | 'add-socket-event' | 'remove-socket-event';
-
-    const data = await select<StatusCommands>(
-        'Select a command',
-        [
-            {
-                name: 'Create Status',
-                value: 'create-status',
-            },
-            {
-                name: 'Remove Status',
-                value: 'remove-status',
-            },
-            {
-                name: 'Add Socket Event',
-                value: 'add-socket-event',
-            },
-            {
-                name: 'Remove Socket Event',
-                value: 'remove-socket-event',
-            },
-        ],
-    );
-
-    switch (data) {
-        case 'create-status':
-            return createStatus();
-        case 'remove-status':
-            return removeStatus();
-        case 'add-socket-event':
-            return addSocketEvent();
-        case 'remove-socket-event':
-            return removeSocketEvent();
-    }
-};
+export const statuses = [
+    {
+        icon: '📝',
+        name: 'Create Status',
+        value: createStatus,
+    },
+    {
+        icon: '🗑️',
+        name: 'Remove Status',
+        value: removeStatus,
+    },
+    {
+        icon: '🔌',
+        name: 'Create Socket Event',
+        value: addSocketEvent,
+    },
+    {
+        icon: '🗑️',
+        name: 'Remove Socket Event',
+        value: removeSocketEvent,
+    },
+];

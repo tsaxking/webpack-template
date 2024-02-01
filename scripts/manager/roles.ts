@@ -1,11 +1,13 @@
-import { title, backToMain } from '../manager.ts';
+import { backToMain, title } from '../manager.ts';
 import Role from '../../server/structure/roles.ts';
 import { selectAccount } from './accounts.ts';
 import { confirm, repeatPrompt, select } from '../prompt.ts';
 import { attemptAsync, Result } from '../../shared/check.ts';
 import { addPermissions, removePermissions } from './permissions.ts';
 
-export const selectRole = async (message = 'Select a role'): Promise<Result<Role>> => {
+export const selectRole = async (
+    message = 'Select a role',
+): Promise<Result<Role>> => {
     return attemptAsync(async () => {
         const roles = Role.all();
         if (!roles.length) {
@@ -21,9 +23,6 @@ export const selectRole = async (message = 'Select a role'): Promise<Result<Role
         );
     });
 };
-
-
-
 
 export const createRole = async () => {
     title('Create a new role');
@@ -124,45 +123,35 @@ export const removeRole = async () => {
     }
 };
 
-
-export const roles = async () => {
-    title('Roles');
-    type RoleCommands = 'create' | 'delete' | 'add' | 'remove' | 'add-permission' | 'remove-permission';
-    const data = await select<RoleCommands>(
-        'Please select a role task',
-        [{
-            name: 'Create',
-            value: 'create'
-        }, {
-            name: 'Delete',
-            value: 'delete'
-        }, {
-            name: 'Add to Account',
-            value: 'add'
-        }, {
-            name: 'Remove from Account',
-            value: 'remove'
-        }, {
-            name: 'Add Permission',
-            value: 'add-permission'
-        }, {
-            name: 'Remove Permission',
-            value: 'remove-permission'
-        }]
-    );
-
-    switch (data) {
-        case 'create':
-            return createRole();
-        case 'delete':
-            return deleteRole();
-        case 'add':
-            return addRole();
-        case 'remove':
-            return removeRole();
-        case 'add-permission':
-            return addPermissions();
-        case 'remove-permission':
-            return removePermissions();
-    }
-};
+export const roles = [
+    {
+        icon: '📝',
+        name: 'Create Role',
+        value: createRole,
+    },
+    {
+        icon: '🗑️',
+        name: 'Delete Role',
+        value: deleteRole,
+    },
+    {
+        icon: '➕',
+        name: 'Add Role',
+        value: addRole,
+    },
+    {
+        icon: '➖',
+        name: 'Remove Role',
+        value: removeRole,
+    },
+    {
+        icon: '🔒',
+        name: 'Add Permission',
+        value: addPermissions,
+    },
+    {
+        icon: '🔓',
+        name: 'Remove Permission',
+        value: removePermissions,
+    },
+];
