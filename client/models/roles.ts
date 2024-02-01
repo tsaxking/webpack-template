@@ -5,7 +5,7 @@ import { Cache } from './cache';
 
 type Events = {
     'new': Role;
-}
+};
 
 export class Role extends Cache<Events> {
     private static readonly roles: Role[] = [];
@@ -35,7 +35,7 @@ export class Role extends Cache<Events> {
     public readonly rank: number;
 
     constructor(
-        data: R
+        data: R,
     ) {
         super();
         this.id = data.id;

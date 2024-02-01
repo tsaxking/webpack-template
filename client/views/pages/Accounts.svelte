@@ -1,10 +1,13 @@
 <script lang="ts">
 import { onMount } from 'svelte';
 import { Account } from '../../models/account';
-import type { Role, Permission } from '../../../shared/db-types';
+import type { Role as R, Permission as P } from '../../../shared/db-types';
 import { alert, prompt, choose, select } from '../../utilities/notifications';
+import { Role } from '../../models/roles';
 
-let accounts: {
+let accounts: Account[] = [];
+
+let accountObjs: {
     id: string;
     username: string;
     firstName: string;
@@ -15,12 +18,12 @@ let accounts: {
     phoneNumber: string;
     picture?: string;
     roles: Role[];
-    permissions: Permission[];
+    permissions: P[];
 }[] = [];
 
 const fns = {
     setAccounts: async (newAccounts: Account[]) => {
-        accounts = await Promise.all(
+        accountObjs = await Promise.all(
             newAccounts.map(async a => {
                 const [roles, permissions] = await Promise.all([
                     a.getRoles().then(r => (r.isOk() ? r.value : [])),
@@ -49,9 +52,11 @@ onMount(async () => {
     const res = await Account.all();
 
     if (res.isOk()) {
-        fns.setAccounts(res.value);
+        accounts = res.value;
     }
 });
+
+$: fns.setAccounts(accounts);
 </script>
 
 <div class="table-responsive">
@@ -65,7 +70,7 @@ onMount(async () => {
             </tr>
         </thead>
         <tbody>
-            {#each accounts as account}
+            {#each accountObjs as account}
                 <tr>
                     <td>
                         {account.username}
@@ -83,7 +88,9 @@ onMount(async () => {
                     <td>
                         {#each account.roles as role}
                             <span class="badge bg-primary me-1"
-                                >{role.name}</span
+                                >
+                                <i class="material-icons">close</i>
+                                </span
                             >
                         {/each}
                     </td>
@@ -92,23 +99,61 @@ onMount(async () => {
                             <button
                                 type="button"
                                 class="btn btn-primary"
-                                on:click="{async () => {}}"
+                                on:click="{async () => {
+                                    const res = await Role.all();
+                                    if (res.isOk()) {
+                                        const roles = res.value;
+                                        const selected = await select(
+                                            'Select a role to add',
+                                            roles.filter(
+                                                r => !account.roles.some(
+                                                        ar => ar.id === r.id
+                                                    )
+                                            ).map(r => r.name)
+                                        );
+
+                                        const role = roles[selected];
+
+                                        if (role) {
+                                            const a = accounts.find(a => a.id === account.id);
+                                            a.addRole(role);
+                                        }
+                                    }
+                                }}"
                             >
                                 <i class="material-icons">add</i>
                                 Add Role
                             </button>
                             {#if account.verified}
-                                <button type="button" class="btn btn-warning">
+                                <button type="button" class="btn btn-warning" on:click={() => {
+                                    const res = prompt('Are you sure you want to unverify this account?');
+                                    if (res) {
+                                        const a = accounts.find(a => a.id === account.id);
+                                        a.unverify();
+                                    }
+                                }}>
                                     <i class="material-icons">warning</i>
-                                    Verify
-                                </button>
-                            {:else}
-                                <button type="button" class="btn btn-success">
-                                    <i class="material-icons">verified</i>
                                     Unverify
                                 </button>
+                            {:else}
+                                <button type="button" class="btn btn-success" on:click={() => {
+                                    const res = prompt('Are you sure you want to verify this account?');
+                                    if (res) {
+                                        const a = accounts.find(a => a.id === account.id);
+                                        a.verify();
+                                    }
+                                }}>
+                                    <i class="material-icons">verified</i>
+                                    Verify
+                                </button>
                             {/if}
-                            <button type="button" class="btn btn-danger">
+                            <button type="button" class="btn btn-danger" on:click={() => {
+                                const res = prompt('Are you sure you want to delete this account?');
+                                if (res) {
+                                    const a = accounts.find(a => a.id === account.id);
+                                    a.delete();
+                                }
+                            }}>
                                 <i class="material-icons">delete</i>
                             </button>
                         </div>
