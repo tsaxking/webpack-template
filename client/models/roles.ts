@@ -6,37 +6,41 @@ import { Permission } from '../../shared/permissions';
 import { EventEmitter } from '../../shared/event-emitter';
 
 type Events = {
-    'new': Role;
-    'delete': Role;
-    'update': Role;
+    new: Role;
+    delete: Role;
+    update: Role;
 };
 
 type RoleEvents = {
-    'new': Role;
-    'delete': Role;
-    'update': Role;
+    new: Role;
+    delete: Role;
+    update: Role;
     'add-permission': Permission;
     'remove-permission': Permission;
-}
+};
 
 export class Role extends Cache<RoleEvents> {
     private static readonly roles: Role[] = [];
 
-
     static readonly $emitter = new EventEmitter<keyof Events>();
 
-    static on<E extends keyof Events>(event: E, listener: (data: Events[E]) => void) {
+    static on<E extends keyof Events>(
+        event: E,
+        listener: (data: Events[E]) => void,
+    ) {
         Role.$emitter.on(event, listener);
     }
 
-    static off<E extends keyof Events>(event: E, listener: (data: Events[E]) => void) {
+    static off<E extends keyof Events>(
+        event: E,
+        listener: (data: Events[E]) => void,
+    ) {
         Role.$emitter.off(event, listener);
     }
 
     static emit<E extends keyof Events>(event: E, data: Events[E]) {
         Role.$emitter.emit(event, data);
     }
-
 
     static async all(): Promise<Result<Role[]>> {
         return attemptAsync(async () => {
@@ -57,7 +61,10 @@ export class Role extends Cache<RoleEvents> {
         });
     }
 
-    static async new(data: {name: string, description: string}): Promise<Result<Role>> {
+    static async new(data: {
+        name: string;
+        description: string;
+    }): Promise<Result<Role>> {
         return attemptAsync(async () => {
             const { name, description } = data;
             const role = await ServerRequest.post<R>('/roles/new', {

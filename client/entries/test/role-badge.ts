@@ -3,7 +3,7 @@ import { Role } from '../../models/roles';
 import '../../utilities/imports';
 import App from '../../views/components/accounts/RoleBadge.svelte';
 
-const myApp = new App({ 
+const myApp = new App({
     target: document.body,
     props: {
         account: new Account({
@@ -15,15 +15,14 @@ const myApp = new App({
             verified: 1,
             created: Date.now(),
             phoneNumber: '',
-            picture: ''
+            picture: '',
         }),
         role: new Role({
             id: '1',
             name: 'Test',
             description: 'Test',
-            rank: 1
+            rank: 1,
         }),
-        deletable: true
-    }
+        deletable: true,
+    },
 });
-

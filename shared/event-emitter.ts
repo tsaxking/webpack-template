@@ -27,10 +27,7 @@ export class EventEmitter<allowedEvents = string | number | '*'> {
      * @readonly
      * @type {Map<allowedEvents, ListenerCallback[]>}
      */
-    public readonly events = new Map<
-        allowedEvents,
-        ListenerCallback[]
-    >();
+    public readonly events = new Map<allowedEvents, ListenerCallback[]>();
 
     /**
      * Adds a listener for the given event
