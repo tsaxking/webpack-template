@@ -11,8 +11,21 @@ try {
     CREATE TABLE IF NOT EXISTS Permissions (
         permission TEXT NOT NULL,
         description TEXT NOT NULL
-    );
-`);
+    );`);
+
+    DB.unsafe.run(`
+    CREATE TABLE IF NOT EXISTS RolePermissions (
+        roleId TEXT NOT NULL,
+        permission TEXT NOT NULL
+    );`);
+
+    DB.unsafe.run(`
+    CREATE TABLE IF NOT EXISTS Roles (
+        id TEXT NOT NULL,
+        name TEXT NOT NULL,
+        description TEXT NOT NULL,
+        rank INTEGER NOT NULL
+    );`);
 } catch {
     console.log('Permissions table already exists or something went wrong');
 }
