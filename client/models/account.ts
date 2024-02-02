@@ -118,7 +118,7 @@ export class Account extends Cache<AccountEvents> {
      */
     public static async all(): Promise<Result<Account[]>> {
         return attemptAsync(async () => {
-            const res = await ServerRequest.get<AccountSafe[]>('/account/all');
+            const res = await ServerRequest.post<AccountSafe[]>('/account/all');
 
             if (res.isOk()) {
                 return res.value.map((account) => new Account(account));
