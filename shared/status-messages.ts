@@ -313,8 +313,7 @@ export const messages: {
         message: 'Account has been verified.',
         color: 'success',
         code: 200,
-        instructions: 'You will be redirected to the home page.',
-        redirect: '/home',
+        instructions: '',
     },
     'admin:invalid-key': {
         message: 'Invalid key',
