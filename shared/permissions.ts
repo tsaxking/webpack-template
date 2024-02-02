@@ -1,2 +1,2 @@
-export type Permission = 'editRoles' | 'admin';
+export type Permission = 'editRoles' | 'admin' | 'verify';
 export type RoleName = 'admin';

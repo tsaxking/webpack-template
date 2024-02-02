@@ -5,6 +5,8 @@ import { attemptAsync, Result } from '../shared/check.ts';
 import { __root, relative, resolve } from '../server/utilities/env.ts';
 import Filter from 'npm:bad-words';
 import { capitalize, fromCamelCase } from '../shared/text.ts';
+import { resetRoles } from './set-role-info.ts';
+
 
 import { accounts } from './manager/accounts.ts';
 import { roles } from './manager/roles.ts';
@@ -12,6 +14,8 @@ import { statuses } from './manager/status.ts';
 import { permissions } from './manager/permissions.ts';
 import { databases } from './manager/database.ts';
 import { general } from './manager/general.ts';
+
+resetRoles();
 
 export const icons = {
     success: '✅',
