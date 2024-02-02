@@ -49,7 +49,6 @@ const fns = {
     }
 };
 
-
 const set = async () => {
     const res = await Account.all();
 
@@ -60,7 +59,6 @@ const set = async () => {
     jQuery(div.querySelectorAll('[data-toggle="tooltip"]')).tooltip();
     // jQuery(div).dataTable();
 };
-
 
 let div: HTMLDivElement;
 
