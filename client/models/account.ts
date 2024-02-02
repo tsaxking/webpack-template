@@ -14,8 +14,8 @@ import { socket } from '../utilities/socket';
  * @typedef {Events}
  */
 type Events = {
-    'new': Account;
-    'update': Account;
+    new: Account;
+    update: Account;
 };
 
 /**
@@ -25,8 +25,8 @@ type Events = {
  * @typedef {AccountEvents}
  */
 type AccountEvents = {
-    'update': Account;
-    'delete': Account;
+    update: Account;
+    delete: Account;
 };
 
 /**
@@ -430,7 +430,6 @@ export class Account extends Cache<AccountEvents> {
         });
     }
 }
-
 
 socket.on('account:removed', (account: string) => {});
 

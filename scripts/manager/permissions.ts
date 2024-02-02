@@ -39,10 +39,11 @@ export const addPermissions = async () => {
                     !allPerms.some((p) => p === data),
                 false,
             ) as unknown as Permission;
-            const description = repeatPrompt('Enter the permission description');
+            const description = repeatPrompt(
+                'Enter the permission description',
+            );
             addPermission(perm, description);
         }
-
 
         addPermissionToRole(role.id, perm);
         backToMain(`Permission ${perm} added to role ${role.name}`);
