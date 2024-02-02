@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // this needs to be upgraded, but esbuild has not integrated "watch" yet
-import * as esbuild from 'https://deno.land/x/esbuild@v0.11.12/mod.js';
+import * as esbuild from 'https://deno.land/x/esbuild@v0.20.0/mod.js';
 import { sveltePlugin, typescript } from './build/esbuild-svelte.ts';
 import { EventEmitter } from '../shared/event-emitter.ts';
 import { getTemplateSync, saveTemplateSync } from './utilities/files.ts';
@@ -76,6 +76,21 @@ type BuildEventData = {
 export const runBuild = async () => {
     const builder = new EventEmitter<keyof BuildEventData>();
 
+    const watch = async (path: string) => {
+        const watcher = Deno.watchFs(path);
+        for await (const event of watcher) {
+            console.log('file change detected', event);
+            switch(event.kind) {
+                case 'create':
+                case 'modify':
+                case 'remove':
+                    entries = readDir('./client/entries');
+                    build();
+                    break;
+            }
+        }
+    }
+
     const build = () =>
         esbuild.build({
             entryPoints: entries,
@@ -84,12 +99,12 @@ export const runBuild = async () => {
             outdir: './dist',
             mainFields: ['svelte', 'browser', 'module', 'main'],
             conditions: ['svelte', 'browser'],
-            watch: {
-                onRebuild(error: Error, result: any) {
-                    if (error) builder.emit('error', error);
-                    else builder.emit('build', result);
-                },
-            },
+            // watch: {
+            //     onRebuild(error: Error, result: any) {
+            //         if (error) builder.emit('error', error);
+            //         else builder.emit('build', result);
+            //     },
+            // },
             // trust me, it works
             plugins: [
                 (sveltePlugin as any)({
@@ -109,10 +124,15 @@ export const runBuild = async () => {
 
     builder.on('build', () => {
         entries = readDir('./client/entries');
-        // build();
+        build();
     });
 
     await build();
+
+    if (Deno.args.includes('--watch')) {
+        watch('./client');
+        watch('./shared');
+    }
 
     return builder;
 };

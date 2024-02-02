@@ -1,7 +1,7 @@
 {
     "tasks": {
         "start": "deno task build && deno run --allow-all --unstable-ffi ./server/server.ts --no-console --console-to-csv",
-        "dev": "deno task init && deno run --allow-all --unstable-ffi --watch ./server/server.ts --allow-stdin",
+        "dev": "deno task init && deno run --allow-all --unstable-ffi --watch ./server/server.ts --allow-stdin --watch",
         "build": "deno task init --default && deno run --allow-all ./server/bundler.ts",
         "init": "deno run --allow-all --allow-run --unstable-ffi ./scripts/init.ts",
         "update": "deno run --allow-all --allow-run --unstable-ffi ./storage/db/scripts/init.ts --update",
