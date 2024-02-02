@@ -130,7 +130,6 @@ export class Account extends Cache<AccountEvents> {
                 return Array.from(Account.$cache.values());
             }
 
-
             const res = await ServerRequest.post<AccountSafe[]>('/account/all');
 
             if (res.isOk()) {
