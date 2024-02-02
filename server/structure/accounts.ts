@@ -764,6 +764,7 @@ export default class Account {
             memberInfo: include?.memberInfo ? this.memberInfo : undefined,
             permissions: include?.permissions ? this.permissions : [],
             id: include?.id ? this.id : undefined,
+            verified: this.verified
         };
     }
 
