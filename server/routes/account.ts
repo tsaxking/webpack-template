@@ -126,6 +126,10 @@ router.post<{
         );
 
         res.sendStatus(('account:' + status) as StatusId, { username });
+
+        if (status === 'created') {
+            req.io.emit('account:created', username);
+        }
     },
 );
 
@@ -151,6 +155,10 @@ router.post<{
         if (!a) return res.sendStatus('account:not-found');
         const status = a.verify();
         res.sendStatus(('account:' + status) as StatusId, { id });
+
+        if (status === 'verified') {
+            req.io.emit('account:verified', id);
+        }
     },
 );
 
@@ -178,6 +186,10 @@ router.post<{
 
         const status = Account.delete(id);
         res.sendStatus(('account:' + status) as StatusId, { id });
+
+        if (status === 'removed') {
+            req.io.emit('account:removed', id);
+        }
     },
 );
 
@@ -216,6 +228,10 @@ router.post<{
 
         const status = Account.delete(id);
         res.sendStatus(('account:' + status) as StatusId, { id });
+
+        if (status === 'removed') {
+            req.io.emit('account:removed', id);
+        }
     },
 );
 
@@ -239,6 +255,8 @@ router.post<{
         Status.from(('account:' + a.unverify()) as StatusId, req, {
             id,
         }).send(res);
+
+        req.io.emit('account:unverified', id);
     },
 );
 
@@ -273,6 +291,10 @@ router.post<{
             });
         }
         res.sendStatus(('role:' + status) as StatusId, { accountId, role });
+
+        if (status === 'added') {
+            req.io.emit('account:role-added', accountId, roleId);
+        }
     },
 );
 
@@ -307,6 +329,10 @@ router.post<{
             });
         }
         res.sendStatus(('role:' + status) as StatusId, { accountId, roleId });
+
+        if (status === 'removed') {
+            req.io.emit('account:role-removed', accountId, roleId);
+        }
     },
 );
 

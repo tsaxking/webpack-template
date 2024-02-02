@@ -5,6 +5,7 @@ import { Permission as P } from '../../shared/permissions';
 import { attemptAsync, Result } from '../../shared/attempt';
 import { ServerRequest } from '../utilities/requests';
 import { Role } from './roles';
+import { socket } from '../utilities/socket';
 
 /**
  * All account events
@@ -13,7 +14,8 @@ import { Role } from './roles';
  * @typedef {Events}
  */
 type Events = {
-    new: Account;
+    'new': Account;
+    'update': Account;
 };
 
 /**
@@ -23,7 +25,8 @@ type Events = {
  * @typedef {AccountEvents}
  */
 type AccountEvents = {
-    update: Account;
+    'update': Account;
+    'delete': Account;
 };
 
 /**
@@ -427,3 +430,16 @@ export class Account extends Cache<AccountEvents> {
         });
     }
 }
+
+
+socket.on('account:removed', (account: string) => {});
+
+socket.on('account:created', (account: AccountSafe) => {});
+
+socket.on('account:role-removed', (accountId: string, role: string) => {});
+
+socket.on('account:role-added', (accountId: string, role: string) => {});
+
+socket.on('account:verified', (accountId: string) => {});
+
+socket.on('account:unverified', (accountId: string) => {});
