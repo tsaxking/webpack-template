@@ -10,7 +10,7 @@ try {
     DB.unsafe.run(`
     CREATE TABLE IF NOT EXISTS Permissions (
         permission TEXT NOT NULL,
-        description TEXT NOT NULL
+        roleId TEXT NOT NULL
     );`);
 
     DB.unsafe.run(`
