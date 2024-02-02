@@ -16,6 +16,7 @@ import { socket } from '../utilities/socket';
 type Events = {
     'new': Account;
     'update': Account;
+    'delete': Account;
 };
 
 /**
@@ -25,8 +26,12 @@ type Events = {
  * @typedef {AccountEvents}
  */
 type AccountEvents = {
-    'update': Account;
-    'delete': Account;
+    'update': undefined;
+    'delete': undefined;
+    'role-added': RoleName;
+    'role-removed': RoleName;
+    'verified': Account;
+    'unverified': Account;
 };
 
 /**
@@ -443,6 +448,7 @@ export class Account extends Cache<AccountEvents> {
     }
 }
 
+
 socket.on('account:removed', (accountId: string) => {
     const account = Account.$cache.get(accountId);
     if (account) {
@@ -490,4 +496,12 @@ socket.on('account:verified', (accountId: string) => {
     }
 });
 
-socket.on('account:unverified', (accountId: string) => {});
+socket.on('account:unverified', (accountId: string) => {
+    const account = Account.$cache.get(accountId);
+    if (account) {
+        account.verified = 0;
+        account.emit('unverified', account);
+        account.emit('update', undefined);
+        Account.emit('update', account);
+    }
+});
