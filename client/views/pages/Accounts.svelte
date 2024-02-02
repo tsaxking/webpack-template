@@ -74,7 +74,7 @@ Account.on('delete', set);
 </script>
 
 <div class="table-responsive">
-    <table class="table table-striped table-dark table-hover" bind:this={div}>
+    <table class="table table-striped table-dark table-hover" bind:this="{div}">
         <thead>
             <tr>
                 <th scope="col">Name</th>
@@ -88,16 +88,27 @@ Account.on('delete', set);
             {#each accountObjs as account}
                 <tr>
                     <td>
-                        {account.firstName} {account.lastName}
+                        {account.firstName}
+                        {account.lastName}
                     </td>
                     <td>
                         {account.username}
                         {#if account.verified}
-                            <span class="badge bg-success ms-1" data-toggle="tooltip" title="Verified" data-placement="top">
+                            <span
+                                class="badge bg-success ms-1"
+                                data-toggle="tooltip"
+                                title="Verified"
+                                data-placement="top"
+                            >
                                 <i class="material-icons">verified</i>
                             </span>
                         {:else}
-                            <span class="badge bg-warning ms-1" data-toggle="tooltip" title="Not Verified" data-placement="top">
+                            <span
+                                class="badge bg-warning ms-1"
+                                data-toggle="tooltip"
+                                title="Not Verified"
+                                data-placement="top"
+                            >
                                 <i class="material-icons">dangerous</i>
                             </span>
                         {/if}
@@ -105,7 +116,12 @@ Account.on('delete', set);
                     <td>{account.email}</td>
                     <td>
                         {#each account.roles as role}
-                            <RoleBadge role={role} account={accounts.find(a => a.id === account.id)} />
+                            <RoleBadge
+                                {role}
+                                account="{accounts.find(
+                                    a => a.id === account.id
+                                )}"
+                            />
                         {/each}
                     </td>
                     <td>
@@ -122,33 +138,58 @@ Account.on('delete', set);
                                         const roles = res.value;
                                         const selected = await select(
                                             'Select a role to add',
-                                            [...roles
-                                                .filter(
-                                                    r =>
-                                                        !account.roles.some(
-                                                            ar => ar.id === r.id
-                                                        )
-                                                )
-                                                .map(r => r.name), 'Create New Role']
+                                            [
+                                                ...roles
+                                                    .filter(
+                                                        r =>
+                                                            !account.roles.some(
+                                                                ar =>
+                                                                    ar.id ===
+                                                                    r.id
+                                                            )
+                                                    )
+                                                    .map(r => r.name),
+                                                'Create New Role'
+                                            ]
                                         );
 
-                                        if (selected === roles.length) { // Create New Role
-                                            const name = await prompt('Enter the name of the new role');
+                                        if (selected === roles.length) {
+                                            // Create New Role
+                                            const name = await prompt(
+                                                'Enter the name of the new role'
+                                            );
                                             if (name) {
-                                                const description = await prompt('Enter the description of the new role');
+                                                const description =
+                                                    await prompt(
+                                                        'Enter the description of the new role'
+                                                    );
                                                 if (description) {
-                                                    const r = await Role.new({ name, description });
+                                                    const r = await Role.new({
+                                                        name,
+                                                        description
+                                                    });
                                                     if (r.isOk()) {
-                                                        const a = accounts.find(a => a.id === account.id);
+                                                        const a = accounts.find(
+                                                            a =>
+                                                                a.id ===
+                                                                account.id
+                                                        );
                                                         a.addRole(r.value);
                                                     } else {
-                                                        return console.error('Failed to create role: ', r.error);
+                                                        return console.error(
+                                                            'Failed to create role: ',
+                                                            r.error
+                                                        );
                                                     }
                                                 } else {
-                                                    return console.error('Description not provided');
+                                                    return console.error(
+                                                        'Description not provided'
+                                                    );
                                                 }
                                             } else {
-                                                return console.error('Name not provided');
+                                                return console.error(
+                                                    'Name not provided'
+                                                );
                                             }
                                         }
 
