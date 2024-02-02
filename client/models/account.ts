@@ -28,8 +28,8 @@ type Events = {
 type AccountEvents = {
     update: undefined;
     delete: undefined;
-    'role-added': RoleName;
-    'role-removed': RoleName;
+    'role-added': string;
+    'role-removed': string;
     verified: Account;
     unverified: Account;
 };
@@ -454,12 +454,13 @@ export class Account extends Cache<AccountEvents> {
 
 socket.on('account:removed', (accountId: string) => {
     const account = Account.$cache.get(accountId);
+    Account.$cache.delete(accountId);
     if (account) {
+        console.log('account removed', account);
         Account.emit('delete', account);
         account.emit('delete', undefined);
         account.destroy();
     }
-    Account.$cache.delete(accountId);
 });
 
 socket.on('account:created', (account: AccountSafe) => {
@@ -467,24 +468,24 @@ socket.on('account:created', (account: AccountSafe) => {
     Account.emit('new', a);
 });
 
-socket.on('account:role-removed', (accountId: string, role: RoleName) => {
+socket.on('account:role-removed', async (accountId: string, roleId: string) => {
     const account = Account.$cache.get(accountId);
     if (account) {
-        account.getRoles(true); // force update
+        await account.getRoles(true); // force update
 
         account.emit('update', undefined);
-        account.emit('role-removed', role);
+        account.emit('role-removed', roleId);
         Account.emit('update', account);
     }
 });
 
-socket.on('account:role-added', (accountId: string, role: RoleName) => {
+socket.on('account:role-added', async (accountId: string, roleId: string) => {
     const account = Account.$cache.get(accountId);
     if (account) {
-        account.getRoles(true); // force update
+        await account.getRoles(true); // force update
 
         account.emit('update', undefined);
-        account.emit('role-added', role);
+        account.emit('role-added', roleId);
         Account.emit('update', account);
     }
 });
