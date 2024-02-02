@@ -18,6 +18,7 @@ router.post('/get-account', async (req, res) => {
                 memberInfo: true,
                 permissions: true,
                 email: true,
+                id: true,
             }),
         );
     } else res.sendStatus('account:not-logged-in');
@@ -81,7 +82,9 @@ router.post<{
 
         req.session.signIn(account);
 
-        res.sendStatus('account:logged-in', { username });
+        console.log('prevUrl', req.session.prevUrl);
+
+        res.sendStatus('account:logged-in', { username }, req.session.prevUrl || '/home');
     },
 );
 
@@ -132,6 +135,13 @@ router.post<{
         }
     },
 );
+
+router.get('/sign-out', (req, res) => {
+    req.session.signOut();
+    res.redirect('/home');
+});
+
+
 
 // req.session.account is always available when Account.allowRoles/Permissions is used
 // however, typescript doesn't know that, so we have to cast it

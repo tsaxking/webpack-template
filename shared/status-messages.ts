@@ -197,7 +197,6 @@ export const messages: {
         color: 'success',
         code: 200,
         instructions: 'You will be redirected to the home page.',
-        redirect: '/home',
     },
     'account:logged-out': {
         message: 'You have been logged out.',

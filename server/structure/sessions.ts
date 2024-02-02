@@ -118,7 +118,7 @@ export class Session {
         session.ip = s.ip;
         session.id = s.id;
         session.latestActivity = s.latestActivity;
-        session.prevUrl = s.prevUrl;
+        session.$prevUrl = s.prevUrl;
         session.userAgent = s.userAgent;
         session.accountId = s.accountId || undefined;
         return session;
@@ -215,7 +215,7 @@ export class Session {
      *
      * @type {?string}
      */
-    public prevUrl?: string;
+    private $prevUrl: string | undefined;
     /**
      * Not implemented yet, but this will be used for rate limiting
      * @date 10/12/2023 - 3:13:58 PM
@@ -259,6 +259,15 @@ export class Session {
         //     this.requests = 0;
         // }, Session.requestsInfo.per);
         // }
+    }
+
+    get prevUrl(): string | undefined {
+        return this.$prevUrl;
+    }
+
+    set prevUrl(url: string | undefined) {
+        this.$prevUrl = url;
+        this.save();
     }
 
     /**
@@ -306,7 +315,7 @@ export class Session {
      * @date 10/12/2023 - 3:13:57 PM
      */
     save() {
-        this.account?.save();
+        // this.account?.save();
 
         const s = DB.get('sessions/get', { id: this.id });
 

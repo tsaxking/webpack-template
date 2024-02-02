@@ -389,9 +389,11 @@ export class Res {
      * @param {?*} [data]
      * @returns {ResponseStatus}
      */
-    sendStatus(id: StatusId, data?: unknown): ResponseStatus {
+    sendStatus(id: StatusId, data?: unknown, redirect?: string): ResponseStatus {
         try {
-            Status.from(id, this.req, JSON.stringify(data)).send(this);
+            const s = Status.from(id, this.req, JSON.stringify(data));
+            s.redirect = redirect;
+            s.send(this);
             return ResponseStatus.success;
         } catch (error) {
             log('Error sending status', error);

@@ -5,17 +5,11 @@ import { Settings } from '../../../models/settings';
 import ThemeSwitch from '../ThemeSwitch.svelte';
 export let title: string;
 export let navItems: string[] = [];
+import { Account } from '../../../models/account';
 
 export let active: string = '';
 
-export let account: {
-    firstName: string;
-    lastName: string;
-    username: string;
-    email: string;
-    picture?: string;
-    phoneNumber?: string;
-};
+export let account: Account = Account.guest;
 
 export let accountLinks: (string | null)[] = [];
 </script>

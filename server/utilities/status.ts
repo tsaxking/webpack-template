@@ -139,7 +139,7 @@ export class Status {
      * @readonly
      * @type {?string}
      */
-    public readonly redirect?: string;
+    public redirect?: string;
     /**
      * Request object
      * @date 10/12/2023 - 3:26:23 PM

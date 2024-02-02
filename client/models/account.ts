@@ -17,6 +17,7 @@ type Events = {
     new: Account;
     update: Account;
     delete: Account;
+    current: Account;
 };
 
 /**
@@ -44,6 +45,28 @@ type AccountEvents = {
  * @extends {Cache<AccountEvents>}
  */
 export class Account extends Cache<AccountEvents> {
+    /**
+     * Cache of all accounts
+     * @date 2/1/2024 - 12:54:21 AM
+     *
+     * @public
+     * @static
+     * @readonly
+     * @type {*}
+     */
+    public static readonly $cache = new Map<string, Account>();
+    public static readonly guest = new Account({
+        id: 'guest',
+        username: 'guest',
+        firstName: 'Guest',
+        lastName: 'User',
+        email: '',
+        verified: 0,
+        created: Date.now(),
+        phoneNumber: '',
+    });
+
+
     /**
      * Current account, if any
      * @date 2/1/2024 - 12:54:21 AM
@@ -140,16 +163,6 @@ export class Account extends Cache<AccountEvents> {
         });
     }
 
-    /**
-     * Cache of all accounts
-     * @date 2/1/2024 - 12:54:21 AM
-     *
-     * @public
-     * @static
-     * @readonly
-     * @type {*}
-     */
-    public static readonly $cache = new Map<string, Account>();
 
     /**
      * Account id
@@ -507,5 +520,13 @@ socket.on('account:unverified', (accountId: string) => {
         account.emit('unverified', account);
         account.emit('update', undefined);
         Account.emit('update', account);
+    }
+});
+
+ServerRequest.post<AccountSafe>('/account/get-account').then((res) => {
+    if (res.isOk()) {
+        Account.current = new Account(res.value);
+        Account.emit('current', Account.current);
+        console.log('current account', Account.current);
     }
 });

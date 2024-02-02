@@ -174,20 +174,24 @@ app.route('/account', account);
 
 app.use('/*', Account.autoSignIn(env.AUTO_SIGN_IN));
 
-// app.get('/*', (req, res, next) => {
-//     if (!req.session?.accountId) {
-//         req.session!.prevUrl = req.url;
-//         return res.redirect('/account/sign-in');
-//     }
+app.get('/*', (req, res, next) => {
+    if (!req.session.accountId) {
+        req.session.prevUrl = req.url;
+        return res.redirect('/account/sign-in');
+    }
 
-//     next();
-// });
+    next();
+});
 
 app.get('/dashboard/admin', Role.allowRoles('admin'), (_req, res) => {
     res.sendTemplate('entries/admin');
 })
 
 app.route('/admin', admin);
+
+app.get('/dashboard/:dashboard', (req, res) => {
+    res.sendTemplate('entries/dashboard/' + req.params.dashboard);
+});
 
 app.get('/user/*', Account.isSignedIn, (req, res) => {
     res.sendTemplate('entries/user');
