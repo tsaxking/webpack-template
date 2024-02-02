@@ -2,6 +2,7 @@ import { filter, selectBootstrapColor, title } from '../manager.ts';
 import { repeatPrompt, select } from '../prompt.ts';
 import { StatusCode } from '../../shared/status-messages.ts';
 import { addSocket, addStatus } from '../add-status.ts';
+import { backToMain } from '../manager.ts';
 
 export const selectStatusCode = async (): Promise<number> => {
     const level = await select('Select a status code level', [
@@ -362,6 +363,8 @@ export const createStatus = async () => {
         instructions,
         redirect,
     });
+
+    backToMain(`Status ${group}:${name} (${code}) created`);
 };
 
 export const addSocketEvent = async () => {
@@ -378,6 +381,8 @@ export const addSocketEvent = async () => {
     );
 
     addSocket(socketEvent);
+
+    backToMain(`Socket event ${socketEvent} created`);
 };
 
 // TODO: remove status and remove socket event

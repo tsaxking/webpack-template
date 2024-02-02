@@ -21,22 +21,28 @@ const createEntry = async () => {
         false,
     );
 
-    // check if file exists
-    const file = resolve(__root, 'client', 'entries', entryName + '.ts');
-    if (Deno.statSync(file)) {
-        const isGood = await confirm(
-            `File ${entryName}.ts already exists, do you want to overwrite it?`,
-        );
-        if (!isGood) {
-            return backToMain('Entry not created');
+    try {
+        // check if file exists
+        const file = resolve(__root, 'client', 'entries', entryName + '.ts');
+        if (Deno.statSync(file)) {
+            const isGood = await confirm(
+                `File ${entryName}.ts already exists, do you want to overwrite it?`,
+            );
+            if (!isGood) {
+                return backToMain('Entry not created');
+            }
         }
+    } catch (error) {
+        // file does not exist, continue
     }
 
     const importFile = await selectFile(
-        '/client/views',
+        resolve(__root, '/client/views'),
         'Select a file to import',
         (file) => file.endsWith('.svelte'),
     );
+
+    console.log(importFile);
 
     if (importFile.isOk()) {
         addEntry(entryName, importFile.value);
