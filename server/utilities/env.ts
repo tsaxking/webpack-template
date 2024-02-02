@@ -2,7 +2,7 @@ import os from 'https://deno.land/x/dos@v0.11.0/mod.ts';
 import * as blog from 'https://deno.land/x/blog@0.3.3/deps.ts';
 import path from 'node:path';
 // import { error } from './terminal-logging.ts';
-import { config } from 'https://deno.land/x/dotenv/mod.ts';
+import { config } from 'https://deno.land/x/dotenv@v3.2.2/mod.ts';
 
 /**
  * Makes paths consistent across platforms
@@ -241,7 +241,4 @@ const env: {
 
 Object.assign(env, config());
 Object.assign(env, Deno.env.toObject());
-
-console.log(env);
-
 export default env;
