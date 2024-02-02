@@ -126,6 +126,11 @@ export class Account extends Cache<AccountEvents> {
      */
     public static async all(): Promise<Result<Account[]>> {
         return attemptAsync(async () => {
+            if (Account.$cache.size > 0) {
+                return Array.from(Account.$cache.values());
+            }
+
+
             const res = await ServerRequest.post<AccountSafe[]>('/account/all');
 
             if (res.isOk()) {
