@@ -80,7 +80,7 @@ export const runBuild = async () => {
         const watcher = Deno.watchFs(path);
         for await (const event of watcher) {
             console.log('file change detected', event);
-            switch(event.kind) {
+            switch (event.kind) {
                 case 'create':
                 case 'modify':
                 case 'remove':
@@ -89,7 +89,7 @@ export const runBuild = async () => {
                     break;
             }
         }
-    }
+    };
 
     const build = () =>
         esbuild.build({
