@@ -7,7 +7,6 @@ import Filter from 'npm:bad-words';
 import { capitalize, fromCamelCase } from '../shared/text.ts';
 import { resetRoles } from './set-role-info.ts';
 
-
 import { accounts } from './manager/accounts.ts';
 import { roles } from './manager/roles.ts';
 import { statuses } from './manager/status.ts';

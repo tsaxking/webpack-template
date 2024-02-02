@@ -460,7 +460,7 @@ router.post('/all', (req, res) => {
                     email: true,
                     memberInfo: true,
                     permissions: true,
-                    id: true
+                    id: true,
                 })
             ),
         );
