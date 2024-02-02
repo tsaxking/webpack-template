@@ -121,29 +121,32 @@ export class Email {
                 throw new Error('Unable to get email template');
             }
 
-            const html = r.isOk() ? r.value : r.error;
+            if (r.isOk()) {
+                const html = r.value;
+                const mailOptions = {
+                    from: env.SENDGRID_DEFAULT_FROM,
+                    to,
+                    subject,
+                    html,
+                    attachments,
+                };
+    
+                return new Promise((resolve) => {
+                    transporter.sendMail(
+                        mailOptions,
+                        (err: Error, info: { response: string }) => {
+                            if (err) {
+                                console.error(err);
+                            } else {
+                                console.log('Email sent: ' + info.response);
+                                resolve(info);
+                            }
+                        },
+                    );
+                });
+            }
 
-            const mailOptions = {
-                from: env.SENDGRID_DEFAULT_FROM,
-                to,
-                subject,
-                html,
-                attachments,
-            };
-
-            return new Promise((resolve) => {
-                transporter.sendMail(
-                    mailOptions,
-                    (err: Error, info: { response: string }) => {
-                        if (err) {
-                            console.error(err);
-                        } else {
-                            console.log('Email sent: ' + info.response);
-                            resolve(info);
-                        }
-                    },
-                );
-            });
+            throw r.error;
         } catch (e) {
             error('Unable to send email:', e);
         }
