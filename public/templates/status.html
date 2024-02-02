@@ -11,11 +11,15 @@
     <body>
         <div class="container">
             <div class="row">
-                <h1 class="text-center"><span id="code">{{ code }}</span>: {{ title }}</h1>
+                <h1 class="text-center">
+                    <span id="code">{{ code }}</span>: {{ title }}
+                </h1>
 
                 <!-- Instructions -->
                 <div class="col-12">
-                    <h2 class="text-center" id="instructions-title">Instructions</h2>
+                    <h2 class="text-center" id="instructions-title">
+                        Instructions
+                    </h2>
                     <p id="instructions">{{ instructions }}</p>
                     <small id="code500" class="d-none">
                         All "5xx" errors are logged and reported to admins. If
@@ -25,15 +29,19 @@
                     <script>
                         const c = document.getElementById('code');
                         if (c.innerText.startsWith('5')) {
-                            document.getElementById('code500').classList.remove('d-none');
+                            document
+                                .getElementById('code500')
+                                .classList.remove('d-none');
                         }
 
                         const i = document.getElementById('instructions');
                         if (i.innerText === '') {
-                            document.getElementById('instructions-title').classList.add('d-none');
+                            document
+                                .getElementById('instructions-title')
+                                .classList.add('d-none');
                             i.classList.add('d-none');
                         }
-                    </script> 
+                    </script>
                 </div>
 
                 <div class="col-12">

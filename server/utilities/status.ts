@@ -221,7 +221,7 @@ export class Status {
     get html() {
         return getTemplateSync('status', {
             ...this.json,
-            page: env.TITLE || 'My App'
+            page: env.TITLE || 'My App',
             // data: this.data ? JSON.stringify(this.data) : 'No data provided.',
         });
     }

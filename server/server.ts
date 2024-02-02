@@ -185,7 +185,7 @@ app.get('/*', (req, res, next) => {
 
 app.get('/dashboard/admin', Role.allowRoles('admin'), (_req, res) => {
     res.sendTemplate('entries/admin');
-})
+});
 
 app.route('/admin', admin);
 

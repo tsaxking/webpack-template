@@ -66,7 +66,6 @@ export class Account extends Cache<AccountEvents> {
         phoneNumber: '',
     });
 
-
     /**
      * Current account, if any
      * @date 2/1/2024 - 12:54:21 AM
@@ -162,7 +161,6 @@ export class Account extends Cache<AccountEvents> {
             throw res.error;
         });
     }
-
 
     /**
      * Account id

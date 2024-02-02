@@ -84,7 +84,11 @@ router.post<{
 
         console.log('prevUrl', req.session.prevUrl);
 
-        res.sendStatus('account:logged-in', { username }, req.session.prevUrl || '/home');
+        res.sendStatus(
+            'account:logged-in',
+            { username },
+            req.session.prevUrl || '/home',
+        );
     },
 );
 
@@ -140,8 +144,6 @@ router.get('/sign-out', (req, res) => {
     req.session.signOut();
     res.redirect('/home');
 });
-
-
 
 // req.session.account is always available when Account.allowRoles/Permissions is used
 // however, typescript doesn't know that, so we have to cast it
@@ -304,7 +306,6 @@ router.post<{
             });
         }
         res.sendStatus(('role:' + status) as StatusId, { accountId, role });
-
     },
 );
 
@@ -343,7 +344,6 @@ router.post<{
         }
 
         res.sendStatus(('role:' + status) as StatusId, { accountId, roleId });
-
     },
 );
 

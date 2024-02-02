@@ -130,7 +130,7 @@ export class Email {
                     html,
                     attachments,
                 };
-    
+
                 return new Promise((resolve) => {
                     transporter.sendMail(
                         mailOptions,
