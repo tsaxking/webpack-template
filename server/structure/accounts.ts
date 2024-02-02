@@ -219,7 +219,7 @@ export default class Account {
      * @param {...string[]} permission
      * @returns {ServerFunction<any>}
      */
-    static allowPermissions(...permission: string[]): ServerFunction {
+    static allowPermissions(...permission: Permission[]): ServerFunction {
         return (req, res, next) => {
             const { session } = req;
             const { account } = session;
