@@ -4,7 +4,7 @@
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>sfzMusic: Documentation</title>
+        <title>{{ title }}: Documentation</title>
         <link
             rel="stylesheet"
             href="https://fonts.googleapis.com/icon?family=Material+Icons"
@@ -17,18 +17,18 @@
         <!-- <cstr cstr-type="repeat" id="topScriptsRepeat">
         <script src="{path}"></script>
     </cstr> -->
-        <h1 class="text-center">sfzMusic: Documentation</h1>
+        <h1 class="text-center">{{ title }}: Documentation</h1>
         <h2>Table of Contents</h2>
         <ul>
             <cstr cstr-type="repeat" id="contents">
-                <li><a href="#{id}">#{title}</a></li>
+                <li><a href="#{id}">#{{ header }}</a></li>
             </cstr>
         </ul>
         <main>
             <div class="container-fluid">
                 <cstr cstr-type="repeat" id="sections">
-                    <h2 id="#{id}" class="text-center">{title}</h2>
-                    <div class="container">{content}</div>
+                    <h2 id="#{id}" class="text-center">{{ header }}</h2>
+                    <div class="container">{{ content }}</div>
                 </cstr>
             </div>
         </main>

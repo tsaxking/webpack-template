@@ -276,6 +276,7 @@ export class Res {
                 'Content-Type': fileTypeHeaders[filetype] || 'text/plain',
             },
         });
+        // console.log(this);
         this._setCookie(res);
         this.resolve?.(res);
 

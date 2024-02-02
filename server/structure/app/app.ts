@@ -505,8 +505,8 @@ export class App {
                         if (!res.fulfilled) {
                             // there was no response
                             resolve();
-                            return res.reject?.(
-                                `No response to ${req.method}: ${req.pathname}`,
+                            return console.error(
+                                `No response was sent for request [${req.method}] ${req.pathname}`,
                             );
                         }
 
@@ -515,12 +515,11 @@ export class App {
                     }
 
                     let ranNext = false;
-
                     req.params = extractParams(fn.path, req.pathname);
 
-                    const next = (): void => {
-                        runFn(i + 1);
+                    const next = async () => {
                         ranNext = true;
+                        resolve(await runFn(i + 1));
                     };
 
                     try {
@@ -564,6 +563,7 @@ export class App {
 
                 await res.promise
                     .then((response: Response) => {
+                        // console.log('Response:', response);
                         resolve(response);
                     })
                     .catch((e: Error) => {

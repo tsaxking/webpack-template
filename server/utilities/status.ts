@@ -11,6 +11,7 @@ import { Next, ServerFunction } from '../structure/app/app.ts';
 import { Req } from '../structure/app/req.ts';
 import { Res } from '../structure/app/res.ts';
 import { Result } from '../../shared/attempt.ts';
+import env from './env.ts';
 
 /**
  * Status class, used to send pre-made status messages to the client
@@ -220,7 +221,8 @@ export class Status {
     get html() {
         return getTemplateSync('status', {
             ...this.json,
-            data: this.data ? JSON.stringify(this.data) : 'No data provided.',
+            page: env.TITLE || 'My App'
+            // data: this.data ? JSON.stringify(this.data) : 'No data provided.',
         });
     }
 
@@ -239,7 +241,7 @@ export class Status {
             code: this.code,
             instructions: this.instructions,
             data: JSON.parse(this.data || '{}'),
-            redirect: this.redirect,
+            redirect: this.redirect || '',
             color: this.color,
         };
     }

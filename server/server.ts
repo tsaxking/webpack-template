@@ -174,14 +174,18 @@ app.route('/account', account);
 
 app.use('/*', Account.autoSignIn(env.AUTO_SIGN_IN));
 
-app.get('/*', (req, res, next) => {
-    if (!req.session?.accountId) {
-        req.session!.prevUrl = req.url;
-        return res.redirect('/account/sign-in');
-    }
+// app.get('/*', (req, res, next) => {
+//     if (!req.session?.accountId) {
+//         req.session!.prevUrl = req.url;
+//         return res.redirect('/account/sign-in');
+//     }
 
-    next();
-});
+//     next();
+// });
+
+app.get('/dashboard/admin', Role.allowRoles('admin'), (_req, res) => {
+    res.sendTemplate('entries/admin');
+})
 
 app.route('/admin', admin);
 
@@ -229,6 +233,6 @@ app.final<{
     });
 
     if (!res.fulfilled) {
-        return res.sendStatus('page:not-found', { page: req.url });
+        res.sendStatus('page:not-found');
     }
 });
