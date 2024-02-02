@@ -1,7 +1,8 @@
 import os from 'https://deno.land/x/dos@v0.11.0/mod.ts';
 import * as blog from 'https://deno.land/x/blog@0.3.3/deps.ts';
 import path from 'node:path';
-import { error } from './terminal-logging.ts';
+// import { error } from './terminal-logging.ts';
+import { config } from 'https://deno.land/x/dotenv/mod.ts';
 
 /**
  * Makes paths consistent across platforms
@@ -236,21 +237,11 @@ export const extname = (path: string) => {
  */
 const env: {
     [key: string]: string | undefined;
-} = Deno.env.toObject();
+} = {};
 
-// force load from .env file because Deno.env.toObject() doesn't always read it the first time
-try {
-    const file = resolve(__root, './.env');
-    const data = Deno.readTextFileSync(file);
-    const lines = data.split('\n');
-    for (const line of lines) {
-        const [key, value] = line.split('=');
-        env[key.trim()] = value.replace(/"/g, '').replace(/'/g, '').trim();
-    }
-} catch {
-    error(
-        'Unable to read .env file, please make sure it exists and is formatted correctly.',
-    );
-}
+Object.assign(env, config());
+Object.assign(env, Deno.env.toObject());
+
+console.log(env);
 
 export default env;
