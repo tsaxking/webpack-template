@@ -5,6 +5,18 @@ import {
     addRole,
 } from '../../../../scripts/set-role-info.ts';
 
+try {
+    console.log('Creating Permissions table if it does not exist');
+    DB.unsafe.run(`
+    CREATE TABLE IF NOT EXISTS Permissions (
+        permission TEXT NOT NULL,
+        description TEXT NOT NULL
+    );
+`);
+} catch {
+    console.log('Permissions table already exists or something went wrong');
+}
+
 const permissions = DB.unsafe.all('SELECT * FROM Permissions') as {
     roleId: string;
     permission: string;
