@@ -463,6 +463,20 @@ export function formatBytes(
     };
 }
 
+export const readFileSync = (file: string): Result<string, FileError> => {
+    return attempt(() => {
+        const p = filePathBuilder(file, '', '');
+        return Deno.readTextFileSync(p);
+    }, matchFileError);
+};
+
+export const readFile = (file: string): Promise<Result<string, FileError>> => {
+    return attemptAsync(() => {
+        const p = filePathBuilder(file, '', '');
+        return Deno.readTextFile(p);
+    }, matchFileError);
+};
+
 /**
  * Types of logs
  * @date 10/12/2023 - 3:24:47 PM
