@@ -61,92 +61,137 @@ const createEnv = () => {
         }
     };
 
-    setKey(
-        'PORT',
-        'Port: (default: 3000)',
-        '3000',
-        (i) => +i > 0 && +i < 65535,
-        true,
-    );
-    setKey(
-        'SOCKET_PORT',
-        'Session Port: (default: 3001)',
-        '3001',
-        (i) => +i > 0 && +i < 65535,
-        true,
-    );
-    setKey(
-        'ENVIRONMENT',
-        'Environment: (default: dev)',
-        'dev',
-        (i) => ['dev', 'prod'].includes(i),
-        true,
-    );
-    setKey(
-        'DOMAIN',
-        'Domain: (default: localhost)',
-        'http://localhost:' + values['PORT'],
-        (i) => i.length > 0,
-        true,
-    );
-    setKey(
-        'SOCKET_DOMAIN',
-        'Socket Domain: (default: localhost)',
-        'http://localhost:' + values['SOCKET_PORT'],
-        (i) => i.length > 0,
-        true,
-    );
-    setKey(
-        'TITLE',
-        'Title: (default: My App)',
-        'My App',
-        (i) => i.length > 0,
-        true,
-    );
-    setKey(
-        'SENDGRID_API_KEY',
-        'Sendgrid API Key: (no default)',
-        '',
-        undefined,
-        true,
-    );
-    setKey(
-        'SENDGRID_DEFAULT_FROM',
-        'Sendgrid Default From: (no default)',
-        '',
-        undefined,
-        true,
-    );
-    setKey(
-        'SEND_STATUS_EMAILS',
-        'Send Status Emails: (default: false) (y/n)',
-        'FALSE',
-        (i) => ['y', 'n'].includes(i),
-        true,
-    );
-    setKey('AUTO_SIGN_IN', 'Auto Sign In: (no default)', '', undefined, true);
-    setKey('TBA_KEY', 'TBA Key: (no default)', '', undefined, true);
-    setKey(
-        'DATABASE_LINK',
-        'Database Link: (default: main)',
-        'main',
-        (i) => i.length > 0,
-        true,
-    );
-    setKey(
-        'RANDOM_KEY_AUTH',
-        'Random Key Auth: (no default)',
-        '',
-        undefined,
-        true,
-    );
-    setKey(
-        'RANDOM_KEY_LINK',
-        'Random Key Link: (no default)',
-        '',
-        undefined,
-        true,
-    );
+    // APP
+    {
+        setKey(
+            'PORT',
+            'Port: (default: 3000)',
+            '3000',
+            (i) => +i > 0 && +i < 65535,
+            true,
+        );
+        setKey(
+            'SOCKET_PORT',
+            'Session Port: (default: 3001)',
+            '3001',
+            (i) => +i > 0 && +i < 65535,
+            true,
+        );
+        setKey(
+            'ENVIRONMENT',
+            'Environment: (default: dev)',
+            'dev',
+            (i) => ['dev', 'prod'].includes(i),
+            true,
+        );
+        setKey(
+            'DOMAIN',
+            'Domain: (default: localhost)',
+            'http://localhost:' + values['PORT'],
+            (i) => i.length > 0,
+            true,
+        );
+        setKey(
+            'SOCKET_DOMAIN',
+            'Socket Domain: (default: localhost)',
+            'http://localhost:' + values['SOCKET_PORT'],
+            (i) => i.length > 0,
+            true,
+        );
+        setKey(
+            'TITLE',
+            'Title: (default: My App)',
+            'My App',
+            (i) => i.length > 0,
+            true,
+        );
+        setKey(
+            'AUTO_SIGN_IN',
+            'Auto Sign In: (no default)',
+            '',
+            undefined,
+            true,
+        );
+    }
+
+    // API KEYS
+    {
+        setKey(
+            'SENDGRID_API_KEY',
+            'Sendgrid API Key: (no default)',
+            '',
+            undefined,
+            true,
+        );
+        setKey(
+            'SENDGRID_DEFAULT_FROM',
+            'Sendgrid Default From: (no default)',
+            '',
+            undefined,
+            true,
+        );
+        setKey(
+            'SEND_STATUS_EMAILS',
+            'Send Status Emails: (default: false) (y/n)',
+            'FALSE',
+            (i) => ['y', 'n'].includes(i),
+            true,
+        );
+        setKey('TBA_KEY', 'TBA Key: (no default)', '', undefined, true);
+        setKey(
+            'RANDOM_KEY_AUTH',
+            'Random Key Auth: (no default)',
+            '',
+            undefined,
+            true,
+        );
+        setKey(
+            'RANDOM_KEY_LINK',
+            'Random Key Link: (no default)',
+            '',
+            undefined,
+            true,
+        );
+    }
+
+    // DATABASE
+    {
+        setKey(
+            'DATABASE_USER',
+            'Database User: (default user)',
+            'user',
+            (i) => i.length > 0,
+            true,
+        );
+        setKey(
+            'DATABASE_PASSWORD',
+            'Database Password: (default 1234)',
+            '1234',
+            (i) => i.length > 0,
+            true,
+        );
+        setKey(
+            'DATABASE_NAME',
+            'Database Name: (default template1)',
+            'template1',
+            (i) => i.length > 0,
+            true,
+        );
+        setKey(
+            'DATABASE_HOST',
+            'Database Host: (default localhost)',
+            'localhost',
+            (i) => i.length > 0,
+            true,
+        );
+        setKey(
+            'DATABASE_PORT',
+            'Database Port: (default 5432)',
+            '5432',
+            (i) => i.length > 0,
+            true,
+        );
+    }
 
     const e = Object.keys(values)
         .map((key) => `${key} = '${values[key]}'`)
