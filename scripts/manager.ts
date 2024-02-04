@@ -153,6 +153,83 @@ export const selectFile = async (
     return data;
 };
 
+export const selectDir = async (
+    dir: string,
+    message = 'Select a directory',
+): Promise<Result<string>> => {
+    const root = relative(__root, dir);
+    // dir = root;
+    // console.log({ dir });
+    // return attemptAsync(async () =>  {
+    //     return '';
+    // });
+    const dirIcon = '📁';
+    const rootTest = (file: string) => {
+        const rel = relative(dir, file);
+        return !rel.startsWith('..');
+    };
+
+    const run = async (dir: string): Promise<string | null> => {
+        const entries = Array.from(Deno.readDirSync(dir)).filter(e => e.isDirectory);
+        entries.push({
+            name: '..',
+            isDirectory: true,
+            isFile: false,
+            isSymlink: false,
+        });
+        entries.unshift({
+            name: '[Select this directory]',
+            isDirectory: false,
+            isFile: false,
+            isSymlink: false,
+        });
+
+        const data = await select(
+            message,
+            entries.map((e) => ({
+                name: e.isDirectory
+                    ? `${dirIcon} ${e.name}`
+                    : `${dirIcon} ${e.name}`,
+                value: e,
+            })),
+        );
+
+        if (data) {
+            if (data.isDirectory) {
+                return run(`${dir}/${data.name}`);
+            } else {
+                // if they reached this point, they selected the current directory
+                if (!rootTest(dir)) {
+                    console.log(`Invalid directory, the directory must be in ${root}`);
+                    return run(dir);
+                }
+
+                return resolve(dir);
+            }
+        }
+
+        return null;
+    };
+
+
+    const data = await attemptAsync(async () => {
+        const res = await run(resolve(dir));
+        if (res) {
+            return relative(__root, res);
+        } else {
+            throw new Error('no-dir');
+        }
+    });
+
+    if (data.isOk()) console.log(data.value);
+    else console.error(data.error);
+
+    return data;
+};
+
+
+
+
 export const main = async () => {
     title('Welcome to the Task Manager!');
     const exit = () => {
@@ -215,7 +292,7 @@ export const main = async () => {
         makeObj('Roles', roles, icons.role),
         makeObj('Statuses', statuses, icons.status),
         makeObj('Permissions', permissions, icons.permission),
-        // makeObj('Databases', databases, icons.database),
+        makeObj('Databases', databases, icons.database),
         {
             name: `${icons.exit} Exit`,
             value: exit,

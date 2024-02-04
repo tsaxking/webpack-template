@@ -14,7 +14,7 @@ import {
 import { Next } from './app/app.ts';
 import { Req } from './app/req.ts';
 import { Res } from './app/res.ts';
-import { env } from '../../client/utilities/env.ts';
+import env from '../../server/utilities/env.ts';
 
 export enum MemberReturnStatus {
     invalidBio = 'invalidBio',
