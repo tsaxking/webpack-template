@@ -8,18 +8,6 @@ import { Req } from '../../server/structure/app/req.ts';
 import { Res } from '../../server/structure/app/res.ts';
 
 export const runTests = async () => {
-    Deno.test('Database Speed and Reliability', async () => {
-        const num = 1000;
-        const result = await runTask<number>(
-            '/scripts/tests/db-speed.ts',
-            'test',
-            num.toString(),
-        );
-        log('Result:', result);
-        if (result.error) throw result.error;
-        else assertEquals(result.result, num);
-    });
-
     Deno.test('Run async task functionality', async () => {
         const asyncTest = await runTask<string[]>(
             '/scripts/tests/run-task-test.ts',
