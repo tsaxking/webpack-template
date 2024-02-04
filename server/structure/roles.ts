@@ -70,9 +70,11 @@ export default class Role {
 
     static async getAllPermissions(): Promise<Permission[]> {
         const res = await DB.all('permissions/all');
-        if (res.isOk()) return res.value.map(
-            (p: RolePermission) => p.permission as Permission,
-        );
+        if (res.isOk()) {
+            return res.value.map(
+                (p: RolePermission) => p.permission as Permission,
+            );
+        }
         return [];
     }
 
@@ -195,7 +197,9 @@ export default class Role {
             roleId: this.id,
         });
         if (data.isOk()) {
-            return data.value.map((d: RolePermission) => d.permission) as Permission[];
+            return data.value.map((d: RolePermission) =>
+                d.permission
+            ) as Permission[];
         }
         return [];
     }
@@ -214,7 +218,13 @@ export default class Role {
         });
     }
 
-    delete() {
+    async delete() {
+        // Remove all permissions
+        const permissions = await this.getPermissions();
+        for (const permission of permissions) {
+            this.removePermission(permission);
+        }
+
         DB.run('roles/delete', {
             id: this.id,
         });

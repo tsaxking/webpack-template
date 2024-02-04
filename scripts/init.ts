@@ -211,6 +211,6 @@ const setPermissions = () => {
 
 const vals = createEnv();
 
-await init(vals['DATABASE_LINK'] as string);
+await init();
 
 setPermissions();

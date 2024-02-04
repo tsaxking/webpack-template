@@ -272,6 +272,9 @@ export class Session {
         this.save();
     }
 
+    // for caching
+    private $account?: Account;
+
     /**
      * The account object, if the user is signed in
      * @date 10/12/2023 - 3:13:57 PM
@@ -280,8 +283,11 @@ export class Session {
      * @type {(Account | null)}
      */
     async getAccount(): Promise<Account | undefined> {
+        if (this.$account) return this.$account;
         if (!this.accountId) return;
-        return Account.fromId(this.accountId);
+        const a = await Account.fromId(this.accountId);
+        this.$account = a;
+        return a;
     }
 
     /**

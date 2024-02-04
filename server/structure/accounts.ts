@@ -120,20 +120,24 @@ export default class Account {
      * @returns {*}
      */
     static async getUnverifiedAccounts() {
-        const res = await DB.all('account/unverified')
-        
-        if (res.isOk()) return res.value.map(
-            (a: AccountObject) => new Account(a),
-        );
+        const res = await DB.all('account/unverified');
+
+        if (res.isOk()) {
+            return res.value.map(
+                (a: AccountObject) => new Account(a),
+            );
+        }
         return [];
     }
 
     static async getVerifiedAccounts() {
-        const res = await DB.all('account/verified')
-        
-        if (res.isOk()) return res.value.map(
-            (a: AccountObject) => new Account(a),
-        );
+        const res = await DB.all('account/verified');
+
+        if (res.isOk()) {
+            return res.value.map(
+                (a: AccountObject) => new Account(a),
+            );
+        }
         return [];
     }
 
@@ -199,7 +203,9 @@ export default class Account {
      * @param {string} key
      * @returns {(Account|null)}
      */
-    static async fromVerificationKey(key: string): Promise<Account | undefined> {
+    static async fromVerificationKey(
+        key: string,
+    ): Promise<Account | undefined> {
         const res = await DB.get('account/from-verification-key', {
             verification: key,
         });
@@ -216,7 +222,9 @@ export default class Account {
      * @param {string} key
      * @returns {(Account|null)}
      */
-    static async fromPasswordChangeKey(key: string): Promise<Account | undefined> {
+    static async fromPasswordChangeKey(
+        key: string,
+    ): Promise<Account | undefined> {
         const res = await DB.get('account/from-password-change', {
             passwordChange: key,
         });
@@ -774,7 +782,9 @@ export default class Account {
             picture: this.picture,
             email: include?.email ? this.email : undefined,
             roles: include?.roles ? await this.getRoles() : [],
-            memberInfo: include?.memberInfo ? await this.getMemberInfo() : undefined,
+            memberInfo: include?.memberInfo
+                ? await this.getMemberInfo()
+                : undefined,
             permissions: include?.permissions ? this.getPermissions : [],
             id: include?.id ? this.id : undefined,
             verified: this.verified,
@@ -894,7 +904,8 @@ export default class Account {
      */
     async getPermissions(): Promise<Permission[]> {
         const roles = await this.getRoles();
-        return (await Promise.all(roles.map((role) => role.getPermissions()))).flat();
+        return (await Promise.all(roles.map((role) => role.getPermissions())))
+            .flat();
     }
 
     /**
@@ -1139,7 +1150,7 @@ export default class Account {
     async setSettings(settings: unknown) {
         return attemptAsync(async () => {
             const str = JSON.stringify(settings);
-    
+
             DB.run('account/save-settings', {
                 accountId: this.id,
                 settings: str,

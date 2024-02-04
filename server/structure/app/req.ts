@@ -123,7 +123,7 @@ export class Req<T = unknown> {
         public readonly req: Request,
         info: Deno.ServeHandlerInfo,
         public readonly io: Server,
-        public readonly session: Session
+        public readonly session: Session,
     ) {
         this.url = req.url;
         this.method = req.method;

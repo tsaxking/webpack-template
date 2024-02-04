@@ -78,7 +78,6 @@ export const restore = (
             return;
         }
 
-
         return;
     }
 
@@ -94,7 +93,6 @@ export const restore = (
             const [M_, m_, p_] = versionData.split('-').map((v) => parseInt(v));
 
             if (M_ === M && m_ === m && p_ === p) {
-
                 return;
             }
         }

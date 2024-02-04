@@ -17,7 +17,7 @@ export const detect = (...keys: string[]): ServerFunction => {
     return (req, res, next) => {
         for (const key of keys) {
             if (filter.isProfane(req.body ? req.body[key] : '')) {
-                return res.sendStatus('profanity');
+                return res.sendStatus('profanity:detected');
             }
         }
         next();

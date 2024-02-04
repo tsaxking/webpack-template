@@ -72,7 +72,9 @@ export class DB {
             // for each match, replace it with a $n
             for (let i = 0; i < matches.length; i++) {
                 query = query.replaceAll(matches[i], `$${i + 1}`);
-                newArgs.push(args[0] ? args[0][matches[i].replace(/:/g, '')] : args[i]);
+                newArgs.push(
+                    args[0] ? args[0][matches[i].replace(/:/g, '')] : args[i],
+                );
             }
             return [query, newArgs];
         }
@@ -82,7 +84,7 @@ export class DB {
 
     private static version?: [number, number, number];
 
-    static async getVersion(): Promise<[number, number, number]>{
+    static async getVersion(): Promise<[number, number, number]> {
         if (DB.version) return DB.version;
 
         const v = await DB.get('db/get-version');
@@ -308,8 +310,12 @@ await DB.connect()
             log('Connected to the database');
         } else {
             error('FATAL:', result.error);
-            error('You may need to ensure that your .env file has the correct database information or you may not be connected to the internet.');
-            error('If you believe this is a bug, please report it to the admin');
+            error(
+                'You may need to ensure that your .env file has the correct database information or you may not be connected to the internet.',
+            );
+            error(
+                'If you believe this is a bug, please report it to the admin',
+            );
             Deno.exit(1);
         }
     });

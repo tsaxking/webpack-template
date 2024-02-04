@@ -4,13 +4,12 @@ import { selectAccount } from './accounts.ts';
 import { confirm, repeatPrompt, select } from '../prompt.ts';
 import { attemptAsync, Result } from '../../shared/check.ts';
 import { addPermissions, removePermissions } from './permissions.ts';
-import { addRole, removeRole } from '../set-role-info.ts';
 
 export const selectRole = async (
     message = 'Select a role',
 ): Promise<Result<Role>> => {
     return attemptAsync(async () => {
-        const roles = Role.all();
+        const roles = await Role.all();
         if (!roles.length) {
             throw new Error('no-role');
         }
@@ -26,34 +25,40 @@ export const selectRole = async (
 };
 
 export const createRole = async () => {
-    const roleName = repeatPrompt(
+    const name = repeatPrompt(
         'Enter the new role name',
         undefined,
         (data) => !Role.fromName(data),
         false,
     );
-    const roleDescription = repeatPrompt('Enter the role description');
-    const roleRank = +repeatPrompt(
+    const description = repeatPrompt('Enter the role description');
+    const rank = +repeatPrompt(
         'Enter the role rank',
         undefined,
         (data) => !isNaN(parseInt(data)),
         false,
     );
 
-    addRole(roleName, roleDescription, roleRank);
+    Role.new(name, description, rank);
 
-    backToMain(`Role ${roleName} created`);
+    backToMain(`Role ${name} created`);
 };
 
 export const deleteRole = async () => {
     const res = await selectRole();
     if (res.isOk()) {
+        if (!res.value) {
+            return backToMain(
+                'Failure to find role (this is a bug, please report)',
+            );
+        }
+
         const isGood = await confirm(
             `Are you sure you want to delete the role ${res.value.name}?`,
         );
 
         if (isGood) {
-            removeRole(res.value.id);
+            res.value.delete();
             backToMain(`Role ${res.value.name} deleted`);
         } else {
             backToMain('Role not deleted');
@@ -72,7 +77,9 @@ export const addRoleToAccount = async () => {
             const account = accountRes.value;
             const role = roleRes.value;
 
-            if (account.roles.some((r) => r.name === role.name)) {
+            const roles = await account.getRoles();
+
+            if (roles.some((r) => r.name === role.name)) {
                 backToMain(
                     `Account ${account.username} already has role ${role.name}`,
                 );
@@ -93,7 +100,7 @@ export const removeRoleFromAccount = async () => {
 
     if (accountRes.isOk()) {
         const account = accountRes.value;
-        const roles = account.roles;
+        const roles = await account.getRoles();
         if (!roles.length) {
             backToMain(`Account ${account.username} has no roles`);
         } else {

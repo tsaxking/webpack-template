@@ -8,7 +8,7 @@ export const selectAccount = async (
     message = 'select an account',
 ): Promise<Result<Account>> => {
     return attemptAsync(async () => {
-        const accounts = Account.all;
+        const accounts = await Account.getAll();
         if (!accounts.length) {
             throw new Error('no-account');
         }
@@ -24,7 +24,7 @@ export const selectAccount = async (
 };
 
 export const verifyAccount = async () => {
-    const accounts = Account.unverifiedAccounts;
+    const accounts = await Account.getUnverifiedAccounts();
     if (!accounts.length) return backToMain('No accounts to verify');
 
     const account = await select<Account>(
@@ -47,7 +47,7 @@ export const verifyAccount = async () => {
 };
 
 export const unverifyAccount = async () => {
-    const accounts = Account.verifiedAccounts;
+    const accounts = await Account.getVerifiedAccounts();
     if (!accounts.length) return backToMain('No accounts to unverify');
 
     const account = await select<Account>(
@@ -120,7 +120,13 @@ export const createAccount = async () => {
         false,
     );
 
-    const a = Account.create(username, password, email, firstName, lastName);
+    const a = await Account.create(
+        username,
+        password,
+        email,
+        firstName,
+        lastName,
+    );
 
     if (a === 'created') {
         backToMain(`Account ${username} created`);

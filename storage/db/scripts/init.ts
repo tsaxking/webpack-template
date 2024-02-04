@@ -9,8 +9,7 @@ import { DB } from '../../../server/utilities/databases.ts';
  * Returns the current database version
  * @date 12/7/2023 - 1:37:31 PM
  */
-export const getDBVersion = async (
-): Promise<[number, number, number]> => {
+export const getDBVersion = async (): Promise<[number, number, number]> => {
     try {
         return DB.getVersion();
     } catch {

@@ -471,8 +471,6 @@ export class App {
             s = Session.fromSessObj(obj);
         }
 
-
-
         return new Promise<Response>(async (resolve, _reject) => {
             const url = new URL(denoReq.url, this.domain);
 
@@ -504,7 +502,9 @@ export class App {
 
             // log(`[${denoReq.method}] ${denoReq.url}`, fns);
 
-            if (!s) throw new Error('No session. This should not have happened');
+            if (!s) {
+                throw new Error('No session. This should not have happened');
+            }
 
             const req = new Req(denoReq, info, this.io, s as Session);
             const res = new Res(this, req);
