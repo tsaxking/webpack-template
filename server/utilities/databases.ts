@@ -85,7 +85,6 @@ export class DB {
         });
     }
 
-
     private static parse(
         query: string,
         args: Parameter[],
@@ -119,28 +118,35 @@ export class DB {
             return [major, minor, patch];
         }
         // database is not initialized
-        return [0, 0, 0];
+        return [-1, -1, -1];
     }
 
     static async setVersion(v: Version): Promise<Result<unknown>> {
-        const res = await DB.unsafe.run(
-            `
-            DELETE FROM Version;
-            INSERT INTO Version (major, minor, patch) VALUES (
-                :major,
-                :minor,
-                :patch
-            );
-        `,
-            {
-                major: v[0],
-                minor: v[1],
-                patch: v[2],
-            },
-        );
+        console.log('Setting version to', v.join('.'));
+        const [major, minor, patch] = v;
 
-        if (res.isOk()) DB.version = v;
-        return res;
+        const del = await DB.unsafe.run('DELETE FROM Version');
+
+        if (del.isOk()) {
+            const res = await DB.unsafe.run(
+                `
+                INSERT INTO Version (major, minor, patch)
+                VALUES (:major, :minor, :patch)
+            `,
+                {
+                    major,
+                    minor,
+                    patch,
+                },
+            );
+
+            if (res.isOk()) DB.version = v;
+            else console.log('Error setting version', res.error);
+            return res;
+        } else {
+            console.log('Error deleting version', del.error);
+            return del;
+        }
     }
 
     static async latestVersion(): Promise<Version> {
@@ -149,7 +155,7 @@ export class DB {
             return versions.value[versions.value.length - 1];
         }
         return [0, 0, 0];
-    } 
+    }
 
     static async hasVersion(v: Version): Promise<boolean> {
         // checks if the database is at least the version provided
@@ -168,9 +174,9 @@ export class DB {
                 console.log('Database already initialized');
                 return;
             }
-    
+
             const initQuery = await readFile('storage/db/queries/db/init.sql');
-    
+
             if (initQuery.isOk()) {
                 const res = await DB.unsafe.run(initQuery.value);
                 if (res.isOk()) {
@@ -191,14 +197,15 @@ export class DB {
             const versions = await readDir('storage/db/queries/db/versions');
             if (versions.isOk()) {
                 return versions.value.map((v) => {
-                    const [major, minor, patch] = v.name.replace('.sql', '').split(
-                        '-',
-                    ).map(Number);
+                    const [major, minor, patch] = v.name.replace('.sql', '')
+                        .split(
+                            '-',
+                        ).map(Number);
                     return [major, minor, patch];
                 }).sort((a, b) => {
                     const [aM, am, ap] = a;
                     const [bM, bm, bp] = b;
-    
+
                     if (aM !== bM) {
                         return aM - bM;
                     }
@@ -214,38 +221,41 @@ export class DB {
 
     static async runUpdate(version: Version): Promise<Result<boolean>> {
         return attemptAsync(async () => {
-            console.log('Updating database to version', version);
+            console.log('Updating database to version', version.join('.'));
             const updateQuery = await readFile(
                 `storage/db/queries/db/versions/${version.join('-')}.sql`,
             );
-    
+
             if (updateQuery.isOk()) {
                 const currentVersion = await DB.getVersion();
                 await DB.makeBackup();
-    
+
                 const res = await DB.unsafe.run(updateQuery.value);
                 if (res.isOk()) {
-                    console.log('Database updated to version', version);
-    
+                    console.log(
+                        'Database updated to version',
+                        version.join('.'),
+                    );
+
                     const script = `storage/db/scripts/versions/${
                         version.join('-')
                     }.ts`;
                     // see if update script exists
                     const scriptExists = await exists(script);
-    
+
                     if (scriptExists) {
                         const scriptRes = await runTask(script);
                         if (scriptRes.isErr()) {
                             console.log(
                                 'Error running update script',
-                                version,
+                                version.join('.'),
                                 scriptRes.error,
                             );
                             await DB.restoreBackup(currentVersion);
                             throw scriptRes.error;
                         }
                     }
-    
+
                     DB.setVersion(version);
                     return true;
                 } else {
@@ -293,7 +303,10 @@ export class DB {
         if (versions.isOk()) {
             for (const version of versions.value) {
                 if (await DB.hasVersion(version)) {
-                    console.log('Database is at least version', version);
+                    console.log(
+                        'Database is at least version',
+                        version.join('.'),
+                    );
                 } else {
                     const res = await DB.runUpdate(version);
                     if (res.isErr()) {
@@ -309,14 +322,22 @@ export class DB {
         }
     }
 
+    static async getTables(): Promise<Result<string[]>> {
+        return attemptAsync(async () => {
+            const res = await DB.unsafe.all<{ table_name: string }>(
+                `
+                SELECT table_name
+                FROM information_schema.tables
+                ORDER BY table_name;
+            `,
+            );
 
-
-
-
-
-
-
-
+            if (res.isOk()) {
+                return res.value.map((r) => r.table_name);
+            }
+            throw res.error;
+        });
+    }
 
     // queries
     /**
@@ -336,8 +357,6 @@ export class DB {
         return attemptAsync(async () => {
             const sql = readFileSync('/storage/db/queries/' + type + '.sql');
             if (sql.isOk()) {
-                // TODO: may need to do some type checking and parsing here
-                // This will likely parse the sql's :variable into $1, $2, etc. or ? for postgres to use
                 return [sql.value, args] as [string, QParams<T>];
             } else {
                 throw new Error('Unable to read query file: ' + type);
@@ -366,7 +385,7 @@ export class DB {
             if (q.isErr()) throw q.error;
 
             const [sql, newArgs] = q.value;
-            const result = await DB.db.queryObject(sql, ...newArgs);
+            const result = await DB.db.queryObject(sql, newArgs);
             if (result.warnings.length) {
                 log('Database warnings:', result.warnings);
             }
