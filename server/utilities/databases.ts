@@ -313,7 +313,7 @@ export class DB {
             for (const version of versions.value) {
                 if (await DB.hasVersion(version)) {
                     console.log(
-                        'Database is at least version',
+                        'Database already has updated to or past version',
                         version.join('.'),
                     );
                 } else {
