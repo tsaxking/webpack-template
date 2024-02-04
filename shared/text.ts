@@ -80,4 +80,4 @@ export const toByteString = (byte: number): string => {
     return `${(byte / sizes[Object.keys(sizes)[i]]).toFixed(2)} ${
         Object.keys(sizes)[i]
     }`;
-}
+};

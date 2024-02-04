@@ -8,9 +8,6 @@ const size = 1024 * 1024; // 1MB
 // create a 1MB array
 const createArray = () => new Array(size).fill(0);
 
-
-
-
 let runs = 0;
 const runTest = () => {
     runs++;

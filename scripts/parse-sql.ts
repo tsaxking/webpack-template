@@ -24,6 +24,10 @@ BIGINT => number
 MEDIUMINT => number
 */
 
+import { relative, resolve } from '../server/utilities/env.ts';
+import { confirm } from './prompt.ts';
+
+
 type Primitive =
     | 'string'
     | 'number'
@@ -228,9 +232,13 @@ const convertToTs = (tables: {
     return ts;
 };
 
-const parseExecQuery = (sql: string, tables: {
-    [key: string]: Table;
-}, queryName: string): [string, string | undefined] | undefined => {
+const parseExecQuery = (
+    sql: string,
+    tables: {
+        [key: string]: Table;
+    },
+    queryName: string,
+): [string, string | undefined, string, string | undefined] | undefined => {
     if (sql.includes('INNER JOIN')) {
         console.log('INNER JOIN not supported: ', queryName);
         // TODO: add support for INNER JOIN
@@ -275,11 +283,13 @@ const parseExecQuery = (sql: string, tables: {
         const upd = /UPDATE/i;
         const del = /DELETE(\s+)FROM/i;
         const sel = /SELECT/i;
+        // const ijn = /INNER(\s+)JOIN/i;
 
         const isInsert = ins.test(sql);
         const isUpdate = upd.test(sql);
         const isDel = del.test(sql);
         const isSelect = sel.test(sql);
+        // const isIjn = ijn.test(sql);
 
         if (isInsert) {
             const name = tableName(sql);
@@ -292,7 +302,7 @@ const parseExecQuery = (sql: string, tables: {
             }
             ts += '};';
 
-            return [ts, undefined];
+            return [ts, undefined, `Insert_${queryName}`, undefined];
         }
 
         if (isUpdate) {
@@ -311,7 +321,7 @@ const parseExecQuery = (sql: string, tables: {
                 s.replace(/=|\s/g, '')
             );
 
-            let ts = `export type Update_${queryName} = `;
+            let ts = `\nexport type Update_${queryName} = `;
             const _ts = ts;
 
             let usesVars = false,
@@ -362,7 +372,7 @@ const parseExecQuery = (sql: string, tables: {
                 ts += '};';
             }
 
-            return [ts, undefined];
+            return [ts, undefined, `Update_${queryName}`, undefined];
         }
 
         if (isDel) {
@@ -380,7 +390,7 @@ const parseExecQuery = (sql: string, tables: {
                 s.replace(/=|\s/g, '')
             );
 
-            let ts = `export type Delete_${queryName} = `;
+            let ts = `\nexport type Delete_${queryName} = `;
             const _ts = ts;
 
             let usesVars = false,
@@ -428,7 +438,7 @@ const parseExecQuery = (sql: string, tables: {
                 ts += '};';
             }
 
-            return [ts, undefined];
+            return [ts, undefined, `Delete_${queryName}`, undefined];
         }
 
         if (isSelect) {
@@ -446,7 +456,7 @@ const parseExecQuery = (sql: string, tables: {
                 s.replace(/=|\s/g, '')
             );
 
-            let ts = `export type Select_${queryName} = `;
+            let ts = `\nexport type Select_${queryName} = `;
             const _ts = ts;
             let usesVars = false,
                 uses$ = false;
@@ -497,7 +507,7 @@ const parseExecQuery = (sql: string, tables: {
             let returnMatch = firstMatch(sql.match(betweenSelectAndFrom));
             returnMatch = returnMatch.replace(/SELECT|FROM|\s/g, '');
             const returns = returnMatch.split(',');
-            let returnTs = `export type Return_${queryName} = {\n`;
+            let returnTs = `\nexport type Return_${queryName} = {\n`;
             if (returns[0] === '*') {
                 for (const [col, type] of Object.entries(table)) {
                     if (!col) continue;
@@ -505,7 +515,12 @@ const parseExecQuery = (sql: string, tables: {
                 }
                 returnTs += '};';
 
-                return [ts, returnTs];
+                return [
+                    ts,
+                    returnTs,
+                    `Select_${queryName}`,
+                    `Return_${queryName}`,
+                ];
             }
             for (const r of returns) {
                 if (!r) continue;
@@ -513,7 +528,7 @@ const parseExecQuery = (sql: string, tables: {
             }
             returnTs += '};';
 
-            return [ts, returnTs];
+            return [ts, returnTs, `Select_${queryName}`, `Return_${queryName}`];
         }
     } catch {
         return undefined; // probably is using some inner join or something
@@ -534,7 +549,10 @@ const recurse = (dir: string) => {
     for (const entry of entries) {
         if (entry.isFile) {
             const sql = Deno.readTextFileSync(`${dir}/${entry.name}`);
-            queries.push([removeComments(sql), dir + '/' + entry.name]);
+            queries.push([
+                removeComments(sql),
+                relative('storage/db/queries', dir + '/' + entry.name),
+            ]);
         }
         if (entry.isDirectory) {
             // if (entry.name === 'versions') continue;
@@ -552,22 +570,88 @@ const tables = parseTableSql(queries.map((q) => q[0]).join('\n\n'));
 
 // console.log(tables);
 
-let ts = convertToTs(tables);
+let allTypes = convertToTs(tables);
+let importTs = '';
+let queryTs = '';
+allTypes += '\n\n// Queries\n\n';
+
+
+const queriesDir = 'scripts';
+const typesDir = './';
+let num = 0;
+
+
+
+const doesExist = (num: number) => {
+    try {
+        Deno.statSync(
+            resolve(queriesDir, num ? `queries-${num}.ts` : 'queries.ts'),
+        );
+        return true;
+    } catch {
+        return false;
+    }
+};
+
+while (doesExist(num)) {
+    num++;
+}
+
+const queriesName = num ? `./queries-${num}.ts` : './queries.ts';
+const tablesName = num ? `./tables-${num}.ts` : './tables.ts';
+
+if (num) {
+    const res = await confirm(
+        'It looks like you have multiple queries files. Would you like to create a new one? (this will not delete the old ones, just create a new one with an incremented number at the end of the name)',
+    );
+    if (!res) {
+        console.log('Aborting...');
+        Deno.exit();
+    }
+}
 
 for (const query of queries) {
     const name = makeTSFriendly(query[1].replace('.sql', ''));
     const parsed = parseExecQuery(query[0], tables, name);
     if (parsed) {
-        const [exec, ret] = parsed;
-        ts += exec;
-        if (ret) ts += ret;
+        const [exec, ret, execName, retName] = parsed;
+        if (retName) {
+            importTs +=
+                `import { ${execName}, ${retName} } from '${relative(
+                    resolve(queriesDir, queriesName),
+                    resolve(typesDir, tablesName),
+                ).slice(1)}';\n`;
+        } else {
+            importTs += `import { ${execName} } from '${relative(
+                resolve(queriesDir, queriesName),
+                resolve(typesDir, tablesName),
+            ).slice(1)}';\n`;
+        }
+        allTypes += exec;
+        queryTs += `
+            '${query[1].replace('.sql', '')}': [
+                [
+                    ${execName}
+                ],
+                ${retName ? retName : 'unknown'}
+            ]
+        `;
+        if (ret) allTypes += ret;
     }
 
-    ts += '\n\n';
+    allTypes += '\n\n';
 }
 
-ts = ts.replace(/{}/g, 'Record<string, unknown>');
+allTypes = allTypes.replace(/{}/g, 'Record<string, unknown>');
 
-// TODO: create a file for all queries
 
-// Deno.writeTextFileSync('test.ts', `// This file was generated by a script, please do not modify it. If you see any problems, please raise an issue on https://github.com/tsaxking/webpack-template/issues\n\n` + ts);
+Deno.writeTextFileSync(
+    resolve(typesDir, tablesName),
+    `// This file was generated by a script, please do not modify it. If you see any problems, please raise an issue on https://github.com/tsaxking/webpack-template/issues\n\n// TABLES:\n\n` +
+        allTypes,
+);
+Deno.writeTextFileSync(
+    resolve(queriesDir, queriesName),
+    '// This file was generated by a script, please do not modify it. If you see any problems, please raise an issue on https://github.com/tsaxking/webpack-template/issues\n\n' +
+        importTs + '\n\nexport type Queries = {\n' + queryTs + '\n};',
+);
