@@ -1,6 +1,6 @@
 import { repeatPrompt } from './prompt.ts';
 import { __root, resolve } from '../server/utilities/env.ts';
-import { DB } from '../server/utilities/databases.ts';
+import { runTask } from '../server/utilities/run-task.ts';
 
 const runPrompt = (
     message: string,
@@ -190,4 +190,10 @@ const createEnv = () => {
 
 createEnv();
 
-await DB.runAllUpdates();
+if (Deno.args.includes('--db')) {
+    // this will run the database setup.
+    // You cannot import DB because github actions will not have access to the database.
+    const res = await runTask('/server/utilities/databases.ts');
+    if (res.isOk()) console.log(res.value);
+    else console.error(res.error);
+}

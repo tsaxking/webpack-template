@@ -533,9 +533,10 @@ export class DB {
 // when the program exits, close the database
 // this is to prevent the database from being locked after the program exits
 
-await DB.connect().then((result) => {
+await DB.connect().then(async (result) => {
     if (result.isOk()) {
         log('Connected to the database');
+        await DB.runAllUpdates();
     } else {
         error('FATAL:', result.error);
         error(
