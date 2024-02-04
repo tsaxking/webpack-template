@@ -1,19 +1,20 @@
 {
     "tasks": {
-        "start": "deno task build && deno run --allow-all --unstable-ffi ./server/server.ts --no-console --console-to-csv",
-        "dev": "deno task init && deno run --allow-all --unstable-ffi --watch ./server/server.ts --allow-stdin --watch",
+        "start": "deno task build && deno run --allow-all ./server/server.ts --no-console --console-to-csv",
+        "dev": "deno task init && deno run --allow-all --watch ./server/server.ts --allow-stdin --watch",
         "build": "deno task init --default && deno run --allow-all ./server/bundler.ts",
-        "init": "deno run --allow-all --allow-run --unstable-ffi ./scripts/init.ts",
-        "update": "deno run --allow-all --allow-run --unstable-ffi ./storage/db/scripts/init.ts --update",
+        "init": "deno run --allow-all --allow-run ./scripts/init.ts",
+        "update": "deno run --allow-all --allow-run ./storage/db/scripts/init.ts --update",
         "entry": "deno run --allow-all ./scripts/add-entry.ts prompt",
         "status": "deno run --allow-all ./scripts/add-status.ts status",
         "socket": "deno run --allow-all ./scripts/add-status.ts socket",
         "type-route": "deno run --allow-all ./scripts/type-route.ts",
-        "discord": "deno run --allow-all --unstable-ffi ./server/utilities/discord/discord.ts",
-        "test": "deno test --allow-all --unstable-ffi --no-check ./scripts/test.ts",
+        "discord": "deno run --allow-all ./server/utilities/discord/discord.ts",
+        "test": "deno test --allow-all --no-check ./scripts/test.ts",
         "view-paths": "deno run --allow-all ./scripts/view-paths.ts",
         "tree": "deno run --allow-all ./scripts/dir-tree.ts",
-        "manager": "deno run --allow-all --unstable-ffi ./scripts/manager.ts"
+        "manager": "deno run --allow-all ./scripts/manager.ts",
+        "parse-sql": "deno run --allow-all ./scripts/parse-sql.ts"
     },
     "compilerOptions": {
         "noImplicitAny": false,

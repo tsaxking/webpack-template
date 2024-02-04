@@ -1,7 +1,10 @@
-import env, { __root, resolve } from './env.ts';
-import { Database, Statement } from 'https://deno.land/x/sqlite3@0.9.1/mod.ts';
+import env, { __root } from './env.ts';
+import { Client } from 'https://deno.land/x/postgres@v0.17.0/mod.ts';
 import { error, log } from './terminal-logging.ts';
-import { Queries } from './sql-types.ts';
+import { Queries } from './queries.ts';
+import { exists, readDir, readFile, readFileSync } from './files.ts';
+import { attemptAsync, Result } from '../../shared/check.ts';
+import { runTask } from './run-task.ts';
 
 /**
  * The name of the main database
@@ -9,22 +12,33 @@ import { Queries } from './sql-types.ts';
  *
  * @type {*}
  */
-const { DATABASE_LINK } = env;
+const {
+    DATABASE_USER,
+    DATABASE_PASSWORD,
+    DATABASE_NAME,
+    DATABASE_HOST,
+    DATABASE_PORT,
+} = env;
+{
+    const cannotConnect =
+        'FATAL: Cannot connect to the database, please check your .env file |';
 
-/**
- * Directory where the databases are stored
- * @date 10/12/2023 - 3:24:19 PM
- *
- * @type {*}
- */
-const dbDir = resolve(__root, './storage/db');
-/**
- * Main database
- * @date 10/12/2023 - 3:24:19 PM
- *
- * @type {Database}
- */
-export const MAIN = new Database(resolve(dbDir, DATABASE_LINK + '.db'));
+    if (!DATABASE_USER) {
+        throw new Error(`${cannotConnect} DATABASE_USER is not defined`);
+    }
+    if (!DATABASE_PASSWORD) {
+        throw new Error(`${cannotConnect} DATABASE_PASSWORD is not defined`);
+    }
+    if (!DATABASE_NAME) {
+        throw new Error(`${cannotConnect} DATABASE_NAME is not defined`);
+    }
+    if (!DATABASE_HOST) {
+        throw new Error(`${cannotConnect} DATABASE_HOST is not defined`);
+    }
+    if (!DATABASE_PORT) {
+        throw new Error(`${cannotConnect} DATABASE_PORT is not defined`);
+    }
+}
 
 /**
  * Acceptable types for a parameter
@@ -32,7 +46,18 @@ export const MAIN = new Database(resolve(dbDir, DATABASE_LINK + '.db'));
  *
  * @typedef {Parameter}
  */
-type Parameter = string | number | boolean | null;
+type Parameter =
+    | string
+    | number
+    | boolean
+    | null
+    | {
+        [key: string]: string | number | boolean | null;
+    };
+
+type QParams<T extends keyof Queries> = Queries[T][0];
+
+export type Version = [number, number, number];
 
 /**
  * Database class
@@ -51,110 +76,301 @@ export class DB {
      * @readonly
      * @type {*}
      */
-    static readonly db = MAIN;
+    static readonly db = new Client({
+        user: DATABASE_USER,
+        database: DATABASE_NAME,
+        hostname: DATABASE_HOST,
+        password: DATABASE_PASSWORD,
+        port: Number(DATABASE_PORT),
+    });
 
-    static get latestVersion(): [number, number, number] {
-        const versions = Deno.readDirSync('storage/db/queries/db/versions');
-        const [latest] = Array.from(versions).sort((a, b) => {
-            const [M1, m1, p1] = a.name
-                .replace('.sql', '')
-                .split('-')
-                .map((n) => parseInt(n));
-            const [M2, m2, p2] = b.name
-                .replace('.sql', '')
-                .split('-')
-                .map((n) => parseInt(n));
-
-            if (M1 > M2) return -1;
-            if (M1 < M2) return 1;
-            if (m1 > m2) return -1;
-            if (m1 < m2) return 1;
-            if (p1 > p2) return -1;
-            if (p1 < p2) return 1;
-            return 0;
+    static async connect() {
+        return attemptAsync(async () => {
+            return DB.db.connect();
         });
-        return latest.name
-            .replace('.sql', '')
-            .split('-')
-            .map((n) => parseInt(n)) as [number, number, number];
     }
 
-    /**
-     * Path to the database
-     * @date 1/9/2024 - 12:08:08 PM
-     *
-     * @static
-     * @readonly
-     * @type {*}
-     */
-    static get path() {
-        return resolve(dbDir, env.DATABASE_LINK + '.db');
+    private static parse(
+        query: string,
+        args: Parameter[],
+    ): [string, Parameter[]] {
+        // get every :variable in the query
+        const matches = query.match(/:\w+/g);
+        const newArgs: Parameter[] = [];
+        if (matches) {
+            // for each match, replace it with a $n
+            for (let i = 0; i < matches.length; i++) {
+                query = query.replaceAll(matches[i], `$${i + 1}`);
+                newArgs.push(
+                    args[0] ? args[0][matches[i].replace(/:/g, '')] : args[i],
+                );
+            }
+            return [query, newArgs];
+        }
+
+        return [query, args];
     }
 
-    /**
-     * Database version
-     * @date 1/9/2024 - 12:08:08 PM
-     *
-     * @static
-     * @readonly
-     * @type {[number, number, number]}
-     */
-    static get version(): [number, number, number] {
-        const v = DB.get('db/get-version');
-        return [v?.major ?? 0, v?.minor ?? 0, v?.patch ?? 0];
+    // version info
+    private static version?: Version;
+
+    static async getVersion(): Promise<Version> {
+        if (DB.version) return DB.version;
+
+        const v = await DB.get('db/get-version');
+        if (v.isOk() && v.value) {
+            const { major, minor, patch } = v.value;
+            return [major, minor, patch];
+        }
+        // database is not initialized
+        return [-1, -1, -1];
     }
 
-    /**
-     * Checks if the database has a version
-     *
-     * @static
-     * @param {[number, number, number]} v
-     * @returns {boolean}
-     */
-    static hasVersion(v: [number, number, number]) {
-        const [M, m, p] = v;
-        const [M2, m2, p2] = DB.version;
+    static async setVersion(v: Version): Promise<Result<unknown>> {
+        console.log('Setting version to', v.join('.'));
+        const [major, minor, patch] = v;
 
-        if (M2 > M) return true;
-        if (M2 === M && m2 > m) return true;
-        if (M2 === M && m2 === m && p2 >= p) return true;
+        const del = await DB.unsafe.run('DELETE FROM Version');
+
+        if (del.isOk()) {
+            const res = await DB.unsafe.run(
+                `
+                INSERT INTO Version (major, minor, patch)
+                VALUES (:major, :minor, :patch)
+            `,
+                {
+                    major,
+                    minor,
+                    patch,
+                },
+            );
+
+            if (res.isOk()) DB.version = v;
+            else console.log('Error setting version', res.error);
+            return res;
+        } else {
+            console.log('Error deleting version', del.error);
+            return del;
+        }
     }
 
-    /**
-     * Checks if the database is a specific version
-     *
-     * @static
-     * @param {[number, number, number]} v
-     * @returns {boolean}
-     */
-    static isVersion(v: [number, number, number]) {
-        return DB.version.join('.') === v.join('.');
+    static async latestVersion(): Promise<Version> {
+        const versions = await DB.getUpdates();
+        if (versions.isOk()) {
+            return versions.value[versions.value.length - 1];
+        }
+        return [0, 0, 0];
     }
 
+    static async hasVersion(v: Version): Promise<boolean> {
+        // checks if the database is at least the version provided
+        const [major, minor, patch] = v;
+        const [dbMajor, dbMinor, dbPatch] = await DB.getVersion();
+        return (
+            major < dbMajor ||
+            (major === dbMajor && minor < dbMinor) ||
+            (major === dbMajor && minor === dbMinor && patch <= dbPatch)
+        );
+    }
+
+    static async init(): Promise<Result<void>> {
+        return attemptAsync(async () => {
+            if (await DB.hasVersion([0, 0, 0])) {
+                console.log('Database already initialized');
+                return;
+            }
+
+            const initQuery = await readFile('storage/db/queries/db/init.sql');
+
+            if (initQuery.isOk()) {
+                const res = await DB.unsafe.run(initQuery.value);
+                if (res.isOk()) {
+                    console.log('Database initialized');
+                } else {
+                    console.log('Error initializing database', res.error);
+                    throw res.error;
+                }
+            } else {
+                console.log('Error reading init query', initQuery.error);
+                throw initQuery.error;
+            }
+        });
+    }
+
+    static async getUpdates(): Promise<Result<Version[]>> {
+        return attemptAsync(async () => {
+            const versions = await readDir('storage/db/queries/db/versions');
+            if (versions.isOk()) {
+                return versions.value
+                    .map((v) => {
+                        const [major, minor, patch] = v.name
+                            .replace('.sql', '')
+                            .split('-')
+                            .map(Number);
+                        return [major, minor, patch];
+                    })
+                    .sort((a, b) => {
+                        const [aM, am, ap] = a;
+                        const [bM, bm, bp] = b;
+
+                        if (aM !== bM) {
+                            return aM - bM;
+                        }
+                        if (am !== bm) {
+                            return am - bm;
+                        }
+                        return ap - bp;
+                    }) as Version[];
+            }
+            return [];
+        });
+    }
+
+    static async runUpdate(version: Version): Promise<Result<boolean>> {
+        return attemptAsync(async () => {
+            console.log('Updating database to version', version.join('.'));
+            const updateQuery = await readFile(
+                `storage/db/queries/db/versions/${version.join('-')}.sql`,
+            );
+
+            if (updateQuery.isOk()) {
+                const currentVersion = await DB.getVersion();
+                await DB.makeBackup();
+
+                const res = await DB.unsafe.run(updateQuery.value);
+                if (res.isOk()) {
+                    console.log(
+                        'Database updated to version',
+                        version.join('.'),
+                    );
+
+                    const script = `storage/db/scripts/versions/${
+                        version.join(
+                            '-',
+                        )
+                    }.ts`;
+                    // see if update script exists
+                    const scriptExists = await exists(script);
+
+                    if (scriptExists) {
+                        const scriptRes = await runTask(script);
+                        if (scriptRes.isErr()) {
+                            console.log(
+                                'Error running update script',
+                                version.join('.'),
+                                scriptRes.error,
+                            );
+                            await DB.restoreBackup(currentVersion);
+                            throw scriptRes.error;
+                        }
+                    }
+
+                    DB.setVersion(version);
+                    return true;
+                } else {
+                    console.log(
+                        'Error updating database to version',
+                        version,
+                        res.error,
+                    );
+                    await DB.restoreBackup(currentVersion);
+                    throw res.error;
+                }
+            } else {
+                console.log('Error reading update query', updateQuery.error);
+                throw updateQuery.error;
+            }
+        });
+    }
+
+    static async makeBackup(): Promise<Result<boolean>> {
+        return attemptAsync(async () => {
+            throw new Error('Not implemented');
+        });
+    }
+
+    static async restoreBackup(_version: Version): Promise<Result<boolean>> {
+        return attemptAsync(async () => {
+            throw new Error('Not implemented');
+        });
+    }
+
+    static async setIntervals() {
+        // backup each day, delete after 30 days
+        return attemptAsync(async () => {
+            throw new Error('Not implemented');
+        });
+    }
+
+    static async runAllUpdates() {
+        const res = await DB.init();
+        if (res.isErr()) {
+            console.log('Error initializing database', res.error);
+            return;
+        }
+        const versions = await DB.getUpdates();
+        if (versions.isOk()) {
+            for (const version of versions.value) {
+                if (await DB.hasVersion(version)) {
+                    console.log(
+                        'Database already has updated to or version',
+                        version.join('.'),
+                    );
+                } else {
+                    const res = await DB.runUpdate(version);
+                    if (res.isErr()) {
+                        console.log(
+                            'There was an error updating the database, it may be corrupted. Please restore from backup, edit the update file, then try again.',
+                        );
+                        break;
+                    }
+                }
+            }
+        } else {
+            console.log('Error getting updates', versions.error);
+        }
+    }
+
+    static async getTables(): Promise<Result<string[]>> {
+        return attemptAsync(async () => {
+            const res = await DB.unsafe.all<{ table_name: string }>(
+                `
+                SELECT table_name
+                FROM information_schema.tables
+                ORDER BY table_name;
+            `,
+            );
+
+            if (res.isOk()) {
+                return res.value.map((r) => r.table_name);
+            }
+            throw res.error;
+        });
+    }
+
+    // queries
     /**
      * Prepares a query
+     *
      * @date 10/12/2023 - 3:24:19 PM
      *
      * @private
      * @static
      * @template {keyof Queries} T
      * @param {T} type
-     * @returns {Statement}
      */
-    private static prepare<T extends keyof Queries>(type: T): Statement {
-        try {
-            const data = Deno.readFileSync(
-                resolve(__root, './storage/db/queries/', String(type) + '.sql'),
-            );
-            const sql = new TextDecoder('utf-8').decode(data);
-
-            return MAIN.prepare(sql);
-        } catch (err) {
-            error('Error preparing query:', type, err);
-            throw new Error(
-                'Database error, above error was thrown when preparing query',
-            );
-        }
+    private static async prepare<T extends keyof Queries>(
+        type: T,
+        ...args: QParams<T> extends [undefined] ? [] : QParams<T>
+    ): Promise<Result<[string, Queries[T][0]]>> {
+        return attemptAsync(async () => {
+            const sql = readFileSync('/storage/db/queries/' + type + '.sql');
+            if (sql.isOk()) {
+                return [sql.value, args] as [string, QParams<T>];
+            } else {
+                throw new Error('Unable to read query file: ' + type);
+            }
+        });
     }
 
     /**
@@ -170,83 +386,26 @@ export class DB {
      * @returns {(Queries[T][1] | undefined)}
      */
     private static runQuery<T extends keyof Queries>(
-        type: 'run' | 'get' | 'all',
         query: T,
-        ...args: Queries[T][0]
-    ): Queries[T][1] | undefined {
-        const q = DB.prepare(query);
+        ...args: QParams<T> extends [undefined] ? [] : QParams<T>
+    ): Promise<Result<Queries[T][1][]>> {
+        return attemptAsync(async () => {
+            const q = await DB.prepare(query, ...args);
+            if (q.isErr()) throw q.error;
 
-        const recurse = (i: number) => {
-            if (i > 10) {
-                throw new Error(
-                    'Attempted to run the query 10 times, all failed',
-                );
+            const [sql, newArgs] = q.value;
+            const result = await DB.db.queryObject(sql, newArgs);
+            if (result.warnings.length) {
+                log('Database warnings:', result.warnings);
             }
-            try {
-                return q[type](...args);
-            } catch (error) {
-                if (error.message.includes('database is locked')) {
-                    return setTimeout(() => recurse(i + 1));
-                } else {
-                    throw error;
-                }
-            }
-        };
 
-        let d: Queries[T][1] | Queries[T][1][] | number | undefined;
-        try {
-            d = recurse(0);
-        } catch (e) {
-            log('Error in query', query);
-            throw e; // want to throw the error because it's a database error
-        }
-        return d;
+            return result.rows;
+        });
     }
 
-    /**
-     * Runs a query without preparing it (only used for in-line queries)
-     * @date 1/9/2024 - 12:08:08 PM
-     *
-     * @private
-     * @static
-     * @param {('run' | 'get' | 'all')} type
-     * @param {string} query
-     * @param {...Parameter[]} args
-     * @returns {unknown}
-     */
-    private static runUnsafeQuery(
-        type: 'run' | 'get' | 'all',
-        query: string,
-        ...args: Parameter[]
-    ) {
-        const q = MAIN.prepare(query);
-
-        const recurse = (i: number) => {
-            if (i > 10) {
-                throw new Error(
-                    'Attempted to run the query 10 times, all failed',
-                );
-            }
-            try {
-                return q[type](...args);
-            } catch (error) {
-                if (error.message.includes('database is locked')) {
-                    // wait until the event loop is free
-                    return setTimeout(() => recurse(i + 1));
-                } else {
-                    throw error;
-                }
-            }
-        };
-
-        let d: unknown;
-        try {
-            d = recurse(0);
-        } catch (e) {
-            log('Error in query', query);
-            throw e;
-        }
-        return d;
+    public static async close() {
+        log('Closing database...');
+        return DB.db.end();
     }
 
     /**
@@ -259,11 +418,15 @@ export class DB {
      * @param {...Queries[T][0]} args
      * @returns {number}
      */
-    static run<T extends keyof Queries>(
+    static async run<T extends keyof Queries>(
         type: T,
-        ...args: Queries[T][0]
-    ): number {
-        return DB.runQuery('run', type, ...args) as number;
+        ...args: QParams<T> extends [undefined] ? [] : QParams<T>
+    ): Promise<Queries[T][1]> {
+        return attemptAsync(async () => {
+            const q = await DB.runQuery(type, ...args);
+            if (q.isErr()) throw q.error;
+            return q.value[0];
+        });
     }
 
     /**
@@ -278,9 +441,13 @@ export class DB {
      */
     static get<T extends keyof Queries>(
         type: T,
-        ...args: Queries[T][0]
-    ): Queries[T][1] | undefined {
-        return DB.runQuery('get', type, ...args);
+        ...args: QParams<T> extends [undefined] ? [] : QParams<T>
+    ): Promise<Result<Queries[T][1] | undefined>> {
+        return attemptAsync(async () => {
+            const q = await DB.runQuery(type, ...args);
+            if (q.isErr()) throw q.error;
+            return q.value[0];
+        });
     }
 
     /**
@@ -295,9 +462,13 @@ export class DB {
      */
     static all<T extends keyof Queries>(
         type: T,
-        ...args: Queries[T][0]
-    ): Queries[T][1][] {
-        return DB.runQuery('all', type, ...args) as Queries[T][1][];
+        ...args: QParams<T> extends [undefined] ? [] : QParams<T>
+    ): Promise<Result<Queries[T][1][]>> {
+        return attemptAsync(async () => {
+            const q = await DB.runQuery(type, ...args);
+            if (q.isErr()) throw q.error;
+            return q.value;
+        });
     }
 
     /**
@@ -310,15 +481,50 @@ export class DB {
      * @type {{ run: (query: string, ...args: {}) => number; get: <type = unknown>(query: string, ...args: {}) => any; all: <type>(query: string, ...args: {}) => {}; }}
      */
     static get unsafe() {
+        const runUnsafe = async <T = unknown>(
+            query: string,
+            ...args: Parameter[]
+        ): Promise<Result<T[]>> => {
+            return attemptAsync(async () => {
+                const [q, p] = DB.parse(query, args);
+                const result = await DB.db.queryObject(q, p);
+                if (result.warnings.length) {
+                    log('Database warnings:', result.warnings);
+                }
+                return result.rows as T[];
+            });
+        };
+
         return {
-            run: (query: string, ...args: Parameter[]): number => {
-                return DB.runUnsafeQuery('run', query, ...args) as number;
+            run: (
+                query: string,
+                ...args: Parameter[]
+            ): Promise<Result<unknown>> => {
+                return attemptAsync(async () => {
+                    const r = await runUnsafe(query, ...args);
+                    if (r.isErr()) throw r.error;
+                    return r.value[0];
+                });
             },
-            get: <type = unknown>(query: string, ...args: Parameter[]) => {
-                return DB.runUnsafeQuery('get', query, ...args) as type;
+            get: <type = unknown>(
+                query: string,
+                ...args: Parameter[]
+            ): Promise<Result<type | undefined>> => {
+                return attemptAsync(async () => {
+                    const r = await runUnsafe(query, ...args);
+                    if (r.isErr()) throw r.error;
+                    return r.value[0] as type;
+                });
             },
-            all: <type = unknown>(query: string, ...args: Parameter[]) => {
-                return DB.runUnsafeQuery('all', query, ...args) as type[];
+            all: <type = unknown>(
+                query: string,
+                ...args: Parameter[]
+            ): Promise<Result<type[]>> => {
+                return attemptAsync(async () => {
+                    const r = await runUnsafe(query, ...args);
+                    if (r.isErr()) throw r.error;
+                    return r.value as type[];
+                });
             },
         };
     }
@@ -327,6 +533,24 @@ export class DB {
 // when the program exits, close the database
 // this is to prevent the database from being locked after the program exits
 
-globalThis.addEventListener('unload', () => {
-    MAIN.close();
+await DB.connect().then((result) => {
+    if (result.isOk()) {
+        log('Connected to the database');
+    } else {
+        error('FATAL:', result.error);
+        error(
+            'You may need to ensure that your .env file has the correct database information or you may not be connected to the internet.',
+        );
+        error('If you believe this is a bug, please report it to the admin');
+        Deno.exit(1);
+    }
+});
+
+// if the program exits, close the database
+Deno.addSignalListener('SIGINT', () => {
+    DB.close();
+});
+
+Deno.addSignalListener('SIGTERM', () => {
+    DB.close();
 });

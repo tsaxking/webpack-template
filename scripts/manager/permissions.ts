@@ -3,12 +3,21 @@ import { repeatPrompt, select } from '../prompt.ts';
 import { selectRole } from './roles.ts';
 import { Permission } from '../../shared/permissions.ts';
 import Role from '../../server/structure/roles.ts';
-import {
-    addPermission,
-    addPermissionToRole,
-    removePermission,
-    removePermissionFromRole,
-} from '../set-role-info.ts';
+import { DB } from '../../server/utilities/databases.ts';
+
+const createPermission = (perm: Permission, description: string) => {
+    // will not do anything if the permission already exists
+    DB.unsafe.run(
+        `
+        INSERT INTO permissions (name, description)
+        VALUES (?, ?)
+
+        ON CONFLICT(name) DO NOTHING
+    `,
+        perm,
+        description,
+    );
+};
 
 export const addPermissions = async () => {
     const roleRes = await selectRole('Select a role to add permissions to');
@@ -16,7 +25,7 @@ export const addPermissions = async () => {
     if (roleRes.isOk()) {
         const role = roleRes.value;
 
-        const allPerms = Role.allPermissions;
+        const allPerms = await Role.getAllPermissions();
         let perm = (await select<Permission>('Select a permission to add', [
             ...allPerms.map((p) => ({
                 name: p,
@@ -28,7 +37,7 @@ export const addPermissions = async () => {
             },
         ])) as Permission | '$$New$$';
 
-        const perms = role.getPermissions();
+        const perms = await role.getPermissions();
 
         if (perm === '$$New$$') {
             perm = repeatPrompt(
@@ -42,10 +51,10 @@ export const addPermissions = async () => {
             const description = repeatPrompt(
                 'Enter the permission description',
             );
-            addPermission(perm, description);
+            createPermission(perm, description);
         }
 
-        addPermissionToRole(role.id, perm);
+        role.addPermission(perm);
         backToMain(`Permission ${perm} added to role ${role.name}`);
     } else {
         backToMain('No roles to add permissions to');
@@ -59,7 +68,7 @@ export const removePermissions = async () => {
 
     if (roleRes.isOk()) {
         const role = roleRes.value;
-        const perms = role.getPermissions();
+        const perms = await role.getPermissions();
         if (!perms.length) {
             backToMain(`Role ${role.name} has no permissions`);
         } else {
@@ -72,8 +81,7 @@ export const removePermissions = async () => {
             );
 
             if (perm) {
-                removePermission(perm);
-                removePermissionFromRole(role.id, perm);
+                role.removePermission(perm);
                 backToMain(`Permission ${perm} removed from role ${role.name}`);
             } else {
                 backToMain('No permissions to remove');

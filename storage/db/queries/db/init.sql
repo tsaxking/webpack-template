@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS Accounts (
     emailChange TEXT,
     passwordChangeDate TEXT,
     phoneNumber TEXT,
-    created TEXT NOT NULL
+    created INTEGER NOT NULL
 );
 
 
@@ -57,7 +57,9 @@ CREATE TABLE IF NOT EXISTS Permissions (
 
 
 CREATE TABLE IF NOT EXISTS Version (
-    version INTEGER NOT NULL
+    major INTEGER NOT NULL DEFAULT 1,
+    minor INTEGER NOT NULL DEFAULT 0,
+    patch INTEGER NOT NULL DEFAULT 0
 );
 
 
@@ -72,6 +74,10 @@ CREATE TABLE IF NOT EXISTS Sessions (
     prevUrl TEXT
 );
 
+CREATE TABLE IF NOT EXISTS AccountSettings (
+    accountId TEXT NOT NULL PRIMARY KEY,
+    settings TEXT NOT NULL -- JSON
+);
 
 -- CREATE TABLE IF NOT EXISTS BlockList (
 --     ip TEXT PRIMARY KEY,
@@ -83,9 +89,12 @@ CREATE TABLE IF NOT EXISTS Sessions (
 -- Reset the version number
 DELETE FROM Version;
 
-
 INSERT INTO Version (
-    version
+    major,
+    minor,
+    patch
 ) VALUES (
-    1
+    1,
+    0,
+    0
 );

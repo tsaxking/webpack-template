@@ -123,6 +123,7 @@ export class Req<T = unknown> {
         public readonly req: Request,
         info: Deno.ServeHandlerInfo,
         public readonly io: Server,
+        public readonly session: Session,
     ) {
         this.url = req.url;
         this.method = req.method;
@@ -163,19 +164,6 @@ export class Req<T = unknown> {
             ...this.cookie,
             [name]: value,
         };
-    }
-
-    /**
-     * The session object
-     * @date 10/12/2023 - 3:02:55 PM
-     *
-     * @readonly
-     * @type {Session}
-     */
-    get session(): Session {
-        const s = Session.get(this.cookie.ssid);
-        if (!s) throw new Error('No session found for req');
-        return s;
     }
 
     /**

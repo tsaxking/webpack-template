@@ -14,6 +14,7 @@ import {
 import { Next } from './app/app.ts';
 import { Req } from './app/req.ts';
 import { Res } from './app/res.ts';
+import env from '../../server/utilities/env.ts';
 
 export enum MemberReturnStatus {
     invalidBio = 'invalidBio',
@@ -35,15 +36,15 @@ export class Member {
         next: Next,
     ) {
         const { username } = req.body;
-        const self = req.session.account;
+        const self = await req.session.getAccount();
         if (!self) return res.sendStatus('account:not-logged-in');
         if (self.username === username) return next(); // can manage self
 
         const account = await Account.fromUsername(username);
         if (!account) return res.sendStatus('account:not-found');
 
-        const selfRank = self.rank;
-        const rank = account.rank;
+        const selfRank = self.getRank;
+        const rank = account.getRank;
 
         if (selfRank < rank) return next();
 
@@ -51,7 +52,7 @@ export class Member {
     }
 
     static async isMember(req: Req, res: Res, next: Next) {
-        const { account } = req.session;
+        const account = await req.session.getAccount();
 
         if (!account) {
             req.session.prevUrl = req.pathname;
@@ -118,19 +119,18 @@ export class Member {
         return 'pending';
     }
 
-    static get(username: string): Member | null {
-        const data = DB.get('member/from-username', {
+    static async get(username: string): Promise<Member | undefined> {
+        const data = await DB.get('member/from-username', {
             username,
         });
-        if (!data) return null;
-
-        return new Member(data);
+        if (data.isOk() && data.value) return new Member(data.value);
+        return undefined;
     }
 
-    static getMembers(): Member[] {
-        const membersInfo = DB.all('member/all');
-
-        return membersInfo.map((m: MemberObj) => new Member(m));
+    static async getMembers(): Promise<Member[]> {
+        const res = await DB.all('member/all');
+        if (res.isOk()) return res.value.map((m: MemberObj) => new Member(m));
+        return [];
     }
 
     public readonly id: string;
@@ -147,7 +147,7 @@ export class Member {
         this.status = memberInfo.status;
     }
 
-    accept() {
+    async accept() {
         DB.run('member/update-status', {
             status: 'accepted',
             id: this.id,
@@ -157,11 +157,11 @@ export class Member {
 
         io?.emit('member-accepted', this.id);
 
-        const account = Account.fromId(this.id);
+        const account = await Account.fromId(this.id);
         if (!account) return;
 
         account.sendEmail(
-            'sfzMusic Membership Request Accepted',
+            `${env.TITLE} Membership Request Accepted`,
             EmailType.text,
             {
                 constructor: {
@@ -191,7 +191,7 @@ export class Member {
         this.status = 'rejected';
     }
 
-    revoke() {
+    async revoke() {
         DB.run('member/delete', {
             id: this.id,
         });
@@ -199,9 +199,9 @@ export class Member {
             id: this.id,
         });
 
-        const account = Account.fromId(this.id);
+        const account = await Account.fromId(this.id);
         if (!account) return;
-        account.sendEmail('sfzMusic Membership Revoked', EmailType.text, {
+        account.sendEmail(`${env.TITLE} Membership Revoked`, EmailType.text, {
             constructor: {
                 message:
                     'Your membership to sfzMusic has been revoked. You can no longer access the member portal.',

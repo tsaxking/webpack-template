@@ -1,24 +1,7 @@
 import { error, log } from './terminal-logging.ts';
 import { __dirname, __root, addFileProtocol, resolve } from './env.ts';
 import { spawn } from 'node:child_process';
-
-/**
- * Result of a task
- * @date 1/9/2024 - 12:33:21 PM
- *
- * @typedef {Result}
- * @template T
- */
-type Result<T> =
-    | {
-        error: Error;
-        code: number;
-    }
-    | {
-        error: null;
-        code: 0;
-        result: T;
-    };
+import { attemptAsync, Result } from '../../shared/check.ts';
 
 /**
  * Runs a deno file
@@ -32,61 +15,53 @@ export const runTask = async <T>(
     functionName?: string,
     ...args: string[]
 ): Promise<Result<T>> => {
-    return new Promise<Result<T>>((res) => {
-        import(addFileProtocol(resolve(__root, file)))
-            .then(async (module) => {
-                if (functionName) {
-                    if (typeof module[functionName] === 'function') {
-                        log('Running task:', __dirname(), file, functionName);
-                        try {
-                            const result = await module[functionName](...args); // run the function, if it's async it will wait, otherwise it will just run
-                            return res({
-                                error: null,
-                                code: 0,
-                                result: result as T,
-                            });
-                        } catch (e) {
+    return attemptAsync(async () => {
+        return new Promise<T>((res, rej) => {
+            import(addFileProtocol(resolve(__root, file)))
+                .then(async (module) => {
+                    if (functionName) {
+                        if (typeof module[functionName] === 'function') {
+                            log(
+                                'Running task:',
+                                __dirname(),
+                                file,
+                                functionName,
+                            );
+                            try {
+                                const result = await module[functionName](
+                                    ...args,
+                                ); // run the function, if it's async it will wait, otherwise it will just run
+                                return res(result as T);
+                            } catch (e) {
+                                error(
+                                    'Error running task:',
+                                    __dirname(),
+                                    'function',
+                                    functionName,
+                                    e,
+                                );
+                                return rej(e);
+                            }
+                        } else {
                             error(
                                 'Error running task:',
                                 __dirname(),
                                 'function',
                                 functionName,
-                                e,
+                                'not found',
                             );
-                            return res({
-                                error: e,
-                                code: 1,
-                            });
+                            return rej('Function not found');
                         }
-                    } else {
-                        error(
-                            'Error running task:',
-                            __dirname(),
-                            'function',
-                            functionName,
-                            'not found',
-                        );
-                        return res({
-                            error: new Error('Function not found'),
-                            code: 1,
-                        });
                     }
-                }
 
-                log('Running task:', __dirname(), file);
-                res({
-                    error: null,
-                    code: 0,
-                    result: null as T,
+                    log('Running task:', __dirname(), file);
+                    res(null as T);
+                })
+                .catch((err) => {
+                    error('Error running task:', __dirname(), err);
+                    rej(err);
                 });
-            })
-            .catch((err) => {
-                error('Error running task:', __dirname(), err);
-                res({
-                    error: err,
-                    code: 1,
-                });
-            });
+        });
     });
 };
 
@@ -99,45 +74,36 @@ export const runTask = async <T>(
 export const runCommand = async (
     command: string,
     ...args: string[]
-): Promise<Result<string>> => {
-    // TODO: make runCommand work
-    return new Promise<Result<string>>((resolve) => {
-        try {
-            // using spawn from node
-            const process = spawn(command, args, {
-                stdio: 'pipe',
-                shell: true,
-            });
+): Promise<Result<void>> => {
+    return attemptAsync(async () => {
+        return new Promise<void>((res, rej) => {
+            try {
+                // using spawn from node
+                const process = spawn(command, args, {
+                    stdio: 'pipe',
+                    shell: true,
+                });
 
-            process.stdout.on('data', (data) => {
-                console.log(`stdout: ${data}`);
-            });
+                process.stdout.on('data', (data) => {
+                    console.log(`stdout: ${data}`);
+                });
 
-            process.stderr.on('data', (data) => {
-                console.log(`stderr: ${data}`);
-            });
+                process.stderr.on('data', (data) => {
+                    console.log(`stderr: ${data}`);
+                });
 
-            process.on('close', (code) => {
-                console.log(`child process exited with code ${code}`);
+                process.on('close', (code) => {
+                    console.log(`child process exited with code ${code}`);
 
-                if (code) {
-                    resolve({
-                        error: new Error('Process exited with code ' + code),
-                        code: code,
-                    });
-                } else {
-                    resolve({
-                        error: null,
-                        code: 0,
-                        result: '',
-                    });
-                }
-            });
-        } catch (e) {
-            resolve({
-                error: e,
-                code: 1,
-            });
-        }
+                    if (code) {
+                        rej('Process exited with code ' + code);
+                    } else {
+                        res();
+                    }
+                });
+            } catch (e) {
+                rej(e);
+            }
+        });
     });
 };

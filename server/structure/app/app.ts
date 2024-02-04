@@ -13,6 +13,8 @@ import { parseCookie } from '../../../shared/cookie.ts';
 import { Req } from './req.ts';
 import { Res } from './res.ts';
 import { ReqBody } from './req.ts';
+import { DB } from '../../utilities/databases.ts';
+import { uuid } from '../../utilities/uuid.ts';
 
 /**
  * All file types that can be sent (can be expanded)
@@ -448,6 +450,27 @@ export class App {
         denoReq: Request,
         info: Deno.ServeHandlerInfo,
     ): Promise<Response> {
+        const ssid = parseCookie(denoReq.headers.get('cookie') || '').ssid;
+        let s = await Session.get(ssid);
+
+        if (!s) {
+            const id = uuid();
+            const obj = {
+                id,
+                ip: info.remoteAddr.hostname,
+                latestActivity: Date.now(),
+                accountId: '',
+                userAgent: denoReq.headers.get('user-agent') || '',
+                prevUrl: '',
+                requests: 1,
+                created: Date.now(),
+            };
+
+            await DB.run('sessions/new', obj);
+
+            s = Session.fromSessObj(obj);
+        }
+
         return new Promise<Response>(async (resolve, _reject) => {
             const url = new URL(denoReq.url, this.domain);
 
@@ -479,7 +502,11 @@ export class App {
 
             // log(`[${denoReq.method}] ${denoReq.url}`, fns);
 
-            const req = new Req(denoReq, info, this.io);
+            if (!s) {
+                throw new Error('No session. This should not have happened');
+            }
+
+            const req = new Req(denoReq, info, this.io, s as Session);
             const res = new Res(this, req);
 
             // log(parseCookie(denoReq.headers.get('cookie') || ''));
