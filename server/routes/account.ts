@@ -391,9 +391,7 @@ router.post('/get-settings', async (req, res) => {
 
     const settings = await account.getSettings();
 
-    res.json(
-        settings || [],
-    );
+    res.json(settings || []);
 });
 
 router.post('/request-password-reset', validate({}), async (req, res) => {
@@ -480,8 +478,9 @@ router.post<{
         if (account.id !== id) {
             const perms = await account.getPermissions();
             if (perms.includes('editRoles')) {
-                const permissions = await (await Account.fromId(id))
-                    ?.getPermissions();
+                const permissions = await (
+                    await Account.fromId(id)
+                )?.getPermissions();
                 if (permissions) {
                     return res.json(permissions);
                 } else {

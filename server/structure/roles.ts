@@ -120,7 +120,8 @@ export default class Role {
     static async all(): Promise<Role[]> {
         const data = await DB.all('roles/all');
         if (data.isOk()) {
-            return data.value.map((d: RoleObject) => new Role(d))
+            return data.value
+                .map((d: RoleObject) => new Role(d))
                 .sort((a: Role, b: Role) => a.rank - b.rank);
         }
 
@@ -197,8 +198,8 @@ export default class Role {
             roleId: this.id,
         });
         if (data.isOk()) {
-            return data.value.map((d: RolePermission) =>
-                d.permission
+            return data.value.map(
+                (d: RolePermission) => d.permission,
             ) as Permission[];
         }
         return [];

@@ -103,13 +103,7 @@ const createEnv = () => {
         (i) => i.length > 0,
         true,
     );
-    setKey(
-        'AUTO_SIGN_IN',
-        'Auto Sign In: (no default)',
-        '',
-        undefined,
-        true,
-    );
+    setKey('AUTO_SIGN_IN', 'Auto Sign In: (no default)', '', undefined, true);
 
     // API KEYS
     setKey(

@@ -24,10 +24,7 @@ export const buildQueries = async () => {
 };
 
 export const versionInfo = async () => {
-    const [
-        current,
-        latest,
-    ] = await Promise.all([
+    const [current, latest] = await Promise.all([
         DB.getVersion(),
         DB.latestVersion(),
     ]);
@@ -53,13 +50,17 @@ export const newVersion = async () => {
         return backToMain('Version already exists');
     }
 
-    saveFileSync(`storage/db/queries/db/versions/1-${minor}-${patch}.sql`,
-        `-- New version 1.${minor}.${patch}\n\n`);
+    saveFileSync(
+        `storage/db/queries/db/versions/1-${minor}-${patch}.sql`,
+        `-- New version 1.${minor}.${patch}\n\n`,
+    );
 
     const doScript = await confirm('Do you want a script for this version?');
     if (doScript) {
-        saveFileSync(`storage/db/scripts/versions/1-${minor}-${patch}.ts`,
-            `// New version 1.${minor}.${patch}\n\n`);
+        saveFileSync(
+            `storage/db/scripts/versions/1-${minor}-${patch}.ts`,
+            `// New version 1.${minor}.${patch}\n\n`,
+        );
     }
 
     backToMain('Version created');

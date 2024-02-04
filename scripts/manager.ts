@@ -170,8 +170,8 @@ export const selectDir = async (
     };
 
     const run = async (dir: string): Promise<string | null> => {
-        const entries = Array.from(Deno.readDirSync(dir)).filter((e) =>
-            e.isDirectory
+        const entries = Array.from(Deno.readDirSync(dir)).filter(
+            (e) => e.isDirectory,
         );
         entries.push({
             name: '..',

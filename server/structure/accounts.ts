@@ -123,9 +123,7 @@ export default class Account {
         const res = await DB.all('account/unverified');
 
         if (res.isOk()) {
-            return res.value.map(
-                (a: AccountObject) => new Account(a),
-            );
+            return res.value.map((a: AccountObject) => new Account(a));
         }
         return [];
     }
@@ -134,9 +132,7 @@ export default class Account {
         const res = await DB.all('account/verified');
 
         if (res.isOk()) {
-            return res.value.map(
-                (a: AccountObject) => new Account(a),
-            );
+            return res.value.map((a: AccountObject) => new Account(a));
         }
         return [];
     }
@@ -904,8 +900,9 @@ export default class Account {
      */
     async getPermissions(): Promise<Permission[]> {
         const roles = await this.getRoles();
-        return (await Promise.all(roles.map((role) => role.getPermissions())))
-            .flat();
+        return (
+            await Promise.all(roles.map((role) => role.getPermissions()))
+        ).flat();
     }
 
     /**

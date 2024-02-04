@@ -46,9 +46,14 @@ const {
  *
  * @typedef {Parameter}
  */
-type Parameter = string | number | boolean | null | {
-    [key: string]: string | number | boolean | null;
-};
+type Parameter =
+    | string
+    | number
+    | boolean
+    | null
+    | {
+        [key: string]: string | number | boolean | null;
+    };
 
 type QParams<T extends keyof Queries> = Queries[T][0];
 
@@ -196,24 +201,26 @@ export class DB {
         return attemptAsync(async () => {
             const versions = await readDir('storage/db/queries/db/versions');
             if (versions.isOk()) {
-                return versions.value.map((v) => {
-                    const [major, minor, patch] = v.name.replace('.sql', '')
-                        .split(
-                            '-',
-                        ).map(Number);
-                    return [major, minor, patch];
-                }).sort((a, b) => {
-                    const [aM, am, ap] = a;
-                    const [bM, bm, bp] = b;
+                return versions.value
+                    .map((v) => {
+                        const [major, minor, patch] = v.name
+                            .replace('.sql', '')
+                            .split('-')
+                            .map(Number);
+                        return [major, minor, patch];
+                    })
+                    .sort((a, b) => {
+                        const [aM, am, ap] = a;
+                        const [bM, bm, bp] = b;
 
-                    if (aM !== bM) {
-                        return aM - bM;
-                    }
-                    if (am !== bm) {
-                        return am - bm;
-                    }
-                    return ap - bp;
-                }) as Version[];
+                        if (aM !== bM) {
+                            return aM - bM;
+                        }
+                        if (am !== bm) {
+                            return am - bm;
+                        }
+                        return ap - bp;
+                    }) as Version[];
             }
             return [];
         });
@@ -238,7 +245,9 @@ export class DB {
                     );
 
                     const script = `storage/db/scripts/versions/${
-                        version.join('-')
+                        version.join(
+                            '-',
+                        )
                     }.ts`;
                     // see if update script exists
                     const scriptExists = await exists(script);
@@ -524,21 +533,18 @@ export class DB {
 // when the program exits, close the database
 // this is to prevent the database from being locked after the program exits
 
-await DB.connect()
-    .then((result) => {
-        if (result.isOk()) {
-            log('Connected to the database');
-        } else {
-            error('FATAL:', result.error);
-            error(
-                'You may need to ensure that your .env file has the correct database information or you may not be connected to the internet.',
-            );
-            error(
-                'If you believe this is a bug, please report it to the admin',
-            );
-            Deno.exit(1);
-        }
-    });
+await DB.connect().then((result) => {
+    if (result.isOk()) {
+        log('Connected to the database');
+    } else {
+        error('FATAL:', result.error);
+        error(
+            'You may need to ensure that your .env file has the correct database information or you may not be connected to the internet.',
+        );
+        error('If you believe this is a bug, please report it to the admin');
+        Deno.exit(1);
+    }
+});
 
 // if the program exits, close the database
 Deno.addSignalListener('SIGINT', () => {
