@@ -100,9 +100,11 @@ export class Session {
      * @param {string} id
      * @returns {(Session | undefined)}
      */
-    static get(id: string): Session | undefined {
-        const s = DB.get('sessions/get', { id });
-        return s ? Session.fromSessObj(s) : undefined;
+    static async get(id: string): Promise<Session | undefined> {
+        const res = await DB.get('sessions/get', { id });
+        if (res.isOk() && res.value) {
+            return Session.fromSessObj(res.value);
+        }
     }
 
     /**
@@ -277,8 +279,8 @@ export class Session {
      * @readonly
      * @type {(Account | null)}
      */
-    get account(): Account | null {
-        if (!this.accountId) return null;
+    async getAccount(): Promise<Account | undefined> {
+        if (!this.accountId) return;
         return Account.fromId(this.accountId);
     }
 
@@ -314,12 +316,12 @@ export class Session {
      * Save the session to the database
      * @date 10/12/2023 - 3:13:57 PM
      */
-    save() {
+    async save() {
         // this.account?.save();
 
-        const s = DB.get('sessions/get', { id: this.id });
+        const s = await DB.get('sessions/get', { id: this.id });
 
-        if (s) {
+        if (s.isOk() && s.value) {
             DB.run('sessions/update', {
                 id: this.id,
                 ip: this.ip || '',

@@ -2,7 +2,6 @@ import { __root, resolve } from '../../../server/utilities/env.ts';
 import { daysTimeout } from '../../../shared/sleep.ts';
 import { error, log } from '../../../server/utilities/terminal-logging.ts';
 import { getDBVersion } from './init.ts';
-import { Database } from 'https://deno.land/x/sqlite3@0.9.1/mod.ts';
 
 function makeDir() {
     try {
@@ -15,20 +14,15 @@ function makeDir() {
 
 makeDir();
 
-export const makeBackup = (db: Database) => {
+export const makeBackup = async () => {
     try {
-        const [M, ...rest] = getDBVersion(db);
+        const [M, ...rest] = await getDBVersion();
         let [m, p] = rest;
 
         if (!m) m = 0;
         if (!p) p = 0;
 
-        const v = M + '-' + m + '-' + p;
-
-        return Deno.copyFileSync(
-            db.path,
-            './storage/db/backups/v' + v + 'd' + Date.now() + '.db',
-        );
+        const _v = M + '-' + m + '-' + p;
     } catch (e) {
         error('Unable to make backup:', e);
     }
@@ -58,7 +52,6 @@ export const setIntervals = () => {
 };
 
 export const restore = (
-    db: Database,
     version?: [number, number | undefined, number | undefined],
 ) => {
     const files = Array.from(
@@ -85,10 +78,6 @@ export const restore = (
             return;
         }
 
-        Deno.copyFile(
-            resolve(__root, './storage/db/backups/' + file.name),
-            db.path,
-        );
 
         return;
     }
@@ -105,10 +94,7 @@ export const restore = (
             const [M_, m_, p_] = versionData.split('-').map((v) => parseInt(v));
 
             if (M_ === M && m_ === m && p_ === p) {
-                Deno.copyFile(
-                    resolve(__root, './storage/db/backups/' + file.name),
-                    db.path,
-                );
+
                 return;
             }
         }

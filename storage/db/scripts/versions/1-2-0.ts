@@ -30,12 +30,19 @@ try {
     console.log('Permissions table already exists or something went wrong');
 }
 
-const permissions = DB.unsafe.all('SELECT * FROM Permissions') as {
+const pRes = await DB.unsafe.all<{
     roleId: string;
     permission: string;
-}[];
+}>('SELECT * FROM Permissions');
 
-const roles = DB.all('roles/all');
+if (pRes.isErr()) throw pRes.error;
+
+const rRes = await DB.all('roles/all');
+
+if (rRes.isErr()) throw rRes.error;
+
+const permissions = pRes.value;
+const roles = rRes.value;
 
 DB.unsafe.run(`
     CREATE TABLE IF NOT EXISTS RolePermissions (
@@ -44,12 +51,12 @@ DB.unsafe.run(`
     );
 `);
 
-DB.unsafe.run(`
-ALTER TABLE Permissions ADD COLUMN description TEXT DEFAULT '';
+await DB.unsafe.run(`
+    ALTER TABLE Permissions ADD COLUMN description TEXT DEFAULT '';
 `);
 
-DB.unsafe.run(`
-ALTER TABLE Permissions DROP COLUMN roleId;
+await DB.unsafe.run(`
+    ALTER TABLE Permissions DROP COLUMN roleId;
 `);
 
 const rolePermissionsObj = {

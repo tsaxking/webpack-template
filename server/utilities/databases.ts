@@ -50,8 +50,6 @@ type Parameter = string | number | boolean | null | {
 };
 
 type QParams<T extends keyof Queries> = Queries[T][0];
-type QReturn<T extends keyof Queries> = Queries[T][1];
-type QResult<T extends keyof Queries> = Result<QReturn<T>>;
 
 /**
  * Database class
@@ -80,6 +78,20 @@ export class DB {
         }
 
         return [query, args];
+    }
+
+    private static version?: [number, number, number];
+
+    static async getVersion(): Promise<[number, number, number]>{
+        if (DB.version) return DB.version;
+
+        const v = await DB.get('db/get-version');
+        if (v.isOk() && v.value) {
+            const { major, minor, patch } = v.value;
+            return [major, minor, patch];
+        }
+        // database is not initialized
+        return [0, 0, 0];
     }
 
     /**
@@ -145,7 +157,7 @@ export class DB {
     private static runQuery<T extends keyof Queries>(
         query: T,
         ...args: QParams<T>
-    ): Promise<Result<unknown[]>> {
+    ): Promise<Result<Queries[T][1][]>> {
         return attemptAsync(async () => {
             const q = await DB.prepare(query, ...args);
             if (q.isErr()) throw q.error;
@@ -158,6 +170,11 @@ export class DB {
 
             return result.rows;
         });
+    }
+
+    public static async close() {
+        log('Closing database...');
+        return DB.db.end();
     }
 
     /**
@@ -173,7 +190,7 @@ export class DB {
     static async run<T extends keyof Queries>(
         type: T,
         ...args: QParams<T>
-    ): Promise<QResult<T>> {
+    ): Promise<Queries[T][1]> {
         return attemptAsync(async () => {
             const q = await DB.runQuery(type, ...args);
             if (q.isErr()) throw q.error;
@@ -194,7 +211,7 @@ export class DB {
     static get<T extends keyof Queries>(
         type: T,
         ...args: QParams<T>
-    ): Promise<QResult<T>> {
+    ): Promise<Result<Queries[T][1] | undefined>> {
         return attemptAsync(async () => {
             const q = await DB.runQuery(type, ...args);
             if (q.isErr()) throw q.error;
@@ -215,7 +232,7 @@ export class DB {
     static all<T extends keyof Queries>(
         type: T,
         ...args: QParams<T>
-    ): Promise<QResult<T>> {
+    ): Promise<Result<Queries[T][1][]>> {
         return attemptAsync(async () => {
             const q = await DB.runQuery(type, ...args);
             if (q.isErr()) throw q.error;
@@ -261,7 +278,7 @@ export class DB {
             get: <type = unknown>(
                 query: string,
                 ...args: Parameter[]
-            ): Promise<Result<type>> => {
+            ): Promise<Result<type | undefined>> => {
                 return attemptAsync(async () => {
                     const r = await runUnsafe(query, ...args);
                     if (r.isErr()) throw r.error;
@@ -296,3 +313,12 @@ await DB.connect()
             Deno.exit(1);
         }
     });
+
+// if the program exits, close the database
+Deno.addSignalListener('SIGINT', () => {
+    DB.close();
+});
+
+Deno.addSignalListener('SIGTERM', () => {
+    DB.close();
+});

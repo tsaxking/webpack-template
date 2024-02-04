@@ -1,26 +1,20 @@
-import env, { __root, resolve } from '../../../server/utilities/env.ts';
+import { __root, resolve } from '../../../server/utilities/env.ts';
 import { error, log } from '../../../server/utilities/terminal-logging.ts';
-import { Database } from 'https://deno.land/x/sqlite3@0.9.1/mod.ts';
 import { makeBackup, restore } from './backups.ts';
 import fs from 'node:fs';
 import { runTask } from '../../../server/utilities/run-task.ts';
+import { DB } from '../../../server/utilities/databases.ts';
 
 /**
  * Returns the current database version
  * @date 12/7/2023 - 1:37:31 PM
  */
-export const getDBVersion = (
-    db: Database,
-): [number, number | undefined, number | undefined] => {
+export const getDBVersion = async (
+): Promise<[number, number, number]> => {
     try {
-        const q = db.prepare('SELECT * FROM Version');
-        const v = q.get<Record<string, number>>();
-        if (!v) {
-            throw new Error('Database version not found');
-        }
-
-        return [v.major ? v.major : v.version, v.minor, v.patch];
+        return DB.getVersion();
     } catch {
+        log('Error getting database version');
         return [0, 0, 0];
     }
 };
@@ -29,27 +23,21 @@ export const getDBVersion = (
  * Initializes the database
  * @date 12/7/2023 - 1:37:31 PM
  */
-export const init = async (name: string) => {
-    if (!name) {
-        error('No database name provided');
-        Deno.exit();
-    }
-
-    log(`Initializing database... (${name})`);
+export const init = async () => {
+    log(`Initializing database...`);
     const filePath = './storage/db/queries/db/init.sql';
     const query = Deno.readTextFileSync(filePath);
-    const db = new Database('./storage/db/' + name + '.db');
 
-    const [M, m, p] = getDBVersion(db);
+    const [M, m, p] = await getDBVersion();
     log('Current database version:', M + '.' + m + '.' + p);
     if (!M) {
         log('Creating database...');
-        db.exec(query);
+        DB.unsafe.run(query);
     } else {
         log('Database already exists');
     }
 
-    return setVersions(db);
+    return setVersions();
 };
 
 /**
@@ -58,7 +46,7 @@ export const init = async (name: string) => {
  *
  * @async
  */
-export const setVersions = async (db: Database) => {
+export const setVersions = async () => {
     const versionDir = resolve(__root, './storage/db/queries/db/versions');
 
     const files = Array.from(Deno.readDirSync(versionDir));
@@ -90,7 +78,7 @@ export const setVersions = async (db: Database) => {
     for (const sql of files) {
         if (sql.isFile) {
             // check if version is already installed
-            const [M, m, p] = getDBVersion(db);
+            const [M, m, p] = await getDBVersion();
 
             const [_M, _m, _p] = sql.name
                 .replace('.sql', '')
@@ -141,7 +129,7 @@ export const setVersions = async (db: Database) => {
 
             log('Updating database to version', _M + '.' + _m + '.' + _p);
 
-            makeBackup(db); // make backup in case of failure
+            makeBackup(); // make backup in case of failure
 
             // retrieve and run sql file
             try {
@@ -149,10 +137,11 @@ export const setVersions = async (db: Database) => {
                     resolve(versionDir, sql.name),
                 );
 
-                db.exec(data);
+                const res = await DB.unsafe.run(data);
+                if (res.isErr()) throw res.error;
 
                 // update version
-                db.exec(`
+                await DB.unsafe.run(`
                     DELETE FROM Version;
                     INSERT INTO Version (major, minor, patch) VALUES (
                         ${_M},
@@ -166,7 +155,7 @@ export const setVersions = async (db: Database) => {
                     _M + '.' + _m + '.' + _p,
                     e,
                 );
-                restore(db, [M, m, p]);
+                restore([M, m, p]);
                 Deno.exit();
             }
 
@@ -202,7 +191,7 @@ export const setVersions = async (db: Database) => {
                     );
                     log('Script error:', status.error);
                     log('Restoring database to version', M + '.' + m + '.' + p);
-                    restore(db, [M, m, p]);
+                    restore([M, m, p]);
                     Deno.exit(status.code);
                 }
             } else {
@@ -217,4 +206,4 @@ export const setVersions = async (db: Database) => {
     }
 };
 
-if (Deno.args.includes('--update')) init(env.DATABASE_LINK as string);
+if (Deno.args.includes('--update')) init();
