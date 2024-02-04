@@ -1,7 +1,6 @@
-import { init } from '../storage/db/scripts/init.ts';
+import { main } from '../storage/db/scripts/init.ts';
 import { repeatPrompt } from './prompt.ts';
 import { __root, resolve } from '../server/utilities/env.ts';
-import { getJSONSync } from '../server/utilities/files.ts';
 
 const runPrompt = (
     message: string,
@@ -195,16 +194,6 @@ const createEnv = () => {
     return values;
 };
 
-const setPermissions = () => {
-    const rolePermissions = getJSONSync('role-info');
+createEnv();
 
-    if (rolePermissions.isOk()) {
-        // do something!
-    }
-};
-
-const vals = createEnv();
-
-await init();
-
-setPermissions();
+await main();

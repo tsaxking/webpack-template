@@ -51,6 +51,8 @@ type Parameter = string | number | boolean | null | {
 
 type QParams<T extends keyof Queries> = Queries[T][0];
 
+export type Version = [number, number, number];
+
 /**
  * Database class
  * @date 10/12/2023 - 3:24:19 PM
@@ -82,9 +84,9 @@ export class DB {
         return [query, args];
     }
 
-    private static version?: [number, number, number];
+    private static version?: Version;
 
-    static async getVersion(): Promise<[number, number, number]> {
+    static async getVersion(): Promise<Version> {
         if (DB.version) return DB.version;
 
         const v = await DB.get('db/get-version');
@@ -94,6 +96,38 @@ export class DB {
         }
         // database is not initialized
         return [0, 0, 0];
+    }
+
+    static async setVersion(v: Version): Promise<Result<unknown>> {
+        const res = await DB.unsafe.run(
+            `
+            DELETE FROM Version;
+            INSERT INTO Version (major, minor, patch) VALUES (
+                :major,
+                :minor,
+                :patch
+            );
+        `,
+            {
+                major: v[0],
+                minor: v[1],
+                patch: v[2],
+            },
+        );
+
+        if (res.isOk()) DB.version = v;
+        return res;
+    }
+
+    static async hasVersion(v: Version): Promise<boolean> {
+        // checks if the database is at least the version provided
+        const [major, minor, patch] = v;
+        const [dbMajor, dbMinor, dbPatch] = await DB.getVersion();
+        return (
+            major < dbMajor ||
+            (major === dbMajor && minor < dbMinor) ||
+            (major === dbMajor && minor === dbMinor && patch <= dbPatch)
+        );
     }
 
     /**

@@ -170,7 +170,9 @@ export const selectDir = async (
     };
 
     const run = async (dir: string): Promise<string | null> => {
-        const entries = Array.from(Deno.readDirSync(dir)).filter(e => e.isDirectory);
+        const entries = Array.from(Deno.readDirSync(dir)).filter((e) =>
+            e.isDirectory
+        );
         entries.push({
             name: '..',
             isDirectory: true,
@@ -200,7 +202,9 @@ export const selectDir = async (
             } else {
                 // if they reached this point, they selected the current directory
                 if (!rootTest(dir)) {
-                    console.log(`Invalid directory, the directory must be in ${root}`);
+                    console.log(
+                        `Invalid directory, the directory must be in ${root}`,
+                    );
                     return run(dir);
                 }
 
@@ -210,7 +214,6 @@ export const selectDir = async (
 
         return null;
     };
-
 
     const data = await attemptAsync(async () => {
         const res = await run(resolve(dir));
@@ -226,9 +229,6 @@ export const selectDir = async (
 
     return data;
 };
-
-
-
 
 export const main = async () => {
     title('Welcome to the Task Manager!');
