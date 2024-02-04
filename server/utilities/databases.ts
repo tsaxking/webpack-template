@@ -2,8 +2,9 @@ import env, { __root } from './env.ts';
 import { Client } from 'https://deno.land/x/postgres@v0.17.0/mod.ts';
 import { error, log } from './terminal-logging.ts';
 import { Queries } from './sql-types.ts';
-import { readFileSync } from './files.ts';
+import { exists, readDir, readFile, readFileSync } from './files.ts';
 import { attemptAsync, Result } from '../../shared/check.ts';
+import { runTask } from './run-task.ts';
 
 /**
  * The name of the main database
@@ -62,7 +63,29 @@ export type Version = [number, number, number];
  * @typedef {DB}
  */
 export class DB {
-    // TODO: set up parsing, if necessary
+    /**
+     * Database instance
+     * @date 1/9/2024 - 12:08:08 PM
+     *
+     * @static
+     * @readonly
+     * @type {*}
+     */
+    static readonly db = new Client({
+        user: DATABASE_USER,
+        database: DATABASE_NAME,
+        hostname: DATABASE_HOST,
+        password: DATABASE_PASSWORD,
+        port: Number(DATABASE_PORT),
+    });
+
+    static async connect() {
+        return attemptAsync(async () => {
+            return DB.db.connect();
+        });
+    }
+
+
     private static parse(
         query: string,
         args: Parameter[],
@@ -84,6 +107,7 @@ export class DB {
         return [query, args];
     }
 
+    // version info
     private static version?: Version;
 
     static async getVersion(): Promise<Version> {
@@ -119,6 +143,14 @@ export class DB {
         return res;
     }
 
+    static async latestVersion(): Promise<Version> {
+        const versions = await DB.getUpdates();
+        if (versions.isOk()) {
+            return versions.value[versions.value.length - 1];
+        }
+        return [0, 0, 0];
+    } 
+
     static async hasVersion(v: Version): Promise<boolean> {
         // checks if the database is at least the version provided
         const [major, minor, patch] = v;
@@ -130,28 +162,163 @@ export class DB {
         );
     }
 
-    /**
-     * Database instance
-     * @date 1/9/2024 - 12:08:08 PM
-     *
-     * @static
-     * @readonly
-     * @type {*}
-     */
-    static readonly db = new Client({
-        user: DATABASE_USER,
-        database: DATABASE_NAME,
-        hostname: DATABASE_HOST,
-        password: DATABASE_PASSWORD,
-        port: Number(DATABASE_PORT),
-    });
-
-    static async connect() {
+    static async init(): Promise<Result<void>> {
         return attemptAsync(async () => {
-            return DB.db.connect();
+            if (await DB.hasVersion([0, 0, 0])) {
+                console.log('Database already initialized');
+                return;
+            }
+    
+            const initQuery = await readFile('storage/db/queries/db/init.sql');
+    
+            if (initQuery.isOk()) {
+                const res = await DB.unsafe.run(initQuery.value);
+                if (res.isOk()) {
+                    console.log('Database initialized');
+                } else {
+                    console.log('Error initializing database', res.error);
+                    throw res.error;
+                }
+            } else {
+                console.log('Error reading init query', initQuery.error);
+                throw initQuery.error;
+            }
         });
     }
 
+    static async getUpdates(): Promise<Result<Version[]>> {
+        return attemptAsync(async () => {
+            const versions = await readDir('storage/db/queries/db/versions');
+            if (versions.isOk()) {
+                return versions.value.map((v) => {
+                    const [major, minor, patch] = v.name.replace('.sql', '').split(
+                        '-',
+                    ).map(Number);
+                    return [major, minor, patch];
+                }).sort((a, b) => {
+                    const [aM, am, ap] = a;
+                    const [bM, bm, bp] = b;
+    
+                    if (aM !== bM) {
+                        return aM - bM;
+                    }
+                    if (am !== bm) {
+                        return am - bm;
+                    }
+                    return ap - bp;
+                }) as Version[];
+            }
+            return [];
+        });
+    }
+
+    static async runUpdate(version: Version): Promise<Result<boolean>> {
+        return attemptAsync(async () => {
+            console.log('Updating database to version', version);
+            const updateQuery = await readFile(
+                `storage/db/queries/db/versions/${version.join('-')}.sql`,
+            );
+    
+            if (updateQuery.isOk()) {
+                const currentVersion = await DB.getVersion();
+                await DB.makeBackup();
+    
+                const res = await DB.unsafe.run(updateQuery.value);
+                if (res.isOk()) {
+                    console.log('Database updated to version', version);
+    
+                    const script = `storage/db/scripts/versions/${
+                        version.join('-')
+                    }.ts`;
+                    // see if update script exists
+                    const scriptExists = await exists(script);
+    
+                    if (scriptExists) {
+                        const scriptRes = await runTask(script);
+                        if (scriptRes.isErr()) {
+                            console.log(
+                                'Error running update script',
+                                version,
+                                scriptRes.error,
+                            );
+                            await DB.restoreBackup(currentVersion);
+                            throw scriptRes.error;
+                        }
+                    }
+    
+                    DB.setVersion(version);
+                    return true;
+                } else {
+                    console.log(
+                        'Error updating database to version',
+                        version,
+                        res.error,
+                    );
+                    await DB.restoreBackup(currentVersion);
+                    throw res.error;
+                }
+            } else {
+                console.log('Error reading update query', updateQuery.error);
+                throw updateQuery.error;
+            }
+        });
+    }
+
+    static async makeBackup(): Promise<Result<boolean>> {
+        return attemptAsync(async () => {
+            throw new Error('Not implemented');
+        });
+    }
+
+    static async restoreBackup(_version: Version): Promise<Result<boolean>> {
+        return attemptAsync(async () => {
+            throw new Error('Not implemented');
+        });
+    }
+
+    static async setIntervals() {
+        // backup each day, delete after 30 days
+        return attemptAsync(async () => {
+            throw new Error('Not implemented');
+        });
+    }
+
+    static async runAllUpdates() {
+        const res = await DB.init();
+        if (res.isErr()) {
+            console.log('Error initializing database', res.error);
+            return;
+        }
+        const versions = await DB.getUpdates();
+        if (versions.isOk()) {
+            for (const version of versions.value) {
+                if (await DB.hasVersion(version)) {
+                    console.log('Database is at least version', version);
+                } else {
+                    const res = await DB.runUpdate(version);
+                    if (res.isErr()) {
+                        console.log(
+                            'There was an error updating the database, it may be corrupted. Please restore from backup, edit the update file, then try again.',
+                        );
+                        break;
+                    }
+                }
+            }
+        } else {
+            console.log('Error getting updates', versions.error);
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+    // queries
     /**
      * Prepares a query
      *

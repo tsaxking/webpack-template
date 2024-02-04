@@ -1,6 +1,6 @@
-import { main } from '../storage/db/scripts/init.ts';
 import { repeatPrompt } from './prompt.ts';
 import { __root, resolve } from '../server/utilities/env.ts';
+import { DB } from '../server/utilities/databases.ts';
 
 const runPrompt = (
     message: string,
@@ -196,4 +196,4 @@ const createEnv = () => {
 
 createEnv();
 
-await main();
+await DB.runAllUpdates();

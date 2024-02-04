@@ -1,4 +1,1 @@
-ALTER TABLE Version DROP COLUMN version;
-ALTER TABLE Version ADD COLUMN major INTEGER NOT NULL DEFAULT 1;
-ALTER TABLE Version ADD COLUMN minor INTEGER NOT NULL DEFAULT 0;
-ALTER TABLE Version ADD COLUMN patch INTEGER NOT NULL DEFAULT 0;
+-- This is only for git to not delete the parent folder because it'd be empty
