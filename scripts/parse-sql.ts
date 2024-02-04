@@ -652,7 +652,7 @@ export const parseSql = async (queryDir: string, tableDir: string) => {
         allTypes += '\n\n';
     }
 
-    allTypes = allTypes.replace(/{}/g, 'Record<string, unknown>');
+    allTypes = allTypes.replace(/{}/g, 'undefined');
 
     Deno.writeTextFileSync(
         resolve(tableDir, tablesName),

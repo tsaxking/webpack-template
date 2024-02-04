@@ -1,7 +1,7 @@
 import env, { __root } from './env.ts';
 import { Client } from 'https://deno.land/x/postgres@v0.17.0/mod.ts';
 import { error, log } from './terminal-logging.ts';
-import { Queries } from './sql-types.ts';
+import { Queries } from './queries.ts';
 import { exists, readDir, readFile, readFileSync } from './files.ts';
 import { attemptAsync, Result } from '../../shared/check.ts';
 import { runTask } from './run-task.ts';
@@ -313,7 +313,7 @@ export class DB {
             for (const version of versions.value) {
                 if (await DB.hasVersion(version)) {
                     console.log(
-                        'Database already has updated to or past version',
+                        'Database already has updated to or version',
                         version.join('.'),
                     );
                 } else {
@@ -361,7 +361,7 @@ export class DB {
      */
     private static async prepare<T extends keyof Queries>(
         type: T,
-        ...args: QParams<T>
+        ...args: QParams<T> extends [undefined] ? [] : QParams<T>
     ): Promise<Result<[string, Queries[T][0]]>> {
         return attemptAsync(async () => {
             const sql = readFileSync('/storage/db/queries/' + type + '.sql');
@@ -387,7 +387,7 @@ export class DB {
      */
     private static runQuery<T extends keyof Queries>(
         query: T,
-        ...args: QParams<T>
+        ...args: QParams<T> extends [undefined] ? [] : QParams<T>
     ): Promise<Result<Queries[T][1][]>> {
         return attemptAsync(async () => {
             const q = await DB.prepare(query, ...args);
@@ -420,7 +420,7 @@ export class DB {
      */
     static async run<T extends keyof Queries>(
         type: T,
-        ...args: QParams<T>
+        ...args: QParams<T> extends [undefined] ? [] : QParams<T>
     ): Promise<Queries[T][1]> {
         return attemptAsync(async () => {
             const q = await DB.runQuery(type, ...args);
@@ -441,7 +441,7 @@ export class DB {
      */
     static get<T extends keyof Queries>(
         type: T,
-        ...args: QParams<T>
+        ...args: QParams<T> extends [undefined] ? [] : QParams<T>
     ): Promise<Result<Queries[T][1] | undefined>> {
         return attemptAsync(async () => {
             const q = await DB.runQuery(type, ...args);
@@ -462,7 +462,7 @@ export class DB {
      */
     static all<T extends keyof Queries>(
         type: T,
-        ...args: QParams<T>
+        ...args: QParams<T> extends [undefined] ? [] : QParams<T>
     ): Promise<Result<Queries[T][1][]>> {
         return attemptAsync(async () => {
             const q = await DB.runQuery(type, ...args);
