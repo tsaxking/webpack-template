@@ -1,26 +1,14 @@
-import { backToMain, selectDir } from '../manager.ts';
+import { backToMain, selectFile } from '../manager.ts';
 import { __root } from '../../server/utilities/env.ts';
-import { parseSql } from '../parse-sql.ts';
+import { addQuery, parseSql } from '../parse-sql.ts';
 import { DB } from '../../server/utilities/databases.ts';
 import { confirm, repeatPrompt } from '../prompt.ts';
-import { saveFileSync } from '../../server/utilities/files.ts';
+import { readFile, saveFileSync } from '../../server/utilities/files.ts';
+import { relative, resolve } from '../../server/utilities/env.ts';
 
 export const buildQueries = async () => {
-    const queriesDir = await selectDir(
-        __root,
-        'Select the directory for the queries',
-    );
-    const tablesDir = await selectDir(
-        __root,
-        'Select the directory for the tables',
-    );
-
-    if (queriesDir.isOk() && tablesDir.isOk()) {
-        await parseSql(queriesDir.value, tablesDir.value);
-        return backToMain('Queries built successfully');
-    }
-
-    return backToMain('No directories selected');
+    await parseSql('server/utilities', 'server/utilities');
+    backToMain('Queries built');
 };
 
 export const versionInfo = async () => {
@@ -72,6 +60,35 @@ export const viewTables = async () => {
         backToMain(tables.value.join('\n'));
     } else {
         backToMain('Error getting tables: ' + tables.error.message);
+    }
+};
+
+export const addQueryType = async () => {
+    const file = await selectFile(
+        resolve(__root, './storage/db/queries'),
+    );
+
+    if (file.isOk()) {
+        const contents = await readFile(file.value);
+        if (contents.isOk()) {
+            const rel = relative(
+                resolve(__root, './storage/db/queries'),
+                file.value,
+            );
+            const res = await addQuery(
+                'server/utilities/queries.ts',
+                'server/utilities/tables.ts',
+                contents.value,
+                rel,
+            );
+
+            if (res.isOk()) backToMain('Query added');
+            else backToMain('Error adding query: ' + res.error.message);
+        } else {
+            backToMain('Error reading file: ' + contents.error);
+        }
+    } else {
+        backToMain('Error selecting file: ' + file.error.message);
     }
 };
 

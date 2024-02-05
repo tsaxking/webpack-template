@@ -1097,7 +1097,7 @@ export default class Account {
             id: this.id,
             salt,
             key: newKey,
-            passwordChange: null,
+            passwordChange: undefined,
         });
         this.key = newKey;
         this.salt = salt;

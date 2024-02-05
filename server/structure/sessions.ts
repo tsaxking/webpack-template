@@ -15,10 +15,10 @@ import { Res } from './app/res.ts';
  * @typedef {SessionObj}
  */
 export type SessionObj = {
-    ip: string;
+    ip?: string;
     id: string;
-    latestActivity: number;
-    accountId: string | null;
+    latestActivity?: number;
+    accountId?: string;
     prevUrl?: string;
     userAgent?: string;
     created: number;
@@ -189,7 +189,7 @@ export class Session {
      *
      * @type {string}
      */
-    public ip = '';
+    public ip: string|undefined = '';
     /**
      * The id of the session
      * @date 10/12/2023 - 3:13:58 PM
@@ -210,7 +210,7 @@ export class Session {
      *
      * @type {number}
      */
-    public latestActivity: number = Date.now();
+    public latestActivity: number | undefined = Date.now();
     /**
      * The previous url (used for redirects)
      * @date 10/12/2023 - 3:13:58 PM

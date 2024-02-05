@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS Accounts (
     verified INTEGER NOT NULL DEFAULT 0,
     verification TEXT,
     emailChange TEXT,
-    passwordChangeDate TEXT,
+    passwordChangeDate INTEGER,
     phoneNumber TEXT,
     created INTEGER NOT NULL
 );
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS Accounts (
 CREATE TABLE IF NOT EXISTS Members (
     id TEXT PRIMARY KEY,
     title TEXT,
-    status TEXT,
+    status TEXT DEFAULT 'pending',
     bio TEXT,
     resume TEXT,
     board INTEGER NOT NULL DEFAULT 0
@@ -43,9 +43,8 @@ CREATE TABLE IF NOT EXISTS AccountRoles (
 CREATE TABLE IF NOT EXISTS Permissions (
     -- removed in 1-2-0.sql
     roleId TEXT NOT NULL,
-    permission TEXT NOT NULL
-
-    -- added description in 1-2-0.sql
+    permission TEXT NOT NULL,
+    description TEXT
 );
 
 
@@ -68,7 +67,7 @@ CREATE TABLE IF NOT EXISTS Sessions (
     accountId TEXT,
     ip TEXT,
     userAgent TEXT,
-    latestActivity TEXT,
+    latestActivity INTEGER,
     requests INTEGER NOT NULL DEFAULT 0,
     created INTEGER NOT NULL,
     prevUrl TEXT

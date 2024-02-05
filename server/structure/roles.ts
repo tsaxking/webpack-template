@@ -157,7 +157,7 @@ export default class Role {
      *
      * @type {string}
      */
-    readonly description: string;
+    readonly description: string | undefined;
     /**
      * Rank of the role (higher rank = fewer permissions)
      * @date 1/9/2024 - 12:48:41 PM

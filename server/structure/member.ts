@@ -134,8 +134,8 @@ export class Member {
     }
 
     public readonly id: string;
-    public bio: string;
-    public title: string;
+    public bio?: string;
+    public title?: string;
     public resume?: string;
     public status: MembershipStatus;
 
@@ -144,7 +144,7 @@ export class Member {
         this.bio = memberInfo.bio;
         this.title = memberInfo.title;
         this.resume = memberInfo.resume;
-        this.status = memberInfo.status;
+        this.status = memberInfo.status as MembershipStatus;
     }
 
     async accept() {

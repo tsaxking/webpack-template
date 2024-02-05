@@ -10,29 +10,29 @@ export type Accounts = {
     firstName: string;
     lastName: string;
     email: string;
-    passwordChange: string | null;
-    picture: string | null;
+    passwordChange: string | undefined;
+    picture: string | undefined;
     verified: number;
-    verification: string | null;
-    emailChange: string | null;
-    passwordChangeDate: string | null;
-    phoneNumber: string | null;
+    verification: string | undefined;
+    emailChange: string | undefined;
+    passwordChangeDate: number | undefined;
+    phoneNumber: string | undefined;
     created: number;
 };
 
 export type Members = {
     id: string;
-    title: string | null;
-    status: string | null;
-    bio: string | null;
-    resume: string | null;
+    title: string | undefined;
+    status: string;
+    bio: string | undefined;
+    resume: string | undefined;
     board: number;
 };
 
 export type Roles = {
     id: string;
     name: string;
-    description: string | null;
+    description: string | undefined;
     rank: number;
 };
 
@@ -44,6 +44,7 @@ export type AccountRoles = {
 export type Permissions = {
     roleId: string;
     permission: string;
+    description: string | undefined;
 };
 
 export type Version = {
@@ -54,13 +55,13 @@ export type Version = {
 
 export type Sessions = {
     id: string;
-    accountId: string | null;
-    ip: string | null;
-    userAgent: string | null;
-    latestActivity: string | null;
+    accountId: string | undefined;
+    ip: string | undefined;
+    userAgent: string | undefined;
+    latestActivity: number | undefined;
     requests: number;
     created: number;
-    prevUrl: string | null;
+    prevUrl: string | undefined;
 };
 
 export type AccountSettings = {
@@ -68,31 +69,35 @@ export type AccountSettings = {
     settings: string;
 };
 
+
+
 // Queries
 
+
+
+
+
+
+
+
+
+
 export type Select_permissions_all = undefined;
-export type Return_permissions_all = {
-    roleId: string;
-    permission: string;
-};
+
 
 export type Select_roles_from_name = {
     name: string;
 };
-export type Return_roles_from_name = {
-    id: string;
-    name: string;
-    description: string | null;
-    rank: number;
-};
+
 
 export type Delete_roles_delete = {
     id: string;
 };
 
+
 export type Update_roles_update = {
     name: string;
-    description: string | null;
+    description: string | undefined;
     rank: number;
     id: string;
 };
@@ -100,162 +105,144 @@ export type Update_roles_update = {
 export type Insert_roles_new = {
     id: string;
     name: string;
-    description: string | null;
+    description: string | undefined;
     rank: number;
 };
+
 
 export type Select_roles_from_id = {
     id: string;
 };
-export type Return_roles_from_id = {
-    id: string;
-    name: string;
-    description: string | null;
-    rank: number;
-};
+
 
 export type Select_roles_all = undefined;
-export type Return_roles_all = {
-    id: string;
-    name: string;
-    description: string | null;
-    rank: number;
-};
+
 
 export type Delete_sessions_delete = {
     id: string;
 };
 
+
+
+
+
+
 export type Delete_sessions_delete_all = undefined;
 
+
 export type Update_sessions_update = {
-    accountId: string | null;
-    userAgent: string | null;
-    latestActivity: string | null;
+    accountId: string | undefined;
+    userAgent: string | undefined;
+    latestActivity: number | undefined;
     requests: number;
-    ip: string | null;
-    prevUrl: string | null;
+    ip: string | undefined;
+    prevUrl: string | undefined;
     id: string;
 };
 
 export type Insert_sessions_new = {
     id: string;
-    accountId: string | null;
-    userAgent: string | null;
-    latestActivity: string | null;
+    accountId: string | undefined;
+    userAgent: string | undefined;
+    latestActivity: number | undefined;
     requests: number;
     created: number;
-    ip: string | null;
-    prevUrl: string | null;
+    ip: string | undefined;
+    prevUrl: string | undefined;
 };
+
 
 export type Select_sessions_get = {
     id: string;
 };
-export type Return_sessions_get = {
-    id: string;
-    accountId: string | null;
-    ip: string | null;
-    userAgent: string | null;
-    latestActivity: string | null;
-    requests: number;
-    created: number;
-    prevUrl: string | null;
-};
+
 
 export type Select_sessions_all = undefined;
-export type Return_sessions_all = {
-    id: string;
-    accountId: string | null;
-    ip: string | null;
-    userAgent: string | null;
-    latestActivity: string | null;
-    requests: number;
-    created: number;
-    prevUrl: string | null;
-};
+
+
+
 
 export type Delete_member_delete = {
     id: string;
 };
 
+
+
+
 export type Update_member_update_title = {
-    title: string | null;
+    title: string | undefined;
     id: string;
 };
+
+
+
 
 export type Update_member_update_status = {
     id: string;
+    status: string;
 };
+
 
 export type Update_member_update_resume = {
     id: string;
+    resume: string | undefined;
 };
+
+
+
 
 export type Update_member_remove_from_board = {
     id: string;
 };
 
+
+
 export type Insert_member_new = {
     id: string;
-    'status': undefined;
+    status: string;
 };
 
+
 export type Update_member_update_bio = {
-    bio: string | null;
+    bio: string | undefined;
     id: string;
 };
+
 
 export type Update_member_add_to_board = {
     id: string;
 };
 
+
 export type Select_member_all = undefined;
-export type Return_member_all = {
-    id: string;
-    title: string | null;
-    status: string | null;
-    bio: string | null;
-    resume: string | null;
-    board: number;
-};
+
 
 export type Update_account_unverify = {
     id: string;
 };
 
+
 export type Update_account_set_verification = {
-    verification: string | null;
+    verification: string | undefined;
     id: string;
 };
+
+
+
 
 export type Delete_account_delete = {
     id: string;
 };
 
+
 export type Select_account_unverified = undefined;
-export type Return_account_unverified = {
-    id: string;
-    username: string;
-    key: string;
-    salt: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    passwordChange: string | null;
-    picture: string | null;
-    verified: number;
-    verification: string | null;
-    emailChange: string | null;
-    passwordChangeDate: string | null;
-    phoneNumber: string | null;
-    created: number;
-};
+
 
 export type Update_account_change_password = {
     salt: string;
-    passwordChange: string | null;
+    passwordChange: string | undefined;
     id: string;
+    key: string;
 };
 
 export type Insert_account_save_settings = {
@@ -263,88 +250,41 @@ export type Insert_account_save_settings = {
     settings: string;
 };
 
+
 export type Select_account_from_username = {
     username: string;
 };
-export type Return_account_from_username = {
-    id: string;
-    username: string;
-    key: string;
-    salt: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    passwordChange: string | null;
-    picture: string | null;
-    verified: number;
-    verification: string | null;
-    emailChange: string | null;
-    passwordChangeDate: string | null;
-    phoneNumber: string | null;
-    created: number;
-};
+
 
 export type Update_account_update_picture = {
-    picture: string | null;
+    picture: string | undefined;
     id: string;
 };
+
 
 export type Select_account_from_verification_key = {
-    verification: string | null;
-};
-export type Return_account_from_verification_key = {
-    id: string;
-    username: string;
-    key: string;
-    salt: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    passwordChange: string | null;
-    picture: string | null;
-    verified: number;
-    verification: string | null;
-    emailChange: string | null;
-    passwordChangeDate: string | null;
-    phoneNumber: string | null;
-    created: number;
+    verification: string | undefined;
 };
 
+
 export type Select_account_verified = undefined;
-export type Return_account_verified = {
-    id: string;
-    username: string;
-    key: string;
-    salt: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    passwordChange: string | null;
-    picture: string | null;
-    verified: number;
-    verification: string | null;
-    emailChange: string | null;
-    passwordChangeDate: string | null;
-    phoneNumber: string | null;
-    created: number;
-};
+
 
 export type Update_account_verify = {
     id: string;
 };
 
+
 export type Select_account_get_settings = {
     accountId: string;
 };
-export type Return_account_get_settings = {
-    accountId: string;
-    settings: string;
-};
+
 
 export type Update_account_change_email = {
     email: string;
     id: string;
 };
+
 
 export type Delete_account_remove_role = {
     accountId: string;
@@ -356,123 +296,59 @@ export type Insert_account_add_role = {
     roleId: string;
 };
 
+
 export type Select_account_from_email = {
     email: string;
-};
-export type Return_account_from_email = {
-    id: string;
-    username: string;
-    key: string;
-    salt: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    passwordChange: string | null;
-    picture: string | null;
-    verified: number;
-    verification: string | null;
-    emailChange: string | null;
-    passwordChangeDate: string | null;
-    phoneNumber: string | null;
-    created: number;
 };
 
 export type Insert_account_new = {
     id: string;
     username: string;
-    'key': undefined;
-    salt: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    verified: number;
-    verification: string | null;
-    created: number;
-    phoneNumber: string | null;
-};
-
-export type Update_account_request_password_change = {
-    passwordChange: string | null;
-    id: string;
-};
-
-export type Select_account_from_password_change = {
-    passwordChange: string | null;
-};
-export type Return_account_from_password_change = {
-    id: string;
-    username: string;
     key: string;
     salt: string;
     firstName: string;
     lastName: string;
     email: string;
-    passwordChange: string | null;
-    picture: string | null;
     verified: number;
-    verification: string | null;
-    emailChange: string | null;
-    passwordChangeDate: string | null;
-    phoneNumber: string | null;
+    verification: string | undefined;
     created: number;
+    phoneNumber: string | undefined;
 };
+
+
+export type Update_account_request_password_change = {
+    passwordChange: string | undefined;
+    id: string;
+};
+
+
+export type Select_account_from_password_change = {
+    passwordChange: string | undefined;
+};
+
 
 export type Select_account_from_id = {
     id: string;
 };
-export type Return_account_from_id = {
-    id: string;
-    username: string;
-    key: string;
-    salt: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    passwordChange: string | null;
-    picture: string | null;
-    verified: number;
-    verification: string | null;
-    emailChange: string | null;
-    passwordChangeDate: string | null;
-    phoneNumber: string | null;
-    created: number;
-};
+
 
 export type Select_account_all = undefined;
-export type Return_account_all = {
-    id: string;
-    username: string;
-    key: string;
-    salt: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    passwordChange: string | null;
-    picture: string | null;
-    verified: number;
-    verification: string | null;
-    emailChange: string | null;
-    passwordChangeDate: string | null;
-    phoneNumber: string | null;
-    created: number;
-};
+
 
 export type Update_account_request_email_change = {
-    emailChange: string | null;
+    emailChange: string | undefined;
     id: string;
 };
+
 
 export type Update_account_change_username = {
     username: string;
     id: string;
 };
 
+
 export type Select_db_get_version = undefined;
-export type Return_db_get_version = {
-    major: number;
-    minor: number;
-    patch: number;
-};
+
 
 export type Update_db_change_version = {
     version: undefined;
@@ -486,12 +362,17 @@ export type Insert_db_init = {
     firstName: string;
     lastName: string;
     email: string;
-    passwordChange: string | null;
-    picture: string | null;
+    passwordChange: string | undefined;
+    picture: string | undefined;
     verified: number;
-    verification: string | null;
-    emailChange: string | null;
-    passwordChangeDate: string | null;
-    phoneNumber: string | null;
+    verification: string | undefined;
+    emailChange: string | undefined;
+    passwordChangeDate: number | undefined;
+    phoneNumber: string | undefined;
     created: number;
 };
+
+
+
+
+
