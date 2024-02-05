@@ -26,7 +26,7 @@ MEDIUMINT => number
 */
 
 import { relative, resolve } from '../server/utilities/env.ts';
-import { confirm } from './prompt.ts';
+import { confirm, select } from './prompt.ts';
 import {
     exists,
     readFile,
@@ -901,13 +901,185 @@ export const parseSql = async (queryDir: string, tableDir: string) => {
     return writeFiles(queryDir, tableDir, getTables(), getQueries());
 };
 
+
+
+
+export const merge = async (num: number): Promise<Result<unknown>> => {
+    return attemptAsync(async () => {
+        if (num < 1) throw new Error('Invalid number');
+        console.log('Pulling files...');
+        const [
+            mergeQueriesRes, 
+            currentQueriesRes,
+            mergeTablesRes,
+            currentTablesRes
+        ] = await Promise.all([
+            readFile(
+                resolve('server/utilities/', `queries-${num}.ts`),
+            ),
+            readFile('server/utilities/queries.ts'),
+            readFile(
+                resolve('server/utilities/', `tables-${num}.ts`),
+            ),
+            readFile('server/utilities/tables.ts')
+        ]);
+
+        if (mergeQueriesRes.isErr()) throw mergeQueriesRes.error;
+        if (currentQueriesRes.isErr()) throw currentQueriesRes.error;
+        if (mergeTablesRes.isErr()) throw mergeTablesRes.error;
+        if (currentTablesRes.isErr()) throw currentTablesRes.error;
+
+        console.log('File pull is complete...');
+        const mergeQueries = mergeQueriesRes.value;
+        const currentQueries = currentQueriesRes.value;
+        const mergeTables = mergeTablesRes.value;
+        const currentTables = currentTablesRes.value;
+
+        console.log('Parsing...');
+        const [
+            mergeTsQueriesRes,
+            mergeTsTablesRes,
+            currentTsQueriesRes,
+            currentTsTableRes
+        ] = await Promise.all([
+            parseTsQueries(mergeQueries),
+            parseTsTypes(mergeTables),
+            parseTsQueries(currentQueries),
+            parseTsTypes(currentTables)
+        ]);
+
+        if (mergeTsQueriesRes.isErr()) throw mergeTsQueriesRes.error;
+        if (mergeTsTablesRes.isErr()) throw mergeTsTablesRes.error;
+        if (currentTsQueriesRes.isErr()) throw currentTsQueriesRes.error;
+        if (currentTsTableRes.isErr()) throw currentTsTableRes.error;
+
+        console.log('Merging...');
+        const mergeTsQueries = mergeTsQueriesRes.value;
+        const mergeTsTables = mergeTsTablesRes.value;
+        const currentTsQueries = currentTsQueriesRes.value;
+        const currentTsTables = currentTsTableRes.value;
+
+        const doMerge = async (name: string, from: Record<string, unknown>, to: Record<string, unknown>): Promise<unknown> => {
+            const result = { ...to };
+            for (const [key, value] of Object.entries(from)) {
+                if (result[key] && result[key] !== value) {
+                    result[key] = await select(
+                        `Which one would you like to keep? (${name})`,
+                        [
+                            {
+                                name: 'Current: ' + result[key],
+                                value: result[key]
+                            },
+                            {
+                                name: 'Merge: ' + value,
+                                value
+                            }
+                        ]
+                    )
+                }
+                result[key] = value;
+            }
+
+            return result;
+        };
+
+        const mergedQueries: {
+            name: string;
+            params: string[];
+            returns: string;
+        }[] = [];
+        for (const q of currentTsQueries) {
+            const merge = mergeTsQueries.find((m) => m.name === q.name);
+            if (merge) {
+                mergedQueries.push(await doMerge(merge.name, merge, q) as {
+                    name: string;
+                    params: string[];
+                    returns: string;
+                });
+            } else {
+                mergedQueries.push(q);
+            }
+        }
+
+        const mergedTables: {
+            [key: string]: QueryObjectType;
+        } = { ...currentTsTables };
+        for (const [name, table] of Object.entries(mergeTsTables)) {
+            if (mergedTables[name]) {
+                mergedTables[name] = await doMerge(name, table, mergedTables[name]) as QueryObjectType;
+            } else {
+                mergedTables[name] = table;
+            }
+        }
+
+        console.log('Saving...');
+
+        const res = await saveQueries(
+            `server/utilities/merge-queries.ts`,
+            `server/utilities/merge-tables.ts`,
+            mergedQueries.map((q) => [
+                q.name,
+                q.params[0],
+                q.returns,
+                q.returns === 'unknown' ? undefined : q.name,
+            ]),
+        );
+
+        if (res.isErr()) throw res.error;
+
+        let ts = convertToTs(mergedTables);
+        ts += '\n\n// Queries\n\n';
+        for (const query of mergedQueries) {
+            const name = query.name;
+            const parsed = parseExecQuery(
+                mergeQueries,
+                mergedTables,
+                name
+            );
+
+            if (parsed) {
+                const [exec, ret, execName, retName] = parsed;
+                ts += exec;
+                if (ret) ts += ret;
+            }
+        }
+
+        const saveRes = await saveFile(`server/utilities/merge-tables.ts`, ts);
+        if (saveRes.isErr()) throw saveRes.error;
+
+        return;
+    });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 if (import.meta.main) {
-    addQuery(
-        'server/utilities/queries.ts',
-        'server/utilities/tables.ts',
-        `
-            SELECT * FROM Accounts WHERE id = :id;
-        `,
-        'test',
-    );
+    // console.log('parsing...');
+    // parseSql(
+    //     'server/utilities',
+    //     'server/utilities'
+    // );
+
+    const res = await merge(1);
+    if (res.isErr()) {
+        console.error('Error:', res.error);
+    } else {
+        console.log('done');
+    }
 }
