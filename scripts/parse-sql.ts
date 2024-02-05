@@ -993,19 +993,26 @@ export const merge = async (num: number): Promise<Result<unknown>> => {
             name: string;
             params: string[];
             returns: string;
-        }[] = [];
-        for (const q of currentTsQueries) {
-            const merge = mergeTsQueries.find((m) => m.name === q.name);
-            if (merge) {
-                mergedQueries.push(
-                    (await doMerge(merge.name, merge, q)) as {
-                        name: string;
-                        params: string[];
-                        returns: string;
-                    },
-                );
+        }[] = currentTsQueries;
+        for (const query of mergeTsQueries) {
+            const { name, params, returns } = query;
+            const index = mergedQueries.findIndex((q) => q.name === name);
+            if (index !== -1) {
+                const merged = mergedQueries[index];
+                if (
+                    merged.params.join(',') !== params.join(',') ||
+                    merged.returns !== returns
+                ) {
+                    console.log('Conflict:', name, merged, query);
+                    const res = await confirm(
+                        `Would you like to overwrite ${name}?`,
+                    );
+                    if (res) {
+                        mergedQueries[index] = query;
+                    }
+                }
             } else {
-                mergedQueries.push(q);
+                mergedQueries.push(query);
             }
         }
 
