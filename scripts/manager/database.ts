@@ -64,9 +64,7 @@ export const viewTables = async () => {
 };
 
 export const addQueryType = async () => {
-    const file = await selectFile(
-        resolve(__root, './storage/db/queries'),
-    );
+    const file = await selectFile(resolve(__root, './storage/db/queries'));
 
     if (file.isOk()) {
         const contents = await readFile(file.value);

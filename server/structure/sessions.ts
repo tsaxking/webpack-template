@@ -189,7 +189,7 @@ export class Session {
      *
      * @type {string}
      */
-    public ip: string|undefined = '';
+    public ip: string | undefined = '';
     /**
      * The id of the session
      * @date 10/12/2023 - 3:13:58 PM

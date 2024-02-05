@@ -69,31 +69,17 @@ export type AccountSettings = {
     settings: string;
 };
 
-
-
 // Queries
 
-
-
-
-
-
-
-
-
-
 export type Select_permissions_all = undefined;
-
 
 export type Select_roles_from_name = {
     name: string;
 };
 
-
 export type Delete_roles_delete = {
     id: string;
 };
-
 
 export type Update_roles_update = {
     name: string;
@@ -109,26 +95,17 @@ export type Insert_roles_new = {
     rank: number;
 };
 
-
 export type Select_roles_from_id = {
     id: string;
 };
 
-
 export type Select_roles_all = undefined;
-
 
 export type Delete_sessions_delete = {
     id: string;
 };
 
-
-
-
-
-
 export type Delete_sessions_delete_all = undefined;
-
 
 export type Update_sessions_update = {
     accountId: string | undefined;
@@ -151,92 +128,65 @@ export type Insert_sessions_new = {
     prevUrl: string | undefined;
 };
 
-
 export type Select_sessions_get = {
     id: string;
 };
 
-
 export type Select_sessions_all = undefined;
-
-
-
 
 export type Delete_member_delete = {
     id: string;
 };
-
-
-
 
 export type Update_member_update_title = {
     title: string | undefined;
     id: string;
 };
 
-
-
-
 export type Update_member_update_status = {
     id: string;
     status: string;
 };
-
 
 export type Update_member_update_resume = {
     id: string;
     resume: string | undefined;
 };
 
-
-
-
 export type Update_member_remove_from_board = {
     id: string;
 };
-
-
 
 export type Insert_member_new = {
     id: string;
     status: string;
 };
 
-
 export type Update_member_update_bio = {
     bio: string | undefined;
     id: string;
 };
 
-
 export type Update_member_add_to_board = {
     id: string;
 };
 
-
 export type Select_member_all = undefined;
-
 
 export type Update_account_unverify = {
     id: string;
 };
-
 
 export type Update_account_set_verification = {
     verification: string | undefined;
     id: string;
 };
 
-
-
-
 export type Delete_account_delete = {
     id: string;
 };
 
-
 export type Select_account_unverified = undefined;
-
 
 export type Update_account_change_password = {
     salt: string;
@@ -250,41 +200,33 @@ export type Insert_account_save_settings = {
     settings: string;
 };
 
-
 export type Select_account_from_username = {
     username: string;
 };
-
 
 export type Update_account_update_picture = {
     picture: string | undefined;
     id: string;
 };
 
-
 export type Select_account_from_verification_key = {
     verification: string | undefined;
 };
 
-
 export type Select_account_verified = undefined;
-
 
 export type Update_account_verify = {
     id: string;
 };
 
-
 export type Select_account_get_settings = {
     accountId: string;
 };
-
 
 export type Update_account_change_email = {
     email: string;
     id: string;
 };
-
 
 export type Delete_account_remove_role = {
     accountId: string;
@@ -295,7 +237,6 @@ export type Insert_account_add_role = {
     accountId: string;
     roleId: string;
 };
-
 
 export type Select_account_from_email = {
     email: string;
@@ -315,40 +256,32 @@ export type Insert_account_new = {
     phoneNumber: string | undefined;
 };
 
-
 export type Update_account_request_password_change = {
     passwordChange: string | undefined;
     id: string;
 };
 
-
 export type Select_account_from_password_change = {
     passwordChange: string | undefined;
 };
-
 
 export type Select_account_from_id = {
     id: string;
 };
 
-
 export type Select_account_all = undefined;
-
 
 export type Update_account_request_email_change = {
     emailChange: string | undefined;
     id: string;
 };
 
-
 export type Update_account_change_username = {
     username: string;
     id: string;
 };
 
-
 export type Select_db_get_version = undefined;
-
 
 export type Update_db_change_version = {
     version: undefined;
@@ -371,8 +304,3 @@ export type Insert_db_init = {
     phoneNumber: string | undefined;
     created: number;
 };
-
-
-
-
-
