@@ -1063,7 +1063,7 @@ export const merge = async (num: number): Promise<Result<unknown>> => {
             importTs += `import { ${imp} } from './merge-tables.ts';\n`;
         }
 
-        tableTs = tableTs.replace(/{(\s*)}/g, 'unknown');
+        tableTs = tableTs.replace(/{(\s*)}/g, 'undefined');
 
         Deno.writeTextFileSync('server/utilities/merge-tables.ts', warning + tableTs);
         Deno.writeTextFileSync('server/utilities/merge-queries.ts', warning + importTs + '\n\n' + queryTs);
