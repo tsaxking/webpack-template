@@ -1,7 +1,5 @@
 import { EventEmitter } from '../../shared/event-emitter';
 
-
-
 /**
  * Opens a modal with the given id
  * @param {string} modalId
@@ -26,23 +24,26 @@ type EventTypes = {
     destory: void;
 };
 
-
 export class Modal {
     private readonly $emitter = new EventEmitter<keyof EventTypes>();
 
-    public on<K extends keyof EventTypes>(event: K, listener: (args: EventTypes[K]) => void) {
+    public on<K extends keyof EventTypes>(
+        event: K,
+        listener: (args: EventTypes[K]) => void,
+    ) {
         this.$emitter.on(event, listener);
     }
 
-    public off<K extends keyof EventTypes>(event: K, listener: (args: EventTypes[K]) => void) {
+    public off<K extends keyof EventTypes>(
+        event: K,
+        listener: (args: EventTypes[K]) => void,
+    ) {
         this.$emitter.off(event, listener);
     }
 
     public emit<K extends keyof EventTypes>(event: K, args?: EventTypes[K]) {
         this.$emitter.emit(event, args);
     }
-
-
 
     private readonly $el = document.createElement('div');
 
@@ -68,7 +69,7 @@ export class Modal {
 
         const dialog = document.createElement('div');
         dialog.classList.add('modal-dialog');
-        
+
         const content = document.createElement('div');
         content.classList.add('modal-content');
 
@@ -76,7 +77,7 @@ export class Modal {
         header.classList.add('modal-header');
         const title = document.createElement('h5');
         title.classList.add('modal-title');
-        
+
         const close = document.createElement('button');
         close.type = 'button';
         close.classList.add('close');
@@ -146,7 +147,7 @@ export class Modal {
     }
 
     public show() {
-        this.emit('show')
+        this.emit('show');
     }
 
     public hide() {
