@@ -7,6 +7,7 @@ import { readFile, saveFileSync } from '../../server/utilities/files.ts';
 import { relative, resolve } from '../../server/utilities/env.ts';
 import { fromCamelCase, toSnakeCase } from '../../shared/text.ts';
 import { Err, attemptAsync, Result } from '../../shared/check.ts';
+import * as cliffy from "https://deno.land/x/cliffy@v1.0.0-rc.3/table/mod.ts";
 
 export const buildQueries = async () => {
     await parseSql('server/utilities', 'server/utilities');
@@ -64,9 +65,18 @@ export const viewTables = async () => {
         const table = await select('Select table to view', values);
         if (table === 'back') return main();
 
-        const data = await DB.unsafe.all(`SELECT * FROM ${table}`);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const data = await DB.unsafe.all<any>(`SELECT * FROM ${table}`);
         if (data.isOk()) {
-            console.table(data.value);
+            // using cliffy to display the data
+            const tableData = data.value;
+            const keys = Object.keys(tableData[0] || {});
+            const values = tableData.map((d) => Object.values(d));
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const table = new cliffy.Table().header(keys).body(values as any);
+            console.log(table.toString());
+
+
             await select('Exit', ['[Back]']);
             return main();
         } else {
