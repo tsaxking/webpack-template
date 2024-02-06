@@ -508,8 +508,12 @@ export default class Account {
 
         const { salt, key } = Account.newHash(password);
 
+        const id = uuid();
+        const verification = uuid();
+        const created = Date.now();
+
         DB.run('account/new', {
-            id: uuid(),
+            id,
             username,
             key,
             salt,
@@ -517,13 +521,13 @@ export default class Account {
             lastName,
             email,
             verified: 0,
-            verification: uuid(),
-            created: Date.now(),
+            verification,
+            created,
             phoneNumber: '',
         });
 
         const a = new Account({
-            id: uuid(),
+            id,
             username,
             key,
             salt,
@@ -531,8 +535,8 @@ export default class Account {
             lastName,
             email,
             verified: 0,
-            verification: uuid(),
-            created: Date.now(),
+            verification,
+            created,
             phoneNumber: '',
         });
 

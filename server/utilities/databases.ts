@@ -92,8 +92,12 @@ export class DB {
 
     private static parse(
         query: string,
-        args: Parameter[],
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        args: any[],
     ): [string, Parameter[]] {
+        // remove all comments
+        query = query.replaceAll(/--.*\n/g, '');
+
         // get every :variable in the query
         const matches = query.match(/:\w+/g);
         const newArgs: Parameter[] = [];
@@ -335,14 +339,36 @@ export class DB {
         return attemptAsync(async () => {
             const res = await DB.unsafe.all<{ table_name: string }>(
                 `
+                -- get all tables available in the env.DATABASE_NAME
                 SELECT table_name
                 FROM information_schema.tables
+                WHERE table_schema = 'public'
                 ORDER BY table_name;
             `,
             );
 
             if (res.isOk()) {
                 return res.value.map((r) => r.table_name);
+            }
+            throw res.error;
+        });
+    }
+
+    static async getTableCols(table: string): Promise<Result<string[]>> {
+        return attemptAsync(async () => {
+            const res = await DB.unsafe.all<{ column_name: string }>(
+                `
+                -- get all columns in a table
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = :table
+                ORDER BY column_name;
+            `,
+                { table },
+            );
+
+            if (res.isOk()) {
+                return res.value.map((r) => r.column_name);
             }
             throw res.error;
         });
@@ -366,7 +392,11 @@ export class DB {
         return attemptAsync(async () => {
             const sql = readFileSync('/storage/db/queries/' + type + '.sql');
             if (sql.isOk()) {
-                return [sql.value, args] as [string, QParams<T>];
+                const [parsedQuery, parsedArgs] = DB.parse(
+                    sql.value,
+                    args
+                );
+                return [parsedQuery, parsedArgs] as [string, QParams<T>];
             } else {
                 throw new Error('Unable to read query file: ' + type);
             }
@@ -391,7 +421,10 @@ export class DB {
     ): Promise<Result<Queries[T][1][]>> {
         return attemptAsync(async () => {
             const q = await DB.prepare(query, ...args);
-            if (q.isErr()) throw q.error;
+            if (q.isErr()) {
+                error('Error preparing query:', q.error);
+                throw q.error;
+            }
 
             const [sql, newArgs] = q.value;
             const result = await DB.db.queryObject(sql, newArgs);
@@ -421,7 +454,7 @@ export class DB {
     static async run<T extends keyof Queries>(
         type: T,
         ...args: QParams<T> extends [undefined] ? [] : QParams<T>
-    ): Promise<Queries[T][1]> {
+    ): Promise<Result<Queries[T][1]>> {
         return attemptAsync(async () => {
             const q = await DB.runQuery(type, ...args);
             if (q.isErr()) throw q.error;

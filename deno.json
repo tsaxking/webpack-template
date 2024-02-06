@@ -15,7 +15,8 @@
         "tree": "deno run --allow-all ./scripts/dir-tree.ts",
         "manager": "deno run --allow-all ./scripts/manager.ts",
         "parse-sql": "deno run --allow-all ./scripts/parse-sql.ts",
-        "check-db": "deno run --allow-all ./scripts/check-db-connection.ts"
+        "check-db": "deno run --allow-all ./scripts/check-db-connection.ts",
+        "view-table": "deno run --allow-all ./scripts/view-table.ts"
     },
     "compilerOptions": {
         "noImplicitAny": false,
