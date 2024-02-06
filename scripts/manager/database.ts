@@ -1,13 +1,13 @@
 import { backToMain, main, selectFile } from '../manager.ts';
 import { __root } from '../../server/utilities/env.ts';
-import { addQuery, parseSql, getTables } from '../parse-sql.ts';
+import { addQuery, getTables, parseSql } from '../parse-sql.ts';
 import { DB } from '../../server/utilities/databases.ts';
 import { confirm, repeatPrompt, select } from '../prompt.ts';
 import { readFile, saveFileSync } from '../../server/utilities/files.ts';
 import { relative, resolve } from '../../server/utilities/env.ts';
 import { fromCamelCase, toSnakeCase } from '../../shared/text.ts';
-import { Err, attemptAsync, Result } from '../../shared/check.ts';
-import * as cliffy from "https://deno.land/x/cliffy@v1.0.0-rc.3/table/mod.ts";
+import { attemptAsync, Err, Result } from '../../shared/check.ts';
+import * as cliffy from 'https://deno.land/x/cliffy@v1.0.0-rc.3/table/mod.ts';
 
 export const buildQueries = async () => {
     await parseSql('server/utilities', 'server/utilities');
@@ -76,7 +76,6 @@ export const viewTables = async () => {
             const table = new cliffy.Table().header(keys).body(values as any);
             console.log(table.toString());
 
-
             await select('Exit', ['[Back]']);
             return main();
         } else {
@@ -136,7 +135,9 @@ export const makeDefaultQueries = async () => {
 };
 
 export const reset = async () => {
-    const doReset = await confirm('Are you sure you want to reset the database?');
+    const doReset = await confirm(
+        'Are you sure you want to reset the database?',
+    );
     const version = await DB.getVersion();
 
     if (doReset) {
@@ -146,41 +147,47 @@ export const reset = async () => {
             const reset = async (): Promise<Result<void>> => {
                 return attemptAsync(async () => {
                     const res = await Promise.all(
-                        tables.value.map((t) => 
+                        tables.value.map((t) =>
                             DB.unsafe.run(`DROP TABLE ${t}`)
-                    ));
+                        ),
+                    );
                     if (res.every((r) => r.isOk())) {
                         return DB.runAllUpdates();
                     } else {
                         const errors = res.filter((r) => r.isErr()) as Err[];
-                        throw new Error('Error resetting database: ' + (errors.map(e => e.error)).join('\n'));
+                        throw new Error(
+                            'Error resetting database: ' +
+                                errors.map((e) => e.error).join('\n'),
+                        );
                     }
                 });
             };
 
-
-
-            const saveData = await select('Do you want to save all data currently stored?', [
-                {
-                    name: 'Yes, Save, Reset, and reapply data.',
-                    value: true
-                }, {
-                    name: 'No, Reset and delete all data',
-                    value: false
-                }
-            ]);
+            const saveData = await select(
+                'Do you want to save all data currently stored?',
+                [
+                    {
+                        name: 'Yes, Save, Reset, and reapply data.',
+                        value: true,
+                    },
+                    {
+                        name: 'No, Reset and delete all data',
+                        value: false,
+                    },
+                ],
+            );
 
             if (saveData) {
                 const data = await Promise.all(
-                    tables.value.map(t => {
+                    tables.value.map((t) => {
                         return DB.unsafe.all<{
                             // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             [key: string]: any;
                         }>(`SELECT * FROM ${t}`);
-                    })
+                    }),
                 );
 
-                if (data.every(d => d.isOk())) {
+                if (data.every((d) => d.isOk())) {
                     const res = await reset();
                     if (res.isOk()) {
                         await Promise.all(
@@ -190,32 +197,55 @@ export const reset = async () => {
                                 const table = tables.value[i];
                                 for (const col of d.value) {
                                     const cols = Object.keys(col);
-                                    DB.unsafe.run(`
-                                        INSERT INTO ${table} (${cols.join(', ')})
-                                        VALUES (${cols.map((c) => ':' + c).join(', ')}
-                                    `, col)
-                                        .then(r => {
-                                            if (r.isErr()) throw new Error(r.error.message);
+                                    DB.unsafe
+                                        .run(
+                                            `
+                                        INSERT INTO ${table} (${
+                                                cols.join(', ')
+                                            })
+                                        VALUES (${
+                                                cols.map((c) => ':' + c).join(
+                                                    ', ',
+                                                )
+                                            }
+                                    `,
+                                            col,
+                                        )
+                                        .then((r) => {
+                                            if (r.isErr()) {
+                                                throw new Error(
+                                                    r.error.message,
+                                                );
+                                            }
                                         });
                                 }
-                            })
-                        )
-                        return backToMain('Database reset and updated to latest version. All data was saved.');
+                            }),
+                        );
+                        return backToMain(
+                            'Database reset and updated to latest version. All data was saved.',
+                        );
                     } else {
                         DB.restoreBackup(version);
                     }
                 } else {
-                    const errors = data.filter(d => d.isErr()) as Err[];
-                    return backToMain('Error saving data: ' + errors.map(e => e.error.message).join('\n'));
+                    const errors = data.filter((d) => d.isErr()) as Err[];
+                    return backToMain(
+                        'Error saving data: ' +
+                            errors.map((e) => e.error.message).join('\n'),
+                    );
                 }
             } else {
                 const res = await reset();
 
                 if (res.isOk()) {
-                    return backToMain('Database reset and updated to latest version. All data was deleted.');
+                    return backToMain(
+                        'Database reset and updated to latest version. All data was deleted.',
+                    );
                 } else {
                     DB.restoreBackup(version);
-                    return backToMain('Error resetting database: ' + res.error.message);
+                    return backToMain(
+                        'Error resetting database: ' + res.error.message,
+                    );
                 }
             }
         } else {

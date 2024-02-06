@@ -392,10 +392,7 @@ export class DB {
         return attemptAsync(async () => {
             const sql = readFileSync('/storage/db/queries/' + type + '.sql');
             if (sql.isOk()) {
-                const [parsedQuery, parsedArgs] = DB.parse(
-                    sql.value,
-                    args
-                );
+                const [parsedQuery, parsedArgs] = DB.parse(sql.value, args);
                 return [parsedQuery, parsedArgs] as [string, QParams<T>];
             } else {
                 throw new Error('Unable to read query file: ' + type);

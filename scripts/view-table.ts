@@ -5,7 +5,9 @@ if (tables.isErr()) throw tables.error;
 
 console.log(tables.value);
 
-if (!tables.value.includes(Deno.args[0].toLowerCase())) throw new Error('Table not found. Please check the name and try again.');
+if (!tables.value.includes(Deno.args[0].toLowerCase())) {
+    throw new Error('Table not found. Please check the name and try again.');
+}
 
 const res = await DB.unsafe.all(`
     SELECT * FROM ${Deno.args[0]}
