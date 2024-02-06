@@ -201,12 +201,14 @@ export const reset = async () => {
                                         .run(
                                             `
                                         INSERT INTO ${table} (${
-                                                cols.join(', ')
-                                            })
-                                        VALUES (${
-                                                cols.map((c) => ':' + c).join(
+                                                cols.join(
                                                     ', ',
                                                 )
+                                            })
+                                        VALUES (${
+                                                cols
+                                                    .map((c) => ':' + c)
+                                                    .join(', ')
                                             }
                                     `,
                                             col,
