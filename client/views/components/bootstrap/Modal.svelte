@@ -14,7 +14,9 @@ onMount(() => {
         dispatch('show');
     });
 
-    document.querySelectorAll(`#${id} button.close-modal`);
+    document.querySelectorAll(`#${id} button.close-modal`).forEach(m => {
+        jQuery(m).modal('hide');
+    });
 });
 </script>
 
