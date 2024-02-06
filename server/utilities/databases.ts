@@ -98,6 +98,21 @@ export class DB {
         // remove all comments
         query = query.replaceAll(/--.*\n/g, '');
 
+        const qMatches = query.match(/\?/g);
+
+        if (qMatches) {
+            if (qMatches.length !== args.length) {
+                throw new Error(
+                    `Number of parameters does not match number of ? in query. Query: ${query}, Parameters: ${args}`,
+                );
+            }
+            // replace each ? with a $n
+            for (let i = 0; i < qMatches.length; i++) {
+                query = query.replace('?', `$${i + 1}`);
+            }
+            return [query, args];
+        }
+
         // get every :variable in the query
         const matches = query.match(/:\w+/g);
         const newArgs: Parameter[] = [];
