@@ -2,7 +2,7 @@
 
 import * as randomString from 'npm:uuid';
 import env from './env.ts';
-import { attemptAsync, Result } from '../../shared/attempt.ts';
+import { attemptAsync, Result } from '../../shared/check.ts';
 import { getJSON, saveJSON } from './files.ts';
 
 // limit 5 keys in cache at a time

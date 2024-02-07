@@ -10,7 +10,7 @@ import {
 } from '../../server/utilities/files.ts';
 import { relative, resolve } from '../../server/utilities/env.ts';
 import { fromCamelCase, toSnakeCase } from '../../shared/text.ts';
-import { attemptAsync, Err, Result } from '../../shared/check.ts';
+import { attemptAsync, Err, Result } from '../../shared/';
 import * as cliffy from 'https://deno.land/x/cliffy@v1.0.0-rc.3/table/mod.ts';
 
 export const buildQueries = async () => {

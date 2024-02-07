@@ -1,6 +1,6 @@
 console.warn(
     '[shared/attempt.ts]',
-    'This file will be changed to /shared/check.ts in the future. Please update your imports.',
+    'This file will be changed to /shared/ in the future. Please update your imports.',
 );
 
 /**

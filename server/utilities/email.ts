@@ -4,7 +4,7 @@ import { config } from 'npm:dotenv';
 import { Constructor, FileError, getTemplateSync } from './files.ts';
 import env from './env.ts';
 import { error } from './terminal-logging.ts';
-import { Result } from '../../shared/attempt.ts';
+import { Result } from '../../shared/check.ts';
 
 config();
 

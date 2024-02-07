@@ -1,7 +1,7 @@
 import { select, repeatPrompt } from './prompt.ts';
 import { Colors } from '../server/utilities/colors.ts';
 import { sleep } from '../shared/sleep.ts';
-import { attemptAsync, Result } from '../shared/check.ts';
+import { attemptAsync, Result } from '../shared/';
 import { __root, relative, resolve } from '../server/utilities/env.ts';
 import Filter from 'npm:bad-words';
 import { capitalize, fromCamelCase } from '../shared/text.ts';

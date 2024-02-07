@@ -22,7 +22,7 @@ import {
 import { validate } from '../middleware/data-type.ts';
 import { Role as RoleObj } from '../../shared/db-types.ts';
 import { Permission } from '../../shared/permissions.ts';
-import { attemptAsync } from '../../shared/attempt.ts';
+import { attemptAsync } from '../../shared/check.ts';
 
 /**
  * Properties that can be changed dynamically

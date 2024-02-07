@@ -7,7 +7,7 @@ import { capitalize, fromSnakeCase } from '../../shared/text.ts';
 import { Req } from '../structure/app/req.ts';
 import { Res } from '../structure/app/res.ts';
 import { Next } from '../structure/app/app.ts';
-import { attemptAsync } from '../../shared/attempt.ts';
+import { attemptAsync } from '../../shared/check.ts';
 
 /**
  * Object containing all the pages that can be built

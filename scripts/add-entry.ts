@@ -6,7 +6,7 @@ import {
     resolve,
     unify,
 } from '../server/utilities/env.ts';
-import { attempt } from '../shared/attempt.ts';
+import { attempt } from '../shared/check.ts';
 
 const [, ...args] = Deno.args;
 

@@ -10,7 +10,7 @@ import {
 import { Next, ServerFunction } from '../structure/app/app.ts';
 import { Req } from '../structure/app/req.ts';
 import { Res } from '../structure/app/res.ts';
-import { Result } from '../../shared/attempt.ts';
+import { Result } from '../../shared/check.ts';
 import env from './env.ts';
 
 /**
