@@ -46,7 +46,7 @@ export const fromCamelCase = (str: string): string =>
  * @returns
  */
 export const fromSnakeCase = (str: string, del = '_'): string =>
-    str.replace(/([A-Z])/g, (g) => ` ${g[0].toLowerCase()}`).replace(del, ' ');
+    str.replace(/([A-Z])/g, (g) => ` ${g[0].toLowerCase()}`).replace(new RegExp(del, 'g'), ' ');
 
 /**
  * Abbreviates a string to a given length (appending ...)
