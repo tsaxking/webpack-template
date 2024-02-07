@@ -8,6 +8,11 @@ export const repeatPrompt = (
 ): string => {
     if (!original) original = message;
     const i = prompt(message + ':');
+
+    if (i === null) {
+        throw new Error('exit');
+    }
+
     if (!i && allowBlank) return '';
     if (!i) {
         return repeatPrompt(
