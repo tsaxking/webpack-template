@@ -6,12 +6,12 @@ import { exists, readDir, readFile, readFileSync } from './files.ts';
 import { attemptAsync, Result } from '../../shared/check.ts';
 import { runTask } from './run-task.ts';
 import {
+    capitalize,
+    fromCamelCase,
     fromSnakeCase,
     parseObject,
     toCamelCase,
     toSnakeCase,
-    fromCamelCase,
-    capitalize
 } from '../../shared/text.ts';
 
 /**
@@ -113,19 +113,20 @@ export class DB {
         // remove all comments
         query = query.replaceAll(/--.*\n/g, '');
 
-        const deCamelCase = (str: string) => str.replace(
-            /[A-Z]*[a-z]+((\d)|([A-Z0-9][a-z0-9]+))*([A-Z])?/g,
-            (word) => {
-                // console.log(toSnakeCase(fromCamelCase(word)));
-                let w = toSnakeCase(fromCamelCase(word));
-                if (w.startsWith('_')) {
-                    w = w.slice(1);
-                    // capitalize first letter
-                    // w = w.charAt(0).toUpperCase() + w.slice(1);
-                }
-                return w;
-            },
-        );
+        const deCamelCase = (str: string) =>
+            str.replace(
+                /[A-Z]*[a-z]+((\d)|([A-Z0-9][a-z0-9]+))*([A-Z])?/g,
+                (word) => {
+                    // console.log(toSnakeCase(fromCamelCase(word)));
+                    let w = toSnakeCase(fromCamelCase(word));
+                    if (w.startsWith('_')) {
+                        w = w.slice(1);
+                        // capitalize first letter
+                        // w = w.charAt(0).toUpperCase() + w.slice(1);
+                    }
+                    return w;
+                },
+            );
 
         const qMatches = query.match(/\?/g);
 
@@ -418,7 +419,9 @@ export class DB {
             );
 
             if (res.isOk()) {
-                return res.value.map((r) => capitalize(toCamelCase(fromSnakeCase(r.tableName))));
+                return res.value.map((r) =>
+                    capitalize(toCamelCase(fromSnakeCase(r.tableName)))
+                );
             }
             throw res.error;
         });
@@ -438,7 +441,9 @@ export class DB {
             );
 
             if (res.isOk()) {
-                return res.value.map((r) => toCamelCase(fromSnakeCase(r.columnName)));
+                return res.value.map((r) =>
+                    toCamelCase(fromSnakeCase(r.columnName))
+                );
             }
             throw res.error;
         });
