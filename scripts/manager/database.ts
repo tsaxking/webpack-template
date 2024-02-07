@@ -24,7 +24,9 @@ export const versionInfo = async () => {
         DB.latestVersion(),
     ]);
 
-    backToMain(`Current: ${current.join('.')}\nLatest: ${latest.join('.')}`);
+    console.log(`Current: ${current.join('.')}\nLatest: ${latest.join('.')}`);
+    await select('', ['[Back]']);
+    return main();
 };
 
 export const newVersion = async () => {
@@ -80,7 +82,7 @@ export const viewTables = async () => {
             const table = new cliffy.Table().header(keys).body(values as any);
             console.log(table.toString());
 
-            await select('Exit', ['[Back]']);
+            await select('', ['[Back]']);
             return main();
         } else {
             return backToMain('Error getting data: ' + data.error.message);
@@ -189,6 +191,7 @@ export const reset = async () => {
                         ),
                     );
                     if (res.every((r) => r.isOk())) {
+                        DB.setVersion([0, 0, 0]);
                         return DB.runAllUpdates();
                     } else {
                         const errors = res.filter((r) => r.isErr()) as Err[];
