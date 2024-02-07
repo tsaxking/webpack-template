@@ -86,13 +86,14 @@ export const toByteString = (byte: number): string => {
     }`;
 };
 
-
-
 /**
  * Parses each key of an object with a given parser (used to deCamelCase keys and stuff...)
  * @date 2/7/2024 - 1:47:58 PM
  */
-export const parseObject = (obj: object, parser: (str: string) => string): unknown => {
+export const parseObject = (
+    obj: object,
+    parser: (str: string) => string,
+): unknown => {
     if (typeof obj !== 'object') return obj;
     if (Array.isArray(obj)) return obj.map((o) => parseObject(o, parser));
     const newObj: Record<string, unknown> = {};
@@ -103,4 +104,4 @@ export const parseObject = (obj: object, parser: (str: string) => string): unkno
         }
     }
     return newObj;
-}
+};

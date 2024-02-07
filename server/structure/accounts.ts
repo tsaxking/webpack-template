@@ -6,7 +6,10 @@ import { Status } from '../utilities/status.ts';
 import { Email, EmailOptions, EmailType } from '../utilities/email.ts';
 import Filter from 'npm:bad-words';
 import { Member } from './member.ts';
-import { AccountSettings } from '../../shared/db-types.ts';
+import {
+    Account as AccountObject,
+    AccountSettings,
+} from '../../shared/db-types.ts';
 import env from '../utilities/env.ts';
 import { deleteUpload } from '../utilities/files.ts';
 import { Next, ServerFunction } from './app/app.ts';
@@ -20,7 +23,6 @@ import { validate } from '../middleware/data-type.ts';
 import { Role as RoleObj } from '../../shared/db-types.ts';
 import { Permission } from '../../shared/permissions.ts';
 import { attemptAsync } from '../../shared/check.ts';
-import { accounts as AccountObject } from '../utilities/tables.ts';
 
 /**
  * Properties that can be changed dynamically
@@ -220,7 +222,7 @@ export default class Account {
         key: string,
     ): Promise<Account | undefined> {
         const res = await DB.get('account/from-password-change', {
-            password_change: key,
+            passwordChange: key,
         });
         if (res.isOk()) {
             if (res.value) return new Account(res.value);
@@ -310,25 +312,7 @@ export default class Account {
     static async getAll(): Promise<Account[]> {
         const res = await DB.all('account/all');
         if (res.isOk()) {
-            return res.value.map(
-                (a) =>
-                    new Account({
-                        id: a.id,
-                        username: a.username,
-                        key: a.key,
-                        salt: a.salt,
-                        first_name: a.first_name,
-                        last_name: a.last_name,
-                        email: a.email,
-                        verified: a.verified,
-                        verification: a.verification,
-                        created: a.created,
-                        phone_number: a.phone_number,
-                        password_change: a.password_change,
-                        picture: a.picture,
-                        email_change: a.email_change,
-                    }),
-            );
+            return res.value.map((a: AccountObject) => new Account(a));
         }
         return [];
     }
@@ -533,13 +517,13 @@ export default class Account {
             username,
             key,
             salt,
-            first_name: firstName,
-            last_name: lastName,
+            firstName,
+            lastName,
             email,
             verified: 0,
             verification,
             created,
-            phone_number: '',
+            phoneNumber: '',
         });
 
         const a = new Account({
@@ -547,13 +531,13 @@ export default class Account {
             username,
             key,
             salt,
-            first_name: firstName,
-            last_name: lastName,
+            firstName,
+            lastName,
             email,
             verified: 0,
             verification,
             created,
-            phone_number: '',
+            phoneNumber: '',
         });
 
         a.sendVerification();
@@ -685,36 +669,21 @@ export default class Account {
      * @constructor
      * @param {AccountObject} obj
      */
-    constructor(obj: {
-        id: string;
-        username: string;
-        key: string;
-        salt: string;
-        first_name: string;
-        last_name: string;
-        email: string;
-        verified: number;
-        verification?: string;
-        created: number;
-        phone_number?: string;
-        password_change?: string;
-        picture?: string;
-        email_change?: string; // json
-    }) {
+    constructor(obj: AccountObject) {
         this.id = obj.id;
         this.username = obj.username;
         this.key = obj.key;
         this.salt = obj.salt;
-        this.firstName = obj.first_name;
-        this.lastName = obj.last_name;
+        this.firstName = obj.firstName;
+        this.lastName = obj.lastName;
         this.email = obj.email;
-        this.passwordChange = obj.password_change;
+        this.passwordChange = obj.passwordChange;
         this.picture = obj.picture;
         this.verified = obj.verified;
         this.verification = obj.verification;
 
-        if (obj.email_change) {
-            this.emailChange = JSON.parse(obj.email_change) as {
+        if (obj.emailChange) {
+            this.emailChange = JSON.parse(obj.emailChange) as {
                 email: string;
                 date: number;
             };
@@ -877,8 +846,8 @@ export default class Account {
         }
 
         await DB.run('account/add-role', {
-            account_id: this.id,
-            role_id: role.id,
+            accountId: this.id,
+            roleId: role.id,
         });
 
         return 'role-added';
@@ -899,8 +868,8 @@ export default class Account {
         }
 
         DB.run('account/remove-role', {
-            account_id: this.id,
-            role_id: role.id,
+            accountId: this.id,
+            roleId: role.id,
         });
 
         return 'role-removed';
@@ -1082,7 +1051,7 @@ export default class Account {
 
         DB.run('account/request-email-change', {
             id: this.id,
-            email_change: JSON.stringify(this.emailChange),
+            emailChange: JSON.stringify(this.emailChange),
         });
 
         this.sendVerification();
@@ -1102,7 +1071,7 @@ export default class Account {
 
         DB.run('account/request-password-change', {
             id: this.id,
-            password_change: key,
+            passwordChange: key,
         });
 
         this.sendEmail('Password change request', EmailType.link, {
@@ -1132,7 +1101,7 @@ export default class Account {
             id: this.id,
             salt,
             key: newKey,
-            password_change: undefined,
+            passwordChange: undefined,
         });
         this.key = newKey;
         this.salt = salt;
@@ -1173,7 +1142,7 @@ export default class Account {
 
     async getSettings(): Promise<AccountSettings | undefined> {
         const res = await DB.get('account/get-settings', {
-            account_id: this.id,
+            accountId: this.id,
         });
         if (res.isOk() && res.value) return JSON.parse(res.value.settings);
         return undefined;
@@ -1184,7 +1153,7 @@ export default class Account {
             const str = JSON.stringify(settings);
 
             DB.run('account/save-settings', {
-                account_id: this.id,
+                accountId: this.id,
                 settings: str,
             });
         });

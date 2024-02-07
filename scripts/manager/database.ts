@@ -3,7 +3,11 @@ import { __root } from '../../server/utilities/env.ts';
 import { addQuery, getTables, merge, parseSql } from '../parse-sql.ts';
 import { DB } from '../../server/utilities/databases.ts';
 import { confirm, repeatPrompt, select } from '../prompt.ts';
-import { readFile, saveFileSync, readDir } from '../../server/utilities/files.ts';
+import {
+    readDir,
+    readFile,
+    saveFileSync,
+} from '../../server/utilities/files.ts';
 import { relative, resolve } from '../../server/utilities/env.ts';
 import { fromCamelCase, toSnakeCase } from '../../shared/text.ts';
 import { attemptAsync, Err, Result } from '../../shared/check.ts';

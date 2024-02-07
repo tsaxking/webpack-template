@@ -7,7 +7,24 @@ import { app } from '../server.ts';
 import { Req } from './app/req.ts';
 import { Res } from './app/res.ts';
 import { log } from '../utilities/terminal-logging.ts';
-import { sessions as SessionObj } from '../utilities/tables.ts';
+
+/**
+ * Session object from the database
+ * @date 10/12/2023 - 3:13:58 PM
+ *
+ * @export
+ * @typedef {SessionObj}
+ */
+export type SessionObj = {
+    ip?: string;
+    id: string;
+    latestActivity?: number;
+    accountId?: string;
+    prevUrl?: string;
+    userAgent?: string;
+    created: number;
+    limitTime?: number;
+};
 
 /**
  * The options for the session middleware
@@ -113,10 +130,10 @@ export class Session {
         const session = new Session();
         session.ip = s.ip;
         session.id = s.id;
-        session.latestActivity = s.latest_activity;
-        session.$prevUrl = s.prev_url;
-        session.userAgent = s.user_agent;
-        session.accountId = s.account_id;
+        session.latestActivity = s.latestActivity;
+        session.$prevUrl = s.prevUrl;
+        session.userAgent = s.userAgent;
+        session.accountId = s.accountId;
 
         log('Built:', session);
         return session;
@@ -139,10 +156,10 @@ export class Session {
         DB.run('sessions/new', {
             id: s.id,
             ip: s.ip || '',
-            latest_activity: s.latestActivity,
-            account_id: s.accountId || '',
-            user_agent: s.userAgent || '',
-            prev_url: s.prevUrl || '',
+            latestActivity: s.latestActivity,
+            accountId: s.accountId || '',
+            userAgent: s.userAgent || '',
+            prevUrl: s.prevUrl || '',
             requests: s.requests,
             created: s.created,
         });
@@ -296,7 +313,7 @@ export class Session {
         this.accountId = account.id;
         return DB.run('sessions/sign-in', {
             id: this.id,
-            account_id: account.id,
+            accountId: account.id,
         });
     }
 
@@ -330,20 +347,20 @@ export class Session {
             return DB.run('sessions/update', {
                 id: this.id,
                 ip: this.ip || '',
-                latest_activity: this.latestActivity,
-                account_id: this.accountId || '',
-                user_agent: this.userAgent || '',
-                prev_url: this.prevUrl || '',
+                latestActivity: this.latestActivity,
+                accountId: this.accountId || '',
+                userAgent: this.userAgent || '',
+                prevUrl: this.prevUrl || '',
                 requests: this.requests,
             });
         } else {
             return DB.run('sessions/new', {
                 id: this.id,
                 ip: this.ip || '',
-                latest_activity: this.latestActivity,
-                account_id: this.accountId || '',
-                user_agent: this.userAgent || '',
-                prev_url: this.prevUrl || '',
+                latestActivity: this.latestActivity,
+                accountId: this.accountId || '',
+                userAgent: this.userAgent || '',
+                prevUrl: this.prevUrl || '',
                 requests: this.requests,
                 created: this.created,
             });

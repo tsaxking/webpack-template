@@ -1,11 +1,16 @@
 import env, { __root } from './env.ts';
 import { Client } from 'https://deno.land/x/postgres@v0.17.0/mod.ts';
 import { error, log } from './terminal-logging.ts';
-import { queries as Queries } from './queries.ts';
+import { Queries } from './queries.ts';
 import { exists, readDir, readFile, readFileSync } from './files.ts';
 import { attemptAsync, Result } from '../../shared/check.ts';
 import { runTask } from './run-task.ts';
-import { toSnakeCase, parseObject, fromSnakeCase, toCamelCase } from '../../shared/text.ts';
+import {
+    fromSnakeCase,
+    parseObject,
+    toCamelCase,
+    toSnakeCase,
+} from '../../shared/text.ts';
 
 /**
  * The name of the main database
@@ -106,7 +111,11 @@ export class DB {
         // remove all comments
         query = query.replaceAll(/--.*\n/g, '');
 
-        const deCamelCase = (str: string) => str.replace(/[A-Z]*[a-z]+((\d)|([A-Z0-9][a-z0-9]+))*([A-Z])?/g, toSnakeCase);
+        const deCamelCase = (str: string) =>
+            str.replace(
+                /[A-Z]*[a-z]+((\d)|([A-Z0-9][a-z0-9]+))*([A-Z])?/g,
+                toSnakeCase,
+            );
 
         const qMatches = query.match(/\?/g);
 
@@ -131,7 +140,9 @@ export class DB {
             for (let i = 0; i < matches.length; i++) {
                 query = query.replaceAll(matches[i], `$${i + 1}`);
                 newArgs.push(
-                    copied[0] ? copied[0][matches[i].replace(/:/g, '')] : copied[i],
+                    copied[0]
+                        ? copied[0][matches[i].replace(/:/g, '')]
+                        : copied[i],
                 );
             }
             return [deCamelCase(query), newArgs];
@@ -443,7 +454,10 @@ export class DB {
         return attemptAsync(async () => {
             const sql = readFileSync('/storage/db/queries/' + type + '.sql');
             if (sql.isOk()) {
-                const [parsedQuery, parsedArgs] = DB.parseQuery(sql.value, args);
+                const [parsedQuery, parsedArgs] = DB.parseQuery(
+                    sql.value,
+                    args,
+                );
                 return [parsedQuery, parsedArgs] as [string, QParams<T>];
             } else {
                 throw new Error('Unable to read query file: ' + type);
