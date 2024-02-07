@@ -1,6 +1,5 @@
 import { assertEquals } from 'https://deno.land/std@0.205.0/assert/mod.ts';
 import { __root } from '../../server/utilities/env.ts';
-import '../init.ts';
 import { runCommand, runTask } from '../../server/utilities/run-task.ts';
 import { log } from '../../server/utilities/terminal-logging.ts';
 import { validate } from '../../server/middleware/data-type.ts';

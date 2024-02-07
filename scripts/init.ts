@@ -195,7 +195,7 @@ const createEnv = () => {
     return values;
 };
 
-createEnv();
+if (import.meta.main) createEnv();
 
 if (Deno.args.includes('--db')) {
     // this will run the database setup.
