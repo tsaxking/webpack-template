@@ -76,8 +76,12 @@ type BuildEventData = {
 export const runBuild = async () => {
     const builder = new EventEmitter<keyof BuildEventData>();
 
+    const watchers = new Map<string, Deno.FsWatcher>();
+
     const watch = async (path: string) => {
         const watcher = Deno.watchFs(path);
+        watchers.set(path, watcher);
+
         for await (const event of watcher) {
             console.log('file change detected', event);
             switch (event.kind) {
@@ -90,6 +94,17 @@ export const runBuild = async () => {
             }
         }
     };
+
+    const close = () => {
+        for (const watcher of watchers.values()) {
+            watcher.close();
+        }
+    }
+
+    Deno.addSignalListener('SIGINT', close);
+    Deno.addSignalListener('SIGTERM', close);
+    Deno.addSignalListener('SIGHUP', close);
+    Deno.addSignalListener('SIGQUIT', close);
 
     const build = () =>
         esbuild.build({
