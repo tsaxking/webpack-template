@@ -1,5 +1,5 @@
-select 
-    permissions.*
-from permissions
-inner join role_permissions on permissions.permission = role_permissions.permission
-where role_permissions.role_id = :role_id;
+SELECT 
+    Permissions.*
+FROM Permissions
+INNER JOIN RolePermissions ON Permissions.permission = RolePermissions.permission
+WHERE RolePermissions.roleId = :roleId;

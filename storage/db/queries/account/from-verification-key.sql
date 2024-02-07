@@ -1,2 +1,2 @@
-select * from accounts
-where verification = :verification;
+SELECT * FROM Accounts
+WHERE verification = :verification;

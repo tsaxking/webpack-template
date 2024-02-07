@@ -1,101 +1,101 @@
-create table if not exists accounts (
-    id text primary key,
-    username text unique not null,
-    key text not null,
-    salt text not null,
-    first_name text not null,
-    last_name text not null,
-    email text not null unique,
-    password_change text,
-    picture text,
-    verified integer not null default 0,
-    verification text,
-    email_change text,
-    password_change_date bigint,
-    phone_number text,
-    created bigint not null
+CREATE TABLE IF NOT EXISTS Accounts (
+    id TEXT PRIMARY KEY,
+    username TEXT UNIQUE NOT NULL,
+    key TEXT NOT NULL,
+    salt TEXT NOT NULL,
+    firstName TEXT NOT NULL,
+    lastName TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    passwordChange TEXT,
+    picture TEXT,
+    verified INTEGER NOT NULL DEFAULT 0,
+    verification TEXT,
+    emailChange TEXT,
+    passwordChangeDate BIGINT,
+    phoneNumber TEXT,
+    created BIGINT NOT NULL
 );
 
 
-create table if not exists members (
-    id text primary key,
-    title text,
-    status text default 'pending',
-    bio text,
-    resume text,
-    board integer not null default 0
+CREATE TABLE IF NOT EXISTS Members (
+    id TEXT PRIMARY KEY,
+    title TEXT,
+    status TEXT DEFAULT 'pending',
+    bio TEXT,
+    resume TEXT,
+    board INTEGER NOT NULL DEFAULT 0
 );
 
 
-create table if not exists roles (
-    id text primary key,
-    name text not null,
-    description text,
-    rank integer not null
+CREATE TABLE IF NOT EXISTS Roles (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    description TEXT,
+    rank INTEGER NOT NULL
 );
 
 
-create table if not exists account_roles (
-    account_id text not null,
-    role_id text not null
+CREATE TABLE IF NOT EXISTS AccountRoles (
+    accountId TEXT NOT NULL,
+    roleId TEXT NOT NULL
 );
 
-create table if not exists permissions (
-    permission text not null,
-    description text
+CREATE TABLE IF NOT EXISTS Permissions (
+    permission TEXT NOT NULL,
+    description TEXT
 );
 
-create table if not exists role_permissions (
-    role_id text not null,
-    permission text not null
+CREATE TABLE IF NOT EXISTS RolePermissions (
+    roleId TEXT NOT NULL,
+    permission TEXT NOT NULL
 );
 
 
--- create table if not exists limit (
---     ip text primary key,
---     limit_start integer not null,
---     limit_time integer not null
+-- CREATE TABLE IF NOT EXISTS Limit (
+--     ip TEXT PRIMARY KEY,
+--     limitStart INTEGER NOT NULL,
+--     limitTime INTEGER NOT NULL
 -- );
 
 
-create table if not exists version (
-    major integer not null default 1,
-    minor integer not null default 0,
-    patch integer not null default 0
+CREATE TABLE IF NOT EXISTS Version (
+    major INTEGER NOT NULL DEFAULT 1,
+    minor INTEGER NOT NULL DEFAULT 0,
+    patch INTEGER NOT NULL DEFAULT 0
 );
 
 
-create table if not exists sessions (
-    id text primary key,
-    account_id text,
-    ip text,
-    user_agent text,
-    latest_activity bigint,
-    requests integer not null default 0,
-    created bigint not null,
-    prev_url text
+CREATE TABLE IF NOT EXISTS Sessions (
+    id TEXT PRIMARY KEY,
+    accountId TEXT,
+    ip TEXT,
+    userAgent TEXT,
+    latestActivity BIGINT,
+    requests INTEGER NOT NULL DEFAULT 0,
+    created BIGINT NOT NULL,
+    prevUrl TEXT
 );
 
-create table if not exists account_settings (
-    account_id text not null primary key,
-    settings text not null -- json
+CREATE TABLE IF NOT EXISTS AccountSettings (
+    accountId TEXT NOT NULL PRIMARY KEY,
+    settings TEXT NOT NULL -- JSON
 );
 
--- create table if not exists block_list (
---     ip text primary key,
---     created integer not null
+-- CREATE TABLE IF NOT EXISTS BlockList (
+--     ip TEXT PRIMARY KEY,
+--     created INTEGER NOT NULL
 -- );
 
 
 
--- reset the version number
-delete from version;
+-- Reset the version number
+DELETE FROM Version;
 
-insert into version (
+INSERT INTO Version (
     major,
     minor,
     patch
-) values (
+) VALUES (
     1,
     0,
     0

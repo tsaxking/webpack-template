@@ -1,7 +1,7 @@
-insert into members (
+INSERT INTO Members (
     id,
     "status"
-) values (
+) VALUES (
     :id,
     :status
 )

@@ -1,5 +1,5 @@
-update roles set
+UPDATE Roles SET
     name = :name,
     description = :description,
     rank = :rank
-where id = :id;
+WHERE id = :id;

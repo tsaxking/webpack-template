@@ -1,19 +1,19 @@
-insert into sessions (
+INSERT INTO Sessions (
     id,
-    account_id,
-    user_agent,
-    latest_activity,
+    accountId,
+    userAgent,
+    latestActivity,
     requests,
     created,
     ip,
-    prev_url
-) values (
+    prevUrl
+) VALUES (
     :id,
-    :account_id,
-    :user_agent,
-    :latest_activity,
+    :accountId,
+    :userAgent,
+    :latestActivity,
     :requests,
     :created,
     :ip,
-    :prev_url
+    :prevUrl
 );

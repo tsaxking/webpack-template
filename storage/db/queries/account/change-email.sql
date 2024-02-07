@@ -1,3 +1,3 @@
-update accounts 
-set email = :email
-where id = :id
+UPDATE Accounts 
+SET email = :email
+WHERE id = :id

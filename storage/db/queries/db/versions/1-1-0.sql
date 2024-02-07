@@ -1,2 +1,2 @@
--- new version 1.0
+-- New version 1.0
 

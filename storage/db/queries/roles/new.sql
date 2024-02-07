@@ -1,9 +1,9 @@
-insert into roles (
+INSERT INTO Roles (
     id,
     name,
     description,
     rank
-) values (
+) VALUES (
     :id,
     :name,
     :description,

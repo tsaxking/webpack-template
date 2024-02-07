@@ -1,3 +1,3 @@
-select members.* from members
-inner join accounts on members.id = accounts.id
-where accounts.username = :username;
+SELECT Members.* FROM Members
+INNER JOIN Accounts ON Members.id = Accounts.id
+WHERE Accounts.username = :username;

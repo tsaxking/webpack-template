@@ -1,25 +1,25 @@
-insert into accounts (
+INSERT INTO Accounts (
     id,
     username,
     "key",
     salt,
-    first_name,
-    last_name,
+    firstName,
+    lastName,
     email,
     verified,
     verification,
     created,
-    phone_number
-) values (
+    phoneNumber
+) VALUES (
     :id,
     :username,
     :key,
     :salt,
-    :first_name,
-    :last_name,
+    :firstName,
+    :lastName,
     :email,
     :verified,
     :verification,
     :created,
-    :phone_number
+    :phoneNumber
 )

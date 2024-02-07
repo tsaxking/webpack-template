@@ -1,2 +1,2 @@
-select * from member_skills
-where id = :id;
+SELECT * FROM MemberSkills
+WHERE id = :id;

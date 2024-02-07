@@ -1,3 +1,3 @@
-update members
-set "resume" = :resume
-where id = :id
+UPDATE Members
+SET "resume" = :resume
+WHERE id = :id

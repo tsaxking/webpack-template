@@ -1,1 +1,1 @@
-select * from roles where name = :name;
+SELECT * FROM Roles WHERE name = :name;

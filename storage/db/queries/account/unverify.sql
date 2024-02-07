@@ -1,3 +1,3 @@
-update accounts
-set verified = 0
-where id = :id;
+UPDATE Accounts
+SET verified = 0
+WHERE id = :id;

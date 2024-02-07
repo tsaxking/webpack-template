@@ -1,1 +1,1 @@
-select * from permissions;
+SELECT * FROM Permissions;

@@ -1,3 +1,3 @@
-update accounts
-set username = :username
-where id = :id
+UPDATE Accounts
+SET username = :username
+WHERE id = :id

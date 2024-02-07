@@ -1,3 +1,3 @@
-update members
-set "status" = :status
-where id = :id
+UPDATE Members
+SET "status" = :status
+WHERE id = :id

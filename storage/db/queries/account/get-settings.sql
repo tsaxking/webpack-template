@@ -1,1 +1,1 @@
-select * from account_settings where account_id = :account_id;
+SELECT * FROM AccountSettings WHERE accountId = :accountId;

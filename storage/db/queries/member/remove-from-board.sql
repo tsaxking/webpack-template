@@ -1,3 +1,3 @@
-update members
-set board = 0
-where id = :id
+UPDATE Members
+SET board = 0
+WHERE id = :id

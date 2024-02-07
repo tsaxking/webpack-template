@@ -1,1 +1,1 @@
-update sessions set account_id = null where id = :id;
+UPDATE Sessions SET accountId = NULL WHERE id = :id;

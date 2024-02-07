@@ -1,3 +1,3 @@
-select * from skills
-where id = :id
-and skill = :skill;
+SELECT * FROM Skills
+WHERE id = :id
+AND skill = :skill;

@@ -1,2 +1,2 @@
-select * from accounts
-where verified = 1
+SELECT * FROM Accounts
+WHERE verified = 1

@@ -1,2 +1,2 @@
-delete from members
-where id = :id
+DELETE FROM Members
+WHERE id = :id

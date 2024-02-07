@@ -1,1 +1,1 @@
-update sessions set account_id = :account_id where id = :id;
+UPDATE Sessions SET accountId = :accountId WHERE id = :id;

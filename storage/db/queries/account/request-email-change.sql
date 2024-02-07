@@ -1,3 +1,3 @@
-update accounts
-set email_change = :email_change
-where id = :id
+UPDATE Accounts
+SET emailChange = :emailChange
+WHERE id = :id
