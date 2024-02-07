@@ -2,8 +2,8 @@ import { backToMain, main, selectFile } from '../manager.ts';
 import { __root } from '../../server/utilities/env.ts';
 import { addQuery, getTables, merge, parseSql } from '../parse-sql.ts';
 import { DB } from '../../server/utilities/databases.ts';
-import { confirm, repeatPrompt } from '../prompt.ts';
-import { readFile, saveFileSync } from '../../server/utilities/files.ts';
+import { confirm, repeatPrompt, select } from '../prompt.ts';
+import { readFile, saveFileSync, readDir } from '../../server/utilities/files.ts';
 import { relative, resolve } from '../../server/utilities/env.ts';
 import { fromCamelCase, toSnakeCase } from '../../shared/text.ts';
 import { attemptAsync, Err, Result } from '../../shared/check.ts';
@@ -296,6 +296,32 @@ export const runUpdates = async () => {
     return backToMain('Ran all available updates');
 };
 
+export const clearTable = async () => {
+    const tables = await DB.getTables();
+    if (tables.isOk()) {
+        const table = await select(
+            'Select table to clear',
+            tables.value.map((t) => ({ name: t, value: t })),
+        );
+
+        const doClear = await confirm(
+            `Are you sure you want to clear ${table}?`,
+        );
+        if (doClear) {
+            const res = await DB.unsafe.run(`DELETE FROM ${table}`);
+            if (res.isOk()) {
+                backToMain('Table cleared');
+            } else {
+                backToMain('Error clearing table: ' + res.error.message);
+            }
+        } else {
+            backToMain('Clear cancelled');
+        }
+    } else {
+        backToMain('Error getting tables: ' + tables.error.message);
+    }
+};
+
 export const databases = [
     {
         value: buildQueries,
@@ -316,5 +342,25 @@ export const databases = [
     {
         value: viewTables,
         icon: '📇',
+    },
+    // {
+    //     value: addQueryType,
+    //     icon: '📝',
+    // },
+    // {
+    //     value: makeDefaultQueries,
+    //     icon: '📄',
+    // },
+    {
+        value: reset,
+        icon: '🔄',
+    },
+    {
+        value: runUpdates,
+        icon: '🔃',
+    },
+    {
+        value: clearTable,
+        icon: '🗑️',
     },
 ];

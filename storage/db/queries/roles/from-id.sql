@@ -1,2 +1,2 @@
-SELECT * FROM Roles
-WHERE id = :id;
+select * from roles
+where id = :id;

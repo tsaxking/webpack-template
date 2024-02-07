@@ -1,0 +1,1 @@
+update sessions set account_id = null where id = :id;

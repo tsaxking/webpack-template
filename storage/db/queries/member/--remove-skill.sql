@@ -1,2 +1,2 @@
-DELETE FROM MemberSkills
-WHERE id = :id;
+delete from member_skills
+where id = :id;

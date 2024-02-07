@@ -371,7 +371,7 @@ export class App {
      * @readonly
      * @type {Deno.Server}
      */
-    public readonly server: Deno.Server;
+    public readonly server: Deno.HttpServer;
 
     /**
      * Creates an instance of App.
@@ -450,18 +450,20 @@ export class App {
         denoReq: Request,
         info: Deno.ServeHandlerInfo,
     ): Promise<Response> {
-        const ssid = parseCookie(denoReq.headers.get('cookie') || '').ssid;
+        const { ssid } = parseCookie(denoReq.headers.get('cookie') || '');
         let s = await Session.get(ssid);
 
+        let setSsid = false;
+
         if (!s) {
-            const id = uuid();
+            setSsid = true;
             const obj = {
-                id,
+                id: Session.newId(),
                 ip: info.remoteAddr.hostname,
-                latestActivity: Date.now(),
-                accountId: '',
-                userAgent: denoReq.headers.get('user-agent') || '',
-                prevUrl: '',
+                latest_activity: Date.now(),
+                account_id: '',
+                user_agent: denoReq.headers.get('user-agent') || '',
+                prev_url: '',
                 requests: 1,
                 created: Date.now(),
             };
@@ -508,6 +510,11 @@ export class App {
 
             const req = new Req(denoReq, info, this.io, s as Session);
             const res = new Res(this, req);
+
+            if (setSsid) {
+                console.log('Sending cookie...');
+                res.cookie('ssid', s.id, Session.cookieOptions);
+            }
 
             // log(parseCookie(denoReq.headers.get('cookie') || ''));
 

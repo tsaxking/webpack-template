@@ -1,3 +1,3 @@
-UPDATE Accounts
-SET picture = :picture
-WHERE id = :id
+update accounts
+set picture = :picture
+where id = :id

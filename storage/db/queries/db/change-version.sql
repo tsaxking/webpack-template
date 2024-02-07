@@ -1,1 +1,1 @@
-UPDATE Version SET version = :version;
+update version set version = :version;

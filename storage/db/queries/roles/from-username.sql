@@ -1,5 +1,5 @@
-SELECT Roles.* FROM Roles
-INNER JOIN AccountRoles ON Roles.id = AccountRoles.roleId
-INNER JOIN Accounts ON AccountRoles.accountId = Accounts.id
-WHERE AccountRoles.accountId = Accounts.id
-    AND Accounts.username = :username;
+select roles.* from roles
+inner join account_roles on roles.id = account_roles.role_id
+inner join accounts on account_roles.account_id = accounts.id
+where account_roles.account_id = accounts.id
+    and accounts.username = :username;

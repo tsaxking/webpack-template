@@ -1,2 +1,2 @@
-SELECT * FROM Accounts
-WHERE passwordChange = :passwordChange
+select * from accounts
+where password_change = :password_change

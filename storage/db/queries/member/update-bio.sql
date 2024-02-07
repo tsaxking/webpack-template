@@ -1,3 +1,3 @@
-UPDATE Members
-SET bio = :bio
-WHERE id = :id
+update members
+set bio = :bio
+where id = :id

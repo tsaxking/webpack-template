@@ -84,8 +84,9 @@ router.post<{
             });
         }
 
-        req.session.signIn(account);
+        const r = await req.session.signIn(account);
 
+        if (r.isErr()) return res.sendStatus('unknown:error');
         res.sendStatus(
             'account:logged-in',
             { username },

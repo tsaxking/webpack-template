@@ -1,3 +1,3 @@
-UPDATE Accounts
-SET passwordChange = :passwordChange
-WHERE id = :id
+update accounts
+set password_change = :password_change
+where id = :id

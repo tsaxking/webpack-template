@@ -60,8 +60,6 @@ app.static('/public', resolve(__root, './public'));
 app.static('/dist', resolve(__root, './dist'));
 app.static('/uploads', resolve(__root, './uploads'));
 
-app.use('/*', Session.middleware());
-
 app.post('/socket-url', (req, res) => {
     res.json({
         url: env.SOCKET_DOMAIN,

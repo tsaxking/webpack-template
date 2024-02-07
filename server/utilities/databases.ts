@@ -1,7 +1,7 @@
 import env, { __root } from './env.ts';
 import { Client } from 'https://deno.land/x/postgres@v0.17.0/mod.ts';
 import { error, log } from './terminal-logging.ts';
-import { Queries } from './queries.ts';
+import { queries as Queries } from './queries.ts';
 import { exists, readDir, readFile, readFileSync } from './files.ts';
 import { attemptAsync, Result } from '../../shared/check.ts';
 import { runTask } from './run-task.ts';
@@ -466,6 +466,7 @@ export class DB {
             }
 
             const [sql, newArgs] = q.value;
+
             const result = await DB.db.queryObject(sql, newArgs);
             if (result.warnings.length) {
                 log('Database warnings:', result.warnings);
@@ -496,7 +497,10 @@ export class DB {
     ): Promise<Result<Queries[T][1]>> {
         return attemptAsync(async () => {
             const q = await DB.runQuery(type, ...args);
-            if (q.isErr()) throw q.error;
+            if (q.isErr()) {
+                console.error(q.error);
+                throw q.error;
+            }
             return q.value[0];
         });
     }
@@ -517,7 +521,10 @@ export class DB {
     ): Promise<Result<Queries[T][1] | undefined>> {
         return attemptAsync(async () => {
             const q = await DB.runQuery(type, ...args);
-            if (q.isErr()) throw q.error;
+            if (q.isErr()) {
+                console.error(q.error);
+                throw q.error;
+            }
             return q.value[0];
         });
     }
@@ -538,7 +545,10 @@ export class DB {
     ): Promise<Result<Queries[T][1][]>> {
         return attemptAsync(async () => {
             const q = await DB.runQuery(type, ...args);
-            if (q.isErr()) throw q.error;
+            if (q.isErr()) {
+                console.error(q.error);
+                throw q.error;
+            }
             return q.value;
         });
     }
@@ -574,7 +584,10 @@ export class DB {
             ): Promise<Result<unknown>> => {
                 return attemptAsync(async () => {
                     const r = await runUnsafe(query, ...args);
-                    if (r.isErr()) throw r.error;
+                    if (r.isErr()) {
+                        console.error(r.error);
+                        throw r.error;
+                    }
                     return r.value[0];
                 });
             },
@@ -584,7 +597,10 @@ export class DB {
             ): Promise<Result<type | undefined>> => {
                 return attemptAsync(async () => {
                     const r = await runUnsafe(query, ...args);
-                    if (r.isErr()) throw r.error;
+                    if (r.isErr()) {
+                        console.error(r.error);
+                        throw r.error;
+                    }
                     return r.value[0] as type;
                 });
             },
@@ -594,7 +610,10 @@ export class DB {
             ): Promise<Result<type[]>> => {
                 return attemptAsync(async () => {
                     const r = await runUnsafe(query, ...args);
-                    if (r.isErr()) throw r.error;
+                    if (r.isErr()) {
+                        console.error(r.error);
+                        throw r.error;
+                    }
                     return r.value as type[];
                 });
             },

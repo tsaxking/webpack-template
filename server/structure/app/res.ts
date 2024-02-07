@@ -378,6 +378,8 @@ export class Res {
             options: options,
         };
 
+        this.req.cookie[id] = value;
+
         return this;
     }
 

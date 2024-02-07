@@ -1,8 +1,8 @@
-INSERT INTO AccountSettings (
-    accountId,
+insert into account_settings (
+    account_id,
     settings
-) VALUES (
-    :accountId,
+) values (
+    :account_id,
     :settings
-) ON CONFLICT (accountId) DO UPDATE SET
+) on conflict (account_id) do update set
     settings = :settings;

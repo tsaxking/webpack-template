@@ -1,7 +1,7 @@
-INSERT INTO MemberSkills (
+insert into member_skills (
     id,
     skill
-) VALUES (
+) values (
     :id,
     :skill
 )

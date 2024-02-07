@@ -1,3 +1,3 @@
-UPDATE Accounts
-SET verification = :verification
-WHERE id = :id
+update accounts
+set verification = :verification
+where id = :id

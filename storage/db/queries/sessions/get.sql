@@ -1,2 +1,2 @@
-SELECT * FROM Sessions
-WHERE id = :id;
+select * from sessions
+where id = :id;

@@ -1,1 +1,1 @@
-DELETE FROM permissions WHERE permission = :permission;
+delete from permissions where permission = :permission;

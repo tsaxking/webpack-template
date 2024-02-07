@@ -1,2 +1,2 @@
-DELETE FROM Accounts
-WHERE id = :id
+delete from accounts
+where id = :id
