@@ -35,7 +35,7 @@ const createEnv = () => {
                 .trim();
         }
     } catch {
-        console.error(
+        console.warn(
             'Unable to read .env file, please make sure it exists and is formatted correctly.',
         );
     }
