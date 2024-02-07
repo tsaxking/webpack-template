@@ -125,7 +125,7 @@ export class Session {
      * @returns {Session}
      */
     static fromSessObj(s: SessionObj): Session {
-        log('Building from:', s);
+        // log('Building from:', s);
 
         const session = new Session();
         session.ip = s.ip;
@@ -135,7 +135,7 @@ export class Session {
         session.userAgent = s.userAgent;
         session.accountId = s.accountId;
 
-        log('Built:', session);
+        // log('Built:', session);
         return session;
     }
 
