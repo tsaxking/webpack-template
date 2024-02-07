@@ -1,1 +1,1 @@
-SELECT * FROM Members
+select * from members

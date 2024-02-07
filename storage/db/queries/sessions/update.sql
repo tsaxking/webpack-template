@@ -1,8 +1,8 @@
-UPDATE Sessions SET
-    accountId = :accountId,
-    userAgent = :userAgent,
-    latestActivity = :latestActivity,
+update sessions set
+    account_id = :account_id,
+    user_agent = :user_agent,
+    latest_activity = :latest_activity,
     requests = :requests,
     ip = :ip,
-    prevUrl = :prevUrl
-WHERE id = :id;
+    prev_url = :prev_url
+where id = :id;

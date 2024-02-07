@@ -195,7 +195,7 @@ export default class Role {
      */
     async getPermissions(): Promise<Permission[]> {
         const data = await DB.all('permissions/from-role', {
-            roleId: this.id,
+            role_id: this.id,
         });
         if (data.isOk()) {
             return data.value.map(
@@ -208,13 +208,13 @@ export default class Role {
     addPermission(permission: Permission) {
         DB.run('permissions/add-to-role', {
             permission,
-            roleId: this.id,
+            role_id: this.id,
         });
     }
 
     removePermission(permission: Permission) {
         DB.run('permissions/remove-from-role', {
-            roleId: this.id,
+            role_id: this.id,
             permission,
         });
     }

@@ -1,2 +1,2 @@
-SELECT * FROM Accounts
-WHERE username = :username;
+select * from accounts
+where username = :username;

@@ -1,7 +1,7 @@
-INSERT INTO RolePermissions (
-    roleId,
+insert into role_permissions (
+    role_id,
     permission
-) VALUES (
-    :roleId,
+) values (
+    :role_id,
     :permission
 );

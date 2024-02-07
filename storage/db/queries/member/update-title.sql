@@ -1,3 +1,3 @@
-UPDATE Members
-SET title = :title
-WHERE id = :id
+update members
+set title = :title
+where id = :id

@@ -1,1 +1,1 @@
-SELECT * FROM Accounts WHERE id = :id;
+select * from accounts where id = :id;

@@ -460,10 +460,10 @@ export class App {
             const obj = {
                 id: Session.newId(),
                 ip: info.remoteAddr.hostname,
-                latestActivity: Date.now(),
-                accountId: '',
-                userAgent: denoReq.headers.get('user-agent') || '',
-                prevUrl: '',
+                latest_activity: Date.now(),
+                account_id: '',
+                user_agent: denoReq.headers.get('user-agent') || '',
+                prev_url: '',
                 requests: 1,
                 created: Date.now(),
             };

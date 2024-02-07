@@ -1,1 +1,1 @@
-DELETE FROM Roles WHERE id = :id;
+delete from roles where id = :id;

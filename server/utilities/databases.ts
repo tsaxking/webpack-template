@@ -1,7 +1,7 @@
 import env, { __root } from './env.ts';
 import { Client } from 'https://deno.land/x/postgres@v0.17.0/mod.ts';
 import { error, log } from './terminal-logging.ts';
-import { Queries } from './queries.ts';
+import { queries as Queries } from './queries.ts';
 import { exists, readDir, readFile, readFileSync } from './files.ts';
 import { attemptAsync, Result } from '../../shared/check.ts';
 import { runTask } from './run-task.ts';

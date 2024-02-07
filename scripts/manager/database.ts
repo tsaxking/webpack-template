@@ -308,7 +308,9 @@ export const clearTable = async () => {
             tables.value.map((t) => ({ name: t, value: t })),
         );
 
-        const doClear = await confirm(`Are you sure you want to clear ${table}?`);
+        const doClear = await confirm(
+            `Are you sure you want to clear ${table}?`,
+        );
         if (doClear) {
             const res = await DB.unsafe.run(`DELETE FROM ${table}`);
             if (res.isOk()) {
@@ -322,7 +324,7 @@ export const clearTable = async () => {
     } else {
         backToMain('Error getting tables: ' + tables.error.message);
     }
-}
+};
 
 export const databases = [
     {
@@ -364,5 +366,5 @@ export const databases = [
     {
         value: clearTable,
         icon: '🗑️',
-    }
+    },
 ];

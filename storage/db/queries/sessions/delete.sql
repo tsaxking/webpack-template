@@ -1,1 +1,1 @@
-DELETE FROM Sessions WHERE id = :id;
+delete from sessions where id = :id;

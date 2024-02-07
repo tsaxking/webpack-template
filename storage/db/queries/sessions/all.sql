@@ -1,1 +1,1 @@
-SELECT * FROM Sessions;
+select * from sessions;
