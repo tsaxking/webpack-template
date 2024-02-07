@@ -1,9 +1,13 @@
 import { backToMain, main, selectFile } from '../manager.ts';
 import { __root } from '../../server/utilities/env.ts';
-import { addQuery, getTables, parseSql, merge } from '../parse-sql.ts';
+import { addQuery, getTables, merge, parseSql } from '../parse-sql.ts';
 import { DB } from '../../server/utilities/databases.ts';
 import { confirm, repeatPrompt, select } from '../prompt.ts';
-import { readDir, readFile, saveFileSync } from '../../server/utilities/files.ts';
+import {
+    readDir,
+    readFile,
+    saveFileSync,
+} from '../../server/utilities/files.ts';
 import { relative, resolve } from '../../server/utilities/env.ts';
 import { fromCamelCase, toSnakeCase } from '../../shared/text.ts';
 import { attemptAsync, Err, Result } from '../../shared/check.ts';
@@ -87,11 +91,11 @@ export const viewTables = async () => {
 };
 
 export const mergeQueries = async () => {
-    const allFiles = await readDir(
-        resolve(__root, './server/utilities')
-    );
+    const allFiles = await readDir(resolve(__root, './server/utilities'));
     if (allFiles.isOk()) {
-        const files = allFiles.value.filter((f) => f.isFile && f.name.match(/\w+-[0-9]+.ts/)?.length);
+        const files = allFiles.value.filter(
+            (f) => f.isFile && f.name.match(/\w+-[0-9]+.ts/)?.length,
+        );
         if (!files.length) return backToMain('No files to merge');
         const mergables = files.reduce((acc, f) => {
             const num = Number(f.name.match(/[0-9]+/)?.[0] || 'NaN');
@@ -100,10 +104,10 @@ export const mergeQueries = async () => {
         }, [] as number[]);
         const selected = await select(
             'Select file to merge',
-            mergables.map(m => ({ 
+            mergables.map((m) => ({
                 name: `Merge ${m}`,
-                value: m
-            }))
+                value: m,
+            })),
         );
 
         if (isNaN(selected)) return backToMain('Invalid file selected');
