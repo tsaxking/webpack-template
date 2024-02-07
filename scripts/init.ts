@@ -179,6 +179,13 @@ const createEnv = () => {
         (i) => i.length > 0,
         true,
     );
+    setKey(
+        'MINIFY',
+        'Minify: (default: n) (y/n)',
+        'n',
+        (i) => ['y', 'n'].includes(i),
+        true,
+    )
 
     const e = Object.keys(values)
         .map((key) => `${key} = '${values[key]}'`)

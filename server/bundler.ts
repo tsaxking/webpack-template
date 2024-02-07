@@ -95,17 +95,10 @@ export const runBuild = async () => {
         esbuild.build({
             entryPoints: entries,
             bundle: true,
-            // minify: true,
+            minify: env.MINIFY === 'y',
             outdir: './dist',
             mainFields: ['svelte', 'browser', 'module', 'main'],
             conditions: ['svelte', 'browser'],
-            // watch: {
-            //     onRebuild(error: Error, result: any) {
-            //         if (error) builder.emit('error', error);
-            //         else builder.emit('build', result);
-            //     },
-            // },
-            // trust me, it works
             plugins: [
                 (sveltePlugin as any)({
                     preprocess: [typescript()],
