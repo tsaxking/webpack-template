@@ -300,6 +300,30 @@ export const runUpdates = async () => {
     return backToMain('Ran all available updates');
 };
 
+export const clearTable = async () => {
+    const tables = await DB.getTables();
+    if (tables.isOk()) {
+        const table = await select(
+            'Select table to clear',
+            tables.value.map((t) => ({ name: t, value: t })),
+        );
+
+        const doClear = await confirm(`Are you sure you want to clear ${table}?`);
+        if (doClear) {
+            const res = await DB.unsafe.run(`DELETE FROM ${table}`);
+            if (res.isOk()) {
+                backToMain('Table cleared');
+            } else {
+                backToMain('Error clearing table: ' + res.error.message);
+            }
+        } else {
+            backToMain('Clear cancelled');
+        }
+    } else {
+        backToMain('Error getting tables: ' + tables.error.message);
+    }
+}
+
 export const databases = [
     {
         value: buildQueries,
@@ -337,4 +361,8 @@ export const databases = [
         value: runUpdates,
         icon: '🔃',
     },
+    {
+        value: clearTable,
+        icon: '🗑️',
+    }
 ];

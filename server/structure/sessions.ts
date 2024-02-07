@@ -51,6 +51,10 @@ type SessionOptions = {
  * @typedef {Session}
  */
 export class Session {
+    static newId() {
+        return (uuid() + uuid() + uuid() + uuid()).replace(/-/g, '');
+    }
+
     /**
      * This is not implemented yet, but it will be for rate limiting
      * @date 10/12/2023 - 3:13:58 PM
@@ -104,6 +108,10 @@ export class Session {
         const res = await DB.get('sessions/get', { id });
         if (res.isOk() && res.value) {
             return Session.fromSessObj(res.value);
+        }
+        
+        if (res.isErr()) {
+            console.error(res.error);
         }
     }
 
@@ -248,7 +256,7 @@ export class Session {
      * @param {?Req} [req]
      */
     constructor(req?: Req) {
-        this.id = (uuid() + uuid() + uuid() + uuid()).replace(/-/g, '');
+        this.id = Session.newId();
 
         if (req) {
             this.ip = req.ip;
