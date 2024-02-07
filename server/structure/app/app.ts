@@ -453,8 +453,6 @@ export class App {
         const { ssid } = parseCookie(denoReq.headers.get('cookie') || '');
         let s = await Session.get(ssid);
 
-        console.log({s});
-
         let setSsid = false;
 
         if (!s) {

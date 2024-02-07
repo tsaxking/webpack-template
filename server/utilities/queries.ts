@@ -122,6 +122,25 @@ export type Queries = {
 
     'sessions/all': [[Select_sessions_all], Sessions];
 
+    'sessions/sign-in': [
+        [
+            {
+                id: string;
+                accountId: string;
+            }
+        ],
+        unknown
+    ];
+
+    'sessions/sign-out': [
+        [
+            {
+                id: string;
+            }
+        ],
+        unknown
+    ];
+
     'member/delete': [[Delete_member_delete], unknown];
 
     'member/update-title': [[Update_member_update_title], unknown];

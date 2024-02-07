@@ -6,6 +6,7 @@ import { CookieOptions, Next, ServerFunction } from './app/app.ts';
 import { app } from '../server.ts';
 import { Req } from './app/req.ts';
 import { Res } from './app/res.ts';
+import { log } from '../utilities/terminal-logging.ts';
 
 /**
  * Session object from the database
@@ -124,13 +125,17 @@ export class Session {
      * @returns {Session}
      */
     static fromSessObj(s: SessionObj): Session {
+        log('Building from:', s);
+
         const session = new Session();
         session.ip = s.ip;
         session.id = s.id;
         session.latestActivity = s.latestActivity;
         session.$prevUrl = s.prevUrl;
         session.userAgent = s.userAgent;
-        session.accountId = s.accountId || undefined;
+        session.accountId = s.accountId;
+
+        log('Built:', session);
         return session;
     }
 
@@ -306,7 +311,7 @@ export class Session {
      */
     signIn(account: Account) {
         this.accountId = account.id;
-        this.save();
+        return DB.run('sessions/sign-in', { id: this.id, accountId: account.id });
     }
 
     /**
@@ -315,7 +320,7 @@ export class Session {
      */
     signOut() {
         this.accountId = undefined;
-        this.save();
+        return DB.run('sessions/sign-out', { id: this.id });
     }
 
     /**
@@ -336,7 +341,7 @@ export class Session {
         const s = await DB.get('sessions/get', { id: this.id });
 
         if (s.isOk() && s.value) {
-            DB.run('sessions/update', {
+            return DB.run('sessions/update', {
                 id: this.id,
                 ip: this.ip || '',
                 latestActivity: this.latestActivity,
@@ -346,7 +351,7 @@ export class Session {
                 requests: this.requests,
             });
         } else {
-            DB.run('sessions/new', {
+            return DB.run('sessions/new', {
                 id: this.id,
                 ip: this.ip || '',
                 latestActivity: this.latestActivity,
