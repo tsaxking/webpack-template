@@ -86,7 +86,12 @@ export class DB {
 
     static async connect() {
         return attemptAsync(async () => {
-            return DB.db.connect();
+            return new Promise((res, rej) => {
+                setTimeout(() => {
+                    rej('Database connection timed out');
+                }, 20 * 1000);
+                return DB.db.connect().then(res).catch(rej);
+            });
         });
     }
 
@@ -128,6 +133,28 @@ export class DB {
         }
 
         return [query, args];
+    }
+
+    static async getUsers(): Promise<Result<string[]>> {
+        return attemptAsync(async () => {
+            // get all users for the postgres database
+            const res = await DB.unsafe.all<{ rolname: string }>(
+                `
+                SELECT rolname
+                FROM pg_roles
+                WHERE rolname !~ '^pg_'
+                AND rolname !~ '^rds_'
+                AND rolname != 'rdsadmin'
+                ORDER BY rolname;
+            `,
+            );
+
+            if (res.isOk()) {
+                return res.value.map((r) => r.rolname);
+            } else {
+                throw res.error;
+            }
+        });
     }
 
     // version info
@@ -577,7 +604,6 @@ export class DB {
 
 // when the program exits, close the database
 // this is to prevent the database from being locked after the program exits
-
 await DB.connect().then(async (result) => {
     if (result.isOk()) {
         log('Connected to the database');
@@ -591,7 +617,6 @@ await DB.connect().then(async (result) => {
         Deno.exit(1);
     }
 });
-
 // if the program exits, close the database
 Deno.addSignalListener('SIGINT', () => {
     DB.close();

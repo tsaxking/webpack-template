@@ -2,12 +2,8 @@ import { backToMain, main, selectFile } from '../manager.ts';
 import { __root } from '../../server/utilities/env.ts';
 import { addQuery, getTables, merge, parseSql } from '../parse-sql.ts';
 import { DB } from '../../server/utilities/databases.ts';
-import { confirm, repeatPrompt, select } from '../prompt.ts';
-import {
-    readDir,
-    readFile,
-    saveFileSync,
-} from '../../server/utilities/files.ts';
+import { confirm, repeatPrompt } from '../prompt.ts';
+import { readFile, saveFileSync } from '../../server/utilities/files.ts';
 import { relative, resolve } from '../../server/utilities/env.ts';
 import { fromCamelCase, toSnakeCase } from '../../shared/text.ts';
 import { attemptAsync, Err, Result } from '../../shared/check.ts';
@@ -320,21 +316,5 @@ export const databases = [
     {
         value: viewTables,
         icon: '📇',
-    },
-    // {
-    //     value: addQueryType,
-    //     icon: '📝',
-    // },
-    // {
-    //     value: makeDefaultQueries,
-    //     icon: '📄',
-    // },
-    {
-        value: reset,
-        icon: '🔄',
-    },
-    {
-        value: runUpdates,
-        icon: '🔃',
     },
 ];
