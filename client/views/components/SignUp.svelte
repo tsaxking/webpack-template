@@ -70,103 +70,110 @@ const isPasswordValid = (password: string): string[] => {
 </script>
 
 <main>
-<div class="container pt-5">
-    <div class="row">
-        <div class="col-md-6">
-            <div class="row mb-3">
-                <h1>
-                    {title}: Sign up
-                </h1>
-            </div>
-
-            <div class="row mb-3">
-                <a href="/account/sign-in" class="link-primary nav-link"
-                    >Sign In</a
-                >
-            </div>
-            <form on:submit|preventDefault="{submit}">
-                <div class="mb-3 form-floating">
-                    <input
-                        class="form-control"
-                        type="text"
-                        name="username"
-                        id="username"
-                        bind:value="{username}"
-                        placeholder="Username"
-                        on:input="{onInput}"
-                    />
-                    <label class="form-label" for="username">Username</label>
-                    {#if username.length > 0}
-                        {#if !isUsernameValid(username)}
-                            <small class="text-danger">
-                                Invalid username
-                            </small>
-                        {/if}
-                    {/if}
+    <div class="container pt-5">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="row mb-3">
+                    <h1>
+                        {title}: Sign up
+                    </h1>
                 </div>
 
-                <div class="mb-3 form-floating">
-                    <input
-                        class="form-control"
-                        type="text"
-                        name="email"
-                        id="email"
-                        bind:value="{email}"
-                        placeholder="Email"
-                        on:input="{onInput}"
-                    />
-                    <label class="form-label" for="email">Email</label>
-                    {#if email.length > 0}
-                        {#if email.includes('@')}
-                            {#if email.split('@')[1]?.split('.')[0]?.length}
-                                {#if !email
-                                    .split('@')[1]
-                                    ?.split('.')[1]?.length || !email
+                <div class="row mb-3">
+                    <a href="/account/sign-in" class="link-primary nav-link"
+                        >Sign In</a
+                    >
+                </div>
+                <form on:submit|preventDefault="{submit}">
+                    <div class="mb-3 form-floating">
+                        <input
+                            class="form-control"
+                            type="text"
+                            name="username"
+                            id="username"
+                            bind:value="{username}"
+                            placeholder="Username"
+                            on:input="{onInput}"
+                        />
+                        <label class="form-label" for="username">Username</label
+                        >
+                        {#if username.length > 0}
+                            {#if !isUsernameValid(username)}
+                                <small class="text-danger">
+                                    Invalid username
+                                </small>
+                            {/if}
+                        {/if}
+                    </div>
+
+                    <div class="mb-3 form-floating">
+                        <input
+                            class="form-control"
+                            type="text"
+                            name="email"
+                            id="email"
+                            bind:value="{email}"
+                            placeholder="Email"
+                            on:input="{onInput}"
+                        />
+                        <label class="form-label" for="email">Email</label>
+                        {#if email.length > 0}
+                            {#if email.includes('@')}
+                                {#if email.split('@')[1]?.split('.')[0]?.length}
+                                    {#if !email
                                         .split('@')[1]
-                                        ?.split('.')[email
+                                        ?.split('.')[1]?.length || !email
                                             .split('@')[1]
-                                            ?.split('.').length - 1]?.length}
+                                            ?.split('.')[email
+                                                .split('@')[1]
+                                                ?.split('.').length - 1]?.length}
+                                        <small class="text-danger">
+                                            Invalid email extension
+                                        </small>
+                                    {/if}
+                                {:else}
                                     <small class="text-danger">
-                                        Invalid email extension
+                                        Invalid email domain
                                     </small>
                                 {/if}
                             {:else}
                                 <small class="text-danger">
-                                    Invalid email domain
+                                    Invalid email
                                 </small>
                             {/if}
-                        {:else}
-                            <small class="text-danger"> Invalid email </small>
                         {/if}
-                    {/if}
-                </div>
+                    </div>
 
-                <div class="mb-3 form-floating">
-                    <input
-                        class="form-control"
-                        type="text"
-                        name="firstName"
-                        id="firstName"
-                        bind:value="{firstName}"
-                        placeholder="First Name"
-                        on:input="{onInput}"
-                    />
-                    <label class="form-label" for="firstName">First Name</label>
-                </div>
-                <div class="mb-3 form-floating">
-                    <input
-                        class="form-control"
-                        type="text"
-                        name="lastName"
-                        id="lastName"
-                        bind:value="{lastName}"
-                        placeholder="Last Name"
-                        on:input="{onInput}"
-                    />
-                    <label class="form-label" for="lastName">Last Name</label>
-                </div>
-                <div class="mb-3 form-floating">
-                    <!-- <input
+                    <div class="mb-3 form-floating">
+                        <input
+                            class="form-control"
+                            type="text"
+                            name="firstName"
+                            id="firstName"
+                            bind:value="{firstName}"
+                            placeholder="First Name"
+                            on:input="{onInput}"
+                        />
+                        <label class="form-label" for="firstName"
+                            >First Name</label
+                        >
+                    </div>
+                    <div class="mb-3 form-floating">
+                        <input
+                            class="form-control"
+                            type="text"
+                            name="lastName"
+                            id="lastName"
+                            bind:value="{lastName}"
+                            placeholder="Last Name"
+                            on:input="{onInput}"
+                        />
+                        <label class="form-label" for="lastName"
+                            >Last Name</label
+                        >
+                    </div>
+                    <div class="mb-3 form-floating">
+                        <!-- <input
                         class="form-control"
                         type="password"
                         name="password"
@@ -176,27 +183,27 @@ const isPasswordValid = (password: string): string[] => {
                         on:input="{onInput}"
                     />
                     <label class="form-label" for="password">Password</label> -->
-                    <Password
-                        bind:value="{password}"
-                        on:input="{onInput}"
-                        placeholder="Password"
-                        label="Password"
-                    />
-                    {#if isPasswordValid(password).length > 0}
-                        <small class="text-danger">
-                            Password must have the following properties:
-                            <ul>
-                                {#each isPasswordValid(password) as property}
-                                    <li>{property}</li>
-                                {/each}
-                            </ul>
-                        </small>
-                    {:else}
-                        <small class="text-success"> Looks good! </small>
-                    {/if}
-                </div>
-                <div class="mb-3 form-floating">
-                    <!-- <input
+                        <Password
+                            bind:value="{password}"
+                            on:input="{onInput}"
+                            placeholder="Password"
+                            label="Password"
+                        />
+                        {#if isPasswordValid(password).length > 0}
+                            <small class="text-danger">
+                                Password must have the following properties:
+                                <ul>
+                                    {#each isPasswordValid(password) as property}
+                                        <li>{property}</li>
+                                    {/each}
+                                </ul>
+                            </small>
+                        {:else}
+                            <small class="text-success"> Looks good! </small>
+                        {/if}
+                    </div>
+                    <div class="mb-3 form-floating">
+                        <!-- <input
                         class="form-control"
                         type="password"
                         name="confirmPassword"
@@ -208,32 +215,34 @@ const isPasswordValid = (password: string): string[] => {
                     <label class="form-label" for="confirmPassword"
                         >Confirm Password</label
                     > -->
-                    <Password
-                        bind:value="{confirmPassword}"
-                        on:input="{onInput}"
-                        placeholder="Confirm Password"
-                        label="Confirm Password"
-                    />
-                    {#if password.length > 0}
-                        {#if password !== confirmPassword}
-                            <small class="text-danger">
-                                Passwords do not match
-                            </small>
-                        {:else}
-                            <small class="text-success"> Looks good! </small>
+                        <Password
+                            bind:value="{confirmPassword}"
+                            on:input="{onInput}"
+                            placeholder="Confirm Password"
+                            label="Confirm Password"
+                        />
+                        {#if password.length > 0}
+                            {#if password !== confirmPassword}
+                                <small class="text-danger">
+                                    Passwords do not match
+                                </small>
+                            {:else}
+                                <small class="text-success">
+                                    Looks good!
+                                </small>
+                            {/if}
                         {/if}
-                    {/if}
-                </div>
+                    </div>
 
-                <input
-                    type="submit"
-                    class="btn btn-primary"
-                    disabled="{!valid}"
-                    value="Submit"
-                    on:click|preventDefault="{submit}"
-                />
-            </form>
+                    <input
+                        type="submit"
+                        class="btn btn-primary"
+                        disabled="{!valid}"
+                        value="Submit"
+                        on:click|preventDefault="{submit}"
+                    />
+                </form>
+            </div>
         </div>
     </div>
-</div>
 </main>

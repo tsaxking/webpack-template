@@ -1,7 +1,7 @@
 import { error, log } from './terminal-logging.ts';
 import { __dirname, __root, addFileProtocol, resolve } from './env.ts';
 import { spawn } from 'node:child_process';
-import { attemptAsync, Result } from '../../shared/';
+import { attemptAsync, Result } from '../../shared/check.ts';
 
 /**
  * Runs a deno file

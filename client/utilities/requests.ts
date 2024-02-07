@@ -765,7 +765,7 @@ export class ServerRequest<T = unknown> {
                             title: d.title,
                             message: d.message,
                             status: d.$status,
-                            color: d.color
+                            color: d.color,
                         });
                     }
 

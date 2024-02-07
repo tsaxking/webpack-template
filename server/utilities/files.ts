@@ -10,7 +10,7 @@ import {
     resolve,
 } from './env.ts';
 // import fs from 'node:fs';
-import { attempt, attemptAsync, Result } from '../../shared/';
+import { attempt, attemptAsync, Result } from '../../shared/check.ts';
 import { match, matchInstance } from '../../shared/match.ts';
 
 export type JSONError = 'InvalidJSON' | 'Unknown';

@@ -185,7 +185,7 @@ const createEnv = () => {
         'n',
         (i) => ['y', 'n'].includes(i),
         true,
-    )
+    );
 
     const e = Object.keys(values)
         .map((key) => `${key} = '${values[key]}'`)

@@ -7,8 +7,6 @@ import { capitalize, fromCamelCase, fromSnakeCase } from '../../shared/text';
 import { Modal, Toast } from './modals';
 import { Color } from './modals';
 
-
-
 /**
  * Displays a toast notification to the user
  * @date 10/12/2023 - 1:14:47 PM
@@ -18,12 +16,10 @@ export const notify = (data: {
     title: string;
     status: string;
     message: string;
-    color: Color
+    color: Color;
 }): Toast => {
     console.log(data);
-    const status = capitalize(
-        fromSnakeCase(fromCamelCase(data.title), '-'),
-    );
+    const status = capitalize(fromSnakeCase(fromCamelCase(data.title), '-'));
 
     const message = `${status}: ${
         capitalize(

@@ -99,7 +99,7 @@ export const runBuild = async () => {
         for (const watcher of watchers.values()) {
             watcher.close();
         }
-    }
+    };
 
     Deno.addSignalListener('SIGINT', close);
     Deno.addSignalListener('SIGTERM', close);

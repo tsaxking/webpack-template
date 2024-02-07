@@ -2,7 +2,7 @@ import { backToMain } from '../manager.ts';
 import Role from '../../server/structure/roles.ts';
 import { selectAccount } from './accounts.ts';
 import { confirm, repeatPrompt, select } from '../prompt.ts';
-import { attemptAsync, Result } from '../../shared/';
+import { attemptAsync, Result } from '../../shared/check.ts';
 import { addPermissions, removePermissions } from './permissions.ts';
 
 export const selectRole = async (

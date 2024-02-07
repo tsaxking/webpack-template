@@ -160,7 +160,6 @@ export class Modal {
     }
 }
 
-
 /**
  * Mounts the toast container to the DOM (not visible)
  * @date 10/12/2023 - 1:14:12 PM
@@ -182,8 +181,15 @@ const container = (() => {
     return parent;
 })();
 
-
-export type Color = 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info' | 'light' | 'dark';
+export type Color =
+    | 'primary'
+    | 'secondary'
+    | 'success'
+    | 'danger'
+    | 'warning'
+    | 'info'
+    | 'light'
+    | 'dark';
 
 export class Toast {
     private readonly $el = document.createElement('div');
@@ -225,8 +231,6 @@ export class Toast {
         this.$body = body;
         this.$color = color;
         this.render();
-
-
     }
 
     set title(title: string) {
@@ -248,13 +252,21 @@ export class Toast {
     }
 
     set color(color: Color) {
-        this.$el.querySelector('toast-header')?.classList.remove(`text-${this.color}`);
+        this.$el
+            .querySelector('toast-header')
+            ?.classList.remove(`text-${this.color}`);
         this.$el.querySelector('toast-header')?.classList.add(`text-${color}`);
-        this.$el.querySelector('toast-body')?.classList.remove(`bg-${this.color}`);
+        this.$el
+            .querySelector('toast-body')
+            ?.classList.remove(`bg-${this.color}`);
         this.$el.querySelector('toast-body')?.classList.add(`bg-${color}`);
-        this.$el.querySelector('toast-body')?.classList.remove(`text-${this.textColor}`);
+        this.$el
+            .querySelector('toast-body')
+            ?.classList.remove(`text-${this.textColor}`);
         this.$color = color;
-        this.$el.querySelector('toast-body')?.classList.add(`text-${this.textColor}`);
+        this.$el
+            .querySelector('toast-body')
+            ?.classList.add(`text-${this.textColor}`);
     }
 
     get color() {
@@ -285,7 +297,12 @@ export class Toast {
         this.$el.setAttribute('aria-atomic', 'true');
 
         const header = document.createElement('div');
-        header.classList.add('toast-header', 'bg-dark', 'border-0', `text-${this.color}`);
+        header.classList.add(
+            'toast-header',
+            'bg-dark',
+            'border-0',
+            `text-${this.color}`,
+        );
 
         const strong = document.createElement('strong');
         strong.classList.add('me-auto');
@@ -298,7 +315,7 @@ export class Toast {
             const now = Date.now();
             const diff = now - start;
             const seconds = Math.floor(diff / 1000);
-        
+
             if (seconds < 60) {
                 time.textContent = `${seconds} seconds ago`;
             } else if (seconds < 3600) {
@@ -321,7 +338,11 @@ export class Toast {
         $(button).on('click', () => this.hide());
 
         const body = document.createElement('div');
-        body.classList.add('toast-body', `bg-${this.$color}`, `text-${this.textColor}`);
+        body.classList.add(
+            'toast-body',
+            `bg-${this.$color}`,
+            `text-${this.textColor}`,
+        );
         body.textContent = this.$body;
 
         header.appendChild(strong);
