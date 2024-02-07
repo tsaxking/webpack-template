@@ -5,6 +5,7 @@ import { queries as Queries } from './queries.ts';
 import { exists, readDir, readFile, readFileSync } from './files.ts';
 import { attemptAsync, Result } from '../../shared/check.ts';
 import { runTask } from './run-task.ts';
+import { toSnakeCase, parseObject, fromSnakeCase, toCamelCase } from '../../shared/text.ts';
 
 /**
  * The name of the main database
@@ -95,27 +96,31 @@ export class DB {
         });
     }
 
-    private static parse(
+    private static parseQuery(
         query: string,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         args: any[],
     ): [string, Parameter[]] {
+        const copied = JSON.parse(JSON.stringify(args)); // no dependencies
+
         // remove all comments
         query = query.replaceAll(/--.*\n/g, '');
+
+        const deCamelCase = (str: string) => str.replace(/[A-Z]*[a-z]+((\d)|([A-Z0-9][a-z0-9]+))*([A-Z])?/g, toSnakeCase);
 
         const qMatches = query.match(/\?/g);
 
         if (qMatches) {
             if (qMatches.length !== args.length) {
                 throw new Error(
-                    `Number of parameters does not match number of ? in query. Query: ${query}, Parameters: ${args}`,
+                    `Number of parameters does not match number of ? in query. Query: ${query}, Parameters: ${copied}`,
                 );
             }
             // replace each ? with a $n
             for (let i = 0; i < qMatches.length; i++) {
                 query = query.replace('?', `$${i + 1}`);
             }
-            return [query, args];
+            return [deCamelCase(query), copied];
         }
 
         // get every :variable in the query
@@ -126,13 +131,17 @@ export class DB {
             for (let i = 0; i < matches.length; i++) {
                 query = query.replaceAll(matches[i], `$${i + 1}`);
                 newArgs.push(
-                    args[0] ? args[0][matches[i].replace(/:/g, '')] : args[i],
+                    copied[0] ? copied[0][matches[i].replace(/:/g, '')] : copied[i],
                 );
             }
-            return [query, newArgs];
+            return [deCamelCase(query), newArgs];
         }
 
-        return [query, args];
+        return [deCamelCase(query), copied];
+    }
+
+    private static parseObj<T extends object>(obj: T) {
+        return parseObject(obj, (str) => toCamelCase(fromSnakeCase(str)));
     }
 
     static async getUsers(): Promise<Result<string[]>> {
@@ -379,7 +388,7 @@ export class DB {
 
     static async getTables(): Promise<Result<string[]>> {
         return attemptAsync(async () => {
-            const res = await DB.unsafe.all<{ table_name: string }>(
+            const res = await DB.unsafe.all<{ tableName: string }>(
                 `
                 -- get all tables available in the env.DATABASE_NAME
                 SELECT table_name
@@ -390,7 +399,7 @@ export class DB {
             );
 
             if (res.isOk()) {
-                return res.value.map((r) => r.table_name);
+                return res.value.map((r) => r.tableName);
             }
             throw res.error;
         });
@@ -398,7 +407,7 @@ export class DB {
 
     static async getTableCols(table: string): Promise<Result<string[]>> {
         return attemptAsync(async () => {
-            const res = await DB.unsafe.all<{ column_name: string }>(
+            const res = await DB.unsafe.all<{ columnName: string }>(
                 `
                 -- get all columns in a table
                 SELECT column_name
@@ -410,7 +419,7 @@ export class DB {
             );
 
             if (res.isOk()) {
-                return res.value.map((r) => r.column_name);
+                return res.value.map((r) => r.columnName);
             }
             throw res.error;
         });
@@ -434,7 +443,7 @@ export class DB {
         return attemptAsync(async () => {
             const sql = readFileSync('/storage/db/queries/' + type + '.sql');
             if (sql.isOk()) {
-                const [parsedQuery, parsedArgs] = DB.parse(sql.value, args);
+                const [parsedQuery, parsedArgs] = DB.parseQuery(sql.value, args);
                 return [parsedQuery, parsedArgs] as [string, QParams<T>];
             } else {
                 throw new Error('Unable to read query file: ' + type);
@@ -472,7 +481,7 @@ export class DB {
                 log('Database warnings:', result.warnings);
             }
 
-            return result.rows;
+            return DB.parseObj(result.rows) as Queries[T][1][];
         });
     }
 
@@ -568,12 +577,12 @@ export class DB {
             ...args: Parameter[]
         ): Promise<Result<T[]>> => {
             return attemptAsync(async () => {
-                const [q, p] = DB.parse(query, args);
+                const [q, p] = DB.parseQuery(query, args);
                 const result = await DB.db.queryObject(q, p);
                 if (result.warnings.length) {
                     log('Database warnings:', result.warnings);
                 }
-                return result.rows as T[];
+                return DB.parseObj(result.rows) as T[];
             });
         };
 
