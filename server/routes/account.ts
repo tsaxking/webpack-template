@@ -21,7 +21,7 @@ router.post('/get-account', async (req, res) => {
                 id: true,
             }),
         );
-    } else res.sendStatus('account:not-logged-in');
+    } else res.status(404).json({ error: 'Not logged in' });
 });
 
 // gets all roles available
@@ -85,8 +85,6 @@ router.post<{
         }
 
         req.session.signIn(account);
-
-        console.log('prevUrl', req.session.prevUrl);
 
         res.sendStatus(
             'account:logged-in',
@@ -368,7 +366,7 @@ router.post<{
         const { settings } = req.body;
 
         const account = await req.session.getAccount();
-        if (!account) return res.sendStatus('account:not-logged-in');
+        if (!account) return res.status(404).json({ error: 'Not logged in' });
 
         try {
             account.setSettings(JSON.parse(settings));

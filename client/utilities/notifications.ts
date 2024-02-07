@@ -3,82 +3,37 @@
 // All confirm/alert/prompt functions return a promise that resolves when the user closes the modal instead of blocking the thread (like the default browser functions)
 // toasts by default are placed at the top right of the screen, this is customizable
 
-import { StatusJson } from '../../shared/status';
-import Toast from '../views/components/bootstrap/Toast.svelte';
 import { capitalize, fromCamelCase, fromSnakeCase } from '../../shared/text';
-import { Modal } from './modals';
+import { Modal, Toast } from './modals';
+import { Color } from './modals';
 
-/**
- * Mounts the toast container to the DOM (not visible)
- * @date 10/12/2023 - 1:14:12 PM
- *
- * @type {*}
- */
-const container = (() => {
-    const parent = document.createElement('div');
-    parent.setAttribute('aria-live', 'polite');
-    parent.setAttribute('aria-atomic', 'true');
-    parent.classList.add('bg-dark', 'position-relative', 'bd-example-toasts');
 
-    const child = document.createElement('div');
-    child.id = 'toast-container';
-    child.classList.add('position-absolute', 'top-0', 'end-0', 'p-3');
-
-    return parent;
-})();
 
 /**
  * Displays a toast notification to the user
  * @date 10/12/2023 - 1:14:47 PM
  * @param {StatusJson} data The data to display (in the format of a StatusMessage)
  */
-export const notify = (data: StatusJson): Promise<void> => {
-    return new Promise<void>((res) => {
-        const status = capitalize(
-            fromSnakeCase(fromCamelCase(data.title), '-'),
-        );
+export const notify = (data: {
+    title: string;
+    status: string;
+    message: string;
+    color: Color
+}): Toast => {
+    console.log(data);
+    const status = capitalize(
+        fromSnakeCase(fromCamelCase(data.title), '-'),
+    );
 
-        const message = `${status}: ${
-            capitalize(
-                fromSnakeCase(fromCamelCase(data.$status), '-'),
-            )
-        }`;
+    const message = `${status}: ${
+        capitalize(
+            fromSnakeCase(fromCamelCase(data.status), '-'),
+        )
+    }`;
 
-        // if (data.data) {
-        //     for (const [key, value] of Object.entries(data.data)) {
-        //         message += `\n${key}: ${value}`;
-        //     }
-        // }
+    const toast = new Toast(message, data.message, data.color);
 
-        const t = new Toast({
-            target: document.createElement('div'),
-            props: {
-                title: message,
-                message: data.message,
-                show: true,
-                color: data.color,
-                bodyTextColor: (() => {
-                    switch (data.color) {
-                        case 'warning':
-                            return 'dark';
-                        case 'info':
-                            return 'dark';
-                        default:
-                            return 'white';
-                    }
-                })(),
-            },
-        });
-
-        container
-            .querySelector('#toast-container')
-            ?.appendChild(t.$$.root.firstChild as Node);
-
-        t.$on('hide.bs.toast', () => {
-            res();
-            t.$destroy();
-        });
-    });
+    return toast;
 };
 
 /**

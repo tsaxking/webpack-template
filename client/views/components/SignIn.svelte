@@ -44,6 +44,7 @@ const onInput = () => {
 };
 </script>
 
+<main>
 <div class="container pt-5">
     <div class="row">
         <div class="col-md-6">
@@ -122,3 +123,5 @@ const onInput = () => {
         </div>
     </div>
 </div>
+
+</main>

@@ -69,6 +69,7 @@ const isPasswordValid = (password: string): string[] => {
 };
 </script>
 
+<main>
 <div class="container pt-5">
     <div class="row">
         <div class="col-md-6">
@@ -235,3 +236,4 @@ const isPasswordValid = (password: string): string[] => {
         </div>
     </div>
 </div>
+</main>

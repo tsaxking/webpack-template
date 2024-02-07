@@ -760,7 +760,13 @@ export class ServerRequest<T = unknown> {
 
                     if (data?.$status) {
                         // this is a notification
-                        notify(data as StatusJson);
+                        const d = data as StatusJson;
+                        notify({
+                            title: d.title,
+                            message: d.message,
+                            status: d.$status,
+                            color: d.color
+                        });
                     }
 
                     this.duration = Date.now() - start;
