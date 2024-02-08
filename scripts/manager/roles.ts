@@ -28,7 +28,7 @@ export const createRole = async () => {
     const name = repeatPrompt(
         'Enter the new role name',
         undefined,
-        (data) => !Role.fromName(data),
+        (data) => !!Role.fromName(data),
         false,
     );
     const description = repeatPrompt('Enter the role description');

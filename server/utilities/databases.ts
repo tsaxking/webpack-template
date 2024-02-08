@@ -2,7 +2,7 @@ import env, { __root } from './env.ts';
 import { Client } from 'https://deno.land/x/postgres@v0.17.0/mod.ts';
 import { error, log } from './terminal-logging.ts';
 import { Queries } from './queries.ts';
-import { exists, readDir, readFile, readFileSync } from './files.ts';
+import { exists, readDir, readFile, readFileSync, saveFile } from './files.ts';
 import { attemptAsync, Result } from '../../shared/check.ts';
 import { runTask } from './run-task.ts';
 import {
@@ -13,6 +13,8 @@ import {
     toCamelCase,
     toSnakeCase,
 } from '../../shared/text.ts';
+import { bigIntDecode, bigIntEncode } from '../../shared/objects.ts';
+import { daysTimeout } from '../../shared/sleep.ts';
 
 /**
  * The name of the main database
@@ -65,6 +67,12 @@ type Parameter =
 
 type QParams<T extends keyof Queries> = Queries[T][0];
 
+type QueryResult<T> = {
+    rows: T[];
+    query: string;
+    params: unknown[];
+};
+
 export type Version = [number, number, number];
 
 /**
@@ -103,7 +111,7 @@ export class DB {
         });
     }
 
-    private static parseQuery(
+    public static parseQuery(
         query: string,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         args: any[],
@@ -145,11 +153,12 @@ export class DB {
 
         // get every :variable in the query
         const matches = query.match(/:\w+/g);
+        // console.log(matches);
         const newArgs: Parameter[] = [];
         if (matches) {
             // for each match, replace it with a $n
             for (let i = 0; i < matches.length; i++) {
-                query = query.replaceAll(matches[i], `$${i + 1}`);
+                query = query.replace(matches[i], `$${i + 1}`);
                 newArgs.push(
                     copied[0]
                         ? copied[0][matches[i].replace(/:/g, '')]
@@ -309,8 +318,8 @@ export class DB {
             );
 
             if (updateQuery.isOk()) {
-                const currentVersion = await DB.getVersion();
-                await DB.makeBackup();
+                const b = await DB.makeBackup();
+                if (b.isErr()) throw b.error;
 
                 const res = await DB.unsafe.run(updateQuery.value);
                 if (res.isOk()) {
@@ -335,7 +344,7 @@ export class DB {
                                 version.join('.'),
                                 scriptRes.error,
                             );
-                            await DB.restoreBackup(currentVersion);
+                            await DB.restoreBackup(b.value);
                             throw scriptRes.error;
                         }
                     }
@@ -348,7 +357,7 @@ export class DB {
                         version,
                         res.error,
                     );
-                    await DB.restoreBackup(currentVersion);
+                    await DB.restoreBackup(b.value);
                     throw res.error;
                 }
             } else {
@@ -358,22 +367,261 @@ export class DB {
         });
     }
 
-    static async makeBackup(): Promise<Result<boolean>> {
+    static async getBackups(): Promise<Result<string[]>> {
         return attemptAsync(async () => {
-            throw new Error('Not implemented');
+            const backups = await readDir('storage/db/backups');
+            if (backups.isOk()) {
+                return backups.value.map((b) => b.name);
+            }
+            return [];
         });
     }
 
-    static async restoreBackup(_version: Version): Promise<Result<boolean>> {
+    static async makeBackup(): Promise<Result<string>> {
         return attemptAsync(async () => {
-            throw new Error('Not implemented');
+            const [tables, version] = await Promise.all([
+                DB.getTables(),
+                DB.getVersion(),
+            ]);
+
+            if (['0.0.0', '-1.-1.-1'].includes(version.join('.'))) {
+                console.log('Database not initialized');
+                throw new Error('Database not initialized');
+            }
+
+            if (tables.isErr()) throw tables.error;
+            const backup: {
+                [table: string]: unknown[]; // table name: rows
+            } = {};
+
+            // pull all data from each table
+            await Promise.all(
+                tables.value.map(async (table) => {
+                    const data = await DB.unsafe.all(`SELECT * FROM ${table}`);
+                    if (data.isOk()) backup[table] = data.value;
+                    else throw data.error;
+                }),
+            );
+
+            const copy = bigIntEncode(backup);
+            const str = JSON.stringify(copy, null, 2);
+            const name = `${version.join('-')}_${Date.now()}.json`;
+
+            const res = await saveFile('storage/db/backups/' + name, str);
+            if (res.isOk()) {
+                console.log('Backup created:', name);
+                return name;
+            } else {
+                console.log('Error creating backup', res.error);
+                throw res.error;
+            }
+        });
+    }
+
+    static async reset(): Promise<Result<string>> {
+        return attemptAsync(async () => {
+            const b = await DB.makeBackup();
+            if (b.isErr()) throw b.error;
+
+            const tables = await DB.getTables();
+            if (tables.isErr()) throw tables.error;
+            const res = await Promise.all(
+                tables.value.map((table) =>
+                    DB.unsafe.run(`DROP TABLE ${table};`)
+                ),
+            );
+
+            if (res.every((r) => r.isOk())) {
+                console.log('Database reset');
+                return b.value;
+            } else {
+                console.log('Error(s) resetting database', res);
+                throw new Error('Error(s) resetting database');
+            }
+        });
+    }
+
+    static async restoreBackup(backupName: string): Promise<Result<void>> {
+        return attemptAsync(async () => {
+            const currentVersion = await DB.getVersion();
+            const backupRes = await DB.makeBackup();
+            if (backupRes.isErr()) throw backupRes.error;
+
+            const resetRes = await DB.reset();
+            if (resetRes.isErr()) {
+                console.log('Error resetting database', resetRes.error);
+                console.log(
+                    'Reinitializing database, and restoring its current version...',
+                );
+
+                const updateRes = await DB.updateToVersion(currentVersion);
+                if (updateRes.isErr()) throw updateRes.error;
+                const restoreRes = await this.restoreBackup(backupRes.value);
+                if (restoreRes.isErr()) throw restoreRes.error;
+                throw resetRes.error;
+            }
+
+            const version = backupName.split('_')[0].split('-').map(Number) as [
+                number,
+                number,
+                number,
+            ];
+            const updateRes = await DB.updateToVersion(version);
+            if (updateRes.isErr()) throw updateRes.error;
+            console.log('Update successful');
+
+            const versionNow = await DB.getVersion();
+            console.log('Version after updates:', versionNow.join('.'));
+
+            const ts = await DB.getTables();
+            if (ts.isOk()) console.log('Tables after updates:', ts.value);
+
+            const file = await readFile(`storage/db/backups/${backupName}`);
+            if (file.isErr()) throw file.error;
+
+            const data = bigIntDecode(JSON.parse(file.value)) as {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                [table: string]: any[];
+            };
+
+            const tables = Object.keys(data);
+
+            console.log('Inserting...', tables);
+            const res = await Promise.all(
+                tables.map(async (table) => {
+                    const res = await attemptAsync(async () => {
+                        const rows = data[table];
+                        const cols = Object.keys(rows[0] || {});
+                        if (!cols.length) return; // no data to insert
+
+                        const colNames = cols.join(', ');
+                        const colVals = cols.map((c) => `:${c}`).join(', ');
+
+                        return Promise.all(
+                            rows.map(async (r) => {
+                                const q =
+                                    `INSERT INTO ${table} (${colNames}) VALUES (${colVals})`;
+                                const res = await DB.unsafe.run(q, r);
+
+                                if (res.isErr()) {
+                                    console.error(
+                                        'Error inserting data into',
+                                        table,
+                                        res.error,
+                                        q,
+                                        r,
+                                    );
+                                }
+
+                                return res;
+                            }),
+                        );
+                    });
+
+                    if (res.isErr()) throw res.error;
+                    if (res.value?.some((r) => r.isErr())) {
+                        console.error('Error inserting data');
+                        throw new Error('Error inserting data');
+                    }
+                    return res;
+                }),
+            );
+
+            if (res.every((r) => r.isOk())) {
+                console.log('Database restored');
+            } else {
+                // console.log('Error(s) restoring database', res);
+                throw new Error('Error(s) restoring database');
+            }
         });
     }
 
     static async setIntervals() {
+        const { BACKUP_INTERVAL, BACKUP_DAYS } = env;
+        if (!BACKUP_INTERVAL || !BACKUP_DAYS) {
+            console.log(
+                'BACKUP_INTERVAL or BACKUP_DAYS not set, skipping backup intervals',
+            );
+            return;
+        }
+        const now = Date.now();
+
+        console.log(
+            'Setting backup intervals to create every',
+            BACKUP_INTERVAL,
+            'hours, and delete after',
+            BACKUP_DAYS,
+            'days',
+        );
+
         // backup each day, delete after 30 days
         return attemptAsync(async () => {
-            throw new Error('Not implemented');
+            const backups = await DB.getBackups();
+            if (backups.isErr()) throw new Error('Could not find backups');
+
+            console.log(
+                'Setting backup intervals to delete every',
+                BACKUP_DAYS,
+                'days',
+            );
+
+            const deleteAfter = (backup: string, days: number) => {
+                daysTimeout(() => {
+                    console.log('Deleting backup:', backup);
+                    Deno.remove(`storage/db/backups/${backup}`);
+                }, days);
+            };
+
+            // creates a backup every BACKUP_INTERVAL hours
+            setInterval(
+                async () => {
+                    console.log('Creating automated database backup...');
+                    const res = await DB.makeBackup();
+                    if (res.isOk()) {
+                        deleteAfter(res.value, +BACKUP_DAYS);
+                    } else {
+                        console.log('Error creating backup', res.error);
+                    }
+                },
+                +BACKUP_INTERVAL * 60 * 60 * 1000,
+            );
+
+            for (const b of backups.value) {
+                const [, time] = b.split('_');
+                const date = new Date(+time.split('.')[0]);
+                const deleteDate = new Date(+time.split('.')[0]).setDate(
+                    date.getDate() + +BACKUP_DAYS,
+                );
+
+                if (deleteDate < now) {
+                    console.log('Deleting backup:', b);
+                    await Deno.remove(`storage/db/backups/${b}`);
+                } else {
+                    deleteAfter(b, +BACKUP_DAYS);
+                }
+            }
+        });
+    }
+
+    static async updateToVersion(version: Version): Promise<Result<void>> {
+        return attemptAsync(async () => {
+            const versions = await DB.getUpdates();
+            if (versions.isErr()) throw versions.error;
+            await DB.init();
+
+            const [major, minor, patch] = version;
+
+            for (const v of versions.value) {
+                const [M, m, p] = v;
+                if (
+                    M < major ||
+                    (M === major && m < minor) ||
+                    (M === major && m === minor && p <= patch)
+                ) {
+                    const res = await DB.runUpdate(v);
+                    if (res.isErr()) throw res.error;
+                }
+            }
         });
     }
 
@@ -493,7 +741,7 @@ export class DB {
     private static runQuery<T extends keyof Queries>(
         query: T,
         ...args: QParams<T> extends [undefined] ? [] : QParams<T>
-    ): Promise<Result<Queries[T][1][]>> {
+    ): Promise<Result<QueryResult<Queries[T][1]>>> {
         return attemptAsync(async () => {
             const q = await DB.prepare(query, ...args);
             if (q.isErr()) {
@@ -508,7 +756,11 @@ export class DB {
                 log('Database warnings:', result.warnings);
             }
 
-            return DB.parseObj(result.rows) as Queries[T][1][];
+            return {
+                rows: DB.parseObj(result.rows) as Queries[T][1][],
+                params: newArgs,
+                query: sql,
+            };
         });
     }
 
@@ -537,7 +789,7 @@ export class DB {
                 console.error(q.error);
                 throw q.error;
             }
-            return q.value[0];
+            return q.value.rows[0];
         });
     }
 
@@ -561,7 +813,7 @@ export class DB {
                 console.error(q.error);
                 throw q.error;
             }
-            return q.value[0];
+            return q.value.rows[0];
         });
     }
 
@@ -585,7 +837,7 @@ export class DB {
                 console.error(q.error);
                 throw q.error;
             }
-            return q.value;
+            return q.value.rows;
         });
     }
 
@@ -602,14 +854,25 @@ export class DB {
         const runUnsafe = async <T = unknown>(
             query: string,
             ...args: Parameter[]
-        ): Promise<Result<T[]>> => {
+        ): Promise<Result<QueryResult<T>>> => {
             return attemptAsync(async () => {
                 const [q, p] = DB.parseQuery(query, args);
-                const result = await DB.db.queryObject(q, p);
-                if (result.warnings.length) {
-                    log('Database warnings:', result.warnings);
+                try {
+                    const result = await DB.db.queryObject(q, p);
+                    if (result.warnings.length) {
+                        log('Database warnings:', result.warnings);
+                    }
+                    return {
+                        rows: DB.parseObj(result.rows) as T[],
+                        query: q,
+                        params: p,
+                    };
+                } catch (error) {
+                    console.error('Error running query:', error);
+                    console.log('Query:', q);
+                    console.log('Parameters:', p);
+                    throw error;
                 }
-                return DB.parseObj(result.rows) as T[];
             });
         };
 
@@ -624,7 +887,7 @@ export class DB {
                         console.error(r.error);
                         throw r.error;
                     }
-                    return r.value[0];
+                    return r.value.rows[0];
                 });
             },
             get: <type = unknown>(
@@ -637,7 +900,7 @@ export class DB {
                         console.error(r.error);
                         throw r.error;
                     }
-                    return r.value[0] as type;
+                    return r.value.rows[0] as type;
                 });
             },
             all: <type = unknown>(
@@ -650,7 +913,7 @@ export class DB {
                         console.error(r.error);
                         throw r.error;
                     }
-                    return r.value as type[];
+                    return r.value.rows as type[];
                 });
             },
         };
@@ -663,6 +926,8 @@ await DB.connect().then(async (result) => {
     if (result.isOk()) {
         log('Connected to the database');
         await DB.runAllUpdates();
+        await DB.makeBackup();
+        await DB.setIntervals();
     } else {
         error('FATAL:', result.error);
         error(
@@ -676,7 +941,3 @@ await DB.connect().then(async (result) => {
 Deno.addSignalListener('SIGINT', () => {
     DB.close();
 });
-
-// Deno.addSignalListener('SIGTERM', () => {
-//     DB.close();
-// });
