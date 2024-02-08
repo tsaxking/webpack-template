@@ -6,7 +6,7 @@ import { CookieOptions, Next, ServerFunction } from './app/app.ts';
 import { app } from '../server.ts';
 import { Req } from './app/req.ts';
 import { Res } from './app/res.ts';
-import { log } from '../utilities/terminal-logging.ts';
+// import { log } from '../utilities/terminal-logging.ts';
 
 /**
  * Session object from the database

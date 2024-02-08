@@ -108,7 +108,7 @@ export class DB {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         args: any[],
     ): [string, Parameter[]] {
-        const copied = JSON.parse(JSON.stringify(args)); // no dependencies
+        const copied = [...args]; // no dependencies
 
         // remove all comments
         query = query.replaceAll(/--.*\n/g, '');

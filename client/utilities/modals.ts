@@ -174,9 +174,18 @@ const container = (() => {
 
     const child = document.createElement('div');
     child.id = 'toast-container';
-    child.classList.add('position-absolute', 'top-0', 'end-0', 'p-3');
+    child.classList.add('position-absolute', 'top-0', 'end-0', 'w-100', 'h-100');
+    parent.appendChild(child);
 
-    document.body.appendChild(parent);
+    const mount = () => {
+        const main = document.querySelector('main');
+        if (!main) return;
+        // append to the beginning of the main element
+        main.insertBefore(parent, main.firstChild);
+        clearInterval(int);
+    }
+
+    const int = setInterval(mount, 10);
 
     return parent;
 })();
@@ -351,7 +360,7 @@ export class Toast {
         this.$el.appendChild(header);
         this.$el.appendChild(body);
 
-        container.appendChild(this.$el);
+        container.firstChild?.appendChild(this.$el);
 
         this.show();
     }
