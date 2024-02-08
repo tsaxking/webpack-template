@@ -102,9 +102,9 @@ export const runBuild = async () => {
     };
 
     Deno.addSignalListener('SIGINT', close);
-    Deno.addSignalListener('SIGTERM', close);
-    Deno.addSignalListener('SIGHUP', close);
-    Deno.addSignalListener('SIGQUIT', close);
+    // Deno.addSignalListener('SIGTERM', close);
+    // Deno.addSignalListener('SIGHUP', close);
+    // Deno.addSignalListener('SIGQUIT', close);
 
     const build = () =>
         esbuild.build({
