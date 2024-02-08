@@ -174,7 +174,13 @@ const container = (() => {
 
     const child = document.createElement('div');
     child.id = 'toast-container';
-    child.classList.add('position-absolute', 'top-0', 'end-0', 'w-100', 'h-100');
+    child.classList.add(
+        'position-absolute',
+        'top-0',
+        'end-0',
+        'w-100',
+        'h-100',
+    );
     parent.appendChild(child);
 
     const mount = () => {
@@ -183,7 +189,7 @@ const container = (() => {
         // append to the beginning of the main element
         main.insertBefore(parent, main.firstChild);
         clearInterval(int);
-    }
+    };
 
     const int = setInterval(mount, 10);
 
