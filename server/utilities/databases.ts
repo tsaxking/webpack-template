@@ -616,6 +616,6 @@ Deno.addSignalListener('SIGINT', () => {
     DB.close();
 });
 
-Deno.addSignalListener('SIGTERM', () => {
-    DB.close();
-});
+// Deno.addSignalListener('SIGTERM', () => {
+//     DB.close();
+// });

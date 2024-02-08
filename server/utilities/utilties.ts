@@ -8,9 +8,9 @@ export const stdin = new EventEmitter();
     const close = () => Deno.stdin.close();
 
     Deno.addSignalListener('SIGINT', close);
-    Deno.addSignalListener('SIGTERM', close);
-    Deno.addSignalListener('SIGHUP', close);
-    Deno.addSignalListener('SIGQUIT', close);
+    // Deno.addSignalListener('SIGTERM', close);
+    // Deno.addSignalListener('SIGHUP', close);
+    // Deno.addSignalListener('SIGQUIT', close);
 
     for await (const line of lines) {
         stdin.emit(line);
