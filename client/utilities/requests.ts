@@ -6,6 +6,7 @@ import { streamDelimiter } from '../../shared/text';
 import { uuid as _uuid } from '../../server/utilities/uuid';
 import { attemptAsync, Result } from '../../shared/attempt';
 import { error, log, warn } from './logging';
+import { bigIntDecode } from '../../shared/objects';
 
 /**
  * These are optional options for a request
@@ -755,6 +756,7 @@ export class ServerRequest<T = unknown> {
             })
                 .then((r) => r.json())
                 .then(async (data) => {
+                    data = bigIntDecode(data);
                     if (this.cached) log(data, '(cached)');
                     else log(data);
 

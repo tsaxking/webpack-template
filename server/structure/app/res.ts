@@ -19,6 +19,7 @@ import { EventEmitter } from '../../../shared/event-emitter.ts';
 import { streamDelimiter } from '../../../shared/text.ts';
 import * as blog from 'https://deno.land/x/blog@0.3.3/deps.ts';
 import { sleep } from '../../../shared/sleep.ts';
+import { bigIntEncode, bigIntDecode } from '../../../shared/objects.ts';
 
 /**
  * All filetype headers (used for sending files, this is not a complete list)
@@ -243,7 +244,7 @@ export class Res {
     json(data: unknown): ResponseStatus {
         this.isFulfilled();
         try {
-            const d = JSON.stringify(data);
+            const d = JSON.stringify(bigIntDecode(data));
             this.resolve?.(
                 new Response(d, {
                     status: this._status,
@@ -397,7 +398,7 @@ export class Res {
         redirect?: string,
     ): ResponseStatus {
         try {
-            const s = Status.from(id, this.req, JSON.stringify(data));
+            const s = Status.from(id, this.req, JSON.stringify(bigIntEncode(data)));
             s.redirect = redirect;
             s.send(this);
             return ResponseStatus.success;
