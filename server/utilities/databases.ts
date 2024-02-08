@@ -214,13 +214,11 @@ export class DB {
         console.log('Setting version to', v.join('.'));
         const [major, minor, patch] = v;
 
-        const res = await DB.run('db/change-version',
-            {
-                major,
-                minor,
-                patch,
-            },
-        );
+        const res = await DB.run('db/change-version', {
+            major,
+            minor,
+            patch,
+        });
 
         if (res.isOk()) DB.version = v;
         else console.log('Error setting version', res.error);

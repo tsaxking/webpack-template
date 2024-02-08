@@ -501,15 +501,16 @@ router.post('/all', async (req, res) => {
     if ((await account.getPermissions()).includes('admin')) {
         return res.json(
             await Promise.all(
-            (await Account.getAll()).map((a) =>
-                a.safe({
-                    roles: true,
-                    email: true,
-                    memberInfo: true,
-                    permissions: true,
-                    id: true,
-                })
-            ))
+                (await Account.getAll()).map((a) =>
+                    a.safe({
+                        roles: true,
+                        email: true,
+                        memberInfo: true,
+                        permissions: true,
+                        id: true,
+                    })
+                ),
+            ),
         );
     }
 
