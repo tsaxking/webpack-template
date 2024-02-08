@@ -14,7 +14,6 @@ import { Req } from './req.ts';
 import { Res } from './res.ts';
 import { ReqBody } from './req.ts';
 import { DB } from '../../utilities/databases.ts';
-import { uuid } from '../../utilities/uuid.ts';
 
 /**
  * All file types that can be sent (can be expanded)

@@ -244,7 +244,7 @@ export class Res {
     json(data: unknown): ResponseStatus {
         this.isFulfilled();
         try {
-            const d = JSON.stringify(bigIntDecode(data));
+            const d = JSON.stringify(bigIntEncode(data));
             this.resolve?.(
                 new Response(d, {
                     status: this._status,

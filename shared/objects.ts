@@ -1,4 +1,5 @@
 export const bigIntEncode = (obj: unknown) => {
+    if (!obj) return obj;
     if (typeof obj === 'object') {
         if (Array.isArray(obj)) return obj.map(bigIntEncode);
         const newObj: {
@@ -14,6 +15,7 @@ export const bigIntEncode = (obj: unknown) => {
 };
 
 export const bigIntDecode = (obj: unknown) => {
+    if (!obj) return obj;
     if (typeof obj === 'object') {
         if (Array.isArray(obj)) return obj.map(bigIntDecode);
         const newObj: {
@@ -24,8 +26,16 @@ export const bigIntDecode = (obj: unknown) => {
         }
         return newObj;
     }
-    if (typeof obj === 'string' && obj.endsWith('n')) {
-        return BigInt(obj.slice(0, -1));
+    if (typeof obj === 'string') {
+        const match = obj.match(/^(-?\d+)n$/);
+        if (match) {
+            // if number is below 2^53, return it as a number
+            const num = Number(match[1]);
+            if (num <= 9007199254740991 && num >= -9007199254740991) {
+                return num;
+            }
+            return BigInt(match[1]);
+        }
     }
     return obj;
 };
