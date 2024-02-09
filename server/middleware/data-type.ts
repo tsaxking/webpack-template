@@ -38,14 +38,17 @@ type IsValid =
     | (string | number | boolean)[]
     | ((data: any) => boolean);
 
-
-
 export const emitter = (() => {
     type Updates = {
         fail: [string, unknown, IsValid]; // key, value, desired
-    }
+    };
 
-    type Reason = 'invalid-primitive-array' | 'invalid-normal-array' | 'invalid-non-primitive' | 'invalid-primitive' | 'missing-key';
+    type Reason =
+        | 'invalid-primitive-array'
+        | 'invalid-normal-array'
+        | 'invalid-non-primitive'
+        | 'invalid-primitive'
+        | 'missing-key';
 
     class Event<T extends keyof Updates> {
         constructor(
@@ -53,7 +56,7 @@ export const emitter = (() => {
             public readonly data: Updates[T],
             public readonly url: string,
             public readonly method: string,
-            public readonly reason: Reason
+            public readonly reason: Reason,
         ) {}
     }
 
@@ -74,7 +77,12 @@ export const emitter = (() => {
             this.emitter.off(event, callback);
         }
 
-        emit<K extends keyof Updates>(event: K, data: Updates[K], req: Req, reason: Reason): void {
+        emit<K extends keyof Updates>(
+            event: K,
+            data: Updates[K],
+            req: Req,
+            reason: Reason,
+        ): void {
             const e = new Event(event, data, req.url, req.method, reason);
             this.emitter.emit(event, e);
         }
@@ -109,7 +117,12 @@ export const validate = <type = unknown>(
             if (!body || body[key] === undefined) {
                 passed = false;
                 missing.push(key);
-                emitter.emit('fail', [key, body[key], isValid as IsValid], req, 'missing-key');
+                emitter.emit(
+                    'fail',
+                    [key, body[key], isValid as IsValid],
+                    req,
+                    'missing-key',
+                );
                 continue;
             }
 
@@ -135,7 +148,12 @@ export const validate = <type = unknown>(
                         // invalid, not a primitive
                         passed = false;
                         failed.push(key);
-                        emitter.emit('fail', [key, body[key], isValid], req, 'invalid-primitive-array');
+                        emitter.emit(
+                            'fail',
+                            [key, body[key], isValid],
+                            req,
+                            'invalid-primitive-array',
+                        );
                         continue;
                     }
                 } else {
@@ -149,7 +167,12 @@ export const validate = <type = unknown>(
                         // invalid
                         passed = false;
                         failed.push(key);
-                        emitter.emit('fail', [key, body[key], isValid], req, 'invalid-normal-array');
+                        emitter.emit(
+                            'fail',
+                            [key, body[key], isValid],
+                            req,
+                            'invalid-normal-array',
+                        );
                         continue;
                     }
                 }
@@ -167,7 +190,12 @@ export const validate = <type = unknown>(
                         // invalid, not a primitive
                         passed = false;
                         failed.push(key);
-                        emitter.emit('fail', [key, body[key], isValid as IsValid], req, 'invalid-primitive');
+                        emitter.emit(
+                            'fail',
+                            [key, body[key], isValid as IsValid],
+                            req,
+                            'invalid-primitive',
+                        );
                         continue;
                     }
                 } else {
@@ -180,7 +208,12 @@ export const validate = <type = unknown>(
                         log('invalid non-primitive');
                         passed = false;
                         failed.push(key);
-                        emitter.emit('fail', [key, body[key], isValid as IsValid], req, 'invalid-non-primitive');
+                        emitter.emit(
+                            'fail',
+                            [key, body[key], isValid as IsValid],
+                            req,
+                            'invalid-non-primitive',
+                        );
                         continue;
                     }
                 }
