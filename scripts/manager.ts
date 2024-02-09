@@ -289,7 +289,9 @@ export const main = async () => {
     };
 
     const fn = await select<() => unknown>('Please select a task', [
-        ...(serverController.length ? [makeObj('Server Controller', serverController, icons.controller)] : []),
+        ...(serverController.length
+            ? [makeObj('Server Controller', serverController, icons.controller)]
+            : []),
         makeObj('General', general, icons.entry),
         makeObj('Accounts', accounts, icons.account),
         makeObj('Roles', roles, icons.role),
