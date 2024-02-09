@@ -43,6 +43,7 @@ $: {
         Settings.set('theme', detail ? 'Dark' : 'Light');
         change(detail ? 'Dark' : 'Light');
     }}"
+    value="{theme === 'Dark'}"
 >
     <div bind:this="{el}">
         {#if theme === 'Light'}

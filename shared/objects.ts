@@ -28,7 +28,14 @@ export const bigIntDecode = (obj: unknown) => {
     }
     if (typeof obj === 'string') {
         const match = obj.match(/^(-?\d+)n$/);
-        if (match) return BigInt(match[1]);
+        if (match) {
+            // if number is below 2^53, return it as a number
+            const num = Number(match[1]);
+            if (num <= 9007199254740991 && num >= -9007199254740991) {
+                return num;
+            }
+            return BigInt(match[1]);
+        }
     }
     return obj;
 };

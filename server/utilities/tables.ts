@@ -284,7 +284,9 @@ export type Update_account_change_username = {
 export type Select_db_get_version = undefined;
 
 export type Update_db_change_version = {
-    version: undefined;
+    major: number;
+    minor: number;
+    patch: number;
 };
 
 export type Insert_db_init = {

@@ -50,7 +50,7 @@ app.post('/socket-init', (req, res) => {
     res.json(parseCookie(cookie));
 });
 
-app.use('/*', (req, res, next) => {
+app.get('/*', (req, res, next) => {
     log(`[${req.method}] ${req.url}`);
     next();
 });
@@ -116,6 +116,7 @@ function stripHtml(body: ReqBody) {
 app.post('/*', (req, res, next) => {
     req.body = stripHtml(req.body as ReqBody);
 
+    log('[POST]', req.url);
     try {
         const b = JSON.parse(JSON.stringify(req.body)) as {
             $$files?: FileUpload[];

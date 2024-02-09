@@ -214,28 +214,15 @@ export class DB {
         console.log('Setting version to', v.join('.'));
         const [major, minor, patch] = v;
 
-        const del = await DB.unsafe.run('DELETE FROM Version');
+        const res = await DB.run('db/change-version', {
+            major,
+            minor,
+            patch,
+        });
 
-        if (del.isOk()) {
-            const res = await DB.unsafe.run(
-                `
-                INSERT INTO Version (major, minor, patch)
-                VALUES (:major, :minor, :patch)
-            `,
-                {
-                    major,
-                    minor,
-                    patch,
-                },
-            );
-
-            if (res.isOk()) DB.version = v;
-            else console.log('Error setting version', res.error);
-            return res;
-        } else {
-            console.log('Error deleting version', del.error);
-            return del;
-        }
+        if (res.isOk()) DB.version = v;
+        else console.log('Error setting version', res.error);
+        return res;
     }
 
     static async latestVersion(): Promise<Version> {

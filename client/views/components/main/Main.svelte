@@ -8,7 +8,7 @@ import { Account } from '../../../models/account';
 export let title: string;
 export let navItems: string[] = [];
 export let accountLinks: (string | null)[] = [];
-export let account: Account | undefined = undefined;
+export let account: Account = Account.guest;
 
 export let groups = [];
 export let active: string;

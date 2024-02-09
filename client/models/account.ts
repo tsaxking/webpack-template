@@ -55,6 +55,15 @@ export class Account extends Cache<AccountEvents> {
      * @type {*}
      */
     public static readonly $cache = new Map<string, Account>();
+    /**
+     * Guest account
+     * @date 2/8/2024 - 4:22:42 PM
+     *
+     * @public
+     * @static
+     * @readonly
+     * @type {Account}
+     */
     public static readonly guest = new Account({
         id: 'guest',
         username: 'guest',
@@ -135,6 +144,24 @@ export class Account extends Cache<AccountEvents> {
      */
     public static emit<T extends keyof Events>(event: T, data: Events[T]) {
         this.emitter.emit(event, data);
+    }
+
+    /**
+     * adds a listener to the account emitter that only triggers once
+     * @date 2/8/2024 - 4:22:42 PM
+     *
+     * @public
+     * @static
+     * @template {keyof Events} T
+     * @param {T} event
+     * @param {(data: Events[T]) => void} listener
+     * @returns {void) => void}
+     */
+    public static once<T extends keyof Events>(
+        event: T,
+        listener: (data: Events[T]) => void,
+    ) {
+        this.emitter.once(event, listener);
     }
 
     /**
@@ -250,7 +277,7 @@ export class Account extends Cache<AccountEvents> {
         this.firstName = data.firstName;
         this.lastName = data.lastName;
         this.email = data.email;
-        this.verified = data.verified;
+        this.verified = data.verified ? 1 : 0;
         this.created = data.created;
         this.phoneNumber = data.phoneNumber;
         this.picture = data.picture;
@@ -523,8 +550,8 @@ socket.on('account:unverified', (accountId: string) => {
 
 ServerRequest.post<AccountSafe>('/account/get-account').then((res) => {
     if (res.isOk()) {
+        if (!res.value.id) return;
         Account.current = new Account(res.value);
         Account.emit('current', Account.current);
-        console.log('current account', Account.current);
     }
 });
