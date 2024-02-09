@@ -214,6 +214,9 @@ export class DB {
         console.log('Setting version to', v.join('.'));
         const [major, minor, patch] = v;
 
+        const deleteVersion = await DB.run('db/delete-version');
+        if (deleteVersion.isErr()) throw deleteVersion.error;
+
         const res = await DB.run('db/change-version', {
             major,
             minor,

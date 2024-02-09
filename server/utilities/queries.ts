@@ -239,5 +239,7 @@ export type Queries = {
 
     'db/change-version': [[Update_db_change_version], unknown];
 
+    'db/delete-version': [[], unknown];
+
     'db/init': [[Insert_db_init], unknown];
 };
