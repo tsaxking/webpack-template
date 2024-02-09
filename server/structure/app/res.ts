@@ -19,7 +19,7 @@ import { EventEmitter } from '../../../shared/event-emitter.ts';
 import { streamDelimiter } from '../../../shared/text.ts';
 import * as blog from 'https://deno.land/x/blog@0.3.3/deps.ts';
 import { sleep } from '../../../shared/sleep.ts';
-import { bigIntEncode, bigIntDecode } from '../../../shared/objects.ts';
+import { bigIntDecode, bigIntEncode } from '../../../shared/objects.ts';
 
 /**
  * All filetype headers (used for sending files, this is not a complete list)
@@ -244,7 +244,7 @@ export class Res {
     json(data: unknown): ResponseStatus {
         this.isFulfilled();
         try {
-            const d = JSON.stringify(bigIntDecode(data));
+            const d = JSON.stringify(bigIntEncode(data));
             this.resolve?.(
                 new Response(d, {
                     status: this._status,
@@ -398,7 +398,11 @@ export class Res {
         redirect?: string,
     ): ResponseStatus {
         try {
-            const s = Status.from(id, this.req, JSON.stringify(bigIntEncode(data)));
+            const s = Status.from(
+                id,
+                this.req,
+                JSON.stringify(bigIntEncode(data)),
+            );
             s.redirect = redirect;
             s.send(this);
             return ResponseStatus.success;
@@ -442,29 +446,24 @@ export class Res {
 
         const stream = new ReadableStream({
             // send chunks when the event loop is free
-            async start(controller) {
-                // opens up the event loop while sending chunks
-                // let i = 0;
-                const send = async (data: string) =>
-                    sleep(0).then(() => {
-                        // console.log('Sending chunk', i++, '/', content.length);
-                        controller.enqueue(
-                            new TextEncoder().encode(
-                                encodeURI(data) + streamDelimiter,
-                            ),
-                        );
-                    });
+            start(controller) {
+                const send = (n: number) => {
+                    if (n >= content.length) {
+                        em.emit('end');
+                        controller.close();
+                        return;
+                    }
+                    controller.enqueue(new TextEncoder().encode(content[n]));
+                    i++;
+                    timer = setTimeout(() => send(i));
+                };
 
-                return Promise.all(content.map(send)).then(() => {
-                    // log('Stream ended:', content.length, '/', content.length);
-                    em.emit('end');
-                    controller.close();
-                });
+                let i = 0;
+                timer = setTimeout(() => send(i));
             },
 
             cancel() {
                 if (timer) clearTimeout(timer);
-                log('Stream cancelled');
                 em.emit('cancel');
             },
 

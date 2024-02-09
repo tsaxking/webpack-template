@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { EventEmitter } from '../../shared/event-emitter.ts';
 import { ServerFunction } from '../structure/app/app.ts';
+import { Req } from '../structure/app/req.ts';
 
 /**
  * Options for the validate function
@@ -36,6 +38,51 @@ type IsValid =
     | (string | number | boolean)[]
     | ((data: any) => boolean);
 
+
+
+export const emitter = (() => {
+    type Updates = {
+        fail: [string, unknown, IsValid]; // key, value, desired
+    }
+
+    type Reason = 'invalid-primitive-array' | 'invalid-normal-array' | 'invalid-non-primitive' | 'invalid-primitive' | 'missing-key';
+
+    class Event<T extends keyof Updates> {
+        constructor(
+            public readonly type: T,
+            public readonly data: Updates[T],
+            public readonly url: string,
+            public readonly method: string,
+            public readonly reason: Reason
+        ) {}
+    }
+
+    class EM {
+        private readonly emitter = new EventEmitter<keyof Updates>();
+
+        on<K extends keyof Updates>(
+            event: K,
+            callback: (data: Event<K>) => void,
+        ): void {
+            this.emitter.on(event, callback);
+        }
+
+        off<K extends keyof Updates>(
+            event: K,
+            callback?: (data: Event<K>) => void,
+        ): void {
+            this.emitter.off(event, callback);
+        }
+
+        emit<K extends keyof Updates>(event: K, data: Updates[K], req: Req, reason: Reason): void {
+            const e = new Event(event, data, req.url, req.method, reason);
+            this.emitter.emit(event, e);
+        }
+    }
+
+    return new EM();
+})();
+
 /**
  * Creates a middleware function that validates the req.body, ensuring that all data is both present and the correct type
  * @date 1/9/2024 - 1:16:19 PM
@@ -54,16 +101,15 @@ export const validate = <type = unknown>(
         const missing: string[] = [];
         const failed: string[] = [];
 
-        for (const key in data) {
+        for (const [key, isValid] of Object.entries(data)) {
             const log = (...args: any[]) => {
                 if (options?.log) console.log('[validate]', key, ...args);
             };
 
-            const isValid = data[key];
-
             if (!body || body[key] === undefined) {
                 passed = false;
                 missing.push(key);
+                emitter.emit('fail', [key, body[key], isValid as IsValid], req, 'missing-key');
                 continue;
             }
 
@@ -89,6 +135,7 @@ export const validate = <type = unknown>(
                         // invalid, not a primitive
                         passed = false;
                         failed.push(key);
+                        emitter.emit('fail', [key, body[key], isValid], req, 'invalid-primitive-array');
                         continue;
                     }
                 } else {
@@ -102,6 +149,7 @@ export const validate = <type = unknown>(
                         // invalid
                         passed = false;
                         failed.push(key);
+                        emitter.emit('fail', [key, body[key], isValid], req, 'invalid-normal-array');
                         continue;
                     }
                 }
@@ -119,6 +167,7 @@ export const validate = <type = unknown>(
                         // invalid, not a primitive
                         passed = false;
                         failed.push(key);
+                        emitter.emit('fail', [key, body[key], isValid as IsValid], req, 'invalid-primitive');
                         continue;
                     }
                 } else {
@@ -131,6 +180,7 @@ export const validate = <type = unknown>(
                         log('invalid non-primitive');
                         passed = false;
                         failed.push(key);
+                        emitter.emit('fail', [key, body[key], isValid as IsValid], req, 'invalid-non-primitive');
                         continue;
                     }
                 }

@@ -307,7 +307,7 @@ export const createStatus = async () => {
 
     const allStatuses = Array.from(text.matchAll(/('[\w:-]+'):/g)); // match all status message names
 
-    const groups = allStatuses.map((i) => i[0].match(/[\w]+/));
+    const groups = allStatuses.map((i) => i[0].match(/[\w-]+/));
 
     let group = await select<string>('Select a status group:', [
         '[new]',
