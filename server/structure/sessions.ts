@@ -52,6 +52,8 @@ type SessionOptions = {
  * @typedef {Session}
  */
 export class Session {
+    private static readonly cache = new Map<string, Session>();
+
     static newId() {
         return (uuid() + uuid() + uuid() + uuid()).replace(/-/g, '');
     }
@@ -106,6 +108,9 @@ export class Session {
      * @returns {(Session | undefined)}
      */
     static async get(id: string): Promise<Session | undefined> {
+        if (Session.cache.has(id)) {
+            return Session.cache.get(id);
+        }
         const res = await DB.get('sessions/get', { id });
         if (res.isOk() && res.value) {
             return Session.fromSessObj(res.value);
@@ -267,6 +272,13 @@ export class Session {
             this.ip = req.ip;
             this.userAgent = req.headers.get('user-agent') || '';
         }
+
+        Session.cache.set(this.id, this);
+
+        setTimeout(() => {
+            // TODO: optimize this (use latestActivity instead of created time)
+            Session.cache.delete(this.id);
+        }, 1000 * 60 * 5);
 
         // if (Session.requestsInfo.max < Infinity) {
         // log(Session.requestsInfo.max, Session.requestsInfo.per);

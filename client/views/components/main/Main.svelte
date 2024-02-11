@@ -8,7 +8,6 @@ import { Account } from '../../../models/account';
 export let title: string;
 export let navItems: string[] = [];
 export let accountLinks: (string | null)[] = [];
-export let account: Account = Account.guest;
 
 export let groups = [];
 export let active: string;
@@ -25,13 +24,11 @@ if (active) {
     openPage({ detail: active });
 }
 
-Account.on('current', () => {
-    account = Account.current;
-});
+
 </script>
 
 <main>
-    <Navbar {title} {navItems} {accountLinks} {account}>
+    <Navbar {title} {navItems} {accountLinks}>
         <slot name="nav" />
     </Navbar>
 

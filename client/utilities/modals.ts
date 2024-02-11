@@ -45,23 +45,25 @@ export class Modal {
         this.$emitter.emit(event, args);
     }
 
-    private readonly $el = document.createElement('div');
+    readonly el = document.createElement('div');
+    readonly id: string;
 
-    constructor(private readonly modalId: string) {
+    constructor(id?: string) {
+        this.id = id || `modal-${Math.random().toString(36).substr(2, 9)}`;
         this.render();
 
         this.on('show', () => {
-            $(this.$el).modal('show');
+            $(this.el).modal('show');
         });
 
         this.on('hide', () => {
-            $(this.$el).modal('hide');
+            $(this.el).modal('hide');
         });
     }
 
     private render() {
-        const modal = this.$el;
-        modal.id = this.modalId;
+        const modal = this.el;
+        modal.id = this.id;
         modal.setAttribute('tabindex', '-1');
         modal.setAttribute('role', 'dialog');
         modal.setAttribute('aria-hidden', 'true');
@@ -108,7 +110,7 @@ export class Modal {
     }
 
     setTitle(title: string | HTMLElement) {
-        const header = this.$el.querySelector('.modal-header');
+        const header = this.el.querySelector('.modal-header');
         if (!header) return;
         const titleEl = header.querySelector('.modal-title');
         if (!titleEl) return;
@@ -121,7 +123,7 @@ export class Modal {
     }
 
     setBody(body: string | HTMLElement) {
-        const content = this.$el.querySelector('.modal-content');
+        const content = this.el.querySelector('.modal-content');
         if (!content) return;
         const bodyEl = content.querySelector('.modal-body');
         if (!bodyEl) return;
@@ -134,7 +136,7 @@ export class Modal {
     }
 
     setFooter(footer: string | HTMLElement) {
-        const content = this.$el.querySelector('.modal-content');
+        const content = this.el.querySelector('.modal-content');
         if (!content) return;
         const footerEl = content.querySelector('.modal-footer');
         if (!footerEl) return;
@@ -156,7 +158,7 @@ export class Modal {
 
     public destroy() {
         this.emit('destroy');
-        $(`#${this.modalId}`).remove();
+        $(`#${this.id}`).remove();
     }
 }
 

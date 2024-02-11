@@ -1,7 +1,6 @@
 import env, { __root, resolve } from './utilities/env.ts';
 import { log } from './utilities/terminal-logging.ts';
 import { App, ResponseStatus } from './structure/app/app.ts';
-import { Session } from './structure/sessions.ts';
 import { getJSON, log as serverLog } from './utilities/files.ts';
 import { homeBuilder } from './utilities/page-builder.ts';
 import Account from './structure/accounts.ts';
@@ -16,9 +15,8 @@ import { ReqBody } from './structure/app/req.ts';
 import { parseCookie } from '../shared/cookie.ts';
 
 const port = +(env.PORT || 3000);
-const domain = env.DOMAIN || `http://localhost:${port}`;
 
-export const app = new App(port, domain, {
+export const app = new App(port, env.DOMAIN || `http://localhost:${port}`, {
     // onListen: () => {
     // log(`Listening on ${domain}`);
     // },

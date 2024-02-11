@@ -152,27 +152,6 @@ export const addQueryType = async () => {
     }
 };
 
-export const makeDefaultQueries = async () => {
-    return backToMain('Not implemented');
-    const tables = await getTables();
-
-    const name = await select<string>(
-        'Select table to make default queries for',
-        Object.keys(tables),
-    );
-
-    const t = tables[name];
-    if (!t) return backToMain('Table not found');
-
-    const parsedName = toSnakeCase(fromCamelCase(name), '-');
-
-    const hasNew = await readFile(`/storage/db/queries/${parsedName}/new.sql`);
-    const hasGet = await readFile(`/storage/db/queries/${parsedName}/get.sql`);
-    const hasDelete = await readFile(
-        `/storage/db/queries/${parsedName}/delete.sql`,
-    );
-};
-
 // export const reset = async () => {
 //     const doReset = await confirm(
 //         'Are you sure you want to reset the database?',
@@ -315,6 +294,7 @@ export const reset = async () => {
                 'Error resetting database: ' + reset.error.message,
             );
         }
+        return backToMain('Database reset and updated to latest version.');
     } else {
         return backToMain('Reset cancelled');
     }
@@ -403,14 +383,6 @@ export const databases = [
         value: viewTables,
         icon: '📇',
     },
-    // {
-    //     value: addQueryType,
-    //     icon: '📝',
-    // },
-    // {
-    //     value: makeDefaultQueries,
-    //     icon: '📄',
-    // },
     {
         value: reset,
         icon: '🔄',

@@ -1,7 +1,7 @@
 {
     "tasks": {
-        "start": "deno task build && deno run --allow-all ./server/server.ts --no-console --console-to-csv",
-        "dev": "deno task init && deno run --allow-all --watch ./server/server.ts --allow-stdin --watch",
+        "start": "deno task build && deno run --v8-flags=--max-old-space-size=8000 --allow-all ./server/server.ts --no-console --console-to-csv",
+        "dev": "deno task init && deno run --v8-flags=--max-old-space-size=8000 --allow-all --watch ./server/server.ts --allow-stdin --watch",
         "build": "deno task init --default && deno run --allow-all ./server/bundler.ts",
         "init": "deno run --allow-all --allow-run ./scripts/init.ts",
         "update": "deno run --allow-all --allow-run ./storage/db/scripts/init.ts --update",

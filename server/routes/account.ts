@@ -9,8 +9,8 @@ export const router = new Route();
 
 // gets the account from the session
 router.post('/get-account', async (req, res) => {
-    // const account = await req.session.getAccount();
-    const account = await Account.fromUsername('tsaxking');
+    const account = await req.session.getAccount();
+    // const account = await Account.fromUsername('tsaxking');
 
     if (account) {
         const safe = await account.safe({
@@ -501,15 +501,16 @@ router.post('/all', async (req, res) => {
     if ((await account.getPermissions()).includes('admin')) {
         return res.json(
             await Promise.all(
-            (await Account.getAll()).map((a) =>
-                a.safe({
-                    roles: true,
-                    email: true,
-                    memberInfo: true,
-                    permissions: true,
-                    id: true,
-                })
-            ))
+                (await Account.getAll()).map((a) =>
+                    a.safe({
+                        roles: true,
+                        email: true,
+                        memberInfo: true,
+                        permissions: true,
+                        id: true,
+                    })
+                ),
+            ),
         );
     }
 
