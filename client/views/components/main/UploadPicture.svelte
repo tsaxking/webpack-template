@@ -47,7 +47,7 @@ const fns = {
 };
 </script>
 
-<div class="container">
+<div class="container-fluid">
     <div class="row mb-3">
         <input
             type="file"
@@ -60,7 +60,7 @@ const fns = {
             accept=".png,.PNG,.jpg,.JPG,.jpeg,.JPEG"
         />
     </div>
-    <div class="row mb-3">
+    <div class="row">
         {#each pictures as picture, i}
             <div class="col-sm-4 col-md-3 col-lg-2 m-1 no-select">
                 <div
