@@ -287,9 +287,7 @@ export class Settings {
         return attemptAsync(async () => {
             const res = await ServerRequest.post<
                 [string, unknown][] | undefined
-            >(
-                '/account/get-settings',
-            );
+            >('/account/get-settings');
             if (res.isOk()) {
                 const settings = res.value;
                 Settings.$settings.clear();

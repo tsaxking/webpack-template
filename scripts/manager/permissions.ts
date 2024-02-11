@@ -12,10 +12,10 @@ const createPermission = async (perm: Permission, description: string) => {
         // will not do anything if the permission already exists
         await DB.unsafe.run(
             `
-            INSERT INTO permissions (name, description)
+            INSERT INTO Permissions (permission, description)
             VALUES (?, ?)
 
-            ON CONFLICT(name) DO NOTHING
+            ON CONFLICT(permission) DO NOTHING
         `,
             perm,
             description,

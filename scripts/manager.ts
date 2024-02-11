@@ -11,6 +11,7 @@ import { statuses } from './manager/status.ts';
 import { permissions } from './manager/permissions.ts';
 import { databases } from './manager/database.ts';
 import { general } from './manager/general.ts';
+import { serverController } from './manager/server-controller.ts';
 
 export const icons = {
     success: '✅',
@@ -29,6 +30,7 @@ export const icons = {
     create: '➕',
     restore: '🔄',
     back: '⬅️',
+    controller: '🎮',
 };
 
 export const filter = (str: string): boolean => {
@@ -287,6 +289,9 @@ export const main = async () => {
     };
 
     const fn = await select<() => unknown>('Please select a task', [
+        ...(serverController.length
+            ? [makeObj('Server Controller', serverController, icons.controller)]
+            : []),
         makeObj('General', general, icons.entry),
         makeObj('Accounts', accounts, icons.account),
         makeObj('Roles', roles, icons.role),
