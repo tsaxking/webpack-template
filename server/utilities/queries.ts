@@ -242,5 +242,4 @@ export type Queries = {
     'db/delete-version': [[], unknown];
 
     'db/init': [[Insert_db_init], unknown];
-    'db/delete-version': [[], unknown];
 };
