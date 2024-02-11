@@ -15,8 +15,6 @@ let pictures: P[] = [];
 
 const dispatch = createEventDispatcher();
 
-$: dispatch('change', pictures);
-
 const fns = {
     onInput: async (e: Event) => {
         const { files } = input;
@@ -39,10 +37,16 @@ const fns = {
                     )
                 ))
             ];
+            fns.change();
         }
     },
     remove: (p: P) => {
         pictures = pictures.filter(p2 => p2 !== p);
+        fns.change();
+    },
+    change: () => {
+        dispatch('change', pictures);
+        input.files = null;
     }
 };
 </script>
