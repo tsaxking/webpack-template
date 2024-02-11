@@ -107,3 +107,7 @@ export const runCommand = async (
         });
     });
 };
+
+// export const run = async (cmd: string) => {
+//     const process = new Deno.Command()
+// }

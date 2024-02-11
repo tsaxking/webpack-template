@@ -272,7 +272,7 @@ export default class Account {
      * @param {Next} next
      * @returns {*}
      */
-    static async isSignedIn(req: Req<null>, res: Res, next: Next) {
+    static async isSignedIn(req: Req<unknown>, res: Res, next: Next) {
         const account = await req.session.getAccount();
 
         if (!account) {

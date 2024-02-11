@@ -9,8 +9,8 @@ export const router = new Route();
 
 // gets the account from the session
 router.post('/get-account', async (req, res) => {
-    // const account = await req.session.getAccount();
-    const account = await Account.fromUsername('tsaxking');
+    const account = await req.session.getAccount();
+    // const account = await Account.fromUsername('tsaxking');
 
     if (account) {
         const safe = await account.safe({

@@ -511,7 +511,6 @@ export class App {
             const res = new Res(this, req);
 
             if (setSsid) {
-                console.log('Sending cookie...');
                 res.cookie('ssid', s.id, Session.cookieOptions);
             }
 
