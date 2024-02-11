@@ -42,9 +42,7 @@
 
 <div class="container">
     <div class="row mb-3">
-        <div class="col-md-6">
-            <input type="file" name="" id={id} class="form-control" {multiple} bind:this={input} on:change={fns.onInput} accept=".png,.PNG,.jpg,.JPG,.jpeg,.JPEG">
-        </div>
+        <input type="file" name="" id={id} class="form-control" {multiple} bind:this={input} on:change={fns.onInput} accept=".png,.PNG,.jpg,.JPG,.jpeg,.JPEG">
     </div>
     <div class="row mb-3">
         {#each pictures as picture, i}
