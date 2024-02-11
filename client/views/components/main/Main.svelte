@@ -23,8 +23,6 @@ const dispatch = createEventDispatcher();
 if (active) {
     openPage({ detail: active });
 }
-
-
 </script>
 
 <main>

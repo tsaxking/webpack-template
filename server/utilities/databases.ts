@@ -109,7 +109,8 @@ export class DB {
                 setTimeout(() => {
                     rej('Database connection timed out');
                 }, 20 * 1000);
-                DB.db.connect()
+                DB.db
+                    .connect()
                     .then(() => {
                         DB.connected = true;
                         res('Connected to the database');
@@ -725,22 +726,26 @@ export class DB {
         });
     }
 
-    private static async runQuery(query: string, args: Parameter[]): Promise<Result<QueryResult<unknown>>> {
-        const run = () => attemptAsync(async () => {
-            const q = DB.parseQuery(query, args);
-            const [sql, newArgs] = q;
+    private static async runQuery(
+        query: string,
+        args: Parameter[],
+    ): Promise<Result<QueryResult<unknown>>> {
+        const run = () =>
+            attemptAsync(async () => {
+                const q = DB.parseQuery(query, args);
+                const [sql, newArgs] = q;
 
-            const result = await DB.db.queryObject(sql, newArgs);
-            if (result.warnings.length) {
-                log('Database warnings:', result.warnings);
-            }
+                const result = await DB.db.queryObject(sql, newArgs);
+                if (result.warnings.length) {
+                    log('Database warnings:', result.warnings);
+                }
 
-            return {
-                rows: DB.parseObj(result.rows) as unknown[],
-                params: newArgs,
-                query: sql,
-            };
-        });
+                return {
+                    rows: DB.parseObj(result.rows) as unknown[],
+                    params: newArgs,
+                    query: sql,
+                };
+            });
 
         let res = await run();
         let maxRetries = 5;
@@ -750,7 +755,6 @@ export class DB {
             'Broken pipe',
             'Connection closed',
         ];
-
 
         while (res.isErr() && maxRetries > 0) {
             const { error } = res;
@@ -819,7 +823,6 @@ export class DB {
             return result.value as QueryResult<T>;
         });
     }
-
 
     public static async disconnect() {
         log('Closing database...');

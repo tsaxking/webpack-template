@@ -275,10 +275,13 @@ export class Session {
 
         Session.cache.set(this.id, this);
 
-        setTimeout(() => {
-            // TODO: optimize this (use latestActivity instead of created time)
-            Session.cache.delete(this.id);
-        }, 1000 * 60 * 5);
+        setTimeout(
+            () => {
+                // TODO: optimize this (use latestActivity instead of created time)
+                Session.cache.delete(this.id);
+            },
+            1000 * 60 * 5,
+        );
 
         // if (Session.requestsInfo.max < Infinity) {
         // log(Session.requestsInfo.max, Session.requestsInfo.per);
