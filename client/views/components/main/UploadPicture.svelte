@@ -2,18 +2,17 @@
 import { Random } from '../../../../shared/math';
 import { abbreviate } from '../../../../shared/text';
 import { createEventDispatcher } from 'svelte';
+import type { Picture } from '../../../utilities/general-types';
+
 const id = 'input-' + Random.uuid();
 let input: HTMLInputElement;
 export let multiple: boolean = true;
 
-type P = {
-    name: string;
-    url: string;
-};
-
-let pictures: P[] = [];
+let pictures: Picture[] = [];
 
 const dispatch = createEventDispatcher();
+
+$: dispatch('change', pictures);
 
 const fns = {
     onInput: async (e: Event) => {
@@ -24,12 +23,12 @@ const fns = {
                 ...(await Promise.all(
                     Array.from(files).map(
                         f =>
-                            new Promise<P>((res, rej) => {
+                            new Promise<Picture>((res, rej) => {
                                 const reader = new FileReader();
                                 reader.onload = async () =>
                                     res({
-                                        name: f.name,
-                                        url: reader.result as string
+                                        url: reader.result as string,
+                                        file: f
                                     });
                                 reader.onerror = rej;
                                 reader.readAsDataURL(f);
@@ -37,16 +36,10 @@ const fns = {
                     )
                 ))
             ];
-            fns.change();
         }
     },
-    remove: (p: P) => {
+    remove: (p: Picture) => {
         pictures = pictures.filter(p2 => p2 !== p);
-        fns.change();
-    },
-    change: () => {
-        dispatch('change', pictures);
-        input.files = null;
     }
 };
 </script>
@@ -71,7 +64,7 @@ const fns = {
                     class="d-flex justify-content-between align-items-center py-1"
                 >
                     <p class="p-0 m-0">
-                        {abbreviate(picture.name, 20)}
+                        {abbreviate(picture.file.name, 20)}
                     </p>
                     <i
                         class="material-icons text-danger cursor-pointer p-0 m-0"
