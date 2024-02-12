@@ -12,13 +12,11 @@
     
     const dispatch = createEventDispatcher();
     
-    $: dispatch('change', pictures);
-    
     const fns = {
         onInput: async (e: Event) => {
             const { files } = input;
             if (files) {
-                pictures = [
+                fns.change([
                     ...(multiple ? pictures : []),
                     ...(await Promise.all(
                         Array.from(files).map(
@@ -35,11 +33,35 @@
                                 })
                         )
                     ))
-                ];
+                ]);
             }
         },
         remove: (p: Picture) => {
-            pictures = pictures.filter(p2 => p2 !== p);
+            fns.change(pictures.filter(p2 => p2 !== p));
+        },
+        change: (_pictures: Picture[]) => {
+            if (fns.compareLists(pictures, _pictures)) return; // no
+            pictures = _pictures;
+            input.files = null;
+            // update input.files
+            const dataTransfer = new DataTransfer();
+            for (const f of pictures) dataTransfer.items.add(f.file);
+            
+            
+            dispatch('change', {
+                fileList: dataTransfer.files,
+                pictures
+            });
+        },
+
+        // returns true if the lists are the same
+        compareLists: (a: Picture[], b: Picture[]) => {
+            if (a.length !== b.length) return false;
+            for (const aFile of a) {
+                const s = b.some(bFile => bFile.file.name === aFile.file.name);
+                if (!s) return false;
+            }
+            return true;
         }
     };
     </script>
