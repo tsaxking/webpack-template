@@ -55,11 +55,19 @@ jobs:
                     echo "Changes were automated, exiting"
                     exit 0
                   fi
+                  if git log -1 --pretty=%B | grep -q "Chore"; then
+                    echo "Changes were automated, exiting"
+                    exit 0
+                  fi
                   npm i --save-dev --force prettier-plugin-svelte prettier @typescript-eslint/parser @typescript-eslint/eslint-plugin@5.33.0 eslint typescript prettier-plugin-svelte svelte
 
             - name: Install global dependencies
               run: |
                   if git log -1 --pretty=%B | grep -q "AUTOMATED"; then
+                    echo "Changes were automated, exiting"
+                    exit 0
+                  fi
+                  if git log -1 --pretty=%B | grep -q "Chore"; then
                     echo "Changes were automated, exiting"
                     exit 0
                   fi
@@ -71,6 +79,10 @@ jobs:
                     echo "Changes were automated, exiting"
                     exit 0
                   fi
+                  if git log -1 --pretty=%B | grep -q "Chore"; then
+                    echo "Changes were automated, exiting"
+                    exit 0
+                  fi
                   git submodule update --init --recursive --remote
 
             - name: Run Formatter, Linter, then Checks
@@ -79,10 +91,22 @@ jobs:
                     echo "Changes were automated, exiting"
                     exit 0
                   fi
+                  if git log -1 --pretty=%B | grep -q "Chore"; then
+                    echo "Changes were automated, exiting"
+                    exit 0
+                  fi
                   sh ./scripts/fmt-lint-check.sh
 
             - name: Restore dependencies
               run: |
+                  if git log -1 --pretty=%B | grep -q "AUTOMATED"; then
+                    echo "Changes were automated, exiting"
+                    exit 0
+                  fi
+                  if git log -1 --pretty=%B | grep -q "Chore"; then
+                    echo "Changes were automated, exiting"
+                    exit 0
+                  fi
                   echo "Restore package.json and package-lock.json to their original names"
                   rm package.json package-lock.json
 
@@ -97,6 +121,10 @@ jobs:
             - name: Push results
               run: |
                   if git log -1 --pretty=%B | grep -q "AUTOMATED"; then
+                    echo "Changes were automated, exiting"
+                    exit 0
+                  fi
+                  if git log -1 --pretty=%B | grep -q "Chore"; then
                     echo "Changes were automated, exiting"
                     exit 0
                   fi
@@ -115,6 +143,10 @@ jobs:
                   echo "testing if on branch 'main'"
                   if [ "$(git rev-parse --abbrev-ref HEAD)" != "main" ]; then
                     echo "not on branch 'main', exiting"
+                    exit 0
+                  fi
+                  if git log -1 --pretty=%B | grep -q "Chore"; then
+                    echo "Changes were automated, exiting"
                     exit 0
                   fi
 
