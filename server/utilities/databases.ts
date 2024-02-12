@@ -741,7 +741,7 @@ export class DB {
                 }
 
                 return {
-                    rows: DB.parseObj(result.rows) as unknown[],
+                    rows: bigIntDecode(DB.parseObj(result.rows) as unknown[]),
                     params: newArgs,
                     query: sql,
                 };

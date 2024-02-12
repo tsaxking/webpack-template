@@ -1,6 +1,7 @@
 <script lang="ts">
 import { ServerRequest } from '../../utilities/requests';
 import Password from './Password.svelte';
+import Recaptcha from './Recaptcha.svelte';
 
 export let title: string;
 document.title = title + ': Sign up';
@@ -11,8 +12,12 @@ export let email: string = '';
 export let firstName: string = '';
 export let lastName: string = '';
 
+let i: HTMLInputElement,
+    recaptcha = false;
 const submit = () => {
-    console.log('Submitting!');
+    if (i.value || !recaptcha) {
+        return;
+    }
     if (!valid) {
         console.log('Is not valid');
     }
@@ -241,6 +246,11 @@ const isPasswordValid = (password: string): string[] => {
                         value="Submit"
                         on:click|preventDefault="{submit}"
                     />
+
+                    <input type="text" name="confirm-email" id="email" class="d-none" bind:this={i}>
+                    <Recaptcha on:recaptcha={() => {
+                        recaptcha = true
+                    }}/>
                 </form>
             </div>
         </div>

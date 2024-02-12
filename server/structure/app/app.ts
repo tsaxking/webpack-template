@@ -472,6 +472,7 @@ export class App {
             s = Session.fromSessObj(obj);
         }
 
+
         return new Promise<Response>(async (resolve, _reject) => {
             const url = new URL(denoReq.url, this.domain);
 
@@ -508,7 +509,15 @@ export class App {
             }
 
             const req = new Req(denoReq, info, this.io, s as Session);
-            const res = new Res(this, req);
+            const res = new Res(this, req);        
+            
+            
+            if (await s.isBlacklisted()) {
+                res.sendStatus('session:rate-limited');
+                return;
+            }
+            await s.newRequest()
+            s.latestActivity = Date.now();
 
             if (setSsid) {
                 res.cookie('ssid', s.id, Session.cookieOptions);

@@ -4,6 +4,7 @@ import { Status } from '../utilities/status.ts';
 import Role from '../structure/roles.ts';
 import { messages, StatusId } from '../../shared/status-messages.ts';
 import { validate } from '../middleware/data-type.ts';
+import env from '../utilities/env.ts';
 
 export const router = new Route();
 
@@ -31,12 +32,16 @@ router.post('/get-all-roles', (req, res) => {
 
 router.get('/sign-in', (req, res, next) => {
     if (req.session.accountId) return next();
-    res.sendTemplate('entries/account/sign-in');
+    res.sendTemplate('entries/account/sign-in', {
+        RECAPTCHA_SITE_KEY: env.RECAPTCHA_SITE_KEY
+    });
 });
 
 router.get('/sign-up', (req, res, next) => {
     if (req.session.accountId) return next();
-    res.sendTemplate('entries/account/sign-up');
+    res.sendTemplate('entries/account/sign-up', {
+        RECAPTCHA_SITE_KEY: env.RECAPTCHA_SITE_KEY
+    });
 });
 
 router.get('/reset-password/:key', (req, res, next) => {

@@ -6,7 +6,7 @@ import { CookieOptions, Next, ServerFunction } from './app/app.ts';
 import { app } from '../server.ts';
 import { Req } from './app/req.ts';
 import { Res } from './app/res.ts';
-// import { log } from '../utilities/terminal-logging.ts';
+import { log } from '../utilities/terminal-logging.ts';
 
 /**
  * Session object from the database
@@ -24,6 +24,7 @@ export type SessionObj = {
     userAgent?: string;
     created: number;
     limitTime?: number;
+    requests: number;
 };
 
 /**
@@ -72,9 +73,8 @@ export class Session {
     static requestsInfo: {
         max: number;
         per: number;
-        onOverload?: (session: Session) => void;
     } = {
-        max: Infinity,
+        max: 500,
         per: 60 * 1000,
     };
 
@@ -139,6 +139,8 @@ export class Session {
         session.$prevUrl = s.prevUrl;
         session.userAgent = s.userAgent;
         session.accountId = s.accountId;
+        session.created = s.created;
+        session.requests = s.requests;
 
         // log('Built:', session);
         return session;
@@ -173,35 +175,6 @@ export class Session {
     }
 
     /**
-     * The middleware function for the session
-     * @date 10/12/2023 - 3:13:58 PM
-     *
-     * @static
-     * @param {?SessionOptions} [options]
-     * @returns {ServerFunction}
-     */
-    static middleware(options?: SessionOptions): ServerFunction {
-        if (options) {
-            if (options.request) {
-                Session.requestsInfo = options.request;
-            }
-            if (options.cookie) {
-                Session.cookieOptions = options.cookie;
-            }
-            if (options.name) {
-                Session.sessionName = options.name;
-            }
-        }
-
-        return (req: Req, res: Res, next: Next) => {
-            const s = req.session;
-            s.requests++;
-            s.latestActivity = Date.now();
-            next();
-        };
-    }
-
-    /**
      * The ip address of the client
      * @date 10/12/2023 - 3:13:58 PM
      *
@@ -228,7 +201,7 @@ export class Session {
      *
      * @type {number}
      */
-    public latestActivity: number | undefined = Date.now();
+    private $latestActivity: number | undefined = Date.now();
     /**
      * The previous url (used for redirects)
      * @date 10/12/2023 - 3:13:58 PM
@@ -249,7 +222,7 @@ export class Session {
      *
      * @type {number}
      */
-    public readonly created: number = Date.now();
+    public created: number = Date.now();
     /**
      * The client user agent, if available
      * @date 10/12/2023 - 3:13:57 PM
@@ -275,20 +248,46 @@ export class Session {
 
         Session.cache.set(this.id, this);
 
-        setTimeout(
-            () => {
-                // TODO: optimize this (use latestActivity instead of created time)
-                Session.cache.delete(this.id);
-            },
-            1000 * 60 * 5,
-        );
+        setTimeout(() => this.destroy(), Session.cookieOptions.maxAge);
 
-        // if (Session.requestsInfo.max < Infinity) {
-        // log(Session.requestsInfo.max, Session.requestsInfo.per);
-        // setInterval(() => {
-        //     this.requests = 0;
-        // }, Session.requestsInfo.per);
-        // }
+        if (Session.requestsInfo.max < Infinity) {
+            // log(Session.requestsInfo.max, Session.requestsInfo.per);
+            setInterval(() => {
+                // console.log('Resetting requests');
+                this.requests = 0;
+                this.save();
+            }, Session.requestsInfo.per);
+        }
+    }
+
+    private timeout?: number;
+
+    public get latestActivity(): number | undefined {
+        return this.$latestActivity;
+    }
+
+    public set latestActivity(time: number | undefined) {
+        this.$latestActivity = time;
+        this.save();
+        if (this.timeout) clearTimeout(this.timeout);
+
+        this.timeout = setTimeout(() => {
+            this.requests = 0;
+            this.save();
+            Session.cache.delete(this.id);
+        }, 1000 * 60 * 5);
+    }
+
+
+    async newRequest() {
+        this.requests = this.requests + 1;
+        await this.save();
+        // console.log('Requests:', this.requests);
+        this.latestActivity = Date.now();
+
+        if (this.requests > Session.requestsInfo.max) {
+            this.blacklist('Rate limited');
+        }
     }
 
     get prevUrl(): string | undefined {
@@ -302,6 +301,32 @@ export class Session {
 
     // for caching
     private $account?: Account;
+
+    async isBlacklisted(): Promise<boolean> {
+        if (this.ip) {
+            const res = await DB.get('blacklist/from-ip', { ip: this.ip });
+            if (res.isOk() && res.value) return true;
+        }
+        
+        if (this.accountId) {
+            const res = await DB.get('blacklist/from-account', { accountId: this.accountId });
+            if (res.isOk() && res.value) return true;
+        }
+
+        return false;
+    }
+
+    async blacklist(reason: string) {
+        this.requests = 0; // for when/if the blacklist is removed
+        await this.save();
+        DB.run('blacklist/new', {
+            id: uuid(),
+            ip: this.ip || '',
+            reason,
+            accountId: this.accountId,
+            created: Date.now(),
+        });
+    }
 
     /**
      * The account object, if the user is signed in
@@ -346,7 +371,7 @@ export class Session {
      * @date 10/12/2023 - 3:13:57 PM
      */
     destroy() {
-        DB.run('sessions/delete', { id: this.id });
+        return DB.run('sessions/delete', { id: this.id });
     }
 
     /**

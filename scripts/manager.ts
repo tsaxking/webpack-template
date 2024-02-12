@@ -247,7 +247,8 @@ export const main = async () => {
         }[],
         icon: string,
     ) => {
-        return {
+        if (!data.length) return [];
+        return [{
             name: `${icon} [${name}]`,
             value: async () => {
                 title(name);
@@ -266,7 +267,13 @@ export const main = async () => {
                                     )
                                 }`,
                             );
-                            return d.value();
+                            
+                            try {
+                                return d.value();
+                            } catch (e) {
+                                console.error(e);
+                                return backToMain('Error occurred');
+                            }
                         },
                     })),
                     {
@@ -285,19 +292,17 @@ export const main = async () => {
                     backToMain('No tasks selected');
                 }
             },
-        };
+        }];
     };
 
-    const fn = await select<() => unknown>('Please select a task', [
-        ...(serverController.length
-            ? [makeObj('Server Controller', serverController, icons.controller)]
-            : []),
-        makeObj('General', general, icons.entry),
-        makeObj('Accounts', accounts, icons.account),
-        makeObj('Roles', roles, icons.role),
-        makeObj('Statuses', statuses, icons.status),
-        makeObj('Permissions', permissions, icons.permission),
-        makeObj('Databases', databases, icons.database),
+    const fn = await select<() => unknown>('Please select a task', [ 
+        ...makeObj('Server Controller', serverController, icons.controller),
+        ...makeObj('General', general, icons.entry),
+        ...makeObj('Accounts', accounts, icons.account),
+        ...makeObj('Roles', roles, icons.role),
+        ...makeObj('Statuses', statuses, icons.status),
+        ...makeObj('Permissions', permissions, icons.permission),
+        ...makeObj('Databases', databases, icons.database),
         {
             name: `${icons.exit} Exit`,
             value: exit,

@@ -14,10 +14,12 @@
         "svelte": "^4.2.8",
         "svelte-check": "^3.6.3",
         "svelte-preprocess-esbuild": "^3.0.1",
+        "svelte-recaptcha-v2": "^0.0.2",
         "tslib": "^2.6.2",
         "typescript": "^5.3.3"
     },
     "dependencies": {
+        "@beyowi/svelte-recaptcha-v2": "^0.0.4",
         "@types/bootstrap": "^5.2.10",
         "@types/jqueryui": "^1.12.21",
         "bootstrap": "^5.3.2",
