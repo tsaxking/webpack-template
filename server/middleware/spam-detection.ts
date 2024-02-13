@@ -96,3 +96,28 @@ export const emailValidation = (
             });
     };
 };
+
+
+
+
+/**
+ * Looks for a honeypot field in the request body (a field that should be empty, but a bot would fill in)
+ * If the field is not empty, the request is flagged as spam, and the session is blacklisted
+ * @date 2/12/2024 - 3:54:19 PM
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const honeypot = (key: string): ServerFunction<any> => {
+    return (req, _res, next) => {
+        if (Object.hasOwnProperty.call(req.body, key)) {
+            if (req.body[key] !== '' || req.body[key] !== null || req.body[key] !== undefined) {
+                // this is spam
+                req.session.blacklist('honeypot');
+                req.end();
+            } else {
+                next();
+            }
+        } else {
+            next();
+        }
+    }
+};
