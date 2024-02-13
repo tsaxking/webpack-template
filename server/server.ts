@@ -1,17 +1,14 @@
 import env, { __root, resolve } from './utilities/env.ts';
 import { log } from './utilities/terminal-logging.ts';
 import { App, ResponseStatus } from './structure/app/app.ts';
-import { Session } from './structure/sessions.ts';
 import { getJSON, log as serverLog } from './utilities/files.ts';
 import { homeBuilder } from './utilities/page-builder.ts';
 import Account from './structure/accounts.ts';
-import { runBuild } from './bundler.ts';
 import { router as admin } from './routes/admin.ts';
 import { router as account } from './routes/account.ts';
 import { router as api } from './routes/api.ts';
 import Role from './structure/roles.ts';
 import { FileUpload } from './middleware/stream.ts';
-import { stdin } from './utilities/utilties.ts';
 import { ReqBody } from './structure/app/req.ts';
 import { parseCookie } from '../shared/cookie.ts';
 
@@ -27,17 +24,6 @@ export const app = new App(port, domain, {
     // },
     ioPort: +(env.SOCKET_PORT || port + 1),
 });
-
-if (env.ENVIRONMENT === 'dev') {
-    const builder = await runBuild();
-    // building client listeners
-    builder.on('build', () => {
-        if (env.ENVIRONMENT === 'dev') app.io.emit('reload');
-        log('Build complete');
-    });
-    stdin.on('rb', () => builder.emit('build'));
-    builder.on('error', (e) => log('Build error:', e));
-}
 
 app.post('/env', (req, res) => {
     res.json({
