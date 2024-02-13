@@ -70,10 +70,16 @@ const blacklist = async () => {
         const accounts = await Account.getAll();
         const a = await select(
             'Select an account to blacklist',
-            accounts.map(a => ({
-                name: a.username + ' - ' + a.email + ' - ' + a.firstName + ' ' + a.lastName,
+            accounts.map((a) => ({
+                name: a.username +
+                    ' - ' +
+                    a.email +
+                    ' - ' +
+                    a.firstName +
+                    ' ' +
+                    a.lastName,
                 value: a,
-            }))
+            })),
         );
 
         if (a) {
@@ -87,7 +93,7 @@ const blacklist = async () => {
                     reason: 'Manually blacklisted',
                     accountId: a.id,
                     ip: '',
-                    created: Date.now()
+                    created: Date.now(),
                 });
                 return backToMain('Account blacklisted');
             } else {
@@ -99,7 +105,7 @@ const blacklist = async () => {
     } else if (accountOrIp === 'IP') {
         const fromNew = await select<'new' | 'session'>(
             'Is this a new IP or is currently attached to a session?',
-            ['new', 'session']
+            ['new', 'session'],
         );
 
         if (fromNew === 'new') {
@@ -116,7 +122,7 @@ const blacklist = async () => {
                         reason: 'Manually blacklisted',
                         accountId: '',
                         ip,
-                        created: Date.now()
+                        created: Date.now(),
                     });
                     return backToMain('IP blacklisted');
                 } else {
@@ -131,13 +137,15 @@ const blacklist = async () => {
 
             const s = await select(
                 'Select a session to blacklist',
-                sessions.value.filter((s, i, a) => {
-                    const index = a.findIndex(x => x.ip === s.ip);
-                    return index === i;
-                }).map(s => ({
-                    name: s.ip + ' - ' + dateTime(new Date(s.created)),
-                    value: s
-                }))
+                sessions.value
+                    .filter((s, i, a) => {
+                        const index = a.findIndex((x) => x.ip === s.ip);
+                        return index === i;
+                    })
+                    .map((s) => ({
+                        name: s.ip + ' - ' + dateTime(new Date(s.created)),
+                        value: s,
+                    })),
             );
 
             if (s) {
@@ -151,7 +159,7 @@ const blacklist = async () => {
                         reason: 'Manually blacklisted',
                         accountId: '',
                         ip: s.ip || '',
-                        created: Date.now()
+                        created: Date.now(),
                     });
                     return backToMain('IP blacklisted');
                 } else {
@@ -165,23 +173,27 @@ const blacklist = async () => {
 
         const b = await select(
             'Select a blacklist to remove',
-            blacklists.value.map(b => ({
+            blacklists.value.map((b) => ({
                 name: b.ip + ' - ' + b.accountId,
-                value: b
-            }))
+                value: b,
+            })),
         );
 
         if (b) {
             const doRemove = await confirm(
-                `Are you sure you want to remove ${b.ip ? b.ip : b.accountId} from the blacklist?`,
+                `Are you sure you want to remove ${
+                    b.ip ? b.ip : b.accountId
+                } from the blacklist?`,
             );
 
             if (doRemove) {
                 DB.run('blacklist/delete', {
-                    id: b.id
+                    id: b.id,
                 });
                 const { ip, accountId } = b;
-                if (accountId) DB.run('blacklist/delete-by-account', { accountId});
+                if (accountId) {
+                    DB.run('blacklist/delete-by-account', { accountId });
+                }
                 if (ip) DB.run('blacklist/delete-by-ip', { ip });
                 return backToMain('Blacklist removed');
             } else {
@@ -203,5 +215,5 @@ export const general = [
     {
         icon: '🚫',
         value: blacklist,
-    }
+    },
 ];

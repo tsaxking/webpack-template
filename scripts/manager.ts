@@ -248,54 +248,59 @@ export const main = async () => {
         icon: string,
     ) => {
         if (!data.length) return [];
-        return [{
-            name: `${icon} [${name}]`,
-            value: async () => {
-                title(name);
-                const res = await select(`Please select a task for ${name}`, [
-                    ...data.map((d) => ({
-                        name: `${d.icon} ${
-                            capitalize(
-                                fromCamelCase(d.value.name),
-                            )
-                        }`,
-                        value: () => {
-                            title(
-                                `${name} > ${
+        return [
+            {
+                name: `${icon} [${name}]`,
+                value: async () => {
+                    title(name);
+                    const res = await select(
+                        `Please select a task for ${name}`,
+                        [
+                            ...data.map((d) => ({
+                                name: `${d.icon} ${
                                     capitalize(
                                         fromCamelCase(d.value.name),
                                     )
                                 }`,
-                            );
-                            
-                            try {
-                                return d.value();
-                            } catch (e) {
-                                console.error(e);
-                                return backToMain('Error occurred');
-                            }
-                        },
-                    })),
-                    {
-                        name: `${icons.back} [Back]`,
-                        value: main,
-                    },
-                    {
-                        name: `${icons.exit} Exit`,
-                        value: exit,
-                    },
-                ]);
+                                value: () => {
+                                    title(
+                                        `${name} > ${
+                                            capitalize(
+                                                fromCamelCase(d.value.name),
+                                            )
+                                        }`,
+                                    );
 
-                if (res) {
-                    return res();
-                } else {
-                    backToMain('No tasks selected');
-                }
+                                    try {
+                                        return d.value();
+                                    } catch (e) {
+                                        console.error(e);
+                                        return backToMain('Error occurred');
+                                    }
+                                },
+                            })),
+                            {
+                                name: `${icons.back} [Back]`,
+                                value: main,
+                            },
+                            {
+                                name: `${icons.exit} Exit`,
+                                value: exit,
+                            },
+                        ],
+                    );
+
+                    if (res) {
+                        return res();
+                    } else {
+                        backToMain('No tasks selected');
+                    }
+                },
             },
-        }];
+        ];
     };
 
-    const fn = await select<() => unknown>('Please select a task', [ 
+    const fn = await select<() => unknown>('Please select a task', [
         ...makeObj('Server Controller', serverController, icons.controller),
         ...makeObj('General', general, icons.entry),
         ...makeObj('Accounts', accounts, icons.account),

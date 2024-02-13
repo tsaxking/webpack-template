@@ -33,14 +33,14 @@ router.post('/get-all-roles', (req, res) => {
 router.get('/sign-in', (req, res, next) => {
     if (req.session.accountId) return next();
     res.sendTemplate('entries/account/sign-in', {
-        RECAPTCHA_SITE_KEY: env.RECAPTCHA_SITE_KEY
+        RECAPTCHA_SITE_KEY: env.RECAPTCHA_SITE_KEY,
     });
 });
 
 router.get('/sign-up', (req, res, next) => {
     if (req.session.accountId) return next();
     res.sendTemplate('entries/account/sign-up', {
-        RECAPTCHA_SITE_KEY: env.RECAPTCHA_SITE_KEY
+        RECAPTCHA_SITE_KEY: env.RECAPTCHA_SITE_KEY,
     });
 });
 

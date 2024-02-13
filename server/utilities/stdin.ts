@@ -3,7 +3,8 @@ import { readLines } from 'https://deno.land/std@0.100.0/io/mod.ts';
 
 export const stdin = new EventEmitter();
 (async () => {
-    if (!Deno.args.includes('--allow-stdin')) return;
+    if (!Deno.args.includes('--stdin')) return;
+    console.log('Listening for stdin');
     const lines = readLines(Deno.stdin);
     const close = () => Deno.stdin.close();
 

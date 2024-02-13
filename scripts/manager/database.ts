@@ -75,16 +75,18 @@ export const viewTables = async () => {
             // using cliffy to display the data
             const tableData = data.value;
             const keys = Object.keys(tableData[0] || {});
-            const values = tableData.map((d) => Object.values(d).map(a => {
-                switch (typeof a) {
-                    case 'bigint':
-                        return a.toString() + 'n';
-                    case 'object':
-                        return JSON.stringify(a);
-                    default:
-                        return a;
-                }
-            }));
+            const values = tableData.map((d) =>
+                Object.values(d).map((a) => {
+                    switch (typeof a) {
+                        case 'bigint':
+                            return a.toString() + 'n';
+                        case 'object':
+                            return JSON.stringify(a);
+                        default:
+                            return a;
+                    }
+                })
+            );
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const table = new cliffy.Table().header(keys).body(values as any);
             console.log(table.toString());

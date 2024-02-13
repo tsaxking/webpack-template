@@ -247,10 +247,18 @@ const isPasswordValid = (password: string): string[] => {
                         on:click|preventDefault="{submit}"
                     />
 
-                    <input type="text" name="confirm-email" id="email" class="d-none" bind:this={i}>
-                    <Recaptcha on:recaptcha={() => {
-                        recaptcha = true
-                    }}/>
+                    <input
+                        type="text"
+                        name="confirm-email"
+                        id="email"
+                        class="d-none"
+                        bind:this="{i}"
+                    />
+                    <Recaptcha
+                        on:recaptcha="{() => {
+                            recaptcha = true;
+                        }}"
+                    />
                 </form>
             </div>
         </div>

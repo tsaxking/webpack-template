@@ -129,5 +129,4 @@ declare function findAll<K extends keyof HTMLElementDeprecatedTagNameMap>(
  */
 declare function findAll(selector: string): HTMLElement[];
 
-
 declare const recaptchaSiteKey: string;

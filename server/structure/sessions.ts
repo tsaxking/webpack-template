@@ -271,13 +271,15 @@ export class Session {
         this.save();
         if (this.timeout) clearTimeout(this.timeout);
 
-        this.timeout = setTimeout(() => {
-            this.requests = 0;
-            this.save();
-            Session.cache.delete(this.id);
-        }, 1000 * 60 * 5);
+        this.timeout = setTimeout(
+            () => {
+                this.requests = 0;
+                this.save();
+                Session.cache.delete(this.id);
+            },
+            1000 * 60 * 5,
+        );
     }
-
 
     async newRequest() {
         this.requests = this.requests + 1;
@@ -307,9 +309,11 @@ export class Session {
             const res = await DB.get('blacklist/from-ip', { ip: this.ip });
             if (res.isOk() && res.value) return true;
         }
-        
+
         if (this.accountId) {
-            const res = await DB.get('blacklist/from-account', { accountId: this.accountId });
+            const res = await DB.get('blacklist/from-account', {
+                accountId: this.accountId,
+            });
             if (res.isOk() && res.value) return true;
         }
 

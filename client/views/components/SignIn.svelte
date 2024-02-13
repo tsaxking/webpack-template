@@ -24,7 +24,7 @@ const submit = () => {
 
     ServerRequest.post('/account/sign-in', {
         username,
-        password,
+        password
     });
 };
 
@@ -128,9 +128,19 @@ const onInput = () => {
                         on:click|preventDefault="{submit}"
                     />
 
-                    <input type="text" name="confirm-email" id="email" class="d-none" bind:this={i}>
-                
-                    <Recaptcha on:recaptcha={() => { recaptcha = true}}/>
+                    <input
+                        type="text"
+                        name="confirm-email"
+                        id="email"
+                        class="d-none"
+                        bind:this="{i}"
+                    />
+
+                    <Recaptcha
+                        on:recaptcha="{() => {
+                            recaptcha = true;
+                        }}"
+                    />
                 </form>
             </div>
         </div>

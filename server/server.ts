@@ -4,15 +4,14 @@ import { App, ResponseStatus } from './structure/app/app.ts';
 import { getJSON, log as serverLog } from './utilities/files.ts';
 import { homeBuilder } from './utilities/page-builder.ts';
 import Account from './structure/accounts.ts';
-import { runBuild } from './bundler.ts';
 import { router as admin } from './routes/admin.ts';
 import { router as account } from './routes/account.ts';
 import { router as api } from './routes/api.ts';
 import Role from './structure/roles.ts';
 import { FileUpload } from './middleware/stream.ts';
-import { stdin } from './utilities/utilties.ts';
 import { ReqBody } from './structure/app/req.ts';
 import { parseCookie } from '../shared/cookie.ts';
+import { stdin } from './utilities/stdin.ts';
 
 const port = +(env.PORT || 3000);
 
@@ -27,14 +26,10 @@ export const app = new App(port, env.DOMAIN || `http://localhost:${port}`, {
 });
 
 if (env.ENVIRONMENT === 'dev') {
-    const builder = await runBuild();
-    // building client listeners
-    builder.on('build', () => {
-        if (env.ENVIRONMENT === 'dev') app.io.emit('reload');
-        log('Build complete');
+    stdin.on('rb', () => {
+        console.log('Reloading clients...');
+        app.io.emit('reload');
     });
-    stdin.on('rb', () => builder.emit('build'));
-    builder.on('error', (e) => log('Build error:', e));
 }
 
 app.post('/env', (req, res) => {

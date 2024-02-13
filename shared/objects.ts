@@ -38,7 +38,7 @@ export const bigIntDecode = (obj: unknown) => {
             return BigInt(match[1]);
         }
         return str;
-    }
+    };
 
     if (typeof obj === 'bigint') return decodeStr(obj.toString() + 'n');
     if (typeof obj === 'string') return decodeStr(obj);

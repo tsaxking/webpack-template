@@ -2,7 +2,6 @@
 // this needs to be upgraded, but esbuild has not integrated "watch" yet
 import * as esbuild from 'https://deno.land/x/esbuild@v0.20.0/mod.js';
 import { sveltePlugin, typescript } from './build/esbuild-svelte.ts';
-import { EventEmitter } from '../shared/event-emitter.ts';
 import { getTemplateSync, saveTemplateSync } from './utilities/files.ts';
 
 import env, {
@@ -62,25 +61,12 @@ const readDir = (dirPath: string): string[] => {
  */
 let entries: string[] = readDir('./client/entries');
 
-/**
- * Event data for the build event
- * @date 10/12/2023 - 3:26:56 PM
- *
- * @typedef {BuildEventData}
- */
-type BuildEventData = {
-    build: any;
-    error: Error;
-};
+export class Builder {
+    private watchers = new Map<string, Deno.FsWatcher>();
 
-export const runBuild = async () => {
-    const builder = new EventEmitter<keyof BuildEventData>();
-
-    const watchers = new Map<string, Deno.FsWatcher>();
-
-    const watch = async (path: string) => {
+    public watch = async (path: string) => {
         const watcher = Deno.watchFs(path);
-        watchers.set(path, watcher);
+        this.watchers.set(path, watcher);
 
         for await (const event of watcher) {
             console.log('file change detected', event);
@@ -89,24 +75,19 @@ export const runBuild = async () => {
                 case 'modify':
                 case 'remove':
                     entries = readDir('./client/entries');
-                    build();
+                    this.build();
                     break;
             }
         }
     };
 
-    const close = () => {
-        for (const watcher of watchers.values()) {
+    close = () => {
+        for (const watcher of this.watchers.values()) {
             watcher.close();
         }
     };
 
-    Deno.addSignalListener('SIGINT', close);
-    // Deno.addSignalListener('SIGTERM', close);
-    // Deno.addSignalListener('SIGHUP', close);
-    // Deno.addSignalListener('SIGQUIT', close);
-
-    const build = () =>
+    public build = () =>
         esbuild.build({
             entryPoints: entries,
             bundle: true,
@@ -130,24 +111,20 @@ export const runBuild = async () => {
             },
         });
 
-    builder.on('build', () => {
-        entries = readDir('./client/entries');
-        build();
-    });
+    public run = async () => {
+        await this.build();
 
-    await build();
-
-    if (Deno.args.includes('--watch')) {
-        watch('./client');
-        watch('./shared');
-    }
-
-    return builder;
-};
+        if (Deno.args.includes('--watch')) {
+            this.watch('./client');
+            this.watch('./shared');
+        }
+    };
+}
 
 // if this file is the main file, run the build
 if (import.meta.main) {
-    runBuild()
+    new Builder()
+        .build()
         .then(() => Deno.exit(0))
         .catch(() => Deno.exit(1));
 }
