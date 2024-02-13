@@ -2,7 +2,7 @@ import { backToMain, main, selectFile } from '../manager.ts';
 import { __root } from '../../server/utilities/env.ts';
 import { addQuery, merge, parseSql } from '../parse-sql.ts';
 import { DB } from '../../server/utilities/databases.ts';
-import { confirm, repeatPrompt, select } from '../prompt.ts';
+import { confirm, repeatPrompt, select, search } from '../prompt.ts';
 import {
     readDir,
     readFile,
@@ -221,15 +221,17 @@ export const restoreBackup = async () => {
         return backToMain('Error reading backups: ' + backups.error.message);
     }
 
-    const backup = await select(
-        'Select backup to restore',
+    const backup = await search(
+        'Search for a backup to restore',
         backups.value.map((b) => ({
             name: b.name,
             value: b.name,
         })),
     );
 
-    const res = await DB.restoreBackup(backup);
+    if (backup.isErr()) return backToMain('Error selecting backup: ' + backup.error);
+
+    const res = await DB.restoreBackup(backup.value);
     if (res.isOk()) {
         backToMain('Backup restored');
     } else {

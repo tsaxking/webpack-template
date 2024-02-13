@@ -355,10 +355,7 @@ export class Session {
      */
     signIn(account: Account) {
         this.accountId = account.id;
-        return DB.run('sessions/sign-in', {
-            id: this.id,
-            accountId: account.id,
-        });
+        this.save();
     }
 
     /**
@@ -367,7 +364,7 @@ export class Session {
      */
     signOut() {
         this.accountId = undefined;
-        return DB.run('sessions/sign-out', { id: this.id });
+        this.save();
     }
 
     /**

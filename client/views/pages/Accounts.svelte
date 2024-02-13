@@ -27,7 +27,7 @@ const fns = {
     setAccounts: async (newAccounts: Account[]) => {
         console.log(newAccounts);
 
-        accountObjs = await Promise.all(
+        accountObjs = (await Promise.all(
             newAccounts.map(async a => {
                 const [roles, permissions] = await Promise.all([
                     a.getRoles().then(r => (r.isOk() ? r.value : [])),
@@ -48,7 +48,7 @@ const fns = {
                     permissions
                 };
             })
-        );
+        )).filter(a => a.username !== 'guest');
     }
 };
 

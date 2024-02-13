@@ -1,6 +1,5 @@
-import { repeatPrompt, select } from './prompt.ts';
+import { select } from './prompt.ts';
 import { Colors } from '../server/utilities/colors.ts';
-import { sleep } from '../shared/sleep.ts';
 import { attemptAsync, Result } from '../shared/check.ts';
 import { __root, relative, resolve } from '../server/utilities/env.ts';
 import Filter from 'npm:bad-words';
@@ -46,7 +45,7 @@ export const filter = (str: string): boolean => {
 
 export const backToMain = async (message: string) => {
     console.log(message);
-    await sleep(2000);
+    await select('', ['[Ok]']);
     main();
 };
 
@@ -262,7 +261,7 @@ export const main = async () => {
                                         fromCamelCase(d.value.name),
                                     )
                                 }`,
-                                value: () => {
+                                value: async () => {
                                     title(
                                         `${name} > ${
                                             capitalize(
@@ -275,7 +274,7 @@ export const main = async () => {
                                         return d.value();
                                     } catch (e) {
                                         console.error(e);
-                                        return backToMain('Error occurred');
+                                        return await select('', ['[Ok]']);
                                     }
                                 },
                             })),

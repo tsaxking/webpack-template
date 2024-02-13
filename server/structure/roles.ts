@@ -198,9 +198,11 @@ export default class Role {
             roleId: this.id,
         });
         if (data.isOk()) {
-            return data.value.map(
+            return (data.value.map(
                 (d: RolePermission) => d.permission,
-            ) as Permission[];
+            )).filter((p, i, a) => {
+                return a.indexOf(p) === i;
+            }) as Permission[];
         }
         return [];
     }

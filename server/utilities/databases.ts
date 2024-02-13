@@ -4,7 +4,7 @@ import { error, log } from './terminal-logging.ts';
 import { Queries } from './queries.ts';
 import { exists, readDir, readFile, readFileSync, saveFile } from './files.ts';
 import { attemptAsync, Result } from '../../shared/check.ts';
-import { runTask } from './run-task.ts';
+import { run } from './run-task.ts';
 import {
     capitalize,
     fromCamelCase,
@@ -332,7 +332,8 @@ export class DB {
                     const scriptExists = await exists(script);
 
                     if (scriptExists) {
-                        const scriptRes = await runTask(script);
+                        console.log('Running update script', version.join('.'));
+                        const scriptRes = await run('run', '--allow-all', script, '--update', version.join('.'));
                         if (scriptRes.isErr()) {
                             console.log(
                                 'Error running update script',
@@ -342,6 +343,8 @@ export class DB {
                             await DB.restoreBackup(b.value);
                             throw scriptRes.error;
                         }
+
+                        console.log('Update script ran successfully');
                     }
 
                     DB.setVersion(version);
@@ -960,6 +963,7 @@ export class DB {
 await DB.connect().then(async (result) => {
     if (result.isOk()) {
         log('Connected to the database');
+        if (Deno.args.includes('--update')) return;
         await DB.runAllUpdates();
         await DB.makeBackup();
         await DB.setIntervals();

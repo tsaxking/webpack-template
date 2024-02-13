@@ -456,6 +456,7 @@ export class App {
 
         if (!s) {
             setSsid = true;
+            console.log('New session');
             const obj = {
                 id: Session.newId(),
                 ip: info.remoteAddr.hostname,

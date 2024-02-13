@@ -1,15 +1,15 @@
 import { validate } from '../middleware/data-type.ts';
 import { Route } from '../structure/app/app.ts';
+import Role from '../structure/roles.ts';
 
-const router = new Route();
+export const router = new Route();
 
-export default router;
-
-router.post('/all', async (req, res) => {});
-// TODO: implement role routes
-
-router.post('/*', async (req, res) => {
-    res.sendStatus('server:not-implemented');
+router.post('/all', async (req, res) => {
+    const roles = await Role.all();
+    res.json(await Promise.all(roles.map(async (r) => ({
+        ...r,
+        permissions: await r.getPermissions()
+    }))));
 });
 
 router.post<{
@@ -68,16 +68,6 @@ router.post<{
     validate({
         id: 'string',
         permission: 'string',
-    }),
-    async (req, res) => {},
-);
-
-router.post<{
-    id: string;
-}>(
-    '/permissions',
-    validate({
-        id: 'string',
     }),
     async (req, res) => {},
 );

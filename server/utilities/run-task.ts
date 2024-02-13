@@ -108,6 +108,24 @@ export const runCommand = async (
     });
 };
 
-// export const run = async (cmd: string) => {
-//     const process = new Deno.Command()
-// }
+export const run = async (...cmd: string[]) => {
+    return attemptAsync(() => {
+        return new Promise<void>((res, rej) => {
+            const process = new Deno.Command(Deno.execPath(), {
+                args: cmd,
+                stdout: 'inherit',
+                stderr: 'inherit',
+                stdin: 'inherit'
+            }).spawn();
+        
+
+            process.status.then(s => {
+                if (s.success) {
+                    res();
+                } else {
+                    rej('Process exited with code ' + s.code);
+                }
+            }).catch(rej);
+        });
+    });
+}

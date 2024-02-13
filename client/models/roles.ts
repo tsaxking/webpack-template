@@ -134,19 +134,18 @@ export class Role extends Cache<RoleEvents> {
      * @async
      * @returns {Promise<Result<Role[]>>}
      */
-    static async all(): Promise<Result<Role[]>> {
+    static async all(force = false): Promise<Result<Role[]>> {
         return attemptAsync(async () => {
-            if (Role.roles.length) {
+            if (Role.roles.length && !force) {
                 return Role.roles;
             }
 
-            return (await ServerRequest.post<R[]>('/roles/all', null, {
+            return (await ServerRequest.post<(R & {permissions: Permission[]})[]>('/roles/all', null, {
                 cached: true,
             }).then((res) => {
                 if (res.isOk()) {
-                    return res.value.map((r) => {
-                        new Role(r);
-                    });
+                    console.log(res.value);
+                    return res.value.map((r) => new Role(r));
                 }
                 throw res.error;
             })) as Role[];
@@ -171,7 +170,7 @@ export class Role extends Cache<RoleEvents> {
     }): Promise<Result<Role>> {
         return attemptAsync(async () => {
             const { name, description } = data;
-            const role = await ServerRequest.post<R>('/roles/new', {
+            const role = await ServerRequest.post<R & {permissions: Permission[]}>('/roles/new', {
                 name,
                 description,
             });
@@ -239,18 +238,31 @@ export class Role extends Cache<RoleEvents> {
     public rank: number;
 
     /**
+     * Role permissions
+     * @date 2/8/2024 - 4:23:11 PM
+     *
+     * @public
+     * @readonly
+     * @type {Permission[]}
+     */
+    public permissions: Permission[];
+
+    /**
      * Creates an instance of Role.
      * @date 2/8/2024 - 4:23:11 PM
      *
      * @constructor
      * @param {R} data
      */
-    constructor(data: R) {
+    constructor(data: R & {
+        permissions: Permission[];
+    }) {
         super();
         this.id = data.id;
         this.name = data.name;
         this.description = data.description;
         this.rank = data.rank;
+        this.permissions = data.permissions;
 
         if (!Role.roles.find((r) => r.name == this.name)) {
             Role.roles.push(this);
@@ -290,18 +302,6 @@ export class Role extends Cache<RoleEvents> {
                 permission,
             });
             this.emit('remove-permission', permission);
-        });
-    }
-
-    /**
-     * Retrieves all permission objects for the role
-     * @date 2/8/2024 - 4:23:10 PM
-     *
-     * @returns {Promise<Result<Permission[]>>}
-     */
-    getPermissions(): Promise<Result<Permission[]>> {
-        return ServerRequest.post<Permission[]>(`/roles/permissions`, {
-            roleId: this.id,
         });
     }
 }
