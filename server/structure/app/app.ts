@@ -538,6 +538,7 @@ export class App {
 
             const runFn = async (i: number) => {
                 return new Promise<void>(async (resolve) => {
+                    if (req.ended) return resolve();
                     // log('Running fn', i +'/'+ fns.length);
 
                     const fn = fns[i] as ServerFunctionHandler<any> | undefined;

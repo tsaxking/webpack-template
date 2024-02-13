@@ -1,7 +1,7 @@
 <script lang="ts">
 import { ServerRequest } from '../../utilities/requests';
 import Password from './Password.svelte';
-import Recaptcha from './Recaptcha.svelte';
+// import Recaptcha from './Recaptcha.svelte';
 
 export let title: string;
 
@@ -130,7 +130,7 @@ const onInput = () => {
 
                     <input type="text" name="confirm-email" id="email" class="d-none" bind:this={i}>
                 
-                    <Recaptcha on:recaptcha={() => { recaptcha = true}}/>
+                    <!-- <Recaptcha on:recaptcha={() => { recaptcha = true}}/> -->
                 </form>
             </div>
         </div>

@@ -179,4 +179,11 @@ export class Req<T = unknown> {
         }
         return (this.body as FileBody).$$files;
     }
+
+    ended = false;
+
+    end() {
+        this.io.close();
+        this.ended = true;
+    }
 }

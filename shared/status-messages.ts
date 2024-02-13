@@ -472,6 +472,12 @@ export const messages: {
     code: 501,
     instructions: '',
 },
+    'server:request-ended': {
+    message: 'the request ended abruptly',
+    color: 'warning',
+    code: 502,
+    instructions: '',
+},
     'server:unknown-server-error': {
     message: 'There was an unknown error. If this persists, please contact an administrator/developer.',
     color: 'danger',
@@ -616,6 +622,7 @@ export type StatusId =
 	| 'roles:removed'
 	| 'server:invalid-data'
 	| 'server:not-implemented'
+	| 'server:request-ended'
 	| 'server:unknown-server-error'
 	| 'session:rate-limited'
 	| 'skills:added'
@@ -722,7 +729,11 @@ export type RolesStatusId = 'added'
 
 export type ServerStatusId = 'invalid-data'
 	| 'not-implemented'
-	| 'unknown-server-error';
+	| 'unknown-server-error'
+	| 'request-ended';
+
+
+export type SessionStatusId = 'rate-limited';
 
 
 export type SkillsStatusId = 'added'
@@ -740,6 +751,3 @@ export type TestStatusId = 'fail'
 
 
 export type UnknownStatusId = 'error';
-
-
-export type SessionStatusId = 'rate-limited';
