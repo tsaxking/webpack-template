@@ -15,9 +15,10 @@ export let lastName: string = '';
 let i: HTMLInputElement,
     recaptcha = false;
 const submit = () => {
-    if (i.value || !recaptcha) {
-        return;
-    }
+    // if (i.value || !recaptcha) {
+    //     return;
+    // }
+    if (i.value) return;
     if (!valid) {
         console.log('Is not valid');
     }
@@ -254,11 +255,11 @@ const isPasswordValid = (password: string): string[] => {
                         class="d-none"
                         bind:this="{i}"
                     />
-                    <Recaptcha
+                    <!-- <Recaptcha
                         on:recaptcha="{() => {
                             recaptcha = true;
                         }}"
-                    />
+                    /> -->
                 </form>
             </div>
         </div>
