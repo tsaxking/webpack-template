@@ -453,7 +453,11 @@ export class Res {
                         controller.close();
                         return;
                     }
-                    controller.enqueue(new TextEncoder().encode(JSON.stringify(bigIntEncode(content[n]))));
+                    controller.enqueue(
+                        new TextEncoder().encode(
+                            JSON.stringify(bigIntEncode(content[n])),
+                        ),
+                    );
                     i++;
                     timer = setTimeout(() => send(i));
                 };
