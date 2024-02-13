@@ -510,13 +510,6 @@ export class App {
             const req = new Req(denoReq, info, this.io, s as Session);
             const res = new Res(this, req);
 
-            if (await s.isBlacklisted()) {
-                res.sendStatus('session:rate-limited');
-                return;
-            }
-            await s.newRequest();
-            s.latestActivity = Date.now();
-
             if (setSsid) {
                 res.cookie('ssid', s.id, Session.cookieOptions);
             }
@@ -530,9 +523,13 @@ export class App {
                 Session.get(cookie) || Session.newSession(req, res);
             }
 
-            req.body = ((await req.req.json().catch(() => {})) as {
-                [key: string]: any;
-            }) || {};
+            req.body = await (async () => {
+                const hasHeader = denoReq.headers.get('X-Body');
+                if (hasHeader) return JSON.parse(hasHeader);
+
+                const body = await req.req.json().catch(() => {}) || {};
+                return body;
+            })();
 
             const runFn = async (i: number) => {
                 return new Promise<void>(async (resolve) => {

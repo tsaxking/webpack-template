@@ -23,14 +23,15 @@ const matchJSONError = (e: Error): JSONError =>
         [Error, () => 'Unknown'],
     ) ?? 'Unknown';
 
-const matchFileError = (e: Error): FileError =>
-    match<Error, FileError>(
+const matchFileError = (e: Error): FileError =>{
+    console.error(e);
+    return match<Error, FileError>(
         e,
         [(e) => e.message.includes('ENOENT'), () => 'NoFile'],
         [(e) => e.message.includes('EEXIST'), () => 'FileExists'],
         [(e) => e.message.includes('EACCES'), () => 'NoAccess'],
         [(e) => e.message.includes('EISDIR'), () => 'NoAccess'],
-    ) ?? 'Unknown';
+    ) ?? 'Unknown';}
 
 /**
  * Used to render html templates

@@ -506,7 +506,7 @@ export class ServerRequest<T = unknown> {
 
         const xhr = new XMLHttpRequest();
         xhr.open('POST', url, true);
-        xhr.setRequestHeader('Content-Type', 'multipart/form-data');
+        // xhr.setRequestHeader('Content-Type', undefined);
         xhr.setRequestHeader('X-File-Count', files.length.toString());
 
         if (options?.headers) {
@@ -594,7 +594,7 @@ export class ServerRequest<T = unknown> {
                         last = split.pop();
 
                         for (let s of split) {
-                            s = decodeURI(s);
+                            s = bigIntDecode(JSON.parse(decodeURI(s)));
                             if (s) {
                                 i++;
                                 if (parser) {

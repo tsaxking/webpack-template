@@ -12,6 +12,7 @@ import { Req } from '../structure/app/req.ts';
 import { Res } from '../structure/app/res.ts';
 import { StatusId } from '../../shared/status-messages.ts';
 import { EventEmitter } from '../../shared/event-emitter.ts';
+import { error } from '../utilities/terminal-logging.ts';
 
 /**
  * Options for file upload streams
@@ -51,8 +52,8 @@ export const fileStream = (opts?: FileStreamOptions): ServerFunction => {
         extensions = extensions?.map((e) => e.toLowerCase()) || [];
         maxFileSize = maxFileSize ? maxFileSize : 1024 * 1024 * 10;
 
-        const generateFileId = () => {
-            return uuid() + '-' + Date.now();
+        const generateFileId = (ext: string) => {
+            return uuid() + '-' + Date.now() + '.' + ext;
         };
 
         let sent = false;
@@ -80,7 +81,8 @@ export const fileStream = (opts?: FileStreamOptions): ServerFunction => {
             });
         }
 
-        files.forEach(async (file, i, a) => {
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
             if (file instanceof File) {
                 const name = file.name;
                 const ext = name.split('.').pop()?.toLowerCase() || '';
@@ -109,19 +111,21 @@ export const fileStream = (opts?: FileStreamOptions): ServerFunction => {
 
                 let id: string;
                 do {
-                    id = generateFileId();
+                    id = generateFileId(ext);
                 } while (fs.existsSync(path.join(__uploads, id)));
 
                 const buffer = new Uint8Array(await file.arrayBuffer());
-                await saveUpload(id, buffer);
-
-                req.files.push({ name, id, ext, size });
+                const result = await saveUpload(id, buffer);
+                if (result.isOk()) {
+                    req.files.push({ name, id, ext, size });
+                } else {
+                    error(result.error);
+                    return res.sendStatus('files:unknown-error');
+                }
             }
+        }
 
-            if (i === a.length - 1) {
-                next();
-            }
-        });
+        next();
     };
 };
 

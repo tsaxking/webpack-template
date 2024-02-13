@@ -51,7 +51,7 @@ app.get('/*', (req, res, next) => {
 app.static('/client', resolve(__root, './client'));
 app.static('/public', resolve(__root, './public'));
 app.static('/dist', resolve(__root, './dist'));
-app.static('/uploads', resolve(__root, './uploads'));
+app.static('/uploads', resolve(__root, './storage/uploads'));
 
 app.post('/socket-url', (req, res) => {
     res.json({

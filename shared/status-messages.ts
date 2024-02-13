@@ -350,6 +350,12 @@ export const messages: {
         code: 413,
         instructions: 'please upload fewer files',
     },
+    'files:unknown-error': {
+    message: 'Unknown file uploading error',
+    color: 'danger',
+    code: 500,
+    instructions: '',
+},
     'files:uploaded': {
         message: 'File uploaded',
         color: 'success',
@@ -646,6 +652,7 @@ export type StatusId =
     | 'files:no-files'
     | 'files:too-large'
     | 'files:too-many-files'
+	| 'files:unknown-error'
     | 'files:uploaded'
     | 'member:accepted'
     | 'member:add-skill'
@@ -737,6 +744,7 @@ export type FilesStatusId =
     | 'no-files'
     | 'too-large'
     | 'too-many-files'
+    | 'unknown-error'
     | 'uploaded';
 
 export type MemberStatusId =
