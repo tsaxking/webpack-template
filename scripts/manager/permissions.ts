@@ -72,7 +72,7 @@ export const addPermissions = async () => {
                 'Enter the permission name',
                 undefined,
                 (data) =>
-                    !perms.some((p) => p === data) &&
+                    !perms.some((p) => p.permission === data) &&
                     !allPerms.some((p) => p === data),
                 false,
             ) as unknown as Permission;
@@ -100,17 +100,17 @@ export const removePermissions = async () => {
         if (!perms.length) {
             backToMain(`Role ${role.name} has no permissions`);
         } else {
-            const perm = await select<Permission>(
+            const perm = await select(
                 'Select a permission to remove',
                 perms.map((p) => ({
-                    name: p,
+                    name: p.permission,
                     value: p,
                 })),
             );
 
             if (perm) {
-                role.removePermission(perm);
-                backToMain(`Permission ${perm} removed from role ${role.name}`);
+                role.removePermission(perm.permission);
+                backToMain(`Permission ${perm.permission} removed from role ${role.name}`);
             } else {
                 backToMain('No permissions to remove');
             }

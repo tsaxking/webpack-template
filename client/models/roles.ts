@@ -1,8 +1,7 @@
 import { ServerRequest } from '../utilities/requests';
-import { Role as R } from '../../shared/db-types';
+import { Role as R, RolePermission } from '../../shared/db-types';
 import { attemptAsync, Result } from '../../shared/attempt';
 import { Cache } from './cache';
-import { Permission } from '../../shared/permissions';
 import { EventEmitter } from '../../shared/event-emitter';
 
 /**
@@ -27,8 +26,8 @@ type RoleEvents = {
     new: Role;
     delete: Role;
     update: Role;
-    'add-permission': Permission;
-    'remove-permission': Permission;
+    'add-permission': RolePermission;
+    'remove-permission': RolePermission;
 };
 
 /**
@@ -140,7 +139,7 @@ export class Role extends Cache<RoleEvents> {
                 return Role.roles;
             }
 
-            return (await ServerRequest.post<(R & {permissions: Permission[]})[]>('/roles/all', null, {
+            return (await ServerRequest.post<(R & {permissions: RolePermission[]})[]>('/roles/all', null, {
                 cached: true,
             }).then((res) => {
                 if (res.isOk()) {
@@ -170,7 +169,7 @@ export class Role extends Cache<RoleEvents> {
     }): Promise<Result<Role>> {
         return attemptAsync(async () => {
             const { name, description } = data;
-            const role = await ServerRequest.post<R & {permissions: Permission[]}>('/roles/new', {
+            const role = await ServerRequest.post<R & {permissions: RolePermission[]}>('/roles/new', {
                 name,
                 description,
             });
@@ -245,7 +244,7 @@ export class Role extends Cache<RoleEvents> {
      * @readonly
      * @type {Permission[]}
      */
-    public permissions: Permission[];
+    public permissions: RolePermission[];
 
     /**
      * Creates an instance of Role.
@@ -255,7 +254,7 @@ export class Role extends Cache<RoleEvents> {
      * @param {R} data
      */
     constructor(data: R & {
-        permissions: Permission[];
+        permissions: RolePermission[];
     }) {
         super();
         this.id = data.id;
@@ -277,13 +276,12 @@ export class Role extends Cache<RoleEvents> {
      * @param {Permission} permission
      * @returns {Promise<Result<void>>}
      */
-    async addPermission(permission: Permission): Promise<Result<void>> {
+    async addPermission(permission: RolePermission): Promise<Result<void>> {
         return attemptAsync(async () => {
             await ServerRequest.post<void>('/roles/add-permission', {
-                roleId: this.id,
-                permission,
+                id: this.id,
+                permission: permission.permission,
             });
-            this.emit('add-permission', permission);
         });
     }
 
@@ -295,13 +293,12 @@ export class Role extends Cache<RoleEvents> {
      * @param {Permission} permission
      * @returns {Promise<Result<void>>}
      */
-    async removePermission(permission: Permission): Promise<Result<void>> {
+    async removePermission(permission: RolePermission): Promise<Result<void>> {
         return attemptAsync(async () => {
             await ServerRequest.post<void>('/roles/remove-permission', {
-                roleId: this.id,
-                permission,
+                id: this.id,
+                permission: permission.permission,
             });
-            this.emit('remove-permission', permission);
         });
     }
 }

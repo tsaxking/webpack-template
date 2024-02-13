@@ -1,6 +1,7 @@
 import { validate } from '../middleware/data-type.ts';
 import { Route } from '../structure/app/app.ts';
 import Role from '../structure/roles.ts';
+import { Permission } from '../../shared/permissions.ts';
 
 export const router = new Route();
 
@@ -57,7 +58,33 @@ router.post<{
         id: 'string',
         permission: 'string',
     }),
-    async (req, res) => {},
+    async (req, res) => {
+        const { id, permission } = req.body;
+        const role = await Role.fromId(id);
+
+        if (!role) return res.sendStatus('role:not-found');
+
+        const perms = await role.getPermissions();
+
+        if (perms.find(p => p.permission === permission)) {
+            return res.sendStatus('permissions:error');
+        }
+
+        const p = await Role.getAllPermissions();
+
+        if (!p.includes(permission as Permission)) {
+            return res.sendStatus('permissions:not-found');
+        }
+
+        await role.addPermission(permission as Permission);
+
+        res.sendStatus('permissions:added');
+
+        req.io.emit('role:updated', {
+            id: role.id,
+            permissions: await role.getPermissions()
+        });
+    },
 );
 
 router.post<{
@@ -69,5 +96,26 @@ router.post<{
         id: 'string',
         permission: 'string',
     }),
-    async (req, res) => {},
+    async (req, res) => {
+        const { id, permission } = req.body;
+
+        const role = await Role.fromId(id);
+
+        if (!role) return res.sendStatus('role:not-found');
+
+        const perms = await role.getPermissions();
+
+        if (!perms.find(p => p.permission === permission)) {
+            return res.sendStatus('permissions:error');
+        }
+
+        await role.removePermission(permission as Permission);
+
+        res.sendStatus('permissions:removed');
+
+        req.io.emit('role:updated', {
+            id: role.id,
+            permissions: await role.getPermissions()
+        });
+    },
 );

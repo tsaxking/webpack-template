@@ -193,28 +193,26 @@ export default class Role {
      *
      * @returns {Permission[]}
      */
-    async getPermissions(): Promise<Permission[]> {
+    async getPermissions(): Promise<RolePermission[]> {
         const data = await DB.all('permissions/from-role', {
             roleId: this.id,
         });
         if (data.isOk()) {
-            return (data.value.map(
-                (d: RolePermission) => d.permission,
-            )).filter((p, i, a) => {
-                return a.indexOf(p) === i;
-            }) as Permission[];
+            return data.value.filter((p, i, a) => {
+                return a.findIndex((pp) => pp.permission === p.permission) === i;
+            });
         }
         return [];
     }
 
-    addPermission(permission: Permission) {
+    addPermission(permission: string) {
         DB.run('permissions/add-to-role', {
             permission,
             roleId: this.id,
         });
     }
 
-    removePermission(permission: Permission) {
+    removePermission(permission: string) {
         DB.run('permissions/remove-from-role', {
             roleId: this.id,
             permission,
@@ -225,7 +223,7 @@ export default class Role {
         // Remove all permissions
         const permissions = await this.getPermissions();
         for (const permission of permissions) {
-            this.removePermission(permission);
+            this.removePermission(permission.permission);
         }
 
         DB.run('roles/delete', {
