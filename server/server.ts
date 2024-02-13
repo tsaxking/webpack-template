@@ -11,6 +11,7 @@ import Role from './structure/roles.ts';
 import { FileUpload } from './middleware/stream.ts';
 import { ReqBody } from './structure/app/req.ts';
 import { parseCookie } from '../shared/cookie.ts';
+import { stdin } from './utilities/stdin.ts';
 
 const port = +(env.PORT || 3000);
 const domain = env.DOMAIN || `http://localhost:${port}`;
@@ -24,6 +25,13 @@ export const app = new App(port, domain, {
     // },
     ioPort: +(env.SOCKET_PORT || port + 1),
 });
+
+if (env.ENVIRONMENT === 'dev') {
+    stdin.on('rb', () => {
+        console.log('Reloading clients...');
+        app.io.emit('reload');
+    });
+}
 
 app.post('/env', (req, res) => {
     res.json({

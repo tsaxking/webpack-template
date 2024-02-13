@@ -1,19 +1,21 @@
-import { EventEmitter } from '../shared/event-emitter.ts';
 import { stdin } from './utilities/stdin.ts';
 import { Builder } from './bundler.ts';
+import { Colors } from './utilities/colors.ts';
+
+const log = (...args: any[]) => console.log(Colors.FgBlue, '[MAIN]', Colors.Reset, ...args, Colors.Reset);
 
 
 const main = () => {
     const { args } = Deno;
     const builder = new Builder();
-    builder.build();
-    
+
     const start = (): Deno.ChildProcess => {
-        console
+        log('Starting server...')
         const child = new Deno.Command(Deno.execPath(), {
             args: ['run', '--allow-all', './server/server.ts'],
             stdout: 'inherit',
             stderr: 'inherit',
+            stdin: 'inherit'
         }).spawn();
 
         // child.stderr.pipeTo(Deno.stderr.writable);
@@ -21,32 +23,36 @@ const main = () => {
         return child;
     }
 
-
-
-    let child = start();
-
     const restart = (child: Deno.ChildProcess): Deno.ChildProcess => {
         try {
             child.kill();
-            console.log('Terminated server');
-            // child.stdin.close();
-            // child.stderr.cancel();
+            log('Terminated server');
         } catch (error) {
-            console.error('Failed to kill server', error);
+            log('Failed to kill server', error);
         }
         return start();
     }
 
+    const build = () => {
+        builder.build();
+        if (child) child = restart(child);
+    }
+
+
+
+    let child: Deno.ChildProcess;
+    build();
+    child = start();
+
     if (args.includes('--stdin')) {
-        console.log('Listening for rs and rb');
+        log('Listening for rs and rb');
         stdin.on('rs', () => {
-            console.log('Restarting...');
+            log('Restarting...');
             child = restart(child);
         });
 
         stdin.on('rb', () => {
-            console.log('Rebuilding...');
-            builder.build();
+            build();
         });
     }
 
@@ -57,11 +63,11 @@ const main = () => {
         builder.watch('./shared');
 
         const watch = async (path: string) => {
-            console.log('Watching', path);
+            log('Watching', path);
             const watcher = Deno.watchFs(path);
             watchers.push(watcher);
             for await (const event of watcher) {
-                console.log('file change detected.. Restarting server');
+                log('file change detected.. Restarting server');
                 switch (event.kind) {
                     case 'create':
                     case 'modify':
