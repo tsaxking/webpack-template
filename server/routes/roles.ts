@@ -113,7 +113,7 @@ router.post<{
         const perms = await role.getPermissions();
 
         if (perms.find(p => p.permission === permission)) {
-            // permission already exists on role
+            console.log('Role already has permission');
             return res.sendStatus('permissions:error');
         }
 
