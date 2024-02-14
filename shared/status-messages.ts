@@ -293,11 +293,11 @@ export const messages: {
     instructions: 'please upload fewer files',
 },
     'files:unknown-error': {
-    message: 'Unknown file uploading error',
-    color: 'danger',
-    code: 500,
-    instructions: '',
-},
+        message: 'Unknown file uploading error',
+        color: 'danger',
+        code: 500,
+        instructions: '',
+    },
     'files:uploaded': {
     message: 'File uploaded',
     color: 'success',

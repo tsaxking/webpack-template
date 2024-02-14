@@ -22,7 +22,7 @@ const initialized = new Promise<void>((res) => {
             });
 
             s.on('reload', () => {
-                if (uptime() > 1000) location.reload();
+                if (uptime() > 3000) location.reload();
             });
 
             socket.socket = s;

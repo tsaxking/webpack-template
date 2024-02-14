@@ -528,7 +528,7 @@ export class App {
                 const hasHeader = denoReq.headers.get('X-Body');
                 if (hasHeader) return JSON.parse(hasHeader);
 
-                const body = await req.req.json().catch(() => {}) || {};
+                const body = (await req.req.json().catch(() => {})) || {};
                 return body;
             })();
 

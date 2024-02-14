@@ -112,8 +112,10 @@ export const validate = <type = unknown>(
         let { body } = req;
 
         // body can be stored here because it could be a file stream
-        if (!Object.entries(body as any).length) body = JSON.parse(req.headers.get('X-Body') || '{}');
-        
+        if (!Object.entries(body as any).length) {
+            body = JSON.parse(req.headers.get('X-Body') || '{}');
+        }
+
         let passed = true;
         const missing: string[] = [];
         const failed: string[] = [];
