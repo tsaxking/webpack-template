@@ -132,7 +132,9 @@ export class Role extends Cache<RoleEvents> {
                 return Array.from(Role.cache.values());
             }
 
-            return (await ServerRequest.post<(R & {permissions: RolePermission[]})[]>('/roles/all', null, {
+            return (await ServerRequest.post<
+                (R & { permissions: RolePermission[] })[]
+            >('/roles/all', null, {
                 cached: true,
             }).then((res) => {
                 if (res.isOk()) {
@@ -148,9 +150,13 @@ export class Role extends Cache<RoleEvents> {
         return attemptAsync(async () => {
             if (Role.permissions.length) return Role.permissions;
 
-            const res = await ServerRequest.post<RolePermission[]>('/roles/all-permissions', null, {
-                cached: true,
-            });
+            const res = await ServerRequest.post<RolePermission[]>(
+                '/roles/all-permissions',
+                null,
+                {
+                    cached: true,
+                },
+            );
 
             if (res.isOk()) {
                 Role.permissions = res.value;
@@ -179,7 +185,9 @@ export class Role extends Cache<RoleEvents> {
     }): Promise<Result<Role>> {
         return attemptAsync(async () => {
             const { name, description } = data;
-            const role = await ServerRequest.post<R & {permissions: RolePermission[]}>('/roles/new', {
+            const role = await ServerRequest.post<
+                R & { permissions: RolePermission[] }
+            >('/roles/new', {
                 name,
                 description,
             });
@@ -245,9 +253,11 @@ export class Role extends Cache<RoleEvents> {
      * @constructor
      * @param {R} data
      */
-    constructor(data: R & {
-        permissions: RolePermission[];
-    }) {
+    constructor(
+        data: R & {
+            permissions: RolePermission[];
+        },
+    ) {
         super();
         this.id = data.id;
         this.name = data.name;
@@ -268,9 +278,9 @@ export class Role extends Cache<RoleEvents> {
      */
     async addPermission(permission: RolePermission): Promise<Result<void>> {
         return await ServerRequest.post<void>('/roles/add-permission', {
-                id: this.id,
-                permission: permission.permission,
-            });
+            id: this.id,
+            permission: permission.permission,
+        });
     }
 
     /**
@@ -283,37 +293,41 @@ export class Role extends Cache<RoleEvents> {
      */
     async removePermission(permission: RolePermission): Promise<Result<void>> {
         return await ServerRequest.post<void>('/roles/remove-permission', {
-                id: this.id,
-                permission: permission.permission,
-            });
-
+            id: this.id,
+            permission: permission.permission,
+        });
     }
 
     async delete(): Promise<Result<void>> {
         return await ServerRequest.post<void>('/roles/delete', {
-                id: this.id,
-            });
+            id: this.id,
+        });
     }
 }
 
+socket.on(
+    'roles:added-permission',
+    (id: string, permissions: RolePermission[]) => {
+        const r = Role.cache.get(id);
+        if (!r) return console.error('Role not found');
 
-socket.on('roles:added-permission', (id: string, permissions: RolePermission[]) => {
-    const r = Role.cache.get(id);
-    if (!r) return console.error('Role not found');
+        r.permissions = permissions;
 
-    r.permissions = permissions;
+        r.emit('change-permissions', permissions);
 
-    r.emit('change-permissions', permissions);
+        Role.emit('update', r);
+    },
+);
 
-    Role.emit('update', r);
-});
+socket.on(
+    'roles:removed-permission',
+    (id: string, permissions: RolePermission[]) => {
+        const r = Role.cache.get(id);
+        if (!r) return console.error('Role not found');
 
-socket.on('roles:removed-permission', (id: string, permissions: RolePermission[]) => {
-    const r = Role.cache.get(id);
-    if (!r) return console.error('Role not found');
+        r.permissions = permissions;
 
-    r.permissions = permissions;
-
-    r.emit('change-permissions', permissions);
-    Role.emit('update', r);
-});
+        r.emit('change-permissions', permissions);
+        Role.emit('update', r);
+    },
+);
