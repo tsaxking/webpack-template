@@ -46,7 +46,7 @@ import { alert, confirm, select } from "../../utilities/notifications";
             console.log(p);
 
             if (p >=0) {
-                role.addPermission(permissions[p]);
+                role.addPermission(addable[p]);
             }
         },
         deleteRole: async (role: Role) => {

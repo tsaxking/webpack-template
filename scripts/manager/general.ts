@@ -6,16 +6,16 @@ import { DB } from '../../server/utilities/databases.ts';
 import Account from '../../server/structure/accounts.ts';
 import { uuid } from '../../server/utilities/uuid.ts';
 import { dateTime } from '../../shared/clock.ts';
-// import { runCommand } from '../../server/utilities/run-task.ts';
+// import { run } from '../../server/utilities/run-task.ts';
 
 // const format = async () => {
-//     return runCommand('deno fmt .');
+//     return run('fmt', '.');
 // };
 // const check = async () => {
-//     return runCommand('deno lint .');
+//     return run('lint', '.');
 // };
 // const build = async () => {
-//     return runCommand('deno task build');
+//     return run('task', 'build');
 // };
 const createEntry = async () => {
     const entryName = repeatPrompt(

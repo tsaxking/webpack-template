@@ -148,21 +148,21 @@ export default class Role {
      *
      * @type {string}
      */
-    readonly name: string;
+    name: string;
     /**
      * Description of the role
      * @date 1/9/2024 - 12:48:41 PM
      *
      * @type {string}
      */
-    readonly description: string | undefined;
+    description: string | undefined;
     /**
      * Rank of the role (higher rank = fewer permissions)
      * @date 1/9/2024 - 12:48:41 PM
      *
      * @type {number}
      */
-    readonly rank: number;
+    rank: number;
     /**
      * The uuid of the role
      * @date 1/9/2024 - 12:48:41 PM
@@ -226,6 +226,15 @@ export default class Role {
 
         DB.run('roles/delete', {
             id: this.id,
+        });
+    }
+
+    async save() {
+        return DB.run('roles/update', {
+            id: this.id,
+            name: this.name,
+            description: this.description,
+            rank: this.rank,
         });
     }
 }

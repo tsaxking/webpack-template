@@ -472,10 +472,34 @@ export const messages: {
     code: 200,
     instructions: '',
 },
+    'roles:already-exists': {
+    message: 'Role already exists',
+    color: 'danger',
+    code: 400,
+    instructions: '',
+},
+    'roles:cannot-edit-admin': {
+    message: 'Cannot edit admin role',
+    color: 'danger',
+    code: 403,
+    instructions: '',
+},
+    'roles:deleted': {
+    message: 'Role deleted',
+    color: 'success',
+    code: 200,
+    instructions: '',
+},
     'roles:invalid-role': {
     message: 'Invalid role',
     color: 'danger',
     code: 400,
+    instructions: '',
+},
+    'roles:new': {
+    message: 'Role created',
+    color: 'success',
+    code: 200,
     instructions: '',
 },
     'roles:not-found': {
@@ -492,6 +516,12 @@ export const messages: {
 },
     'roles:removed-permission': {
     message: 'Permission removed from role',
+    color: 'success',
+    code: 200,
+    instructions: '',
+},
+    'roles:updated': {
+    message: 'Role updated',
     color: 'success',
     code: 200,
     instructions: '',
@@ -652,10 +682,15 @@ export type StatusId =
 	| 'role:not-found'
 	| 'roles:added'
 	| 'roles:added-permission'
+	| 'roles:already-exists'
+	| 'roles:cannot-edit-admin'
+	| 'roles:deleted'
 	| 'roles:invalid-role'
+	| 'roles:new'
 	| 'roles:not-found'
 	| 'roles:removed'
 	| 'roles:removed-permission'
+	| 'roles:updated'
 	| 'server:invalid-data'
 	| 'server:not-implemented'
 	| 'server:unknown-server-error'
@@ -761,11 +796,16 @@ export type RoleStatusId = 'not-found';
 
 
 export type RolesStatusId = 'added'
+	| 'added-permission'
+	| 'cannot-edit-admin'
+	| 'deleted'
 	| 'invalid-role'
+	| 'new'
 	| 'not-found'
 	| 'removed'
-	| 'added-permission'
-	| 'removed-permission';
+	| 'removed-permission'
+	| 'updated'
+	| 'already-exists';
 
 
 export type ServerStatusId = 'invalid-data'
