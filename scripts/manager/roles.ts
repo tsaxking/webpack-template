@@ -4,6 +4,9 @@ import { selectAccount } from './accounts.ts';
 import { confirm, repeatPrompt, select } from '../prompt.ts';
 import { attemptAsync, Result } from '../../shared/check.ts';
 import { addPermissions, removePermissions } from './permissions.ts';
+import { getJSON, saveJSON } from '../../server/utilities/files.ts';
+import { RolePermission } from '../../shared/db-types.ts';
+import { DB } from '../../server/utilities/databases.ts';
 
 export const selectRole = async (
     message = 'Select a role',
@@ -126,6 +129,104 @@ export const removeRoleFromAccount = async () => {
     }
 };
 
+export const saveRolesToJSON = async () => {
+    const [roles, permissions] = await Promise.all([
+        Role.all(),
+        Role.getAllPermissions(),
+    ]);
+
+    const data = {
+        roles: await Promise.all(roles.map(async role => {
+            return {
+                role,
+                permissions: await role.getPermissions()
+            }
+        })),
+        permissions
+    }
+
+    const res = await saveJSON('roles', data);
+
+    if (res.isOk()) return backToMain('Roles saved to ./storage/jsons/roles.json');
+    
+    console.error(res.error);
+    return backToMain('Error saving roles');
+}
+
+export const applyRolesFromJSON = async () => {
+
+    const currentRoles = await Role.all();
+    const currentPermissions = await Role.getAllPermissions();
+
+    if (currentRoles.length || currentPermissions.length) {
+        const res = await confirm('This will overwrite all current roles and permissions in the database. Are you sure you want to continue?');
+        if (!res) return backToMain('Roles not applied');
+    }
+
+    console.log('Loading roles from ./storage/jsons/roles.json')
+    const res = await getJSON('roles');
+    if (res.isErr()) {
+        console.error(res.error);
+        return backToMain('Error loading roles');
+    }
+
+    const data = res.value as {
+        roles: {
+            role: Role,
+            permissions: RolePermission[]
+        }[],
+        permissions: RolePermission[]
+    };
+
+    if (!data.roles || !data.permissions) {
+        return backToMain('Invalid roles data');
+    }
+
+    console.log('Applying roles to database');
+    const { roles, permissions } = data;
+    const deleted = await DB.unsafe.run(`
+        DELETE FROM Roles;
+        DELETE FROM RolePermissions;
+        DELETE FROM Permissions;
+    `);
+
+    if (deleted.isErr()) {
+        console.error(deleted.error);
+        return backToMain('Error applying roles');
+    }
+
+    // don't need await from here on out
+    for (const r of roles) {
+        DB.run('roles/new', {
+            id: r.role.id,
+            name: r.role.name,
+            description: r.role.description,
+            rank: r.role.rank
+        });
+
+        for (const p of r.permissions) {
+            DB.run('permissions/add-to-role', {
+                roleId: r.role.id,
+                permission: p.permission
+            });
+        }
+    }
+
+    for (const p of permissions) {
+        DB.unsafe.run(`
+            INSERT INTO Permissions (
+                permission,
+                description
+            ) VALUES (
+                :permission,
+                :description
+            )
+        `, p);
+    }
+
+    backToMain('Roles applied');
+}
+
 export const roles = [
     {
         icon: '📝',
@@ -150,5 +251,13 @@ export const roles = [
     {
         icon: '🔓',
         value: removePermissions,
+    },
+    {
+        icon: '💾',
+        value: saveRolesToJSON,
+    },
+    {
+        icon: '📥',
+        value: applyRolesFromJSON,
     },
 ];

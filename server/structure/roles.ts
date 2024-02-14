@@ -204,14 +204,14 @@ export default class Role {
     }
 
     addPermission(permission: string) {
-        DB.run('permissions/add-to-role', {
+        return DB.run('permissions/add-to-role', {
             permission,
             roleId: this.id,
         });
     }
 
     removePermission(permission: string) {
-        DB.run('permissions/remove-from-role', {
+        return DB.run('permissions/remove-from-role', {
             roleId: this.id,
             permission,
         });

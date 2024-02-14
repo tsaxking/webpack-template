@@ -293,11 +293,11 @@ export const messages: {
     instructions: 'please upload fewer files',
 },
     'files:unknown-error': {
-        message: 'Unknown file uploading error',
-        color: 'danger',
-        code: 500,
-        instructions: '',
-    },
+    message: 'Unknown file uploading error',
+    color: 'danger',
+    code: 500,
+    instructions: '',
+},
     'files:uploaded': {
     message: 'File uploaded',
     color: 'success',
@@ -466,6 +466,12 @@ export const messages: {
     code: 200,
     instructions: '',
 },
+    'roles:added-permission': {
+    message: 'Permission added to role',
+    color: 'success',
+    code: 200,
+    instructions: '',
+},
     'roles:invalid-role': {
     message: 'Invalid role',
     color: 'danger',
@@ -480,6 +486,12 @@ export const messages: {
 },
     'roles:removed': {
     message: 'Role removed',
+    color: 'success',
+    code: 200,
+    instructions: '',
+},
+    'roles:removed-permission': {
+    message: 'Permission removed from role',
     color: 'success',
     code: 200,
     instructions: '',
@@ -639,9 +651,11 @@ export type StatusId =
 	| 'profanity:detected'
 	| 'role:not-found'
 	| 'roles:added'
+	| 'roles:added-permission'
 	| 'roles:invalid-role'
 	| 'roles:not-found'
 	| 'roles:removed'
+	| 'roles:removed-permission'
 	| 'server:invalid-data'
 	| 'server:not-implemented'
 	| 'server:unknown-server-error'
@@ -731,13 +745,13 @@ export type MemberStatusId = 'accepted'
 export type PageStatusId = 'not-found';
 
 
-export type PermissionsStatusId = 'error'
+export type PermissionsStatusId = 'added'
+	| 'error'
 	| 'forbidden'
 	| 'invalid'
 	| 'not-found'
-	| 'unauthorized'
-	| 'added'
-	| 'removed';
+	| 'removed'
+	| 'unauthorized';
 
 
 export type ProfanityStatusId = 'detected';
@@ -749,7 +763,9 @@ export type RoleStatusId = 'not-found';
 export type RolesStatusId = 'added'
 	| 'invalid-role'
 	| 'not-found'
-	| 'removed';
+	| 'removed'
+	| 'added-permission'
+	| 'removed-permission';
 
 
 export type ServerStatusId = 'invalid-data'

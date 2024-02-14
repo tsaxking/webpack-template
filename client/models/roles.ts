@@ -3,7 +3,7 @@ import { Role as R, RolePermission } from '../../shared/db-types';
 import { attemptAsync, Result } from '../../shared/attempt';
 import { Cache } from './cache';
 import { EventEmitter } from '../../shared/event-emitter';
-import { Permission } from '../../shared/permissions';
+import { socket } from '../utilities/socket';
 
 /**
  * All events on the static Role object
@@ -27,8 +27,7 @@ type RoleEvents = {
     new: Role;
     delete: Role;
     update: Role;
-    'add-permission': RolePermission;
-    'remove-permission': RolePermission;
+    'change-permissions': RolePermission[];
 };
 
 /**
@@ -296,3 +295,25 @@ export class Role extends Cache<RoleEvents> {
             });
     }
 }
+
+
+socket.on('roles:added-permission', (id: string, permissions: RolePermission[]) => {
+    const r = Role.cache.get(id);
+    if (!r) return console.error('Role not found');
+
+    r.permissions = permissions;
+
+    r.emit('change-permissions', permissions);
+
+    Role.emit('update', r);
+});
+
+socket.on('roles:removed-permission', (id: string, permissions: RolePermission[]) => {
+    const r = Role.cache.get(id);
+    if (!r) return console.error('Role not found');
+
+    r.permissions = permissions;
+
+    r.emit('change-permissions', permissions);
+    Role.emit('update', r);
+});

@@ -84,12 +84,15 @@ router.post<{
 
         await role.addPermission(permission as Permission);
 
-        res.sendStatus('permissions:added');
-
-        req.io.emit('role:updated', {
+        res.sendStatus('roles:added-permission', {
             id: role.id,
-            permissions: await role.getPermissions()
+            permission
         });
+
+        req.io.emit('roles:added-permission',
+            role.id,
+            await role.getPermissions()
+        );
     },
 );
 
@@ -117,11 +120,14 @@ router.post<{
 
         await role.removePermission(permission as Permission);
 
-        res.sendStatus('permissions:removed');
-
-        req.io.emit('role:updated', {
+        res.sendStatus('roles:removed-permission', {
             id: role.id,
-            permissions: await role.getPermissions()
+            permission
         });
+
+        req.io.emit('roles:added-permission', 
+            role.id,
+            await role.getPermissions()
+        );
     },
 );
