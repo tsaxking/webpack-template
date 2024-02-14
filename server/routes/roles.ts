@@ -13,6 +13,12 @@ router.post('/all', async (req, res) => {
     }))));
 });
 
+router.post('/all-permissions', async (_req, res) => {
+    const perms = await Role.getAllPermissions();
+
+    res.json(perms);
+});
+
 router.post<{
     name: string;
     description: string;
@@ -72,7 +78,7 @@ router.post<{
 
         const p = await Role.getAllPermissions();
 
-        if (!p.includes(permission as Permission)) {
+        if (!p.find(p => p.permission === permission)) {
             return res.sendStatus('permissions:not-found');
         }
 

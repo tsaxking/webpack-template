@@ -1,10 +1,13 @@
 <script lang="ts">
+import { type RolePermission } from "../../../shared/db-types";
 import { Role } from "../../models/roles";
 import RemovableBadge from "../components/main/RemovableBadge.svelte";
 import { onMount } from "svelte";
+import { alert, confirm, select } from "../../utilities/notifications";
 
 
     let roles: Role[] = [];
+    let permissions: RolePermission[] = [];
 
     let table: HTMLTableElement;
 
@@ -26,11 +29,41 @@ import { onMount } from "svelte";
             //     });
             // }
         },
-        addPermission: (role: Role) => {
-            console.log('Add permission to', role);
+        addPermission: async (role: Role) => {
+            const current = role.permissions.map(p => p.permission);
+            const addable = permissions.filter(p => !current.includes(p.permission));
+            if (!addable.length) {
+                return alert('No permissions to add');
+            }
+
+            console.log('Add permission to role', role, addable);
+
+            const p = await select(
+                'Add permission',
+                addable.map(p => p.permission)
+            );
+
+            console.log(p);
+
+            if (p >=0) {
+                role.addPermission(permissions[p]);
+            }
         },
-        deleteRole: (role: Role) => {
-            console.log('Delete role', role);
+        deleteRole: async (role: Role) => {
+            const good = await confirm('Are you sure you want to delete this role?');
+            if (good) {
+                await role.delete();
+            }
+        },
+        getPermissions: async () => {
+            const perms = await Role.getAllPermissions();
+            if (perms.isOk()) {
+                permissions = perms.value;
+            }
+        },
+        init: () => {
+            fns.getRoles();
+            fns.getPermissions();
         }
     };
 
@@ -38,7 +71,7 @@ import { onMount } from "svelte";
     Role.on('update', fns.getRoles);
     Role.on('delete', fns.getRoles);
 
-    onMount(fns.getRoles);
+    onMount(fns.init);
 </script>
 
 <div class="table-responsive">
@@ -62,8 +95,9 @@ import { onMount } from "svelte";
                                 description={permission.description}
                                 color="secondary"
                                 deletable={true}
-                                on:remove={() => {
-                                    role.removePermission(permission);
+                                on:remove={async () => {
+                                    const doIt = await confirm('Are you sure you want to remove this permission?');
+                                    if (doIt) role.removePermission(permission);
                                 }}
                             />
                         {/each}

@@ -56,8 +56,8 @@ export const addPermissions = async () => {
         const allPerms = await Role.getAllPermissions();
         let perm = (await select<Permission>('Select a permission to add', [
             ...allPerms.map((p) => ({
-                name: p,
-                value: p,
+                name: p.permission,
+                value: p.permission as Permission,
             })),
             {
                 name: '[New]',
@@ -73,7 +73,7 @@ export const addPermissions = async () => {
                 undefined,
                 (data) =>
                     !perms.some((p) => p.permission === data) &&
-                    !allPerms.some((p) => p === data),
+                    !allPerms.some((p) => p.permission === data),
                 false,
             ) as unknown as Permission;
             const description = repeatPrompt(

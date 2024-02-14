@@ -68,12 +68,10 @@ export default class Role {
         };
     }
 
-    static async getAllPermissions(): Promise<Permission[]> {
+    static async getAllPermissions(): Promise<RolePermission[]> {
         const res = await DB.all('permissions/all');
         if (res.isOk()) {
-            return res.value.map(
-                (p: RolePermission) => p.permission as Permission,
-            );
+            return res.value;
         }
         return [];
     }

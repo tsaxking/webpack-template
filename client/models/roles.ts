@@ -3,6 +3,7 @@ import { Role as R, RolePermission } from '../../shared/db-types';
 import { attemptAsync, Result } from '../../shared/attempt';
 import { Cache } from './cache';
 import { EventEmitter } from '../../shared/event-emitter';
+import { Permission } from '../../shared/permissions';
 
 /**
  * All events on the static Role object
@@ -41,17 +42,6 @@ type RoleEvents = {
  */
 export class Role extends Cache<RoleEvents> {
     /**
-     * All roles in the system
-     * @date 2/8/2024 - 4:23:11 PM
-     *
-     * @private
-     * @static
-     * @readonly
-     * @type {Role[]}
-     */
-    private static readonly roles: Role[] = [];
-
-    /**
      * Event emitter for role object updates
      * @date 2/8/2024 - 4:23:11 PM
      *
@@ -60,6 +50,10 @@ export class Role extends Cache<RoleEvents> {
      * @type {*}
      */
     static readonly $emitter = new EventEmitter<keyof Events>();
+
+    static readonly cache = new Map<string, Role>();
+
+    static permissions: RolePermission[] = [];
 
     /**
      * Add a listener for role object updates
@@ -135,8 +129,8 @@ export class Role extends Cache<RoleEvents> {
      */
     static async all(force = false): Promise<Result<Role[]>> {
         return attemptAsync(async () => {
-            if (Role.roles.length && !force) {
-                return Role.roles;
+            if (Role.cache.size && !force) {
+                return Array.from(Role.cache.values());
             }
 
             return (await ServerRequest.post<(R & {permissions: RolePermission[]})[]>('/roles/all', null, {
@@ -148,6 +142,23 @@ export class Role extends Cache<RoleEvents> {
                 }
                 throw res.error;
             })) as Role[];
+        });
+    }
+
+    static async getAllPermissions(): Promise<Result<RolePermission[]>> {
+        return attemptAsync(async () => {
+            if (Role.permissions.length) return Role.permissions;
+
+            const res = await ServerRequest.post<RolePermission[]>('/roles/all-permissions', null, {
+                cached: true,
+            });
+
+            if (res.isOk()) {
+                Role.permissions = res.value;
+                return res.value;
+            }
+
+            throw res.error;
         });
     }
 
@@ -181,24 +192,6 @@ export class Role extends Cache<RoleEvents> {
             throw role.error;
         });
     }
-
-    /**
-     * Deletes a role from the system
-     * @date 2/8/2024 - 4:23:11 PM
-     *
-     * @static
-     * @async
-     * @param {Role} role
-     * @returns {Promise<Result<Role>>}
-     */
-    static async delete(role: Role): Promise<Result<Role>> {
-        return attemptAsync(async () => {
-            Role.roles.splice(Role.roles.indexOf(role), 1);
-            Role.emit('delete', role);
-            return role;
-        });
-    }
-
     /**
      * Role Id
      * @date 2/8/2024 - 4:23:11 PM
@@ -263,9 +256,7 @@ export class Role extends Cache<RoleEvents> {
         this.rank = data.rank;
         this.permissions = data.permissions;
 
-        if (!Role.roles.find((r) => r.name == this.name)) {
-            Role.roles.push(this);
-        }
+        Role.cache.set(this.id, this);
     }
 
     /**
@@ -277,12 +268,10 @@ export class Role extends Cache<RoleEvents> {
      * @returns {Promise<Result<void>>}
      */
     async addPermission(permission: RolePermission): Promise<Result<void>> {
-        return attemptAsync(async () => {
-            await ServerRequest.post<void>('/roles/add-permission', {
+        return await ServerRequest.post<void>('/roles/add-permission', {
                 id: this.id,
                 permission: permission.permission,
             });
-        });
     }
 
     /**
@@ -294,11 +283,16 @@ export class Role extends Cache<RoleEvents> {
      * @returns {Promise<Result<void>>}
      */
     async removePermission(permission: RolePermission): Promise<Result<void>> {
-        return attemptAsync(async () => {
-            await ServerRequest.post<void>('/roles/remove-permission', {
+        return await ServerRequest.post<void>('/roles/remove-permission', {
                 id: this.id,
                 permission: permission.permission,
             });
-        });
+
+    }
+
+    async delete(): Promise<Result<void>> {
+        return await ServerRequest.post<void>('/roles/delete', {
+                id: this.id,
+            });
     }
 }
