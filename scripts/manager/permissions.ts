@@ -6,7 +6,6 @@ import Role from '../../server/structure/roles.ts';
 import { DB } from '../../server/utilities/databases.ts';
 import { saveFile } from '../../server/utilities/files.ts';
 import { attemptAsync } from '../../shared/check.ts';
-import { applyRolesFromJSON, saveRolesToJSON } from './roles.ts';
 
 const createPermission = async (perm: Permission, description: string) => {
     return attemptAsync(async () => {
@@ -131,13 +130,5 @@ export const permissions = [
         icon: '🗑️',
         value: removePermissions,
         description: 'Removes permissions from a role'
-    },
-    {
-        icon: '💾',
-        value: saveRolesToJSON,
-    },
-    {
-        icon: '📥',
-        value: applyRolesFromJSON,
     },
 ];

@@ -5,7 +5,6 @@ import { __root, resolve } from '../../server/utilities/env.ts';
 import { DB } from '../../server/utilities/databases.ts';
 import Account from '../../server/structure/accounts.ts';
 import { uuid } from '../../server/utilities/uuid.ts';
-import { time } from '../../shared/clock.ts';
 import { dateTime } from '../../shared/clock.ts';
 // import { runCommand } from '../../server/utilities/run-task.ts';
 
@@ -211,11 +210,9 @@ export const general = [
     {
         icon: '📄',
         value: createEntry,
-        description: 'Creates an buildable entry file for svelte'
     },
     {
         icon: '🚫',
         value: blacklist,
-        description: 'Blacklist an account or an IP address'
     },
 ];

@@ -129,7 +129,7 @@ export const removeRoleFromAccount = async () => {
     }
 };
 
-export const saveRolesToJSON = async () => {
+export const saveRolesToJson = async () => {
     const [roles, permissions] = await Promise.all([
         Role.all(),
         Role.getAllPermissions(),
@@ -153,7 +153,7 @@ export const saveRolesToJSON = async () => {
     return backToMain('Error saving roles');
 }
 
-export const applyRolesFromJSON = async () => {
+export const applyRolesFromJson = async () => {
 
     const currentRoles = await Role.all();
     const currentPermissions = await Role.getAllPermissions();
@@ -260,10 +260,12 @@ export const roles = [
     },
     {
         icon: '💾',
-        value: saveRolesToJSON,
+        value: saveRolesToJson,
+        description: 'Save roles to ./storage/jsons/roles.json'
     },
     {
         icon: '📥',
-        value: applyRolesFromJSON,
+        value: applyRolesFromJson,
+        description: 'Apply roles from ./storage/jsons/roles.json'
     },
 ];
