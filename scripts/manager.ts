@@ -1,4 +1,4 @@
-import { repeatPrompt, select } from './prompt.ts';
+import { select } from './prompt.ts';
 import { Colors } from '../server/utilities/colors.ts';
 import { sleep } from '../shared/sleep.ts';
 import { attemptAsync, Result } from '../shared/check.ts';
@@ -244,6 +244,7 @@ export const main = async () => {
         data: {
             icon: string;
             value: () => void;
+            description: string;
         }[],
         icon: string,
     ) => {

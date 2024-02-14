@@ -211,9 +211,11 @@ export const general = [
     {
         icon: '📄',
         value: createEntry,
+        description: 'Creates an buildable entry file for svelte'
     },
     {
         icon: '🚫',
         value: blacklist,
+        description: 'Blacklist an account or an IP address'
     },
 ];

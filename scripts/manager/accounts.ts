@@ -139,25 +139,31 @@ export const accounts = [
     {
         icon: '🔍',
         value: verifyAccount,
+        description: 'Verify an account',
     },
     {
         icon: '🗑️',
         value: removeAccount,
+        description: 'Remove an account',
     },
     {
         icon: '📝',
         value: createAccount,
+        description: 'Create an account',
     },
     {
         icon: '🔄',
         value: unverifyAccount,
+        description: 'Unverify an account',
     },
     {
         icon: '➕',
         value: addRoleToAccount,
+        description: 'Add a role to an account',
     },
     {
         icon: '➖',
         value: removeRoleFromAccount,
+        description: 'Remove a role from an account',
     },
 ];
