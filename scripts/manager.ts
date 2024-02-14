@@ -32,6 +32,9 @@ export const icons = {
     controller: '🎮',
 };
 
+const colorTitle = (str: string) => name(str, Colors.FgBlue);
+
+
 export const filter = (str: string): boolean => {
     if (str.length < 3) return false;
     const filter = new Filter();
@@ -231,6 +234,9 @@ export const selectDir = async (
     return data;
 };
 
+const name = (str: string, color: Colors) => `${color}[${capitalize(fromCamelCase(str))}]${Colors.Reset}`;
+
+
 export const main = async () => {
     title('Welcome to the Task Manager!');
     const exit = () => {
@@ -238,11 +244,51 @@ export const main = async () => {
         Deno.exit(0);
     };
 
+    if (Deno.args.includes('-h') || Deno.args.includes('--help')) {
+        console.log('This is a task manager for the server');
+        console.log('It allows you to perform various tasks');
+
+        const map = (s: {
+            icon: string,
+            value: () => Promise<void>
+            description?: string
+        }): string => {
+            return `  ${s.icon} ${name(s.value.name, Colors.FgMagenta)} ${s.description}`;
+        }
+
+        const doMap = (data: {
+            icon: string,
+            value: () => Promise<void>
+            description?: string
+        }[]) => data.map(map);
+
+
+        console.log([
+            // blue('Server Controller')
+            // ...serverController.map((s) => '\t' + s.description),
+            colorTitle('General'),
+            ...doMap(general),
+            colorTitle('Accounts'),
+            ...doMap(accounts),
+            colorTitle('Roles'),
+            ...doMap(roles),
+            colorTitle('Statuses'),
+            ...doMap(statuses),
+            colorTitle('Permissions'),
+            ...doMap(permissions),
+            colorTitle('Databases'),
+            ...doMap(databases),
+        ].join('\n'))
+
+        await select('', ['[Exit]']).then(exit);
+    }
+
     const makeObj = (
         name: string,
         data: {
             icon: string;
             value: () => void;
+            description?: string;
         }[],
         icon: string,
     ) => {

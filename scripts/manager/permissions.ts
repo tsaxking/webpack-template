@@ -125,10 +125,12 @@ export const permissions = [
     {
         icon: '📝',
         value: addPermissions,
+        description: 'Adds permissions to a role, and creates a permission if one doesn\'t exist'
     },
     {
         icon: '🗑️',
         value: removePermissions,
+        description: 'Removes permissions from a role'
     },
     {
         icon: '💾',

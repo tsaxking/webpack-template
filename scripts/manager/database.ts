@@ -54,7 +54,7 @@ export const newVersion = async () => {
     if (doScript) {
         saveFileSync(
             `storage/db/scripts/versions/1-${minor}-${patch}.ts`,
-            `// New version 1.${minor}.${patch}\n\n`,
+            `// New version 1.${minor}.${patch}\n\nDeno.exit(0) // Please do not remove this`,
         );
     }
 
@@ -252,41 +252,51 @@ export const databases = [
     {
         value: buildQueries,
         icon: '🔨',
+        description: 'Builds the query types from the sql files'
     },
     {
         value: mergeQueries,
         icon: '🔀',
+        description: 'Merges the query files into a single file'
     },
     {
         value: versionInfo,
         icon: '📊',
+        description: 'Shows the current and latest version of the database'
     },
     {
         value: newVersion,
         icon: '🆕',
+        description: 'Creates a new version of the database, can create a .ts file if you need to also run a script'
     },
     {
         value: viewTables,
         icon: '📇',
+        description: 'View the data in a table'
     },
     {
         value: reset,
         icon: '🔄',
+        description: 'Resets the database to the latest version'
     },
     {
         value: runUpdates,
         icon: '🔃',
+        description: 'Runs any available updates'
     },
     {
         value: clearTable,
         icon: '🗑️',
+        description: 'Clears all data from a table'
     },
     {
         value: restoreBackup,
         icon: '🔙',
+        description: 'Restores a backup'
     },
     {
         value: backup,
         icon: '💾',
+        description: 'Creates a backup'
     },
 ];

@@ -231,26 +231,32 @@ export const roles = [
     {
         icon: '📝',
         value: createRole,
+        description: 'Create a new role'
     },
     {
         icon: '🗑️',
         value: deleteRole,
+        description: 'Delete a role'
     },
     {
         icon: '➕',
         value: addRoleToAccount,
+        description: 'Add a role to an account'
     },
     {
         icon: '➖',
         value: removeRoleFromAccount,
+        description: 'Remove a role from an account'
     },
     {
         icon: '🔒',
         value: addPermissions,
+        description: 'Add permissions to a role'
     },
     {
         icon: '🔓',
         value: removePermissions,
+        description: 'Remove permissions from a role'
     },
     {
         icon: '💾',
