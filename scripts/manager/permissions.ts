@@ -110,7 +110,9 @@ export const removePermissions = async () => {
 
             if (perm) {
                 role.removePermission(perm.permission);
-                backToMain(`Permission ${perm.permission} removed from role ${role.name}`);
+                backToMain(
+                    `Permission ${perm.permission} removed from role ${role.name}`,
+                );
             } else {
                 backToMain('No permissions to remove');
             }
@@ -124,11 +126,12 @@ export const permissions = [
     {
         icon: '📝',
         value: addPermissions,
-        description: 'Adds permissions to a role, and creates a permission if one doesn\'t exist'
+        description:
+            "Adds permissions to a role, and creates a permission if one doesn't exist",
     },
     {
         icon: '🗑️',
         value: removePermissions,
-        description: 'Removes permissions from a role'
+        description: 'Removes permissions from a role',
     },
 ];

@@ -333,7 +333,13 @@ export class DB {
 
                     if (scriptExists) {
                         console.log('Running update script', version.join('.'));
-                        const scriptRes = await run('run', '--allow-all', script, '--update', version.join('.'));
+                        const scriptRes = await run(
+                            'run',
+                            '--allow-all',
+                            script,
+                            '--update',
+                            version.join('.'),
+                        );
                         if (scriptRes.isErr()) {
                             console.log(
                                 'Error running update script',

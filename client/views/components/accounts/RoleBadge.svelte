@@ -9,17 +9,14 @@ export let role: Role;
 export let account: Account;
 export let color: BootstrapColor = 'primary';
 export let deletable: boolean = false;
-
-
-
 </script>
 
 <RemovableBadge
-    text={role.name}
-    color={color}
-    description={role.description}
-    deletable={deletable}
-    on:remove={() => {
+    text="{role.name}"
+    {color}
+    description="{role.description}"
+    {deletable}
+    on:remove="{() => {
         account.removeRole(role);
-    }}
+    }}"
 />
