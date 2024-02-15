@@ -253,7 +253,10 @@ export const main = async () => {
             description?: string;
         }): string => {
             return `  ${s.icon} ${
-                name(s.value.name, Colors.FgMagenta)
+                name(
+                    s.value.name,
+                    Colors.FgMagenta,
+                )
             } ${s.description}`;
         };
 
