@@ -7,10 +7,14 @@ export const router = new Route();
 
 router.post('/all', async (req, res) => {
     const roles = await Role.all();
-    res.json(await Promise.all(roles.map(async (r) => ({
-        ...r,
-        permissions: await r.getPermissions()
-    }))));
+    res.json(
+        await Promise.all(
+            roles.map(async (r) => ({
+                ...r,
+                permissions: await r.getPermissions(),
+            })),
+        ),
+    );
 });
 
 router.post('/all-permissions', async (_req, res) => {
@@ -34,7 +38,9 @@ router.post<{
         const { name, description, rank } = req.body;
 
         const roles = await Role.all();
-        if (roles.find(r => r.name === name)) return res.sendStatus('roles:already-exists');
+        if (roles.find((r) => r.name === name)) {
+            return res.sendStatus('roles:already-exists');
+        }
 
         const role = Role.new(name, description, rank);
 
@@ -85,7 +91,9 @@ router.post<{
         const role = await Role.fromId(id);
 
         if (!role) return res.sendStatus('role:not-found');
-        if (role.name === 'admin') return res.sendStatus('roles:cannot-edit-admin');
+        if (role.name === 'admin') {
+            return res.sendStatus('roles:cannot-edit-admin');
+        }
 
         role.delete();
 
@@ -108,18 +116,20 @@ router.post<{
         const role = await Role.fromId(id);
 
         if (!role) return res.sendStatus('role:not-found');
-        if (role.name === 'admin') return res.sendStatus('roles:cannot-edit-admin');
+        if (role.name === 'admin') {
+            return res.sendStatus('roles:cannot-edit-admin');
+        }
 
         const perms = await role.getPermissions();
 
-        if (perms.find(p => p.permission === permission)) {
-            console.log('Role already has permission');
+        if (perms.find((p) => p.permission === permission)) {
+            // permission already exists on role
             return res.sendStatus('permissions:error');
         }
 
         const p = await Role.getAllPermissions();
 
-        if (!p.find(p => p.permission === permission)) {
+        if (!p.find((p) => p.permission === permission)) {
             return res.sendStatus('permissions:not-found');
         }
 
@@ -127,12 +137,13 @@ router.post<{
 
         res.sendStatus('roles:added-permission', {
             id: role.id,
-            permission
+            permission,
         });
 
-        req.io.emit('roles:added-permission',
+        req.io.emit(
+            'roles:added-permission',
             role.id,
-            await role.getPermissions()
+            await role.getPermissions(),
         );
     },
 );
@@ -152,11 +163,13 @@ router.post<{
         const role = await Role.fromId(id);
 
         if (!role) return res.sendStatus('role:not-found');
-        if (role.name === 'admin') return res.sendStatus('roles:cannot-edit-admin');
+        if (role.name === 'admin') {
+            return res.sendStatus('roles:cannot-edit-admin');
+        }
 
         const perms = await role.getPermissions();
 
-        if (!perms.find(p => p.permission === permission)) {
+        if (!perms.find((p) => p.permission === permission)) {
             return res.sendStatus('permissions:error');
         }
 
@@ -164,12 +177,13 @@ router.post<{
 
         res.sendStatus('roles:removed-permission', {
             id: role.id,
-            permission
+            permission,
         });
 
-        req.io.emit('roles:added-permission', 
+        req.io.emit(
+            'roles:added-permission',
             role.id,
-            await role.getPermissions()
+            await role.getPermissions(),
         );
     },
 );

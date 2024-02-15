@@ -115,17 +115,18 @@ export const run = async (...cmd: string[]) => {
                 args: cmd,
                 stdout: 'inherit',
                 stderr: 'inherit',
-                stdin: 'inherit'
+                stdin: 'inherit',
             }).spawn();
-        
 
-            process.status.then(s => {
-                if (s.success) {
-                    res();
-                } else {
-                    rej('Process exited with code ' + s.code);
-                }
-            }).catch(rej);
+            process.status
+                .then((s) => {
+                    if (s.success) {
+                        res();
+                    } else {
+                        rej('Process exited with code ' + s.code);
+                    }
+                })
+                .catch(rej);
         });
     });
-}
+};

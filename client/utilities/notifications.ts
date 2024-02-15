@@ -68,7 +68,7 @@ export const confirm = async (message: string): Promise<boolean | null> => {
             if (resolved) return;
             resolved = true;
             res(val);
-        }
+        };
         const id = 'alert-' + Math.random().toString(36).substring(2, 9);
         const m = new Modal(id);
 
@@ -119,7 +119,7 @@ export const prompt = async (question: string): Promise<string | null> => {
             if (resolved) return;
             resolved = true;
             res(val);
-        }
+        };
         const id = 'alert-' + Math.random().toString(36).substring(2, 9);
         const m = new Modal(id);
         m.setTitle('Prompt');
@@ -129,7 +129,6 @@ export const prompt = async (question: string): Promise<string | null> => {
         input.classList.add('form-control', 'mt-3');
         input.type = 'text';
         input.placeholder = 'Enter your response here...';
-
 
         const confirm = document.createElement('button');
         const cancel = document.createElement('button');
@@ -174,7 +173,7 @@ export const select = async (
             if (resolved) return;
             resolved = true;
             res(val);
-        }
+        };
 
         const id = 'alert-' + Math.random().toString(36).substring(2, 9);
         const m = new Modal(id);
@@ -246,7 +245,7 @@ export const choose = async <A extends string, B extends string>(
             if (resolved) return;
             resolved = true;
             res(val);
-        }
+        };
 
         const id = 'alert-' + Math.random().toString(36).substring(2, 9);
         const m = new Modal(id);

@@ -2,7 +2,7 @@ import { backToMain, main, selectFile } from '../manager.ts';
 import { __root } from '../../server/utilities/env.ts';
 import { addQuery, merge, parseSql } from '../parse-sql.ts';
 import { DB } from '../../server/utilities/databases.ts';
-import { confirm, repeatPrompt, select, search } from '../prompt.ts';
+import { confirm, repeatPrompt, search, select } from '../prompt.ts';
 import {
     readDir,
     readFile,
@@ -229,7 +229,9 @@ export const restoreBackup = async () => {
         })),
     );
 
-    if (backup.isErr()) return backToMain('Error selecting backup: ' + backup.error);
+    if (backup.isErr()) {
+        return backToMain('Error selecting backup: ' + backup.error);
+    }
 
     const res = await DB.restoreBackup(backup.value);
     if (res.isOk()) {
@@ -252,51 +254,52 @@ export const databases = [
     {
         value: buildQueries,
         icon: '🔨',
-        description: 'Builds the query types from the sql files'
+        description: 'Builds the query types from the sql files',
     },
     {
         value: mergeQueries,
         icon: '🔀',
-        description: 'Merges the query files into a single file'
+        description: 'Merges the query files into a single file',
     },
     {
         value: versionInfo,
         icon: '📊',
-        description: 'Shows the current and latest version of the database'
+        description: 'Shows the current and latest version of the database',
     },
     {
         value: newVersion,
         icon: '🆕',
-        description: 'Creates a new version of the database, can create a .ts file if you need to also run a script'
+        description:
+            'Creates a new version of the database, can create a .ts file if you need to also run a script',
     },
     {
         value: viewTables,
         icon: '📇',
-        description: 'View the data in a table'
+        description: 'View the data in a table',
     },
     {
         value: reset,
         icon: '🔄',
-        description: 'Resets the database to the latest version'
+        description: 'Resets the database to the latest version',
     },
     {
         value: runUpdates,
         icon: '🔃',
-        description: 'Runs any available updates'
+        description: 'Runs any available updates',
     },
     {
         value: clearTable,
         icon: '🗑️',
-        description: 'Clears all data from a table'
+        description: 'Clears all data from a table',
     },
     {
         value: restoreBackup,
         icon: '🔙',
-        description: 'Restores a backup'
+        description: 'Restores a backup',
     },
     {
         value: backup,
         icon: '💾',
-        description: 'Creates a backup'
+        description: 'Creates a backup',
     },
 ];

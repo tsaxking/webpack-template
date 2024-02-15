@@ -136,34 +136,39 @@ export const saveRolesToJson = async () => {
     ]);
 
     const data = {
-        roles: await Promise.all(roles.map(async role => {
-            return {
-                role,
-                permissions: await role.getPermissions()
-            }
-        })),
-        permissions
-    }
+        roles: await Promise.all(
+            roles.map(async (role) => {
+                return {
+                    role,
+                    permissions: await role.getPermissions(),
+                };
+            }),
+        ),
+        permissions,
+    };
 
     const res = await saveJSON('roles', data);
 
-    if (res.isOk()) return backToMain('Roles saved to ./storage/jsons/roles.json');
-    
+    if (res.isOk()) {
+        return backToMain('Roles saved to ./storage/jsons/roles.json');
+    }
+
     console.error(res.error);
     return backToMain('Error saving roles');
-}
+};
 
 export const applyRolesFromJson = async () => {
-
     const currentRoles = await Role.all();
     const currentPermissions = await Role.getAllPermissions();
 
     if (currentRoles.length || currentPermissions.length) {
-        const res = await confirm('This will overwrite all current roles and permissions in the database. Are you sure you want to continue?');
+        const res = await confirm(
+            'This will overwrite all current roles and permissions in the database. Are you sure you want to continue?',
+        );
         if (!res) return backToMain('Roles not applied');
     }
 
-    console.log('Loading roles from ./storage/jsons/roles.json')
+    console.log('Loading roles from ./storage/jsons/roles.json');
     const res = await getJSON('roles');
     if (res.isErr()) {
         console.error(res.error);
@@ -172,10 +177,10 @@ export const applyRolesFromJson = async () => {
 
     const data = res.value as {
         roles: {
-            role: Role,
-            permissions: RolePermission[]
-        }[],
-        permissions: RolePermission[]
+            role: Role;
+            permissions: RolePermission[];
+        }[];
+        permissions: RolePermission[];
     };
 
     if (!data.roles || !data.permissions) {
@@ -201,19 +206,20 @@ export const applyRolesFromJson = async () => {
             id: r.role.id,
             name: r.role.name,
             description: r.role.description,
-            rank: r.role.rank
+            rank: r.role.rank,
         });
 
         for (const p of r.permissions) {
             DB.run('permissions/add-to-role', {
                 roleId: r.role.id,
-                permission: p.permission
+                permission: p.permission,
             });
         }
     }
 
     for (const p of permissions) {
-        DB.unsafe.run(`
+        DB.unsafe.run(
+            `
             INSERT INTO Permissions (
                 permission,
                 description
@@ -221,51 +227,53 @@ export const applyRolesFromJson = async () => {
                 :permission,
                 :description
             )
-        `, p);
+        `,
+            p,
+        );
     }
 
     backToMain('Roles applied');
-}
+};
 
 export const roles = [
     {
         icon: '📝',
         value: createRole,
-        description: 'Create a new role'
+        description: 'Create a new role',
     },
     {
         icon: '🗑️',
         value: deleteRole,
-        description: 'Delete a role'
+        description: 'Delete a role',
     },
     {
         icon: '➕',
         value: addRoleToAccount,
-        description: 'Add a role to an account'
+        description: 'Add a role to an account',
     },
     {
         icon: '➖',
         value: removeRoleFromAccount,
-        description: 'Remove a role from an account'
+        description: 'Remove a role from an account',
     },
     {
         icon: '🔒',
         value: addPermissions,
-        description: 'Add permissions to a role'
+        description: 'Add permissions to a role',
     },
     {
         icon: '🔓',
         value: removePermissions,
-        description: 'Remove permissions from a role'
+        description: 'Remove permissions from a role',
     },
     {
         icon: '💾',
         value: saveRolesToJson,
-        description: 'Save roles to ./storage/jsons/roles.json'
+        description: 'Save roles to ./storage/jsons/roles.json',
     },
     {
         icon: '📥',
         value: applyRolesFromJson,
-        description: 'Apply roles from ./storage/jsons/roles.json'
+        description: 'Apply roles from ./storage/jsons/roles.json',
     },
 ];

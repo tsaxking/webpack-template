@@ -86,11 +86,16 @@ export const confirm = async (message = 'Confirm'): Promise<boolean> => {
     return (await select(message, ['Yes', 'No'])) === 'Yes';
 };
 
-
-export const search = async <T>(message: string, options: ({
-    name: string;
-    value: T;
-} | T)[]): Promise<Result<string>> => {
+export const search = async <T>(
+    message: string,
+    options: (
+        | {
+            name: string;
+            value: T;
+        }
+        | T
+    )[],
+): Promise<Result<string>> => {
     const s = new FuzzySearch(options, ['name', ''], {
         caseSensitive: false,
     });
@@ -101,8 +106,7 @@ export const search = async <T>(message: string, options: ({
 
             const values = s.search(data);
 
-            const res = await select<string>('Select a value', 
-            [
+            const res = await select<string>('Select a value', [
                 {
                     name: '[Back to search]',
                     value: '$$back$$',
@@ -111,9 +115,8 @@ export const search = async <T>(message: string, options: ({
                     name: '[Exit search]',
                     value: '$$exit$$',
                 },
-                ...values.map((v) => (v.name || v.toString()))
-        ]
-            );
+                ...values.map((v) => v.name || v.toString()),
+            ]);
 
             if (res === '$$back$$') {
                 const res = await run();

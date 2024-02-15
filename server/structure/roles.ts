@@ -197,7 +197,8 @@ export default class Role {
         });
         if (data.isOk()) {
             return data.value.filter((p, i, a) => {
-                return a.findIndex((pp) => pp.permission === p.permission) === i;
+                return a.findIndex((pp) => pp.permission === p.permission) ===
+                    i;
             });
         }
         return [];

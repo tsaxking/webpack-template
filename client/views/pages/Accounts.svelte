@@ -27,28 +27,30 @@ const fns = {
     setAccounts: async (newAccounts: Account[]) => {
         console.log(newAccounts);
 
-        accountObjs = (await Promise.all(
-            newAccounts.map(async a => {
-                const [roles, permissions] = await Promise.all([
-                    a.getRoles().then(r => (r.isOk() ? r.value : [])),
-                    a.getPermissions().then(p => (p.isOk() ? p.value : []))
-                ]);
+        accountObjs = (
+            await Promise.all(
+                newAccounts.map(async a => {
+                    const [roles, permissions] = await Promise.all([
+                        a.getRoles().then(r => (r.isOk() ? r.value : [])),
+                        a.getPermissions().then(p => (p.isOk() ? p.value : []))
+                    ]);
 
-                return {
-                    id: a.id,
-                    username: a.username,
-                    firstName: a.firstName,
-                    lastName: a.lastName,
-                    email: a.email,
-                    verified: a.verified,
-                    created: a.created,
-                    phoneNumber: a.phoneNumber,
-                    picture: a.picture,
-                    roles,
-                    permissions
-                };
-            })
-        )).filter(a => a.username !== 'guest');
+                    return {
+                        id: a.id,
+                        username: a.username,
+                        firstName: a.firstName,
+                        lastName: a.lastName,
+                        email: a.email,
+                        verified: a.verified,
+                        created: a.created,
+                        phoneNumber: a.phoneNumber,
+                        picture: a.picture,
+                        roles,
+                        permissions
+                    };
+                })
+            )
+        ).filter(a => a.username !== 'guest');
     }
 };
 
