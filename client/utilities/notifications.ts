@@ -40,8 +40,7 @@ export const notify = (data: {
  */
 export const alert = async (message: string): Promise<void> => {
     return new Promise<void>((res) => {
-        const id = 'alert-' + Math.random().toString(36).substring(2, 9);
-        const m = new Modal(id);
+        const m = new Modal();
         m.setTitle('Alert');
         const p = document.createElement('p');
         p.innerText = message;
@@ -68,9 +67,9 @@ export const confirm = async (message: string): Promise<boolean | null> => {
             if (resolved) return;
             resolved = true;
             res(val);
+            m.hide();
         };
-        const id = 'alert-' + Math.random().toString(36).substring(2, 9);
-        const m = new Modal(id);
+        const m = new Modal();
 
         m.setTitle('Confirm');
         m.setBody(message);
@@ -82,14 +81,12 @@ export const confirm = async (message: string): Promise<boolean | null> => {
         yes.classList.add('btn', 'btn-primary');
         yes.onclick = () => {
             doRes(true);
-            m.hide();
         };
 
         no.innerText = 'Cancel';
         no.classList.add('btn', 'btn-secondary');
         no.onclick = () => {
             doRes(false);
-            m.hide();
         };
 
         const group = document.createElement('div');
@@ -120,8 +117,7 @@ export const prompt = async (question: string): Promise<string | null> => {
             resolved = true;
             res(val);
         };
-        const id = 'alert-' + Math.random().toString(36).substring(2, 9);
-        const m = new Modal(id);
+        const m = new Modal();
         m.setTitle('Prompt');
         m.setBody(question);
 
@@ -175,8 +171,7 @@ export const select = async (
             res(val);
         };
 
-        const id = 'alert-' + Math.random().toString(36).substring(2, 9);
-        const m = new Modal(id);
+        const m = new Modal();
         m.setTitle('Select');
 
         const formGroup = document.createElement('div');
@@ -245,10 +240,10 @@ export const choose = async <A extends string, B extends string>(
             if (resolved) return;
             resolved = true;
             res(val);
+            m.hide();
         };
 
-        const id = 'alert-' + Math.random().toString(36).substring(2, 9);
-        const m = new Modal(id);
+        const m = new Modal();
         m.setTitle('Choose');
 
         m.setBody(question);
@@ -261,21 +256,18 @@ export const choose = async <A extends string, B extends string>(
         a.classList.add('btn', 'btn-primary');
         a.onclick = () => {
             doRes(option1);
-            m.hide();
         };
 
         b.innerText = option2;
         b.classList.add('btn', 'btn-primary');
         b.onclick = () => {
             doRes(option2);
-            m.hide();
         };
 
         cancel.innerText = 'Cancel';
         cancel.classList.add('btn', 'btn-secondary');
         cancel.onclick = () => {
             doRes(null);
-            m.hide();
         };
 
         const group = document.createElement('div');

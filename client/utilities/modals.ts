@@ -159,6 +159,7 @@ export class Modal {
     public destroy() {
         this.emit('destroy');
         $(`#${this.id}`).remove();
+        $('.modal-backdrop').remove();
     }
 }
 
