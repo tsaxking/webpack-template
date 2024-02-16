@@ -82,7 +82,8 @@ export class Modal {
 
         const close = document.createElement('button');
         close.type = 'button';
-        close.classList.add('close');
+        close.classList.add('btn-close');
+        // close.innerHTML = `<i class="material-icons">close</i>`;
         close.setAttribute('data-dismiss', 'modal');
         close.setAttribute('aria-label', 'Close');
         $(close).on('click', () => this.hide());

@@ -10,6 +10,7 @@ import env, {
     relative,
     resolve,
 } from './utilities/env.ts';
+import { attemptAsync } from '../shared/check.ts';
 
 /**
  * Recursively reads a directory, saves the template, and returns the file paths
@@ -87,8 +88,8 @@ export class Builder {
         }
     };
 
-    public build = () =>
-        esbuild.build({
+    public build = () => 
+        attemptAsync(async () => esbuild.build({
             entryPoints: entries,
             bundle: true,
             minify: env.MINIFY === 'y',
@@ -109,7 +110,7 @@ export class Builder {
                 '.ttf': 'dataurl',
                 '.svg': 'dataurl',
             },
-        });
+        }));
 
     public run = async () => {
         await this.build();
