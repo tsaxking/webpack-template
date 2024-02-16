@@ -3,7 +3,7 @@ import { Client } from 'https://deno.land/x/postgres@v0.17.0/mod.ts';
 import { error, log } from './terminal-logging.ts';
 import { Queries } from './queries.ts';
 import { exists, readDir, readFile, readFileSync, saveFile } from './files.ts';
-import { attemptAsync, Result } from '../../shared/check.ts';
+import { attemptAsync, Result, Err } from '../../shared/check.ts';
 import { run } from './run-task.ts';
 import {
     capitalize,
@@ -739,47 +739,56 @@ export class DB {
         query: string,
         args: Parameter[],
     ): Promise<Result<QueryResult<unknown>>> {
-        const run = () =>
-            attemptAsync(async () => {
-                const q = DB.parseQuery(query, args);
-                const [sql, newArgs] = q;
-
-                const result = await DB.db.queryObject(sql, newArgs);
-                if (result.warnings.length) {
-                    log('Database warnings:', result.warnings);
+        return attemptAsync(async () => {
+            const queries = query.split(';').map(q => `${q};`); // split, but ke
+            if (queries[queries.length - 1] === ';') queries.pop(); // remove query, if empty
+            const run = (i: number) =>
+                attemptAsync(async () => {
+                    const q = DB.parseQuery(queries[i], args);
+                    const [sql, newArgs] = q;
+    
+                    const result = await DB.db.queryObject(sql, newArgs);
+                    if (result.warnings.length) {
+                        log('Database warnings:', result.warnings);
+                    }
+    
+                    return {
+                        rows: bigIntDecode(DB.parseObj(result.rows) as unknown[]),
+                        params: newArgs,
+                        query: sql,
+                    };
+                });
+    
+            let data: QueryResult<unknown> = {
+                rows: [],
+                params: [],
+                query: ''
+            };
+            let maxRetries = 5;
+            const disconnectedErrors = [
+                'Connection terminated',
+                'Connection lost',
+                'Broken pipe',
+                'Connection closed',
+            ];
+            for (const [i] of queries.entries()) {
+                let res = await run(i);
+                while (res.isErr() && maxRetries > 0) {
+                    if (disconnectedErrors.some((e) => (res as Err).error.message.includes(e))) {
+                        log('Database disconnected, reconnecting...');
+                        await DB.connect();
+                    }
+                    res = await run(i);
+                    maxRetries--;
                 }
-
-                return {
-                    rows: bigIntDecode(DB.parseObj(result.rows) as unknown[]),
-                    params: newArgs,
-                    query: sql,
-                };
-            });
-
-        let res = await run();
-        let maxRetries = 5;
-        const disconnectedErrors = [
-            'Connection terminated',
-            'Connection lost',
-            'Broken pipe',
-            'Connection closed',
-        ];
-
-        while (res.isErr() && maxRetries > 0) {
-            const { error } = res;
-            if (disconnectedErrors.some((e) => error.message.includes(e))) {
-                log('Database disconnected, reconnecting...');
-                await DB.connect();
+                if (res.isErr()) {
+                    console.error(res.error);
+                    throw res.error;
+                }
+                data = res.value; // this will update and be the value of the last query
             }
-            res = await run();
-            maxRetries--;
-        }
-
-        if (res.isErr()) {
-            error('Error running query:', res.error);
-        }
-
-        return res;
+            return data;
+        });
     }
 
     /**
