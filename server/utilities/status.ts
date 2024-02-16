@@ -174,12 +174,16 @@ export class Status {
         this.instructions = message.instructions;
         this.redirect = message.redirect;
         this.request = req;
-
         // Log the status message in the ./storage/logs/status.csv file
         setTimeout(async () => {
             const a = await req.session.getAccount();
             log('status', {
-                ...message,
+                title: String(this.title),
+                message: String(message.message),
+                status: String(status),
+                code: String(message.code),
+                instructions: String(message.instructions),
+                redirect: String(message.redirect),
                 data: data ? JSON.stringify(data) : 'No data provided.',
                 ip: req.session.ip,
                 username: a?.username,
@@ -244,7 +248,7 @@ export class Status {
             code: this.code,
             instructions: this.instructions,
             data: JSON.parse(this.data || '{}'),
-            redirect: this.redirect || '',
+            redirect: this.redirect,
             color: this.color,
         };
     }
@@ -258,11 +262,9 @@ export class Status {
     send(res: Res) {
         let r: Result<string, FileError> | undefined;
         switch (this.request.method) {
-            case 'GET':
-                r = this.html;
-                break;
             case 'POST':
                 return res.status(this.code).json(this.json);
+            case 'GET':
             default:
                 r = this.html;
                 break;

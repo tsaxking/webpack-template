@@ -170,7 +170,11 @@ app.use('/*', Account.autoSignIn(env.AUTO_SIGN_IN));
 
 app.get('/*', (req, res, next) => {
     if (!req.session.accountId) {
-        req.session.prevUrl = req.url;
+        if (!['/account/sign-in', '/account/sign-up', '/account/forgot-password'].includes(req.url)) {
+            // only save the previous url if it's not a sign-in, sign-up, or forgot-password page
+            // this is so that the user can be redirected back to the page they initially were trying to access
+            req.session.prevUrl = req.url;
+        }
         return res.redirect('/account/sign-in');
     }
 
