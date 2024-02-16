@@ -4,7 +4,6 @@ import { Circle } from '../../models/canvas/circle';
 import { Point, Point3D } from '../../../shared/submodules/calculations/src/linear-algebra/point';
 import { rotate3D, scale, translate } from '../../../shared/submodules/calculations/src/linear-algebra/matrix-calculations';
 import { Color } from '../../submodules/colors/color';
-import { Spline as S } from '../../models/canvas/spline';
 import { Spline } from '../../../shared/submodules/calculations/src/linear-algebra/spline';
 
 const canvas = document.createElement('canvas');
@@ -66,7 +65,9 @@ const edges = [
 const spline = new Spline(
     new Point(...translate(scale([0, 0, 0], scaleMatrix), translateMatrix)),
     new Point(...translate(scale([1, .5, 0], scaleMatrix), translateMatrix)),
-    new Point(...translate(scale([1, 1, .5], scaleMatrix), translateMatrix)),
+    new Point(...translate(scale([1, .5, 0], scaleMatrix), translateMatrix)),
+    new Point(...translate(scale([1, .5, 0], scaleMatrix), translateMatrix)),
+    new Point(...translate(scale([.75, .25, .75], scaleMatrix), translateMatrix)),
     new Point(...translate(scale([0, 1, 0], scaleMatrix), translateMatrix)),
 );
 
@@ -74,7 +75,7 @@ const splinePoints = spline.generatePoints(100);
 
 
 
-const rotateMatrix = [.001, .002, .005] as Point3D;
+const rotateMatrix = [.006, .005, .005] as Point3D;
 
 c.animate(() => {
     for (const c of circles) {
