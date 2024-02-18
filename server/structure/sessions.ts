@@ -355,7 +355,7 @@ export class Session {
      */
     signIn(account: Account) {
         this.accountId = account.id;
-        this.save();
+        return this.save();
     }
 
     /**
@@ -364,7 +364,7 @@ export class Session {
      */
     signOut() {
         this.accountId = undefined;
-        this.save();
+        return this.save();
     }
 
     /**

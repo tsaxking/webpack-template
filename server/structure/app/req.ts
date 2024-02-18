@@ -110,6 +110,8 @@ export class Req<T = unknown> {
      */
     readonly start: number = Date.now();
 
+    public readonly domain: string;
+
     /**
      * Creates an instance of Req.
      * @date 10/12/2023 - 3:02:55 PM
@@ -128,8 +130,9 @@ export class Req<T = unknown> {
         this.url = req.url;
         this.method = req.method;
         this.headers = req.headers;
-        this.pathname = new URL(req.url, 'http://localhost').pathname;
-        this.query = new URL(req.url, 'http://localhost').searchParams;
+        this.pathname = new URL(req.url).pathname;
+        this.query = new URL(req.url).searchParams;
+        this.domain = new URL(req.url).hostname;
         this.ip = info.remoteAddr.hostname;
     }
 

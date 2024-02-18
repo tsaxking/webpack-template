@@ -110,6 +110,12 @@ export class Modal {
         modal.appendChild(dialog);
     }
 
+    addButton(button: HTMLButtonElement) {
+        const footer = this.el.querySelector('.modal-footer');
+        if (!footer) return; // should never happen
+        footer.appendChild(button);
+    }
+
     setTitle(title: string | HTMLElement) {
         const header = this.el.querySelector('.modal-header');
         if (!header) return;

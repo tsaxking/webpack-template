@@ -1,3 +1,7 @@
-import { runTests } from './tests/all-tests.ts';
+// import { runTests } from './tests/all-tests.ts';
 
-runTests();
+// runTests();
+
+// console.log('fuck!');
+
+console.log(new URL('https://www.google.com/').hostname);
