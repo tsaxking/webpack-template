@@ -146,8 +146,8 @@ app.get('/', (req, res) => {
 app.get('/*', async (req, res, next) => {
     const homePages = await getJSON<string[]>('pages/home');
     if (homePages.isOk()) {
-        if (homePages.value.includes(req.url.slice(1))) {
-            const r = await homeBuilder(req.url);
+        if (homePages.value.includes(req.url.href.slice(1))) {
+            const r = await homeBuilder(req.url.pathname);
             if (r.isOk()) res.send(r.value);
         }
     }
@@ -175,11 +175,11 @@ app.get('/*', (req, res, next) => {
                 '/account/sign-in',
                 '/account/sign-up',
                 '/account/forgot-password',
-            ].includes(req.url)
+            ].includes(req.url.pathname)
         ) {
             // only save the previous url if it's not a sign-in, sign-up, or forgot-password page
             // this is so that the user can be redirected back to the page they initially were trying to access
-            req.session.prevUrl = req.url;
+            req.session.prevUrl = req.url.href;
         }
         return res.redirect('/account/sign-in');
     }
@@ -213,7 +213,7 @@ app.final<{
         duration: Date.now() - req.start,
         ip: req.session?.ip,
         method: req.method,
-        url: req.url,
+        url: req.url.pathname,
         status: res._status,
         userAgent: req.headers.get('user-agent') || '',
         body: req.method == 'post'

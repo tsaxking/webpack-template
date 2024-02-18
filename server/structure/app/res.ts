@@ -356,7 +356,7 @@ export class Res {
      * @returns {ResponseStatus}
      */
     redirect(path: string): ResponseStatus {
-        path = path.startsWith('/') ? this.req.domain + path : path;
+        path = path.startsWith('/') ? this.req.url.origin + path : path;
 
         this.isFulfilled();
         this.resolve?.(Response.redirect(path));

@@ -44,8 +44,8 @@ const builds: {
  */
 export const builder = async (req: Req, res: Res, next: Next) => {
     const { url } = req;
-    if (builds[url]) {
-        const r = await homeBuilder(url);
+    if (builds[url.pathname]) {
+        const r = await homeBuilder(url.pathname);
         if (r.isOk()) res.send(r.value);
         else {
             res.sendStatus('server:unknown-server-error');

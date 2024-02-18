@@ -86,7 +86,7 @@ export const emitter = (() => {
             const e = new DataValidationFaliure(
                 event,
                 data,
-                req.url,
+                req.url.href,
                 req.method,
                 reason,
             );
