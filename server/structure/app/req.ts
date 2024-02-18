@@ -127,12 +127,12 @@ export class Req<T = unknown> {
         public readonly io: Server,
         public readonly session: Session,
     ) {
-        this.url = req.url;
+        this.url = req.url.startsWith('http') ? req.url : `http://${req.url}`;
         this.method = req.method;
         this.headers = req.headers;
-        this.pathname = new URL(req.url).pathname;
-        this.query = new URL(req.url).searchParams;
-        this.domain = new URL(req.url).hostname;
+        this.pathname = new URL(this.url).pathname;
+        this.query = new URL(this.url).searchParams;
+        this.domain = new URL(this.url).hostname;
         this.ip = info.remoteAddr.hostname;
     }
 
