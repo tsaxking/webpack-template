@@ -6,7 +6,8 @@ import { CookieOptions, Next, ServerFunction } from './app/app.ts';
 import { app } from '../server.ts';
 import { Req } from './app/req.ts';
 import { Res } from './app/res.ts';
-import { log } from '../utilities/terminal-logging.ts';
+import { log, error } from '../utilities/terminal-logging.ts';
+import { Colors } from '../utilities/colors.ts';
 
 /**
  * Session object from the database
@@ -246,7 +247,7 @@ export class Session {
             this.userAgent = req.headers.get('user-agent') || '';
         }
 
-        Session.cache.set(this.id, this);
+        // Session.cache.set(this.id, this);
 
         setTimeout(() => this.destroy(), Session.cookieOptions.maxAge);
 
@@ -268,7 +269,7 @@ export class Session {
 
     public set latestActivity(time: number | undefined) {
         this.$latestActivity = time;
-        this.save();
+        // this.save();
         if (this.timeout) clearTimeout(this.timeout);
 
         this.timeout = setTimeout(
@@ -283,7 +284,7 @@ export class Session {
 
     async newRequest() {
         this.requests = this.requests + 1;
-        await this.save();
+        // await this.save();
         // console.log('Requests:', this.requests);
         this.latestActivity = Date.now();
 
@@ -353,18 +354,24 @@ export class Session {
      *
      * @param {Account} account
      */
-    signIn(account: Account) {
+    async signIn(account: Account) {
         this.accountId = account.id;
-        this.save();
+        this.$account = account;
+        const res = await this.save();
+        if (res.isErr()) error(res.error);
+        return res;
     }
 
     /**
      * Sign out of the account
      * @date 10/12/2023 - 3:13:57 PM
      */
-    signOut() {
+    async signOut() {
         this.accountId = undefined;
-        this.save();
+        this.$account = undefined;
+        const res = await this.save();
+        if (res.isErr()) error(res.error);
+        return res;
     }
 
     /**
@@ -380,11 +387,10 @@ export class Session {
      * @date 10/12/2023 - 3:13:57 PM
      */
     async save() {
-        // this.account?.save();
-
         const s = await DB.get('sessions/get', { id: this.id });
 
         if (s.isOk() && s.value) {
+            console.log(Colors.FgRed, '!!!Updating session!!!', Colors.Reset);
             return DB.run('sessions/update', {
                 id: this.id,
                 ip: this.ip || '',

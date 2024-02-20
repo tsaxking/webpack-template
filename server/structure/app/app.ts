@@ -456,7 +456,7 @@ export class App {
 
         if (!s) {
             setSsid = true;
-            console.log('New session');
+            log('New session', ssid);
             const obj = {
                 id: Session.newId(),
                 ip: info.remoteAddr.hostname,
@@ -472,6 +472,8 @@ export class App {
 
             s = Session.fromSessObj(obj);
         }
+
+        // log(s);
 
         return new Promise<Response>(async (resolve, _reject) => {
             const url = new URL(denoReq.url, this.domain);

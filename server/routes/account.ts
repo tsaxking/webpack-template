@@ -99,7 +99,7 @@ router.post<{
             });
         }
 
-        const r = await req.session.signIn(account);
+        await req.session.signIn(account);
 
         // if (r.isErr()) return res.sendStatus('unknown:error');
         res.sendStatus(
@@ -159,8 +159,10 @@ router.post<{
     },
 );
 
-router.get('/sign-out', (req, res) => {
-    req.session.signOut();
+router.get('/sign-out', async (req, res) => {
+    // console.log('Signing out');
+    await req.session.signOut();
+    // console.log(req.session);
     res.redirect('/home');
 });
 
