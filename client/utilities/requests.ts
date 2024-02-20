@@ -768,7 +768,7 @@ export class ServerRequest<T = unknown> {
                             message: d.message,
                             status: d.$status,
                             color: d.color,
-                        });
+                        }, 'toast');
                     }
 
                     this.duration = Date.now() - start;
