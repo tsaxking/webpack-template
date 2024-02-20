@@ -60,7 +60,7 @@ export class Req<T = unknown> {
      * @readonly
      * @type {string}
      */
-    readonly url: string;
+    readonly url: URL;
     /**
      * The method of the request (GET, POST, PUT, DELETE, etc.)
      * @date 10/12/2023 - 3:02:55 PM
@@ -77,22 +77,6 @@ export class Req<T = unknown> {
      * @type {Headers}
      */
     readonly headers: Headers;
-    /**
-     * The url without the domain
-     * @date 10/12/2023 - 3:02:55 PM
-     *
-     * @readonly
-     * @type {string}
-     */
-    readonly pathname: string;
-    /**
-     * If the request has a query (?key=value), this will be a URLSearchParams object
-     * @date 10/12/2023 - 3:02:55 PM
-     *
-     * @readonly
-     * @type {URLSearchParams}
-     */
-    readonly query: URLSearchParams;
     /**
      * The ip of the request
      * @date 10/12/2023 - 3:02:55 PM
@@ -125,12 +109,20 @@ export class Req<T = unknown> {
         public readonly io: Server,
         public readonly session: Session,
     ) {
-        this.url = req.url;
+        this.url = new URL(
+            req.url.startsWith('http') ? req.url : `http://${req.url}`,
+        );
         this.method = req.method;
         this.headers = req.headers;
-        this.pathname = new URL(req.url, 'http://localhost').pathname;
-        this.query = new URL(req.url, 'http://localhost').searchParams;
         this.ip = info.remoteAddr.hostname;
+    }
+
+    public get pathname() {
+        return this.url.pathname;
+    }
+
+    public get query() {
+        return this.url.search;
     }
 
     /**

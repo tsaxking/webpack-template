@@ -183,7 +183,6 @@ export class Res {
             options?: CookieOptions;
         };
     } = {};
-
     /**
      * Creates an instance of Res.
      * @date 10/12/2023 - 3:06:02 PM
@@ -357,7 +356,7 @@ export class Res {
      * @returns {ResponseStatus}
      */
     redirect(path: string): ResponseStatus {
-        path = path.startsWith('/') ? this.app.domain + path : path;
+        path = path.startsWith('/') ? this.req.url.origin + path : path;
 
         this.isFulfilled();
         this.resolve?.(Response.redirect(path));
