@@ -24,7 +24,7 @@ export let active: string;
 <div
     class="{(isOpen ? 'show ' : '') +
         'offcanvas offcanvas-start bg-dark text-white sidebar-nav shadow'}"
-    id="side-bar-nav"
+    id="sidebar-nav"
 >
     <div class="offcanvas-body p-0">
         <nav class="navbar-dark">

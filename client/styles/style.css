@@ -1,21 +1,31 @@
 :root {
     --offCanvas-width: 270px;
-    --topNavbarHeight: 54px;
+    --topNavbarHeight: 58px;
 }
 
 body {
     transition: background-color ease 0.25s;
 }
 
-.sidebar-nav {
+#sidebar-nav {
+    position: fixed;
+    top: var(--topNavbarHeight);
     width: var(--offCanvas-width) !important;
     z-index: 1041;
 }
 
 #top-navbar {
-    z-index: 99;
-    height: var(--topNavbarHeight) !important;
+    z-index: 9999;
+    /* height: var(--topNavbarHeight) !important; */
 }
+
+
+/* .navbar-collapse.collapse.show {
+    background-color: var(--bs-dark);
+    padding: 0.5rem 1rem;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+} */
 
 #loading-page {
     z-index: 100;

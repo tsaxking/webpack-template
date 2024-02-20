@@ -652,3 +652,40 @@
     position: relative;
     top: -1px;
 }
+
+.hover.hover-fast {
+    transition: all 0.2s ease;
+}
+
+.hover.hover-slow {
+    transition: all 0.7s ease;
+}
+
+.hover.hover-grow-faster {
+    transition: transform 0.1s ease;
+}
+
+.hover.hover-grow {
+    transition: transform 0.5s ease;
+}
+
+.hover.hover-grow:hover {
+    transform: scale(1.1) !important;
+}
+
+.hover.hover-grow.hover-grow-sm:hover {
+    transform: scale(1.05) !important;
+}
+
+.hover.hover-grow.hover-grow-md:hover {
+    transform: scale(1.1) !important;
+}
+
+.hover.hover-grow.hover-grow-lg:hover {
+    transform: scale(1.15) !important;
+}
+
+.hover.hover-grow.hover-grow-xl:hover {
+    transform: scale(1.2) !important;
+}
+
