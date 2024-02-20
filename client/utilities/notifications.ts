@@ -4,7 +4,7 @@
 // toasts by default are placed at the top right of the screen, this is customizable
 
 import { capitalize, fromCamelCase, fromSnakeCase } from '../../shared/text';
-import { Modal, Toast, Alert } from './modals';
+import { Alert, Modal, Toast } from './modals';
 import { Color } from './modals';
 
 /**
@@ -12,13 +12,15 @@ import { Color } from './modals';
  * @date 10/12/2023 - 1:14:47 PM
  * @param {StatusJson} data The data to display (in the format of a StatusMessage)
  */
-export const notify = <T extends 'toast' | 'alert'>(data: {
-    title: string;
-    status: string;
-    message: string;
-    color: Color;
-}, type: T): Toast | Alert => {
-    
+export const notify = <T extends 'toast' | 'alert'>(
+    data: {
+        title: string;
+        status: string;
+        message: string;
+        color: Color;
+    },
+    type: T,
+): Toast | Alert => {
     const status = capitalize(fromSnakeCase(fromCamelCase(data.title), '-'));
 
     const message = `${status}: ${

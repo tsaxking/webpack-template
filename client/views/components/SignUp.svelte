@@ -240,7 +240,7 @@ const isPasswordValid = (password: string): string[] => {
                         {/if}
                     </div>
 
-                    <hr>
+                    <hr />
 
                     <input
                         type="submit"

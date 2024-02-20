@@ -6,7 +6,7 @@ import { CookieOptions, Next, ServerFunction } from './app/app.ts';
 import { app } from '../server.ts';
 import { Req } from './app/req.ts';
 import { Res } from './app/res.ts';
-import { log, error } from '../utilities/terminal-logging.ts';
+import { error, log } from '../utilities/terminal-logging.ts';
 import { Colors } from '../utilities/colors.ts';
 
 /**

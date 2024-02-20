@@ -413,19 +413,24 @@ router.post('/get-settings', async (req, res) => {
 
 router.post<{
     username: string;
-}>('/request-password-reset', validate({
-    username: 'string'
-}), async (req, res) => {
-    const { username } = req.body;
+}>(
+    '/request-password-reset',
+    validate({
+        username: 'string',
+    }),
+    async (req, res) => {
+        const { username } = req.body;
 
-    const a = (await Account.fromUsername(username)) || await (Account.fromEmail(username));
+        const a = (await Account.fromUsername(username)) ||
+            (await Account.fromEmail(username));
 
-    if (!a) return res.sendStatus('account:not-found');
+        if (!a) return res.sendStatus('account:not-found');
 
-    a.requestPasswordChange();
+        a.requestPasswordChange();
 
-    res.sendStatus('account:password-reset-request');
-});
+        res.sendStatus('account:password-reset-request');
+    },
+);
 
 router.post<{
     password: string;

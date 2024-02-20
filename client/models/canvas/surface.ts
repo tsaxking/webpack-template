@@ -3,7 +3,6 @@ import { Drawable } from './drawable';
 import { Polygon } from './polygon';
 import { transform } from '../../../shared/submodules/calculations/src/linear-algebra/matrix-calculations';
 
-
 export class Surface extends Drawable<Surface> {
     public triangles: Polygon[] = [];
 
@@ -21,15 +20,20 @@ export class Surface extends Drawable<Surface> {
     get points(): Point3D[] {
         const a = Array.from({ length: this.resolution }, (_, i) => {
             return Array.from({ length: this.resolution }, (_, j) => {
-                return [i, j / this.resolution, this.fz(i / this.resolution, j / this.resolution) * this.resolution];
+                return [
+                    i,
+                    j / this.resolution,
+                    this.fz(i / this.resolution, j / this.resolution) *
+                    this.resolution,
+                ];
             });
-        // need to flatten the array because the array is an array of arrays, and we want an array of points
+            // need to flatten the array because the array is an array of arrays, and we want an array of points
         }).flat() as Point3D[];
 
-        const max = Math.max(...a.map(p => p[2]));
+        const max = Math.max(...a.map((p) => p[2]));
         // normalize the z values
 
-        return a.map(p => {
+        return a.map((p) => {
             return [p[0], p[1], p[2] / max];
         });
     }
@@ -48,7 +52,9 @@ export class Surface extends Drawable<Surface> {
             const p4 = points[i + this.resolution + 2];
 
             const max = Math.max(+p[2], +p1[2], +p2[2], +p3[2], +p4[2]);
-            const color = `rgb(${max * 255 * this.resolution}, ${max * 255 * this.resolution}, ${max * 255 * this.resolution})`;
+            const color = `rgb(${max * 255 * this.resolution}, ${
+                max * 255 * this.resolution
+            }, ${max * 255 * this.resolution})`;
 
             if (p1 && p2 && p4) {
                 const triangle = new Polygon([p, p1, p2]);
@@ -74,7 +80,9 @@ export class Surface extends Drawable<Surface> {
         if (!this.triangles.length) this.createTriangles();
         for (const triangle of this.triangles) {
             const { points } = triangle;
-            triangle.points = points.map(p => transform(p as Point3D, this.transformMatrix));
+            triangle.points = points.map((p) =>
+                transform(p as Point3D, this.transformMatrix)
+            );
             triangle.draw(ctx);
             triangle.points = points;
         }

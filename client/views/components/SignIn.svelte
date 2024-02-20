@@ -55,13 +55,15 @@ const onInput = () => {
 };
 
 const forgotPassword = async () => {
-    const data = await prompt('Enter your email address or username. If you have an account, we will send you a link to reset your password.');
+    const data = await prompt(
+        'Enter your email address or username. If you have an account, we will send you a link to reset your password.'
+    );
     if (!data) return;
 
     ServerRequest.post('/account/request-password-reset', {
         username: data
     });
-}
+};
 </script>
 
 <main>
@@ -133,16 +135,20 @@ const forgotPassword = async () => {
                     />
 
                     <!-- Don't do anything -->
-                    <a href="javascript:void(0)" class="link-primary" on:click={forgotPassword}>Forgot password?</a>
+                    <a
+                        href="javascript:void(0)"
+                        class="link-primary"
+                        on:click="{forgotPassword}">Forgot password?</a
+                    >
 
-                    <hr>
+                    <hr />
 
                     <input
                         type="submit"
                         class="btn btn-primary"
                         disabled="{!valid}"
                         value="Submit"
-                        on:click|preventDefault={submit}
+                        on:click|preventDefault="{submit}"
                     />
 
                     <input

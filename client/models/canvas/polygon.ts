@@ -1,5 +1,8 @@
 import { Drawable } from './drawable';
-import { Point2D, Point3D } from '../../../shared/submodules/calculations/src/linear-algebra/point';
+import {
+    Point2D,
+    Point3D,
+} from '../../../shared/submodules/calculations/src/linear-algebra/point';
 import { copy } from '../../../shared/copy';
 
 /**
@@ -20,7 +23,8 @@ export class Polygon extends Drawable<Polygon> {
      * @param {Point2D[]} points
      * @param {Partial<ShapeProperties<Polygon>>} [$properties={}]
      */
-    constructor(public points: (Point2D | Point3D)[]) { // it doesn't matter, because we only pull the first 2 values
+    constructor(public points: (Point2D | Point3D)[]) {
+        // it doesn't matter, because we only pull the first 2 values
         super();
     }
 

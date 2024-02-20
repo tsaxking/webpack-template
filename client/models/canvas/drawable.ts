@@ -1,4 +1,7 @@
-import { Point2D, Point3D } from '../../../shared/submodules/calculations/src/linear-algebra/point';
+import {
+    Point2D,
+    Point3D,
+} from '../../../shared/submodules/calculations/src/linear-algebra/point';
 import { EventEmitter } from '../../../shared/event-emitter';
 import {
     FillProperties,

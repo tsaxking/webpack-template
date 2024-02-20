@@ -1,5 +1,8 @@
 import { Drawable } from './drawable';
-import { Point2D, Point3D } from '../../../shared/submodules/calculations/src/linear-algebra/point';
+import {
+    Point2D,
+    Point3D,
+} from '../../../shared/submodules/calculations/src/linear-algebra/point';
 import { copy } from '../../../shared/copy';
 
 export class Circle extends Drawable<Circle> {

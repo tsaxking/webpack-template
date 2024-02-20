@@ -422,7 +422,12 @@ export class Alert {
     private $color: Color;
     private $message: string;
 
-    constructor(title: string, message: string, body: string, color: Color = 'success') {
+    constructor(
+        title: string,
+        message: string,
+        body: string,
+        color: Color = 'success',
+    ) {
         this.on('show', () => {
             $(this.$el).alert();
         });
@@ -476,7 +481,12 @@ export class Alert {
     }
 
     private render() {
-        this.$el.classList.add('alert', `alert-${this.color}`, 'alert-dismissible', 'position-absolute');
+        this.$el.classList.add(
+            'alert',
+            `alert-${this.color}`,
+            'alert-dismissible',
+            'position-absolute',
+        );
         this.$el.style.top = '10px';
         this.$el.style.left = '10px';
         this.$el.style.width = 'calc(100% - 20px)';

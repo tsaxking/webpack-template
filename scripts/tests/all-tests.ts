@@ -97,6 +97,7 @@ export const runTests = async () => {
                     passFunction: true,
                     failFunction: false,
                 },
+                url: new URL('http://localhost:1234'),
             } as Req,
             {
                 sendStatus: () => {
