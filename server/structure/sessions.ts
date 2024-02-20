@@ -390,7 +390,7 @@ export class Session {
         const s = await DB.get('sessions/get', { id: this.id });
 
         if (s.isOk() && s.value) {
-            console.log(Colors.FgRed, '!!!Updating session!!!', Colors.Reset);
+            // console.log(Colors.FgRed, '!!!Updating session!!!', Colors.Reset);
             return DB.run('sessions/update', {
                 id: this.id,
                 ip: this.ip || '',
