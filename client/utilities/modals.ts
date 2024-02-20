@@ -470,34 +470,19 @@ export class Alert {
     }
 
     private render() {
-        this.$el.classList.add('alert', `alert-${this.color}`);
+        this.$el.classList.add('alert', `alert-${this.color}`, 'alert-dismissible', 'position-absolute');
+        this.$el.style.top = '10px';
+        this.$el.style.left = '10px';
+        this.$el.style.width = 'calc(100% - 20px)';
+        this.$el.style.zIndex = '100';
         this.$el.setAttribute('role', 'alert');
 
-        const title = document.createElement('h4');
-        title.classList.add('alert-setting');
-        title.textContent = this.title;
-
-        const message = document.createElement('p');
-        message.classList.add('alert-message');
-        message.textContent = this.$message;
-
-        const hr = document.createElement('hr');
-        
-        const body = document.createElement('p');
-        body.classList.add('mb-0', 'alert-body');
-
-        const close = document.createElement('button');
-        close.type = 'button';
-        close.classList.add('btn-close');
-        close.setAttribute('aria-label', 'Close');
-        close.dataset.bsDismiss = 'alert';
-
-
-        this.$el.appendChild(title);
-        this.$el.appendChild(message);
-        this.$el.appendChild(hr);
-        this.$el.appendChild(body);
-        this.$el.appendChild(close);
+        this.$el.innerHTML = `
+            <div class="d-flex">
+            <strong class="me-1">${this.title}</strong> ${this.message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `;
     }
 
     show() {
