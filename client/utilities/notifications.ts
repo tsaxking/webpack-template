@@ -4,7 +4,7 @@
 // toasts by default are placed at the top right of the screen, this is customizable
 
 import { capitalize, fromCamelCase, fromSnakeCase } from '../../shared/text';
-import { Modal, Toast } from './modals';
+import { Modal, Toast, Alert } from './modals';
 import { Color } from './modals';
 
 /**
@@ -12,13 +12,13 @@ import { Color } from './modals';
  * @date 10/12/2023 - 1:14:47 PM
  * @param {StatusJson} data The data to display (in the format of a StatusMessage)
  */
-export const notify = (data: {
+export const notify = <T extends 'toast' | 'alert'>(data: {
     title: string;
     status: string;
     message: string;
     color: Color;
-}): Toast => {
-    console.log(data);
+}, type: T): Toast | Alert => {
+    
     const status = capitalize(fromSnakeCase(fromCamelCase(data.title), '-'));
 
     const message = `${status}: ${
@@ -26,10 +26,15 @@ export const notify = (data: {
             fromSnakeCase(fromCamelCase(data.status), '-'),
         )
     }`;
+    console.log(data);
+    if (type === 'toast') {
+        const toast = new Toast(message, data.message, data.color);
 
-    const toast = new Toast(message, data.message, data.color);
-
-    return toast;
+        return toast;
+    } else {
+        const alert = new Alert(message, data.message, data.color);
+        return alert;
+    }
 };
 
 /**
@@ -119,12 +124,21 @@ export const prompt = async (question: string): Promise<string | null> => {
         };
         const m = new Modal();
         m.setTitle('Prompt');
-        m.setBody(question);
+
+        const formGroup = document.createElement('div');
+        formGroup.classList.add('form-group');
+
+        const label = document.createElement('label');
+        label.innerText = question;
+        formGroup.append(label);
 
         const input = document.createElement('input');
         input.classList.add('form-control', 'mt-3');
         input.type = 'text';
         input.placeholder = 'Enter your response here...';
+        formGroup.appendChild(input);
+
+        m.setBody(formGroup);
 
         const confirm = document.createElement('button');
         const cancel = document.createElement('button');

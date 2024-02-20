@@ -1,5 +1,5 @@
 import { Drawable } from './drawable';
-import { Point2D } from '../../../shared/submodules/calculations/src/linear-algebra/point';
+import { Point2D, Point3D } from '../../../shared/submodules/calculations/src/linear-algebra/point';
 import { copy } from '../../../shared/copy';
 
 export class Circle extends Drawable<Circle> {
@@ -12,7 +12,7 @@ export class Circle extends Drawable<Circle> {
      * @param {number} radius normalized radius of the circle to the height of the canvas
      */
     constructor(
-        public center: Point2D,
+        public center: Point2D | Point3D,
         public radius: number,
     ) {
         super();

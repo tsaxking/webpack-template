@@ -99,7 +99,7 @@ router.post<{
             });
         }
 
-        const r = await req.session.signIn(account);
+        await req.session.signIn(account);
 
         // if (r.isErr()) return res.sendStatus('unknown:error');
         res.sendStatus(
@@ -159,8 +159,10 @@ router.post<{
     },
 );
 
-router.get('/sign-out', (req, res) => {
-    req.session.signOut();
+router.get('/sign-out', async (req, res) => {
+    // console.log('Signing out');
+    await req.session.signOut();
+    // console.log(req.session);
     res.redirect('/home');
 });
 
@@ -409,9 +411,16 @@ router.post('/get-settings', async (req, res) => {
     res.json(settings || []);
 });
 
-router.post('/request-password-reset', validate({}), async (req, res) => {
-    const a = await req.session.getAccount();
-    if (!a) return res.sendStatus('account:not-logged-in');
+router.post<{
+    username: string;
+}>('/request-password-reset', validate({
+    username: 'string'
+}), async (req, res) => {
+    const { username } = req.body;
+
+    const a = (await Account.fromUsername(username)) || await (Account.fromEmail(username));
+
+    if (!a) return res.sendStatus('account:not-found');
 
     a.requestPasswordChange();
 

@@ -657,7 +657,7 @@ export class Canvas<T = unknown> {
      *
      * @returns {() => void}
      */
-    animate(): () => void {
+    animate(fn?: () => void): () => void {
         const stop = () => (this.$animating = false);
         if (this.$animating) return stop;
 
@@ -666,7 +666,7 @@ export class Canvas<T = unknown> {
             if (!this.$animating) return;
             this.clear();
             this.draw();
-            // update?.(this);
+            fn?.();
             requestAnimationFrame(loop);
         };
         requestAnimationFrame(loop);
