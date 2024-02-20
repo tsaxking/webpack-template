@@ -387,3 +387,124 @@ export class Toast {
         this.emit('destroy');
     }
 }
+
+export class Alert {
+    private readonly $el = document.createElement('div');
+
+    private readonly $emitter = new EventEmitter<keyof EventTypes>();
+
+    public on<K extends keyof EventTypes>(
+        event: K,
+        listener: (args: EventTypes[K]) => void,
+    ) {
+        this.$emitter.on(event, listener);
+    }
+
+    public off<K extends keyof EventTypes>(
+        event: K,
+        listener: (args: EventTypes[K]) => void,
+    ) {
+        this.$emitter.off(event, listener);
+    }
+
+    public emit<K extends keyof EventTypes>(event: K, args?: EventTypes[K]) {
+        this.$emitter.emit(event, args);
+    }
+
+    private $title: string;
+    private $body: string;
+    private $color: Color;
+    private $message: string;
+
+    constructor(title: string, message: string, body: string, color: Color = 'success') {
+        this.on('show', () => {
+            $(this.$el).alert();
+        });
+
+        this.on('hide', () => {
+            $(this.$el).alert('dispose');
+        });
+        container.appendChild(this.$el);
+        this.$title = title;
+        this.$body = body;
+        this.$color = color;
+        this.$message = message;
+        this.render();
+    }
+
+    set title(title: string) {
+        this.$title = title;
+        this.$el.querySelector('h4')!.textContent = title;
+    }
+
+    get title() {
+        return this.$title;
+    }
+
+    set body(body: string) {
+        this.$body = body;
+        this.$el.querySelector('.alert-body')!.textContent = body;
+    }
+
+    get body() {
+        return this.$body;
+    }
+
+    set message(message: string) {
+        this.$message = message;
+        this.$el.querySelector('.alert-message')!.textContent = message;
+    }
+
+    get message() {
+        return this.$message;
+    }
+
+    set color(color: Color) {
+        // set color
+        this.$el.classList.remove(`alert-${this.color}`);
+        this.$el.classList.add(`alert-${color}`);
+    }
+
+    get color() {
+        return this.$color;
+    }
+
+    private render() {
+        this.$el.classList.add('alert', `alert-${this.color}`);
+        this.$el.setAttribute('role', 'alert');
+
+        const title = document.createElement('h4');
+        title.classList.add('alert-setting');
+        title.textContent = this.title;
+
+        const message = document.createElement('p');
+        message.classList.add('alert-message');
+        message.textContent = this.$message;
+
+        const hr = document.createElement('hr');
+        
+        const body = document.createElement('p');
+        body.classList.add('mb-0', 'alert-body');
+
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.classList.add('btn-close');
+        close.setAttribute('aria-label', 'Close');
+        close.dataset.bsDismiss = 'alert';
+
+
+        this.$el.appendChild(title);
+        this.$el.appendChild(message);
+        this.$el.appendChild(hr);
+        this.$el.appendChild(body);
+        this.$el.appendChild(close);
+    }
+
+    show() {
+        this.emit('show');
+    }
+
+    hide() {
+        this.emit('hide');
+    }
+}
