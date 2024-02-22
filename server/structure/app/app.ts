@@ -437,15 +437,17 @@ export class App {
             const userAgent = denoReq.headers.get('usr-agent') || '';
 
             // prevent spam
-            if ([
-                'node-xmlhttprequest',
-                'axios',
-                'curl',
-                'postman',
-                'insomnia',
-                'httpie',
-                'python-requests',
-            ].includes(userAgent.toLowerCase())) {
+            if (
+                [
+                    'node-xmlhttprequest',
+                    'axios',
+                    'curl',
+                    'postman',
+                    'insomnia',
+                    'httpie',
+                    'python-requests',
+                ].includes(userAgent.toLowerCase())
+            ) {
                 return new Response('Hello there!', { status: 200 });
             }
 
