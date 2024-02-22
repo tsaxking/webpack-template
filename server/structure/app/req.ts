@@ -3,6 +3,7 @@ import { __root } from '../../utilities/env.ts';
 import { Session } from '../sessions.ts';
 import { parseCookie } from '../../../shared/cookie.ts';
 import { FileUpload } from '../../middleware/stream.ts';
+import { SocketWrapper } from '../socket.ts';
 
 type B = {
     [key: string]: unknown;
@@ -106,7 +107,7 @@ export class Req<T = unknown> {
     constructor(
         public readonly req: Request,
         info: Deno.ServeHandlerInfo,
-        public readonly io: Server,
+        public readonly io: SocketWrapper,
         public readonly session: Session,
     ) {
         this.url = new URL(

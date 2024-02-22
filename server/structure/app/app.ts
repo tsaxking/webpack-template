@@ -14,6 +14,7 @@ import { Req } from './req.ts';
 import { Res } from './res.ts';
 import { ReqBody } from './req.ts';
 import { DB } from '../../utilities/databases.ts';
+import { SocketWrapper } from '../socket.ts';
 
 /**
  * All file types that can be sent (can be expanded)
@@ -361,7 +362,7 @@ export class App {
      * @readonly
      * @type {Server}
      */
-    public readonly io: Server;
+    public readonly io: SocketWrapper;
     /**
      * Deno server
      * @date 10/12/2023 - 2:49:37 PM
@@ -391,37 +392,13 @@ export class App {
             (req: Request, info: Deno.ServeHandlerInfo) =>
                 this.handler(req, info),
         );
-        this.io = new Server({
-            cors: {
-                origin: '*',
-                methods: ['GET', 'POST'],
-            },
-        });
+        this.io = new SocketWrapper(options?.ioPort || 443);
 
-        this.io.on('connection', (socket: any) => {
-            log('New connection:', socket.id);
 
-            // socket.join(socket.id);
-
-            // join tab session
-            socket.on('ssid', (ssid: string) => {
-                socket.join(ssid);
-                socket.off('ssid');
-            });
-
-            // reload on file change
-            if (env.ENVIRONMENT === 'dev') {
-                socket.emit('reload');
-            }
-        });
 
         if (options) {
             if (options.onListen) {
                 options.onListen(this.server);
-            }
-
-            if (options.ioPort) {
-                serve(this.io.handler(), { port: options.ioPort });
             }
 
             if (options.onConnection) {

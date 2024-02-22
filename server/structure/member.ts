@@ -4,7 +4,6 @@
 import { DB } from '../utilities/databases.ts';
 import Account from './accounts.ts';
 import { EmailType } from '../utilities/email.ts';
-import { io } from '../structure/socket.ts';
 import { deleteUpload } from '../utilities/files.ts';
 import {
     Member as MemberObj,
@@ -155,8 +154,6 @@ export class Member {
 
         this.status = 'accepted';
 
-        io?.emit('member-accepted', this.id);
-
         const account = await Account.fromId(this.id);
         if (!account) return;
 
@@ -195,10 +192,6 @@ export class Member {
         DB.run('member/delete', {
             id: this.id,
         });
-        io?.emit('member-revoked', {
-            id: this.id,
-        });
-
         const account = await Account.fromId(this.id);
         if (!account) return;
         account.sendEmail(`${env.TITLE} Membership Revoked`, EmailType.text, {
