@@ -757,9 +757,12 @@ export class ServerRequest<T = unknown> {
                 .then((r) => r.json())
                 .then(async (data) => {
                     data = bigIntDecode(data);
-                    if (this.cached) log(data, '(cached)');
-                    else log(data);
 
+                    if (!this.url.includes('socket')) {
+                        if (this.cached) log(data, '(cached)');
+                        else log(data);
+    
+                    }
                     if (data?.$status) {
                         // this is a notification
                         const d = data as StatusJson;

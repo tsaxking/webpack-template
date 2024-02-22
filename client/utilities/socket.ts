@@ -1,97 +1,64 @@
 import { ServerRequest } from './requests';
+import { EventEmitter } from '../../shared/event-emitter';
 
-type Listener = {
+type Cache = {
     event: string;
-    callback: (data?: unknown) => void;
-    protocol: 'on' | 'off' | 'once';
-} | {
-    event: string;
-    data?: unknown;
-    protocol: 'emit'
-}
+    data: unknown;
+};
+
+const SOCKET_INTERVAL = 1500;
 
 class SocketWrapper {
-    private io: WebSocket;
+    private cache: Cache[] = [];
+    private id?: string;
 
-    private cache: Listener[] = [];
+    private readonly em = new EventEmitter();
 
-    set socket(socket: WebSocket) {
-        this.io = socket;
-        for (const c of this.cache) {
-            switch (c.protocol) {
-                case 'on':
-                    this.io.addEventListener(c.event, c.callback);
-                    break;
-                case 'off':
-                    this.io.removeEventListener(c.event, c.callback);
-                    break;
-                case 'once':
-                    (() => {
-                        const cb = (data?: unknown) => {
-                            c.callback(data);
-                            this.io.removeEventListener(c.event, cb);
-                        }
-                        this.io.addEventListener(c.event, cb);
-                    })();
-                    break;
-                case 'emit':
-                    this.io.send(JSON.stringify({ event: c.event, data: c.data }));
-                    break;
-            }
+    private async ping() {
+        const res = await ServerRequest.post<{
+            cache: Cache[];
+            id: string;
+        }>('/socket', {
+            cache: this.cache,
+            id: this.id
+        });
+
+        if (res.isOk()) {
+            this.id = res.value.id;
+            for (const c of res.value.cache) this.newEvent(c.event, c.data);
+            this.cache = [];
+        } else {
+            console.error(res.error);
         }
-
-        this.cache = [];
     }
 
-    get socket() {
-        return this.io;
+    private interval = setInterval(() => this.ping(), SOCKET_INTERVAL);
+
+    on(event: string, callback: (data: unknown) => void) {
+        this.em.on(event, callback);
     }
 
-    on(event: string, callback: (data?: unknown) => void) {
-        if (!this.io) {
-            return this.cache.push({ event, callback, protocol: 'on' });
-        }
-        this.io.addEventListener(event, callback);
+    off(event: string, callback: (data: unknown) => void) {
+        this.em.off(event, callback);
     }
 
-    off(event: string, callback: (data?: unknown) => void) {
-        if (!this.io) {
-            return this.cache.push({ event, callback, protocol: 'off' });
-        }
-        this.io.removeEventListener(event, callback);
+    private newEvent(event: string, data: unknown) {
+        this.em.emit(event, data);
     }
 
-    once(event: string, callback: (data?: unknown) => void) {
-        const cb = (data?: unknown) => {
-            callback(data);
-            this.io.removeEventListener(event, cb);
-        }
-        if (!this.io) {
-            return this.cache.push({ event, callback: cb, protocol: 'once' });
-        }
-        this.io.addEventListener(event, cb);
+    connect() {
+        clearInterval(this.interval);
+        this.interval = setInterval(() => {
+            this.ping();
+        }, SOCKET_INTERVAL);
     }
 
-    emit(event: string, data?: unknown) {
-        if (!this.io) {
-            return this.cache.push({ event, data, protocol: 'emit' });
-        }
-        this.io.send(JSON.stringify({ event, data }));
+    emit(event: string, data: unknown) {
+        this.cache.push({ event, data });
     }
 }
-
-
-
 
 
 export const socket = new SocketWrapper();
 
-ServerRequest.post<{
-    url: string;
-}>('/socket-url').then((cookie) => {
-    if (cookie.isOk()) {
-        socket.socket = new WebSocket(cookie.value.url, [
-            'wss'
-        ]);
-    }
-});
+Object.assign(window, { socket });

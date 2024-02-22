@@ -14,7 +14,7 @@ import { Req } from './req.ts';
 import { Res } from './res.ts';
 import { ReqBody } from './req.ts';
 import { DB } from '../../utilities/databases.ts';
-import { SocketWrapper } from '../socket.ts';
+import { io, SocketWrapper } from '../socket.ts';
 
 /**
  * All file types that can be sent (can be expanded)
@@ -392,8 +392,8 @@ export class App {
             (req: Request, info: Deno.ServeHandlerInfo) =>
                 this.handler(req, info),
         );
-        this.io = new SocketWrapper(options?.ioPort || 443);
-
+        // this.io = new SocketWrapper(options?.ioPort || 443);
+        this.io = io;
 
 
         if (options) {

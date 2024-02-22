@@ -46,7 +46,7 @@ const retrieve = async (): Promise<Result<string[]>> => {
     });
 };
 
-export const uuid = () => {
+export const uuid = (): string => {
     setTimeout(async () => {
         if (cache.length === 0) {
             const result = await retrieve();
@@ -56,6 +56,6 @@ export const uuid = () => {
         }
     });
 
-    if (cache.length) return cache.pop();
+    if (cache.length) return cache.pop() as string;
     return randomString.v4();
 };

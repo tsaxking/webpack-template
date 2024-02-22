@@ -13,6 +13,7 @@ import { FileUpload } from './middleware/stream.ts';
 import { ReqBody } from './structure/app/req.ts';
 import { parseCookie } from '../shared/cookie.ts';
 import { stdin } from './utilities/stdin.ts';
+import { io, Socket } from './structure/socket.ts';
 
 const port = +(env.PORT || 3000);
 
@@ -32,6 +33,15 @@ if (env.ENVIRONMENT === 'dev') {
         app.io.emit('reload');
     });
 }
+
+app.post('/socket', io.middleware());
+
+io.on('connection', (s: Socket) => {
+    log('New connection:', s.id);
+    s.on('disconnect', () => {
+        log('Disconnected:', s.id);
+    });
+})
 
 app.post('/env', (req, res) => {
     res.json({
