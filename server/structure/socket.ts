@@ -37,20 +37,21 @@ export class Socket {
 
     timeout: any;
     cache: Cache[] = [];
+    connected = false;
 
     constructor(
         public readonly id: string,
         public readonly io: SocketWrapper,
     ) {
         Socket.sockets.set(id, this);
-        this.timeout = this.setTimeout();
     }
 
     setTimeout() {
         if (this.timeout) clearTimeout(this.timeout);
-        return setTimeout(() => {
+        this.timeout = setTimeout(() => {
             this.disconnect();
         }, 1000 * 60);
+        this.connected = true;
     }
 
     emit(event: string, data: any) {
@@ -85,10 +86,11 @@ export class Socket {
     }
 
     disconnect() {
-        clearTimeout(this.timeout);
+        if (this.timeout) clearTimeout(this.timeout);
         this.cache = [];
         Socket.sockets.delete(this.id);
         this.newEvent('disconnect');
+        this.connected = false;
     }
 
     broadcast(event: string, data?: any) {
@@ -118,6 +120,7 @@ export class SocketWrapper {
         ) => {
             const { cache, id } = req.body;
             const s = Socket.get(id, this);
+            // console.log({ socket: s })
             res.json({
                 cache: s.cache,
                 id: s.id,
