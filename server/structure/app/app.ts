@@ -321,6 +321,7 @@ type AppOptions = {
     onConnection?: (socket: any) => void;
     onDisconnect?: () => void;
     ioPort?: number;
+    blockedIps?: string[]
 };
 
 /**
@@ -407,8 +408,12 @@ export class App {
             if (options.onDisconnect) {
                 this.io.on('disconnect', options.onDisconnect);
             }
+
+            if (options.blockedIps) this.blockedIps = options.blockedIps;
         }
     }
+
+    private readonly blockedIps: string[] = [];
 
     /**
      * This is the main handler for all requests
@@ -439,15 +444,17 @@ export class App {
             // prevent spam
             if (
                 [
-                    'node-xmlhttprequest',
+                    'node',
                     'axios',
                     'curl',
                     'postman',
                     'insomnia',
                     'httpie',
                     'python-requests',
-                ].includes(userAgent.toLowerCase())
+                    // ''
+                ].find(t => userAgent.toLowerCase().includes(t))
             ) {
+                console.log('Spam');
                 return new Response('Hello there!', { status: 200 });
             }
 

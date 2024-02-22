@@ -24,6 +24,9 @@ export const app = new App(port, env.DOMAIN || `http://localhost:${port}`, {
     // onConnection: (socket) => {
     // log('New connection:', socket.id);
     // },
+    blockedIps: [
+        // '127.0.0.1'
+    ],
     ioPort: +(env.SOCKET_PORT || port + 1),
 });
 
