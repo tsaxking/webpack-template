@@ -433,12 +433,28 @@ export class App {
         if (!s) {
             setSsid = true;
             log('New session', ssid);
+
+            const userAgent = denoReq.headers.get('usr-agent') || '';
+
+            // prevent spam
+            if ([
+                'node-xmlhttprequest',
+                'axios',
+                'curl',
+                'postman',
+                'insomnia',
+                'httpie',
+                'python-requests',
+            ].includes(userAgent.toLowerCase())) {
+                return new Response('Hello there!', { status: 200 });
+            }
+
             const obj = {
                 id: Session.newId(),
                 ip: info.remoteAddr.hostname,
                 latestActivity: Date.now(),
                 accountId: '',
-                userAgent: denoReq.headers.get('user-agent') || '',
+                userAgent,
                 prevUrl: '',
                 requests: 1,
                 created: Date.now(),
