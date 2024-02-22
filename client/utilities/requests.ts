@@ -20,7 +20,7 @@ export type RequestOptions = {
         [key: string]: string;
     };
 
-    cached: boolean;
+    cached?: boolean;
 };
 
 /**

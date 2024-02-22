@@ -3,6 +3,7 @@ import { repeatPrompt, select } from '../prompt.ts';
 import Account from '../../server/structure/accounts.ts';
 import { attemptAsync, Result } from '../../shared/check.ts';
 import { addRoleToAccount, removeRoleFromAccount } from './roles.ts';
+import { EmailType } from '../../server/utilities/email.ts';
 
 export const selectAccount = async (
     message = 'select an account',
@@ -135,6 +136,23 @@ export const createAccount = async () => {
     }
 };
 
+export const sendTestEmail = async () => {
+    const account = await selectAccount();
+    if (account.isOk()) {
+        account.value.sendEmail('This is a test email, please ignore', EmailType.error, {
+            constructor: {
+                title: 'Test',
+                linkText: 'Test',
+                link: 'https://tatorscout.org',
+                message: 'This is a test email, please ignore',
+            }
+        });
+        backToMain('Test email sent');
+    } else {
+        backToMain('No accounts to send email to');
+    }
+};
+
 export const accounts = [
     {
         icon: '🔍',
@@ -165,5 +183,10 @@ export const accounts = [
         icon: '➖',
         value: removeRoleFromAccount,
         description: 'Remove a role from an account',
+    },
+    {
+        icon: '📧',
+        value: sendTestEmail,
+        description: 'Send a test email',
     },
 ];
