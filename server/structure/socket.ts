@@ -8,8 +8,10 @@ export class SocketWrapper {
 
     constructor(port: number) {
         this.io = new Server();
-
-        serve(this.io.handler(), { port });
+        serve(this.io.handler(), {
+            port,
+            // wss
+        });
 
         this.io.on('connection', (socket: any) => {
             log('New connection:', socket.id);
@@ -29,28 +31,28 @@ export class SocketWrapper {
         });
     }
 
-    on(event: string, callback: (data?: any) => void) {
-        this.io?.on(event, callback);
+    on(event: string, callback: (data?: unknown) => void) {
+        this.io.on(event, callback);
     }
 
-    emit(event: string, data?: any) {
-        this.io?.emit(event, data);
+    emit(event: string, data?: unknown) {
+        this.io.emit(event, data);
     }
 
     close() {
-        this.io?.close();
+        this.io.close();
     }
 
-    off(event: string, callback: (data?: any) => void) {
-        this.io?.off(event, callback);
+    off(event: string, callback: (data?: unknown) => void) {
+        this.io.off(event, callback);
     }
 
-    once(event: string, callback: (data?: any) => void) {
-        this.io?.once(event, callback);
+    once(event: string, callback: (data?: unknown) => void) {
+        this.io.once(event, callback);
     }
 
     to(room: string) {
-        return this.io?.to(room);
+        return this.io.to(room);
     }
 }
 

@@ -110,7 +110,7 @@ function stripHtml(body: ReqBody) {
 app.post('/*', (req, res, next) => {
     req.body = stripHtml(req.body as ReqBody);
 
-    log('[POST]', req.url);
+    log('[POST]', req.url.pathname);
     try {
         const b = JSON.parse(JSON.stringify(req.body)) as {
             $$files?: FileUpload[];
