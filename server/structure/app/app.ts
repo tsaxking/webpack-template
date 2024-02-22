@@ -321,7 +321,7 @@ type AppOptions = {
     onConnection?: (socket: any) => void;
     onDisconnect?: () => void;
     ioPort?: number;
-    blockedIps?: string[]
+    blockedIps?: string[];
 };
 
 /**
@@ -456,7 +456,7 @@ export class App {
                     'httpie',
                     'python-requests',
                     // ''
-                ].find(t => userAgent.toLowerCase().includes(t))
+                ].find((t) => userAgent.toLowerCase().includes(t))
             ) {
                 console.log('Spam');
                 return new Response('Hello there!', { status: 200 });
