@@ -430,6 +430,10 @@ export class App {
         denoReq: Request,
         info: Deno.ServeHandlerInfo,
     ): Promise<Response> {
+        if (this.blockedIps.includes(info.remoteAddr.hostname)) {
+            return new Response('Blocked', { status: 403 });
+        }
+
         const { ssid } = parseCookie(denoReq.headers.get('cookie') || '');
         let s = await Session.get(ssid);
 
