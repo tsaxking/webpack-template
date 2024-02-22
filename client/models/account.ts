@@ -506,27 +506,34 @@ socket.on('account:created', (account: AccountSafe) => {
     Account.emit('new', a);
 });
 
-socket.on('account:role-removed', async (accountId: string, roleId: string) => {
-    const account = Account.$cache.get(accountId);
-    if (account) {
-        await account.getRoles(true); // force update
+socket.on(
+    'account:role-removed',
+    async (data: { accountId: string; roleId: string }) => {
+        const { accountId, roleId } = data;
+        const account = Account.$cache.get(accountId);
+        if (account) {
+            await account.getRoles(true); // force update
 
-        account.emit('update', undefined);
-        account.emit('role-removed', roleId);
-        Account.emit('update', account);
-    }
-});
+            account.emit('update', undefined);
+            account.emit('role-removed', roleId);
+            Account.emit('update', account);
+        }
+    },
+);
 
-socket.on('account:role-added', async (accountId: string, roleId: string) => {
-    const account = Account.$cache.get(accountId);
-    if (account) {
-        await account.getRoles(true); // force update
+socket.on(
+    'account:role-added',
+    async (data: { accountId: string; roleId: string }) => {
+        const account = Account.$cache.get(accountId);
+        if (account) {
+            await account.getRoles(true); // force update
 
-        account.emit('update', undefined);
-        account.emit('role-added', roleId);
-        Account.emit('update', account);
-    }
-});
+            account.emit('update', undefined);
+            account.emit('role-added', roleId);
+            Account.emit('update', account);
+        }
+    },
+);
 
 socket.on('account:verified', (accountId: string) => {
     const account = Account.$cache.get(accountId);

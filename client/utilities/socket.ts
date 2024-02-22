@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ServerRequest } from './requests';
 import { EventEmitter } from '../../shared/event-emitter';
 
 type Cache = {
     event: string;
-    data: unknown;
+    data: any;
 };
 
 const SOCKET_INTERVAL = 1500;
@@ -20,7 +21,7 @@ class SocketWrapper {
             id: string;
         }>('/socket', {
             cache: this.cache,
-            id: this.id
+            id: this.id,
         });
 
         if (res.isOk()) {
@@ -34,15 +35,15 @@ class SocketWrapper {
 
     private interval = setInterval(() => this.ping(), SOCKET_INTERVAL);
 
-    on(event: string, callback: (data: unknown) => void) {
+    on(event: string, callback: (data: any) => void) {
         this.em.on(event, callback);
     }
 
-    off(event: string, callback: (data: unknown) => void) {
+    off(event: string, callback: (data: any) => void) {
         this.em.off(event, callback);
     }
 
-    private newEvent(event: string, data: unknown) {
+    private newEvent(event: string, data: any) {
         this.em.emit(event, data);
     }
 
@@ -53,11 +54,10 @@ class SocketWrapper {
         }, SOCKET_INTERVAL);
     }
 
-    emit(event: string, data: unknown) {
+    emit(event: string, data: any) {
         this.cache.push({ event, data });
     }
 }
-
 
 export const socket = new SocketWrapper();
 

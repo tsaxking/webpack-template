@@ -41,7 +41,7 @@ io.on('connection', (s: Socket) => {
     s.on('disconnect', () => {
         log('Disconnected:', s.id);
     });
-})
+});
 
 app.post('/env', (req, res) => {
     res.json({

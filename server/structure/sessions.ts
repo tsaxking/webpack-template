@@ -263,7 +263,8 @@ export class Session {
         }
     }
 
-    private timeout?: number;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private timeout?: any;
 
     public get latestActivity(): number | undefined {
         return this.$latestActivity;
@@ -423,7 +424,7 @@ export class Session {
      * @param {string} event
      * @param {...any[]} args
      */
-    emit(event: string, ...args: unknown[]) {
-        app.io.to(this.id).emit(event, ...args);
+    emit(event: string, args: unknown) {
+        app.io.to(this.id).emit(event, args);
     }
 }

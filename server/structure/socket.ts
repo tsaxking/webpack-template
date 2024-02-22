@@ -40,7 +40,7 @@ export class Socket {
 
     constructor(
         public readonly id: string,
-        public readonly io: SocketWrapper
+        public readonly io: SocketWrapper,
     ) {
         Socket.sockets.set(id, this);
         this.timeout = this.setTimeout();
@@ -56,7 +56,7 @@ export class Socket {
     emit(event: string, data: any) {
         this.cache.push({
             event,
-            data
+            data,
         });
     }
 
@@ -67,7 +67,7 @@ export class Socket {
     }
 
     leave(room: string) {
-        this.rooms = this.rooms.filter(r => r !== room);
+        this.rooms = this.rooms.filter((r) => r !== room);
     }
 
     private readonly em = new EventEmitter();
@@ -92,13 +92,13 @@ export class Socket {
     }
 
     broadcast(event: string, data?: any) {
-        const sockets = Array.from(Socket.sockets.values())
-            .filter(s => s.id !== this.id);
-        
+        const sockets = Array.from(Socket.sockets.values()).filter(
+            (s) => s.id !== this.id,
+        );
+
         for (const s of sockets) s.emit(event, data);
     }
 }
-
 
 export class SocketWrapper {
     private readonly em = new EventEmitter();
@@ -106,23 +106,26 @@ export class SocketWrapper {
     Socket = Socket;
 
     middleware() {
-        return (req: Req<{
-            cache: {
-                event: string;
-                data: any;
-            }[];
-            id?: string;
-        }>, res: Res) => {
+        return (
+            req: Req<{
+                cache: {
+                    event: string;
+                    data: any;
+                }[];
+                id?: string;
+            }>,
+            res: Res,
+        ) => {
             const { cache, id } = req.body;
             const s = Socket.get(id, this);
             res.json({
                 cache: s.cache,
-                id: s.id
+                id: s.id,
             });
             s.cache = [];
             s.setTimeout();
             for (const c of cache) s.newEvent(c.event, c.data);
-        }
+        };
     }
 
     emit(event: string, data?: any) {
@@ -131,12 +134,14 @@ export class SocketWrapper {
     }
 
     to(room: string) {
-        const sockets = Array.from(Socket.sockets.values()).filter(s => s.rooms.includes(room));
+        const sockets = Array.from(Socket.sockets.values()).filter((s) =>
+            s.rooms.includes(room)
+        );
         return {
-            emit(event: string, data: string) {
+            emit(event: string, data: any) {
                 for (const s of sockets) s.emit(event, data);
-            }
-        }
+            },
+        };
     }
 
     newIoEvent(event: string, data?: any) {
@@ -151,7 +156,5 @@ export class SocketWrapper {
         this.em.off(event, callback);
     }
 }
-
-
 
 export const io = new SocketWrapper();

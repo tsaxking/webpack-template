@@ -761,7 +761,6 @@ export class ServerRequest<T = unknown> {
                     if (!this.url.includes('socket')) {
                         if (this.cached) log(data, '(cached)');
                         else log(data);
-    
                     }
                     if (data?.$status) {
                         // this is a notification

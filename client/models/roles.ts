@@ -307,8 +307,9 @@ export class Role extends Cache<RoleEvents> {
 
 socket.on(
     'roles:added-permission',
-    (id: string, permissions: RolePermission[]) => {
-        const r = Role.cache.get(id);
+    (data: { roleId: string; permissions: RolePermission[] }) => {
+        const { roleId, permissions } = data;
+        const r = Role.cache.get(roleId);
         if (!r) return console.error('Role not found');
 
         r.permissions = permissions;
@@ -321,8 +322,9 @@ socket.on(
 
 socket.on(
     'roles:removed-permission',
-    (id: string, permissions: RolePermission[]) => {
-        const r = Role.cache.get(id);
+    (data: { roleId: string; permissions: RolePermission[] }) => {
+        const { roleId, permissions } = data;
+        const r = Role.cache.get(roleId);
         if (!r) return console.error('Role not found');
 
         r.permissions = permissions;

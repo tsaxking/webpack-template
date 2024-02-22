@@ -321,7 +321,7 @@ router.post<{
 
         const status = await account.addRole(role);
         if (status === 'role-added') {
-            req.io.emit('account:role-added', accountId, roleId);
+            req.io.emit('account:role-added', { accountId, roleId });
         }
         if (!messages[('role:' + status) as keyof typeof messages]) {
             return res.sendStatus(('account:' + status) as StatusId, {
@@ -361,7 +361,7 @@ router.post<{
 
         const status = await account.removeRole(role);
         if (status === 'role-removed') {
-            req.io.emit('account:role-removed', accountId, roleId);
+            req.io.emit('account:role-removed', { accountId, roleId });
         }
         if (!messages[('role:' + status) as keyof typeof messages]) {
             return res.sendStatus(('account:' + status) as StatusId, {

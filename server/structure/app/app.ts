@@ -395,7 +395,6 @@ export class App {
         // this.io = new SocketWrapper(options?.ioPort || 443);
         this.io = io;
 
-
         if (options) {
             if (options.onListen) {
                 options.onListen(this.server);
