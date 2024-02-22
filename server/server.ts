@@ -45,7 +45,7 @@ app.post('/socket-init', (req, res) => {
 });
 
 app.get('/*', (req, res, next) => {
-    log(`[${req.method}] ${req.url}`);
+    log(`[${req.method}] ${req.pathname}`);
     next();
 });
 
@@ -206,7 +206,7 @@ app.final<{
     password?: string;
     confirmPassword?: string;
 }>((req, res) => {
-    req.session.save();
+    // req.session.save();
 
     serverLog('request', {
         date: Date.now(),

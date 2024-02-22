@@ -118,8 +118,10 @@ export class Session {
         }
 
         if (res.isErr()) {
-            console.error(res.error);
+            error(res.error);
         }
+
+        log('No session found :(');
     }
 
     /**
@@ -276,7 +278,7 @@ export class Session {
             () => {
                 this.requests = 0;
                 this.save();
-                Session.cache.delete(this.id);
+                // Session.cache.delete(this.id);
             },
             1000 * 60 * 5,
         );

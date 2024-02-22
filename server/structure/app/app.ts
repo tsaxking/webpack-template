@@ -473,7 +473,7 @@ export class App {
             s = Session.fromSessObj(obj);
         }
 
-        // log(s);
+        log(s);
 
         return new Promise<Response>(async (resolve, _reject) => {
             const url = new URL(denoReq.url, this.domain);
