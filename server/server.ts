@@ -14,6 +14,7 @@ import { ReqBody } from './structure/app/req.ts';
 import { parseCookie } from '../shared/cookie.ts';
 import { stdin } from './utilities/stdin.ts';
 import { io, Socket } from './structure/socket.ts';
+import { getJSONSync } from './utilities/files.ts';
 
 const port = +(env.PORT || 3000);
 
@@ -24,9 +25,11 @@ export const app = new App(port, env.DOMAIN || `http://localhost:${port}`, {
     // onConnection: (socket) => {
     // log('New connection:', socket.id);
     // },
-    blockedIps: [
-        // '127.0.0.1'
-    ],
+    blockedIps: (() => {
+        const blocked = getJSONSync<string[]>('blocked-ips');
+        if (blocked.isOk()) return blocked.value;
+        return [];
+    })(),
     ioPort: +(env.SOCKET_PORT || port + 1),
 });
 
