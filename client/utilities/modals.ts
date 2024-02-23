@@ -418,13 +418,12 @@ export class Alert {
     }
 
     private title: string;
-    private body: string;
     private color: Color;
     private message: string;
 
     constructor(
         title: string,
-        body: string,
+        message: string,
         color: Color = 'success',
     ) {
         this.on('show', () => {
@@ -436,8 +435,8 @@ export class Alert {
         });
         container.appendChild(this.$el);
         this.title = title;
-        this.body = body;
         this.color = color;
+        this.message = message;
         this.render();
     }
 
