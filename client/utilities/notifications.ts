@@ -33,18 +33,22 @@ export const notify = <T extends 'toast' | 'alert'>(
 
     const setAnimation = async (target: Alert | Toast) => {
         target.on('hide', () => {
-            target.target.classList.add('animate__animated', 'animate__fadeOutUp', 'animate__faster');
+            target.target.classList.add(
+                'animate__animated',
+                'animate__fadeOutUp',
+                'animate__faster',
+            );
             const onEnd = () => {
                 target.target.removeEventListener('animationend', onEnd);
                 target.target.remove();
             };
-    
+
             target.target.addEventListener('animationend', onEnd);
         });
 
         await sleep(5000);
         target.hide();
-    }
+    };
 
     if (type === 'toast') {
         const toast = new Toast(title, data.message, data.color);
