@@ -5,6 +5,7 @@ import { ServerRequest } from '../../utilities/requests';
 export let title: string = 'My App';
 
 const submit = () => {
+    if (i.value) return;
     ServerRequest.post('/account/reset-password', {
         password,
         confirmPassword,
@@ -25,6 +26,7 @@ const isPasswordValid = (password: string): string[] => {
 let valid = false;
 let password = '';
 let confirmPassword = '';
+let i: HTMLInputElement;
 
 $: valid =
     isPasswordValid(password).length === 0 && password === confirmPassword;
@@ -80,12 +82,22 @@ $: valid =
                     {/if}
                 {/if}
 
+                <hr />
+
                 <input
                     type="submit"
                     class="btn btn-primary"
                     disabled="{!valid}"
                     value="Submit"
                     on:click|preventDefault="{submit}"
+                />
+
+                <input
+                    type="text"
+                    name="confirm-email"
+                    id="email"
+                    class="d-none"
+                    bind:this="{i}"
                 />
             </form>
         </div>
