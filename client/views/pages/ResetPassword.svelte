@@ -76,9 +76,7 @@ $: valid =
                             Passwords do not match
                         </small>
                     {:else}
-                        <small class="text-success">
-                            Looks good!
-                        </small>
+                        <small class="text-success"> Looks good! </small>
                     {/if}
                 {/if}
 
