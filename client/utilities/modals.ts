@@ -45,7 +45,7 @@ export class Modal {
         this.$emitter.emit(event, args);
     }
 
-    readonly el = document.createElement('div');
+    readonly target = document.createElement('div');
     readonly id: string;
 
     constructor(id?: string) {
@@ -53,16 +53,16 @@ export class Modal {
         this.render();
 
         this.on('show', () => {
-            $(this.el).modal('show');
+            $(this.target).modal('show');
         });
 
         this.on('hide', () => {
-            $(this.el).modal('hide');
+            $(this.target).modal('hide');
         });
     }
 
     private render() {
-        const modal = this.el;
+        const modal = this.target;
         modal.id = this.id;
         modal.setAttribute('tabindex', '-1');
         modal.setAttribute('role', 'dialog');
@@ -111,13 +111,13 @@ export class Modal {
     }
 
     addButton(button: HTMLButtonElement) {
-        const footer = this.el.querySelector('.modal-footer');
+        const footer = this.target.querySelector('.modal-footer');
         if (!footer) return; // should never happen
         footer.appendChild(button);
     }
 
     setTitle(title: string | HTMLElement) {
-        const header = this.el.querySelector('.modal-header');
+        const header = this.target.querySelector('.modal-header');
         if (!header) return;
         const titleEl = header.querySelector('.modal-title');
         if (!titleEl) return;
@@ -130,7 +130,7 @@ export class Modal {
     }
 
     setBody(body: string | HTMLElement) {
-        const content = this.el.querySelector('.modal-content');
+        const content = this.target.querySelector('.modal-content');
         if (!content) return;
         const bodyEl = content.querySelector('.modal-body');
         if (!bodyEl) return;
@@ -143,7 +143,7 @@ export class Modal {
     }
 
     setFooter(footer: string | HTMLElement) {
-        const content = this.el.querySelector('.modal-content');
+        const content = this.target.querySelector('.modal-content');
         if (!content) return;
         const footerEl = content.querySelector('.modal-footer');
         if (!footerEl) return;
@@ -217,7 +217,7 @@ export type Color =
     | 'dark';
 
 export class Toast {
-    private readonly $el = document.createElement('div');
+    readonly target = document.createElement('div');
 
     private readonly $emitter = new EventEmitter<keyof EventTypes>();
 
@@ -245,13 +245,10 @@ export class Toast {
 
     constructor(title: string, body: string, color: Color = 'success') {
         this.on('show', () => {
-            $(this.$el).toast('show');
+            $(this.target).toast('show');
         });
 
-        this.on('hide', () => {
-            $(this.$el).toast('hide');
-        });
-        container.appendChild(this.$el);
+        container.appendChild(this.target);
         this.$title = title;
         this.$body = body;
         this.$color = color;
@@ -260,7 +257,7 @@ export class Toast {
 
     set title(title: string) {
         this.$title = title;
-        this.$el.querySelector('strong')!.textContent = title;
+        this.target.querySelector('strong')!.textContent = title;
     }
 
     get title() {
@@ -269,7 +266,7 @@ export class Toast {
 
     set body(body: string) {
         this.$body = body;
-        this.$el.querySelector('toast-body')!.textContent = body;
+        this.target.querySelector('toast-body')!.textContent = body;
     }
 
     get body() {
@@ -277,19 +274,19 @@ export class Toast {
     }
 
     set color(color: Color) {
-        this.$el
+        this.target
             .querySelector('toast-header')
             ?.classList.remove(`text-${this.color}`);
-        this.$el.querySelector('toast-header')?.classList.add(`text-${color}`);
-        this.$el
+        this.target.querySelector('toast-header')?.classList.add(`text-${color}`);
+        this.target
             .querySelector('toast-body')
             ?.classList.remove(`bg-${this.color}`);
-        this.$el.querySelector('toast-body')?.classList.add(`bg-${color}`);
-        this.$el
+        this.target.querySelector('toast-body')?.classList.add(`bg-${color}`);
+        this.target
             .querySelector('toast-body')
             ?.classList.remove(`text-${this.textColor}`);
         this.$color = color;
-        this.$el
+        this.target
             .querySelector('toast-body')
             ?.classList.add(`text-${this.textColor}`);
     }
@@ -316,10 +313,10 @@ export class Toast {
     }
 
     private render() {
-        this.$el.classList.add('toast', 'position-absolute');
-        this.$el.setAttribute('role', 'alert');
-        this.$el.setAttribute('aria-live', 'assertive');
-        this.$el.setAttribute('aria-atomic', 'true');
+        this.target.classList.add('toast', 'position-absolute');
+        this.target.setAttribute('role', 'alert');
+        this.target.setAttribute('aria-live', 'assertive');
+        this.target.setAttribute('aria-atomic', 'true');
 
         const header = document.createElement('div');
         header.classList.add(
@@ -373,10 +370,10 @@ export class Toast {
         header.appendChild(strong);
         header.appendChild(time);
         header.appendChild(button);
-        this.$el.appendChild(header);
-        this.$el.appendChild(body);
+        this.target.appendChild(header);
+        this.target.appendChild(body);
 
-        container.firstChild?.appendChild(this.$el);
+        container.firstChild?.appendChild(this.target);
 
         this.show();
     }
@@ -395,7 +392,7 @@ export class Toast {
 }
 
 export class Alert {
-    private readonly $el = document.createElement('div');
+    readonly target = document.createElement('div');
 
     private readonly $emitter = new EventEmitter<keyof EventTypes>();
 
@@ -427,13 +424,9 @@ export class Alert {
         color: Color = 'success',
     ) {
         this.on('show', () => {
-            $(this.$el).alert();
+            $(this.target).alert();
         });
-
-        this.on('hide', () => {
-            $(this.$el).alert('dispose');
-        });
-        container.appendChild(this.$el);
+        container.appendChild(this.target);
         this.title = title;
         this.color = color;
         this.message = message;
@@ -441,24 +434,35 @@ export class Alert {
     }
 
     private render() {
-        this.$el.classList.add(
+        this.target.classList.add(
             'alert',
             `alert-${this.color}`,
             'alert-dismissible',
             'position-absolute',
+            'animate__animated',
+            'animate__fadeInDown',
+            'animate__faster'
         );
-        this.$el.style.top = '10px';
-        this.$el.style.left = '10px';
-        this.$el.style.width = 'calc(100% - 20px)';
-        this.$el.style.zIndex = '100';
-        this.$el.setAttribute('role', 'alert');
+        this.target.style.top = '10px';
+        this.target.style.left = '10px';
+        this.target.style.width = 'calc(100% - 20px)';
+        this.target.style.zIndex = '100';
+        this.target.setAttribute('role', 'alert');
 
-        this.$el.innerHTML = `
+        this.target.innerHTML = `
             <div class="d-flex">
-            <strong class="me-1">${this.title}</strong> ${this.message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <strong class="me-1">${this.title}</strong> ${this.message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         `;
+
+        const removeAnimation = () => {
+            this.target.removeEventListener('animationend', removeAnimation);
+
+            this.target.classList.remove('animate__fadeInDown', 'animate__faster', 'animate__animated');
+        };
+
+        this.target.addEventListener('animationend', removeAnimation);
     }
 
     show() {
