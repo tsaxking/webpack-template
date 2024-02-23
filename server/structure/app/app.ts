@@ -434,6 +434,11 @@ export class App {
             return new Response('Blocked', { status: 403 });
         }
 
+        // block /socket.io
+        if (denoReq.url.includes('/socket.io')) {
+            return new Response('Blocked', { status: 403 });
+        }
+
         const { ssid } = parseCookie(denoReq.headers.get('cookie') || '');
         let s = await Session.get(ssid);
 
