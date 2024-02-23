@@ -53,7 +53,7 @@ router.get('/sign-up', redirect, (req, res, next) => {
     });
 });
 
-router.get('/reset-password/:key', (req, res, next) => {
+router.get('/change-password/:key', (req, res, next) => {
     const { key } = req.params;
     if (!key) return next();
     const a = Account.fromPasswordChangeKey(key);

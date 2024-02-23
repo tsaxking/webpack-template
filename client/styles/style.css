@@ -32,7 +32,7 @@ body {
     .offcanvas-backdrop::before {
         display: none !important;
     }
-    main {
+    main.dashboard {
         margin-left: var(--offCanvas-width) !important;
         width: calc(100vw - var(--offCanvas-width) - 24px) !important;
     }
