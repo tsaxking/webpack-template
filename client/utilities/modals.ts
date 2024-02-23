@@ -417,14 +417,13 @@ export class Alert {
         this.$emitter.emit(event, args);
     }
 
-    private $title: string;
-    private $body: string;
-    private $color: Color;
-    private $message: string;
+    private title: string;
+    private body: string;
+    private color: Color;
+    private message: string;
 
     constructor(
         title: string,
-        message: string,
         body: string,
         color: Color = 'success',
     ) {
@@ -436,48 +435,10 @@ export class Alert {
             $(this.$el).alert('dispose');
         });
         container.appendChild(this.$el);
-        this.$title = title;
-        this.$body = body;
-        this.$color = color;
-        this.$message = message;
+        this.title = title;
+        this.body = body;
+        this.color = color;
         this.render();
-    }
-
-    set title(title: string) {
-        this.$title = title;
-        this.$el.querySelector('h4')!.textContent = title;
-    }
-
-    get title() {
-        return this.$title;
-    }
-
-    set body(body: string) {
-        this.$body = body;
-        this.$el.querySelector('.alert-body')!.textContent = body;
-    }
-
-    get body() {
-        return this.$body;
-    }
-
-    set message(message: string) {
-        this.$message = message;
-        this.$el.querySelector('.alert-message')!.textContent = message;
-    }
-
-    get message() {
-        return this.$message;
-    }
-
-    set color(color: Color) {
-        // set color
-        this.$el.classList.remove(`alert-${this.color}`);
-        this.$el.classList.add(`alert-${color}`);
-    }
-
-    get color() {
-        return this.$color;
     }
 
     private render() {

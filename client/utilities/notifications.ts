@@ -23,18 +23,18 @@ export const notify = <T extends 'toast' | 'alert'>(
 ): Toast | Alert => {
     const status = capitalize(fromSnakeCase(fromCamelCase(data.title), '-'));
 
-    const message = `${status}: ${
+    const title = `${status}: ${
         capitalize(
             fromSnakeCase(fromCamelCase(data.status), '-'),
         )
     }`;
     console.log(data);
     if (type === 'toast') {
-        const toast = new Toast(message, data.message, data.color);
+        const toast = new Toast(title, data.message, data.color);
 
         return toast;
     } else {
-        const alert = new Alert(message, data.message, data.color);
+        const alert = new Alert(title, data.message, data.color);
         return alert;
     }
 };
