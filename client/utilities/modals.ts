@@ -421,15 +421,11 @@ export class Alert {
     private color: Color;
     private message: string;
 
-<<<<<<< HEAD
     constructor(
         title: string,
         message: string,
         color: Color = 'success',
     ) {
-=======
-    constructor(title: string, body: string, color: Color = 'success') {
->>>>>>> 165d3bfafeff3ed7ee423d2f6ca28ff334cbcc5f
         this.on('show', () => {
             $(this.$el).alert();
         });
