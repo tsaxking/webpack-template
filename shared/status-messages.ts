@@ -131,7 +131,7 @@ export const messages: {
         instructions: '',
     },
     'account:incorrect-username-or-password': {
-        message: 'Incorrect username or password.',
+        message: 'Your username or password was incorrect, please try again',
         color: 'danger',
         code: 400,
         instructions: 'Please try again.',
