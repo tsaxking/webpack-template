@@ -277,7 +277,9 @@ export class Toast {
         this.target
             .querySelector('toast-header')
             ?.classList.remove(`text-${this.color}`);
-        this.target.querySelector('toast-header')?.classList.add(`text-${color}`);
+        this.target
+            .querySelector('toast-header')
+            ?.classList.add(`text-${color}`);
         this.target
             .querySelector('toast-body')
             ?.classList.remove(`bg-${this.color}`);
@@ -437,7 +439,7 @@ export class Alert {
             'position-absolute',
             'animate__animated',
             'animate__fadeInDown',
-            'animate__faster'
+            'animate__faster',
         );
         this.target.style.top = '10px';
         this.target.style.left = '10px';
@@ -455,7 +457,11 @@ export class Alert {
         const removeAnimation = () => {
             this.target.removeEventListener('animationend', removeAnimation);
 
-            this.target.classList.remove('animate__fadeInDown', 'animate__faster', 'animate__animated');
+            this.target.classList.remove(
+                'animate__fadeInDown',
+                'animate__faster',
+                'animate__animated',
+            );
         };
 
         this.target.addEventListener('animationend', removeAnimation);
