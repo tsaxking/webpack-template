@@ -50,12 +50,35 @@ $: valid =
                     placeholder="Password"
                     label="Password"
                 />
+                {#if isPasswordValid(password).length > 0}
+                    <small class="text-danger">
+                        Password must have the following properties:
+                        <ul>
+                            {#each isPasswordValid(password) as property}
+                                <li>{property}</li>
+                            {/each}
+                        </ul>
+                    </small>
+                {:else}
+                    <small class="text-success"> Looks good! </small>
+                {/if}
 
                 <Password
                     bind:value="{confirmPassword}"
                     placeholder="Confirm Password"
                     label="Confirm Password"
                 />
+                {#if password.length > 0}
+                    {#if password !== confirmPassword}
+                        <small class="text-danger">
+                            Passwords do not match
+                        </small>
+                    {:else}
+                        <small class="text-success">
+                            Looks good!
+                        </small>
+                    {/if}
+                {/if}
 
                 <input
                     type="submit"
