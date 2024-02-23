@@ -418,11 +418,7 @@ export class Alert {
     private color: Color;
     private message: string;
 
-    constructor(
-        title: string,
-        message: string,
-        color: Color = 'success',
-    ) {
+    constructor(title: string, message: string, color: Color = 'success') {
         this.on('show', () => {
             $(this.target).alert();
         });
