@@ -86,7 +86,7 @@ export const createAccount = async () => {
     const username = repeatPrompt(
         'Enter the username',
         undefined,
-        Account.isValid,
+        (str: string) => Account.isValid(str).valid,
         false,
     );
     const password = repeatPrompt(
@@ -110,13 +110,13 @@ export const createAccount = async () => {
     const firstName = repeatPrompt(
         'Enter the first name',
         undefined,
-        Account.isValid,
+        (str: string) => Account.isValid(str).valid,
         false,
     );
     const lastName = repeatPrompt(
         'Enter the last name',
         undefined,
-        Account.isValid,
+        (str: string) => Account.isValid(str).valid,
         false,
     );
 
@@ -128,7 +128,7 @@ export const createAccount = async () => {
         lastName,
     );
 
-    if (a === 'created') {
+    if (a.status === 'created') {
         backToMain(`Account ${username} created`);
     } else {
         backToMain('Unable to create account: ' + a);

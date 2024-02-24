@@ -256,13 +256,15 @@ export const bodyPipe = <T>(pipe: (value: T) => T) => {
     };
 };
 
-export const trimBody = bodyPipe((body: {
-    [key: string]: string;
-}): {
-    [key: string]: string;
-} => {
-    for (const key in body) {
-        body[key] = body[key].trim();
-    }
-    return body;
-});
+export const trimBody = bodyPipe(
+    (body: {
+        [key: string]: string;
+    }): {
+        [key: string]: string;
+    } => {
+        for (const key in body) {
+            body[key] = body[key].trim();
+        }
+        return body;
+    },
+);

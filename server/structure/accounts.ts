@@ -516,13 +516,24 @@ export default class Account {
         if (!isValidUsername.valid) {
             return {
                 status: 'invalid-username',
-                data: isValidUsername.chars
+                data: isValidUsername.chars,
             };
         }
-        if (!isValidPassword.valid) return { status: 'invalid-password', data: isValidPassword.chars };
-        if (!isValidEmail.valid) return { status: 'invalid-email', data: isValidEmail.chars };
-        if (!isValidFirstName.valid) return { status: 'invalid-first-name', data: isValidFirstName.chars };
-        if (!isValidLastName.valid) return { status: 'invalid-last-name', data: isValidLastName.chars };
+        if (!isValidPassword.valid) {
+            return { status: 'invalid-password', data: isValidPassword.chars };
+        }
+        if (!isValidEmail.valid) {
+            return { status: 'invalid-email', data: isValidEmail.chars };
+        }
+        if (!isValidFirstName.valid) {
+            return {
+                status: 'invalid-first-name',
+                data: isValidFirstName.chars,
+            };
+        }
+        if (!isValidLastName.valid) {
+            return { status: 'invalid-last-name', data: isValidLastName.chars };
+        }
 
         // log('Validating', email);
 
@@ -571,7 +582,7 @@ export default class Account {
 
         a.sendVerification();
 
-        return{status:  'created'};
+        return { status: 'created' };
     }
 
     /**

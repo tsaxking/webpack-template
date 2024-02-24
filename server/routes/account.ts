@@ -3,7 +3,7 @@ import Account from '../structure/accounts.ts';
 import { Status } from '../utilities/status.ts';
 import Role from '../structure/roles.ts';
 import { messages, StatusId } from '../../shared/status-messages.ts';
-import { validate, trimBody } from '../middleware/data-type.ts';
+import { trimBody, validate } from '../middleware/data-type.ts';
 import env from '../utilities/env.ts';
 import { Req } from '../structure/app/req.ts';
 import { Res } from '../structure/app/res.ts';
@@ -146,7 +146,7 @@ router.post<{
             return Status.from('account:password-mismatch', req).send(res);
         }
 
-        const {status, data} = await Account.create(
+        const { status, data } = await Account.create(
             username,
             password,
             email,
@@ -172,7 +172,8 @@ router.post<{
                 res.sendCustomStatus(
                     new Status(
                         {
-                            message: 'Input contains invalid characters: ' + data?.map(d => `"${d}"`).join(', ') || '',
+                            message: 'Input contains invalid characters: ' +
+                                    data?.map((d) => `"${d}"`).join(', ') || '',
                             color: 'warning',
                             code: 400,
                             instructions: 'Please try again.',
@@ -180,8 +181,8 @@ router.post<{
                         'Account',
                         capitalize(status.split('-').join(' ')),
                         JSON.stringify(req),
-                        req
-                    )
+                        req,
+                    ),
                 );
                 break;
         }
