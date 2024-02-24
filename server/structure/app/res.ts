@@ -411,6 +411,16 @@ export class Res {
         }
     }
 
+    sendCustomStatus(status: Status): ResponseStatus {
+        try {
+            status.send(this);
+            return ResponseStatus.success;
+        } catch (error) {
+            log('Error sending status', error);
+            return ResponseStatus.error;
+        }
+    }
+
     /**
      * Sends a template to the client (utilizes node-html-constructor to build the template)
      * @date 10/12/2023 - 3:06:01 PM
