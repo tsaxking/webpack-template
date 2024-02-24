@@ -1,6 +1,6 @@
 import { DB } from '../utilities/databases.ts';
 import { RolePermission } from '../../shared/db-types.ts';
-import { Permission, RoleName } from '../../shared/permissions.ts';
+import { Permission } from '../../shared/permissions.ts';
 import { Role as RoleObject } from '../../shared/db-types.ts';
 import { ServerFunction } from './app/app.ts';
 import { uuid } from '../utilities/uuid.ts';
@@ -21,23 +21,13 @@ export default class Role {
      * @static
      * @param {...RoleName[]} role
      * @returns {ServerFunction<any>}
+     * @deprecated
      */
-    static allowRoles(...role: RoleName[]): ServerFunction {
-        return async (req, res, next) => {
-            const { session } = req;
-            const account = await session.getAccount();
-
-            if (!account) {
-                return res.sendStatus('account:not-logged-in');
-            }
-
-            const roles = await account.getRoles();
-
-            if (role.every((r) => roles.find((_r: Role) => _r.name === r))) {
-                return next();
-            } else {
-                return res.sendStatus('permissions:unauthorized');
-            }
+    static allowRoles(..._role: never[]): ServerFunction {
+        return async (_req, _res, _next) => {
+            throw new Error(
+                'This method is deprecated, use Account.allowPermissions() instead',
+            );
         };
     }
 
@@ -48,23 +38,13 @@ export default class Role {
      * @static
      * @param {...RoleName[]} role
      * @returns {ServerFunction<any>}
+     * @deprecated
      */
-    static preventRoles(...role: RoleName[]): ServerFunction {
-        return async (req, res, next) => {
-            const { session } = req;
-            const account = await session.getAccount();
-
-            if (!account) {
-                return res.sendStatus('account:not-logged-in');
-            }
-
-            const roles = await account.getRoles();
-
-            if (role.some((r) => roles.find((_r: Role) => _r.name === r))) {
-                return res.sendStatus('permissions:unauthorized');
-            } else {
-                return next();
-            }
+    static preventRoles(..._role: never[]): ServerFunction {
+        return async (_req, _res, _next) => {
+            throw new Error(
+                'This method is deprecated, use Account.allowPermissions() instead',
+            );
         };
     }
 

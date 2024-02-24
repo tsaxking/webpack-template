@@ -31,14 +31,8 @@ const createPermission = async (perm: Permission, description: string) => {
         const permTS = 'export type Permission = ' +
             permissions.map((p) => `'${p}'`).join(' | ') +
             ';';
-        const roleTS = 'export type RoleName = ' +
-            roles.map((r) => `'${r.name}'`).join(' | ') +
-            ';';
 
-        const res = await saveFile(
-            'shared/permissions.ts',
-            comment + permTS + '\n' + roleTS,
-        );
+        const res = await saveFile('shared/permissions.ts', comment + permTS);
         if (res.isOk()) {
             console.log('Permissions file updated');
         } else {
