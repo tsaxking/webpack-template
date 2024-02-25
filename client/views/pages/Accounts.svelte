@@ -59,6 +59,8 @@ const set = async () => {
 
     if (res.isOk()) {
         accounts = res.value;
+    } else {
+        console.error('Failed to get accounts: ', res.error);
     }
 
     jQuery(div.querySelectorAll('[data-toggle="tooltip"]')).tooltip();
@@ -98,7 +100,7 @@ Account.on('delete', set);
                         {account.username}
                         {#if account.verified}
                             <span
-                                class="badge bg-success ms-1"
+                                class="text-success cursor-help"
                                 data-toggle="tooltip"
                                 title="Verified"
                                 data-placement="top"
@@ -107,7 +109,7 @@ Account.on('delete', set);
                             </span>
                         {:else}
                             <span
-                                class="badge bg-warning ms-1"
+                                class="text-warning cursor-help"
                                 data-toggle="tooltip"
                                 title="Not Verified"
                                 data-placement="top"
