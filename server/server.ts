@@ -157,6 +157,10 @@ app.get('/', (req, res) => {
     res.redirect('/home');
 });
 
+app.get('/settings', Account.isSignedIn, (req, res) => {
+    res.sendTemplate('entries/settings');
+});
+
 app.get('/*', async (req, res, next) => {
     const homePages = await getJSON<string[]>('pages/home');
     if (homePages.isOk()) {

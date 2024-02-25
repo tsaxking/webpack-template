@@ -91,8 +91,8 @@ Account.on('current', () => {
         id="navbarDropdown"
     >
         <li>
-            <a href="/settings">
-                <i class="material-icons">settings</i>
+            <a href="/settings" class="dropdown-item">
+                <i class="material-icons">settings</i>&nbsp;Settings
             </a>
         </li>
         {#each accountLinks as link}
