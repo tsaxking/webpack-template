@@ -44,6 +44,7 @@ class SocketWrapper {
     }
 
     private newEvent(event: string, data: any) {
+        console.log({ event, data });
         this.em.emit(event, data);
     }
 
