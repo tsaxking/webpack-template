@@ -1,9 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-async-promise-executor */
 // make a class that simulates npm:express using the deno std library
-import { serve } from 'https://deno.land/std@0.150.0/http/server.ts';
-import { Server } from 'https://deno.land/x/socket_io@0.2.0/mod.ts';
-import env, { __root } from '../../utilities/env.ts';
+import { __root } from '../../utilities/env.ts';
 import PATH from 'npm:path';
 import { log } from '../../utilities/terminal-logging.ts';
 import { Session } from '../sessions.ts';

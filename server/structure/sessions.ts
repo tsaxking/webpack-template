@@ -2,12 +2,11 @@
 import { uuid } from '../utilities/uuid.ts';
 import Account from './accounts.ts';
 import { DB } from '../utilities/databases.ts';
-import { CookieOptions, Next, ServerFunction } from './app/app.ts';
+import { CookieOptions } from './app/app.ts';
 import { app } from '../server.ts';
 import { Req } from './app/req.ts';
 import { Res } from './app/res.ts';
 import { error, log } from '../utilities/terminal-logging.ts';
-import { Colors } from '../utilities/colors.ts';
 
 /**
  * Session object from the database

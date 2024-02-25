@@ -200,6 +200,13 @@ const createEnv = () => {
         undefined,
         true,
     );
+    setKey(
+        'NUM_SERVERS',
+        'Number of Servers: (default: 1)',
+        '1',
+        (i) => +i > 0,
+        true,
+    );
 
     const e = Object.keys(values)
         .map((key) => `${key} = '${values[key]}'`)

@@ -1,4 +1,3 @@
-import { Server } from 'https://deno.land/x/socket_io@0.2.0/mod.ts';
 import { __root } from '../../utilities/env.ts';
 import { Session } from '../sessions.ts';
 import { parseCookie } from '../../../shared/cookie.ts';
