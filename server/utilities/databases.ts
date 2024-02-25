@@ -32,7 +32,6 @@ const {
     DATABASE_PORT,
 } = env;
 
-
 {
     const cannotConnect =
         'FATAL: Cannot connect to the database, please check your .env file |';
@@ -57,8 +56,8 @@ const {
 if (DATABASE_NAME.includes('prod')) {
     const confirmed = await confirm(
         Colors.FgRed +
-        'It looks like you are about to connect to a production database, are you sure you want to continue? (yes/no)'
-        + Colors.Reset,
+            'It looks like you are about to connect to a production database, are you sure you want to continue? (yes/no)' +
+            Colors.Reset,
     );
     if (!confirmed) {
         console.log('Exiting...');
