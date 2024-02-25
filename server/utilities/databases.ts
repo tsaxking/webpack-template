@@ -986,7 +986,7 @@ await DB.connect().then(async (result) => {
         log('Connected to the database');
         if (Deno.args.includes('--update')) return;
         await DB.runAllUpdates();
-        await DB.makeBackup();
+        // await DB.makeBackup();
         await DB.setIntervals();
     } else {
         error('FATAL:', result.error);

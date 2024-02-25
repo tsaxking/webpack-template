@@ -8,7 +8,6 @@ import { router as admin } from './routes/admin.ts';
 import { router as account } from './routes/account.ts';
 import { router as api } from './routes/api.ts';
 import { router as role } from './routes/roles.ts';
-import Role from './structure/roles.ts';
 import { FileUpload } from './middleware/stream.ts';
 import { ReqBody } from './structure/app/req.ts';
 import { parseCookie } from '../shared/cookie.ts';
@@ -16,7 +15,7 @@ import { stdin } from './utilities/stdin.ts';
 import { io, Socket } from './structure/socket.ts';
 import { getJSONSync } from './utilities/files.ts';
 
-const port = +(env.PORT || 3000);
+const port = +(Deno.args.find((arg) => arg.startsWith('--port='))?.split('=')[1] || '8000');
 
 export const app = new App(port, env.DOMAIN || `http://localhost:${port}`, {
     // onListen: () => {

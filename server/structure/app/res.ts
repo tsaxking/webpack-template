@@ -16,10 +16,8 @@ import { CookieOptions } from './app.ts';
 import { ResponseStatus } from './app.ts';
 import { FileType } from './app.ts';
 import { EventEmitter } from '../../../shared/event-emitter.ts';
-import { streamDelimiter } from '../../../shared/text.ts';
 import * as blog from 'https://deno.land/x/blog@0.3.3/deps.ts';
-import { sleep } from '../../../shared/sleep.ts';
-import { bigIntDecode, bigIntEncode } from '../../../shared/objects.ts';
+import { bigIntEncode } from '../../../shared/objects.ts';
 
 /**
  * All filetype headers (used for sending files, this is not a complete list)

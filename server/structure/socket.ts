@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Req } from './app/req.ts';
-import { Res } from './app/res.ts';
 import { uuid } from '../utilities/uuid.ts';
 import { EventEmitter } from '../../shared/event-emitter.ts';
 
