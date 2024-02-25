@@ -203,7 +203,7 @@ app.get('/*', (req, res, next) => {
     next();
 });
 
-app.get('/dashboard/admin', Role.allowRoles('admin'), (_req, res) => {
+app.get('/dashboard/admin', Account.allowPermissions('admin'), (_req, res) => {
     res.sendTemplate('entries/dashboard/admin');
 });
 
