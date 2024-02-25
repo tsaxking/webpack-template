@@ -301,7 +301,8 @@ export class Account extends Cache<AccountEvents> {
     public async getRoles(force = false): Promise<Result<Role[]>> {
         return attemptAsync(async () => {
             if (this.$cache.has('roles') && !force) {
-                return this.$cache.get('roles') as Role[];
+                const roles = this.$cache.get('roles') as Role[];
+                if (roles.length) return roles;
             }
 
             const res = await ServerRequest.post<

@@ -513,7 +513,7 @@ router.post<{
                 const roles = await (await Account.fromId(id))?.getRoles();
                 if (roles) {
                     return res.json(
-                        Promise.all(
+                        await Promise.all(
                             roles.map(async (r) => ({
                                 ...r,
                                 permissions: await r.getPermissions(),
