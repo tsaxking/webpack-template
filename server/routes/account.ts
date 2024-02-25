@@ -512,10 +512,14 @@ router.post<{
             if (await account.hasPermission('editRoles')) {
                 const roles = await (await Account.fromId(id))?.getRoles();
                 if (roles) {
-                    return res.json(Promise.all(roles.map(async r => ({
-                        ...r,
-                        permissions: await r.getPermissions()
-                    }))));
+                    return res.json(
+                        Promise.all(
+                            roles.map(async (r) => ({
+                                ...r,
+                                permissions: await r.getPermissions(),
+                            })),
+                        ),
+                    );
                 } else {
                     return res.json([]);
                 }

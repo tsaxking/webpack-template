@@ -175,7 +175,8 @@ export class Account extends Cache<AccountEvents> {
      */
     public static async all(): Promise<Result<Account[]>> {
         return attemptAsync(async () => {
-            if (Account.$cache.size > 1) { // guest account is included
+            if (Account.$cache.size > 1) {
+                // guest account is included
                 return Array.from(Account.$cache.values());
             }
 
@@ -303,7 +304,9 @@ export class Account extends Cache<AccountEvents> {
                 return this.$cache.get('roles') as Role[];
             }
 
-            const res = await ServerRequest.post<(R & { permissions: RolePermission[] })[]>('/account/get-roles', {
+            const res = await ServerRequest.post<
+                (R & { permissions: RolePermission[] })[]
+            >('/account/get-roles', {
                 id: this.id,
             });
 
