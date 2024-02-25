@@ -29,10 +29,10 @@ const fns = {
                         type: 'select',
                         options: ['Light', 'Dark'],
                         bindTo: 'theme',
-                        value: 'Dark',
-                    },
-                ],
-            },
+                        value: 'Dark'
+                    }
+                ]
+            }
         });
 
         m.setTitle('Settings');
@@ -118,14 +118,18 @@ const fns = {
         id="navbarDropdown"
     >
         <li>
-            <a href="javascript:void(0);" class="dropdown-item" on:click={fns.openSettings}>
+            <a
+                href="javascript:void(0);"
+                class="dropdown-item"
+                on:click="{fns.openSettings}"
+            >
                 <i class="material-icons">settings</i>&nbsp;Settings
             </a>
         </li>
         {#each accountLinks as link}
             {#if link}
                 <li>
-                    <a href={link} class="dropdown-item"
+                    <a href="{link}" class="dropdown-item"
                         >{capitalize(fromSnakeCase(link, '-'))}</a
                     >
                 </li>
