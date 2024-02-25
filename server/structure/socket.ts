@@ -110,7 +110,7 @@ export class SocketWrapper {
     middleware() {
         return (
             req: Req<{
-                cache: {
+                cache?: {
                     event: string;
                     data: any;
                 }[];
@@ -127,7 +127,9 @@ export class SocketWrapper {
             });
             s.cache = [];
             s.setTimeout();
-            for (const c of cache) s.newEvent(c.event, c.data);
+            if (Array.isArray(cache)) {
+                for (const c of cache) s.newEvent(c.event, c.data);
+            }
         };
     }
 
