@@ -342,7 +342,9 @@ export class Account extends Cache<AccountEvents> {
      * @async
      * @returns {Promise<Result<P[]>>}
      */
-    public async getPermissions(force = false): Promise<Result<RolePermission[]>> {
+    public async getPermissions(
+        force = false,
+    ): Promise<Result<RolePermission[]>> {
         return attemptAsync(async () => {
             if (this.$cache.has('permissions') && !force) {
                 return this.$cache.get('permissions') as RolePermission[];
