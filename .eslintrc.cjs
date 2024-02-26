@@ -1,7 +1,14 @@
 module.exports = {
-    extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended'],
+    extends: [
+        'eslint:recommended',
+        'plugin:@typescript-eslint/recommended',
+        'plugin:svelte/recommended'
+    ],
     parser: '@typescript-eslint/parser',
-    plugins: ['@typescript-eslint'],
+    plugins: [
+        '@typescript-eslint',
+        ''
+    ],
     root: true,
 
     // rules
@@ -19,4 +26,11 @@ module.exports = {
     },
 
     ignorePatterns: ['node_modules/', 'dist/', '**/*.js', '**/submodules/'],
+
+    overrides: [
+        {
+            files: ['*.svelte'],
+            parser: 'svelte-eslint-parser'
+        }
+    ]
 };
