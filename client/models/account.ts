@@ -499,6 +499,7 @@ socket.on('account:removed', (accountId: string) => {
     if (account) {
         console.log('account removed', account);
         Account.emit('delete', account);
+        Account.$cache.delete(accountId);
         account.emit('delete', undefined);
         account.destroy();
     }
