@@ -300,6 +300,10 @@ export class Session {
     }
 
     set prevUrl(url: string | undefined) {
+        if (url) {
+            const u = new URL(url);
+            url = u.pathname;
+        }
         this.$prevUrl = url;
         this.save();
     }
