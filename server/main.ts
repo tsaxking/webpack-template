@@ -3,8 +3,6 @@ import { Builder } from './bundler.ts';
 import { Colors } from './utilities/colors.ts';
 import env from './utilities/env.ts';
 import { attemptAsync } from '../shared/check.ts';
-import { EventEmitter } from '../shared/event-emitter.ts';
-import axios from 'npm:axios';
 
 const servers = Number(env.NUM_SERVERS) || 1;
 
@@ -49,7 +47,6 @@ class Child {
 
     static readonly children = new Map<number, Child>();
 
-    // private readonly em = new EventEmitter();
     private readonly child: Deno.ChildProcess;
     private readonly port: number;
     constructor(port: number, i: number) {
@@ -80,14 +77,6 @@ class Child {
                 .catch(e => e);
         });
     }
-
-    // on(event: string, listener: (...args: any[]) => void) {
-    //     this.em.on(event, listener);
-    // }
-
-    // emit(event: string, ...args: any[]) {
-    //     this.em.emit(event, ...args);
-    // }
 }
 
 const main = () => {
