@@ -6,17 +6,17 @@ import { addRoleToAccount, removeRoleFromAccount } from './roles.ts';
 
 export const selectAccount = async (
     message = 'select an account',
-    filter: (a: Account) => boolean = () => true
+    filter: (a: Account) => boolean = () => true,
 ): Promise<Result<Account | undefined>> => {
     return attemptAsync(async () => {
-        const accounts = (await (Account.getAll())).filter(filter);
+        const accounts = (await Account.getAll()).filter(filter);
         if (!accounts.length) {
             throw new Error('no-account');
         }
 
         const res = await search(
             message,
-            accounts.map((a) => a.username)
+            accounts.map((a) => a.username),
         );
 
         if (res.isErr()) return;
@@ -26,8 +26,9 @@ export const selectAccount = async (
 };
 
 export const verifyAccount = async () => {
-    const account = await selectAccount('Select an account to verify', (a) =>
-        !a.verified
+    const account = await selectAccount(
+        'Select an account to verify',
+        (a) => !a.verified,
     );
 
     if (account.isErr()) return backToMain('No accounts to verify');
@@ -40,8 +41,9 @@ export const verifyAccount = async () => {
 };
 
 export const unverifyAccount = async () => {
-    const res = await selectAccount('Select an account to unverify', (a) =>
-        !!a.verified
+    const res = await selectAccount(
+        'Select an account to unverify',
+        (a) => !!a.verified,
     );
 
     if (res.isErr()) return backToMain('No accounts to unverify');

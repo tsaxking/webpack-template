@@ -78,9 +78,7 @@ export const addRoleToAccount = async () => {
         const accountRes = await selectAccount();
         if (accountRes.isOk()) {
             if (!accountRes.value) {
-                return backToMain(
-                    'Did not select an account',
-                );
+                return backToMain('Did not select an account');
             }
             const account = accountRes.value;
             const role = roleRes.value;
