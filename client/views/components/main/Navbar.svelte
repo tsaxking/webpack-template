@@ -13,9 +13,9 @@ let account: Account = Account.guest;
 
 export let accountLinks: (string | null)[] = [];
 
-Account.getAccount().then((a) => {
+Account.getAccount().then(a => {
     if (a) account = a;
-})
+});
 
 const fns = {
     openSettings: () => {
