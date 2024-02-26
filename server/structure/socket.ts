@@ -20,7 +20,11 @@ type Cache = {
 
 export class Socket {
     static readonly sockets = new Map<string, Socket>();
-    static get(id: string | undefined, io: SocketWrapper, sessionId: string): Socket {
+    static get(
+        id: string | undefined,
+        io: SocketWrapper,
+        sessionId: string,
+    ): Socket {
         const s = Socket.sockets.get(String(id));
         if (!s) return Socket.build(io, sessionId);
         s.setTimeout();
