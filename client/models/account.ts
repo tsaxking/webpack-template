@@ -85,6 +85,17 @@ export class Account extends Cache<AccountEvents> {
      */
     public static current?: Account;
 
+    public static async getAccount(): Promise<Account | undefined> {
+        if (Account.current) return Account.current;
+        const res = await ServerRequest.post<AccountSafe>('/account/get-account');
+        if (res.isOk()) {
+            if (!res.value.id) return;
+            Account.current = new Account(res.value);
+            Account.emit('current', Account.current);
+            return Account.current;
+        }
+    }
+
     /**
      * Account emitter
      * @date 2/1/2024 - 12:54:21 AM
@@ -561,10 +572,4 @@ socket.on('account:unverified', (accountId: string) => {
     }
 });
 
-ServerRequest.post<AccountSafe>('/account/get-account').then((res) => {
-    if (res.isOk()) {
-        if (!res.value.id) return;
-        Account.current = new Account(res.value);
-        Account.emit('current', Account.current);
-    }
-});
+Account.getAccount();
