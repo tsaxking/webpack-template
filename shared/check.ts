@@ -244,10 +244,12 @@ export const resolveAll = <T>(results: Result<T>[]): Result<T[]> => {
         }
     }
 
-    return new Ok(results.map((r) => {
-        if (r.isOk()) {
-            return r.value;
-        }
-        return null as T; // this should never happen
-    }));
-}
+    return new Ok(
+        results.map((r) => {
+            if (r.isOk()) {
+                return r.value;
+            }
+            return null as T; // this should never happen
+        }),
+    );
+};
