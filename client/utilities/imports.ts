@@ -10,6 +10,10 @@ import 'bootstrap/dist/css/bootstrap.css';
 
 // material icons
 import 'material-icons/iconfont/material-icons.css';
+// bootstrap icons
+import 'bootstrap-icons/font/bootstrap-icons.css';
+// fontawesome
+import '@fortawesome/fontawesome-free/css/all.css';
 
 // socket
 import './socket';

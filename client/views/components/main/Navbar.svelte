@@ -43,57 +43,43 @@ const fns = {
 };
 </script>
 
-<nav
-    class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top shadow text-light d-flex"
-    id="top-navbar"
->
-    <button
-        class="btn btn-dark navbar-toggler"
+
+<nav class="navbar navbar-expand-lg fixed-top shadow text-light bg-dark d-flex justify-content-between" id="top-navbar">
+    <div class="d-inline-flex p-0">
+        <button 
+        class="btn btn-dark navbar-toggler border-0"
         type="button"
         data-bs-toggle="offcanvas"
-        aria-controls="side-bar-nav"
-        data-bs-target="#side-bar-nav"
-    >
-        <i class="material-icons">menu</i>
-    </button>
-
-    <span class="text-light px-3">
-        <a href="/home" class="navbar-brand fw-bold">{title}</a>&nbsp;
-    </span>
-
-    <a
-        href="#navbar-links"
-        class="navbar-toggler"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#navbar-links"
-        aria-controls="navbar-links"
+        data-bs-target="#sidebar-nav"
+        aria-controls="sidebar-nav"
         aria-expanded="false"
-        aria-label="Toggle navigation"
+        aria-label="Toggle Side Bar"
     >
-        <span class="material-icons">menu</span>
-    </a>
+        <i class="bi bi-layout-sidebar"></i>
+    </button>
+        <a href="/home" class="ps-3 pt-2 navbar-brand fw-bold no-select h-100 align-middle text-light">{title}</a>
 
-    <div class="collapse navbar-collapse" id="navbar-links">
-        <ul class="navbar-nav mb-2 mb-lg-0">
-            {#each navItems as item}
-                <li class="nav-item">
-                    <a
-                        class="{item === active
-                            ? 'nav-link active'
-                            : 'nav-link'}"
-                        href="/{item}">{capitalize(fromSnakeCase(item, '-'))}</a
-                    >
-                </li>
-            {/each}
-        </ul>
-    </div>
-    <div class="me-3">
-        <slot />
-        <ThemeSwitch />
+        <div class="collapse navbar-collapse bg-dark rounded" id="nav-items">
+            <ul class="navbar-nav mr-auto">
+                {#each navItems as item}
+                    <li class="nav-item">
+                        <a 
+                            class="link-light {item === active ? 'nav-link active' : 'nav-link'}"
+                            href="/{item}"
+                        >
+                            {capitalize(fromSnakeCase(item, '-'))}
+                        </a>
+                    </li>
+                {/each}
+            </ul>
+            <div class="form-inline my-2 my-lg-0">
+                <ThemeSwitch />
+                <slot name="form" />
+            </div>
+        </div>
     </div>
 
-    <a
+    <div class="d-inline-flex p-0">    <a
         class="nav-link dropdown-toggle me-3"
         href="#navbarDropdown"
         id="navbarDropdown-link"
@@ -111,9 +97,7 @@ const fns = {
         {:else}
             <span class="material-icons">person</span>
         {/if}
-    </a>
-
-    <ul
+    </a><ul
         class="dropdown-menu dropdown-menu-end p-0"
         aria-labelledby="navbarDropdown"
         id="navbarDropdown"
@@ -148,4 +132,15 @@ const fns = {
             <a class="dropdown-item" href="/account/sign-out">Sign Out</a>
         </li>
     </ul>
+        <button
+            class="btn btn-dark navbar-toggler border-0 h-100 text-light"
+            type="button"
+            data-bs-toggle="collapse"
+            aria-controls="nav-items"
+            data-bs-target="#nav-items"
+            aria-expanded="false"
+        >
+            <i class="bi bi-box-arrow-up-left"></i>
+        </button>
+    </div>
 </nav>
