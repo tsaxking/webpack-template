@@ -234,3 +234,20 @@ export const check = (data: unknown, type: Primitive | O | A): boolean => {
 
     return runCheck(data, type);
 };
+
+export const resolveAll = <T>(results: Result<T>[]): Result<T[]> => {
+    if (results.some((r) => r.isErr())) {
+        const e = results.find((r) => r.isErr());
+        if (e && e.isErr()) {
+            // this should always be true
+            return new Err(e.error);
+        }
+    }
+
+    return new Ok(results.map((r) => {
+        if (r.isOk()) {
+            return r.value;
+        }
+        return null as T; // this should never happen
+    }));
+}
