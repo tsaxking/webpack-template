@@ -87,7 +87,9 @@ export class Account extends Cache<AccountEvents> {
 
     public static async getAccount(): Promise<Account | undefined> {
         if (Account.current) return Account.current;
-        const res = await ServerRequest.post<AccountSafe>('/account/get-account');
+        const res = await ServerRequest.post<AccountSafe>(
+            '/account/get-account',
+        );
         if (res.isOk()) {
             if (!res.value.id) return;
             Account.current = new Account(res.value);

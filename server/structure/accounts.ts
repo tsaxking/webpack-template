@@ -825,7 +825,9 @@ export default class Account {
             memberInfo: include?.memberInfo
                 ? await this.getMemberInfo()
                 : undefined,
-            permissions: include?.permissions ? await this.getPermissions() : [],
+            permissions: include?.permissions
+                ? await this.getPermissions()
+                : [],
             id: include?.id ? this.id : undefined,
             verified: this.verified,
         };
