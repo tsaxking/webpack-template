@@ -2,7 +2,6 @@
 import { Req } from './app/req.ts';
 import { Res } from './app/res.ts';
 import { uuid } from '../utilities/uuid.ts';
-import { parseCookie } from '../../shared/cookie.ts';
 import { EventEmitter } from '../../shared/event-emitter.ts';
 
 type Cache = {
@@ -21,16 +20,21 @@ type Cache = {
 
 export class Socket {
     static readonly sockets = new Map<string, Socket>();
-    static get(id: string | undefined, io: SocketWrapper): Socket {
+    static get(
+        id: string | undefined,
+        io: SocketWrapper,
+        sessionId: string,
+    ): Socket {
         const s = Socket.sockets.get(String(id));
-        if (!s) return Socket.build(io);
+        if (!s) return Socket.build(io, sessionId);
         s.setTimeout();
         return s;
     }
 
-    static build(io: SocketWrapper): Socket {
+    static build(io: SocketWrapper, sessionId: string): Socket {
         const id = uuid();
         const s = new Socket(id, io);
+        s.join(sessionId);
         io.newIoEvent('connection', s);
         return s;
     }
@@ -107,29 +111,31 @@ export class SocketWrapper {
 
     Socket = Socket;
 
-    middleware() {
-        return (
-            req: Req<{
-                cache: {
-                    event: string;
-                    data: any;
-                }[];
-                id?: string;
-            }>,
-            res: Res,
-        ) => {
-            const { cache, id } = req.body;
-            const s = Socket.get(id, this);
-            // console.log({ socket: s })
-            res.json({
-                cache: s.cache,
-                id: s.id,
-            });
-            s.cache = [];
-            s.setTimeout();
-            for (const c of cache) s.newEvent(c.event, c.data);
-        };
-    }
+    // middleware() {
+    //     return (
+    //         req: Req<{
+    //             cache?: {
+    //                 event: string;
+    //                 data: any;
+    //             }[];
+    //             id?: string;
+    //         }>,
+    //         res: Res,
+    //     ) => {
+    //         const { cache, id } = req.body;
+    //         const s = Socket.get(id, this);
+    //         // console.log({ socket: s })
+    //         res.json({
+    //             cache: s.cache,
+    //             id: s.id,
+    //         });
+    //         s.cache = [];
+    //         s.setTimeout();
+    //         if (Array.isArray(cache)) {
+    //             for (const c of cache) s.newEvent(c.event, c.data);
+    //         }
+    //     };
+    // }
 
     emit(event: string, data?: any) {
         const sockets = Socket.sockets.values();

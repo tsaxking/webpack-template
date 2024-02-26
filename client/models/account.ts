@@ -1,7 +1,7 @@
 import { EventEmitter } from '../../shared/event-emitter';
 import { Cache } from './cache';
-import { AccountSafe, Role as R } from '../../shared/db-types';
-import { Permission as P, RoleName } from '../../shared/permissions';
+import { AccountSafe, Role as R, RolePermission } from '../../shared/db-types';
+import { Permission as P } from '../../shared/permissions';
 import { attemptAsync, Result } from '../../shared/attempt';
 import { ServerRequest } from '../utilities/requests';
 import { Role } from './roles';
@@ -175,7 +175,8 @@ export class Account extends Cache<AccountEvents> {
      */
     public static async all(): Promise<Result<Account[]>> {
         return attemptAsync(async () => {
-            if (Account.$cache.size > 0) {
+            if (Account.$cache.size > 1) {
+                // guest account is included
                 return Array.from(Account.$cache.values());
             }
 
@@ -303,7 +304,9 @@ export class Account extends Cache<AccountEvents> {
                 return this.$cache.get('roles') as Role[];
             }
 
-            const res = await ServerRequest.post<R[]>('/account/get-roles', {
+            const res = await ServerRequest.post<
+                (R & { permissions: RolePermission[] })[]
+            >('/account/get-roles', {
                 id: this.id,
             });
 
@@ -524,6 +527,7 @@ socket.on(
 socket.on(
     'account:role-added',
     async (data: { accountId: string; roleId: string }) => {
+        const { accountId, roleId } = data;
         const account = Account.$cache.get(accountId);
         if (account) {
             await account.getRoles(true); // force update

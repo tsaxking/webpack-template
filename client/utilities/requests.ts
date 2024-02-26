@@ -796,3 +796,5 @@ export class ServerRequest<T = unknown> {
         return this.promise;
     }
 }
+
+Object.assign(window, { ServerRequest });

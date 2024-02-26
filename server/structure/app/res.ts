@@ -402,7 +402,7 @@ export class Res {
                 this.req,
                 JSON.stringify(bigIntEncode(data)),
             );
-            s.redirect = redirect || s.redirect;
+            s.redirect = redirect || s.redirect || '';
             s.send(this);
             return ResponseStatus.success;
         } catch (error) {

@@ -15,6 +15,8 @@ import {
 } from '../../shared/text.ts';
 import { bigIntDecode, bigIntEncode } from '../../shared/objects.ts';
 import { daysTimeout } from '../../shared/sleep.ts';
+import { confirm } from '../../scripts/prompt.ts';
+import { Colors } from './colors.ts';
 
 /**
  * The name of the main database
@@ -29,6 +31,7 @@ const {
     DATABASE_HOST,
     DATABASE_PORT,
 } = env;
+
 {
     const cannotConnect =
         'FATAL: Cannot connect to the database, please check your .env file |';
@@ -47,6 +50,18 @@ const {
     }
     if (!DATABASE_PORT) {
         throw new Error(`${cannotConnect} DATABASE_PORT is not defined`);
+    }
+}
+
+if (DATABASE_NAME.includes('prod')) {
+    const confirmed = await confirm(
+        Colors.FgRed +
+            'It looks like you are about to connect to a production database, are you sure you want to continue? (yes/no)' +
+            Colors.Reset,
+    );
+    if (!confirmed) {
+        console.log('Exiting...');
+        Deno.exit(0);
     }
 }
 

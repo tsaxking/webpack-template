@@ -440,13 +440,34 @@ export class App {
         }
 
         const { ssid } = parseCookie(denoReq.headers.get('cookie') || '');
+
+        // handle sockets before sessions
+        if (new URL(denoReq.url, this.domain).pathname === '/socket') {
+            const data = await denoReq.json();
+            const { cache, id } = data ||
+                ({} as Partial<{ cache: unknown[]; id: string }>);
+
+            const s = this.io.Socket.get(id, this.io, ssid);
+            s.setTimeout();
+            if (Array.isArray(cache)) {
+                for (const c of cache) s.newEvent(c.event, c.data);
+            }
+            setTimeout(() => (s.cache = [])); // clear cache after event loop is free
+            return new Response(
+                JSON.stringify({
+                    cache: s.cache,
+                    id: s.id,
+                }),
+            );
+        }
+
         let s = await Session.get(ssid);
 
         let setSsid = false;
 
         if (!s) {
             setSsid = true;
-            log('New session', ssid);
+            log('New session');
 
             const userAgent = denoReq.headers.get('usr-agent') || '';
 
