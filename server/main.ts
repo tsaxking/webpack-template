@@ -12,7 +12,7 @@ const main = () => {
     const start = (): Deno.ChildProcess => {
         log('Starting server...');
         const child = new Deno.Command(Deno.execPath(), {
-            args: ['run', '--allow-all', './server/server.ts'],
+            args: ['run', '--allow-all', ' --v8-flags=--max-old-space-size=8000', './server/server.ts'],
             stdout: 'inherit',
             stderr: 'inherit',
             stdin: 'inherit',
