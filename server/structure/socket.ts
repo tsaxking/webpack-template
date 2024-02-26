@@ -47,11 +47,11 @@ export class Socket {
     }
 
     setTimeout() {
-        if (this.timeout) clearTimeout(this.timeout);
-        this.timeout = setTimeout(() => {
-            this.disconnect();
-        }, 1000 * 60);
-        this.connected = true;
+        // if (this.timeout) clearTimeout(this.timeout);
+        // this.timeout = setTimeout(() => {
+        //     this.disconnect();
+        // }, 1000 * 60);
+        // this.connected = true;
     }
 
     emit(event: string, data: any) {
@@ -88,7 +88,7 @@ export class Socket {
     disconnect() {
         if (this.timeout) clearTimeout(this.timeout);
         this.cache = [];
-        Socket.sockets.delete(this.id);
+        // Socket.sockets.delete(this.id);
         this.newEvent('disconnect');
         this.connected = false;
     }
