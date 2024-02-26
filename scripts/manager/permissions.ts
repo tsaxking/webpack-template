@@ -21,7 +21,7 @@ const createPermission = async (perm: Permission, description: string) => {
             description,
         );
 
-        const [permissions, roles] = await Promise.all([
+        const [permissions, _roles] = await Promise.all([
             Role.getAllPermissions(),
             Role.all(),
         ]);

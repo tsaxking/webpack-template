@@ -1,5 +1,5 @@
 import { backToMain } from '../manager.ts';
-import { repeatPrompt, select, search } from '../prompt.ts';
+import { repeatPrompt, search } from '../prompt.ts';
 import Account from '../../server/structure/accounts.ts';
 import { attemptAsync, Result } from '../../shared/check.ts';
 import { addRoleToAccount, removeRoleFromAccount } from './roles.ts';
