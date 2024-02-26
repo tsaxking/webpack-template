@@ -6,6 +6,7 @@
 import { capitalize, fromCamelCase, fromSnakeCase } from '../../shared/text';
 import { Alert, Modal, Toast } from './modals';
 import { Color } from './modals';
+import { sleep } from '../../shared/sleep';
 
 /**
  * Displays a toast notification to the user
@@ -23,18 +24,46 @@ export const notify = <T extends 'toast' | 'alert'>(
 ): Toast | Alert => {
     const status = capitalize(fromSnakeCase(fromCamelCase(data.title), '-'));
 
-    const message = `${status}: ${
+    const title = `${status}: ${
         capitalize(
             fromSnakeCase(fromCamelCase(data.status), '-'),
         )
     }`;
     console.log(data);
+
+    const setAnimation = async (target: Alert | Toast) => {
+        target.on('hide', () => {
+            target.target.classList.add(
+                'animate__animated',
+                'animate__fadeOutUp',
+                'animate__faster',
+            );
+            const onEnd = () => {
+                target.target.removeEventListener('animationend', onEnd);
+                target.target.remove();
+            };
+
+            target.target.addEventListener('animationend', onEnd);
+        });
+
+        await sleep(5000);
+        target.hide();
+    };
+
     if (type === 'toast') {
-        const toast = new Toast(message, data.message, data.color);
+        const toast = new Toast(title, data.message, data.color);
+
+        setAnimation(toast);
+
+        toast.show();
 
         return toast;
     } else {
-        const alert = new Alert(message, data.message, data.color);
+        const alert = new Alert(title, data.message, data.color);
+
+        setAnimation(alert);
+
+        alert.show();
         return alert;
     }
 };

@@ -13,6 +13,8 @@ import { FileUpload } from './middleware/stream.ts';
 import { ReqBody } from './structure/app/req.ts';
 import { parseCookie } from '../shared/cookie.ts';
 import { stdin } from './utilities/stdin.ts';
+import { io, Socket } from './structure/socket.ts';
+import { getJSONSync } from './utilities/files.ts';
 
 const port = +(env.PORT || 3000);
 
@@ -23,6 +25,11 @@ export const app = new App(port, env.DOMAIN || `http://localhost:${port}`, {
     // onConnection: (socket) => {
     // log('New connection:', socket.id);
     // },
+    blockedIps: (() => {
+        const blocked = getJSONSync<string[]>('blocked-ips');
+        if (blocked.isOk()) return blocked.value;
+        return [];
+    })(),
     ioPort: +(env.SOCKET_PORT || port + 1),
 });
 
@@ -32,6 +39,13 @@ if (env.ENVIRONMENT === 'dev') {
         app.io.emit('reload');
     });
 }
+
+io.on('connection', (s: Socket) => {
+    log('New connection:', s.id);
+    s.on('disconnect', () => {
+        log('Disconnected:', s.id);
+    });
+});
 
 app.post('/env', (req, res) => {
     res.json({
@@ -45,7 +59,7 @@ app.post('/socket-init', (req, res) => {
 });
 
 app.get('/*', (req, res, next) => {
-    log(`[${req.method}] ${req.url}`);
+    log(`[${req.method}] ${req.pathname}`);
     next();
 });
 
@@ -110,7 +124,7 @@ function stripHtml(body: ReqBody) {
 app.post('/*', (req, res, next) => {
     req.body = stripHtml(req.body as ReqBody);
 
-    log('[POST]', req.url);
+    log('[POST]', req.url.pathname);
     try {
         const b = JSON.parse(JSON.stringify(req.body)) as {
             $$files?: FileUpload[];
@@ -187,7 +201,7 @@ app.get('/*', (req, res, next) => {
     next();
 });
 
-app.get('/dashboard/admin', Role.allowRoles('admin'), (_req, res) => {
+app.get('/dashboard/admin', Account.allowPermissions('admin'), (_req, res) => {
     res.sendTemplate('entries/dashboard/admin');
 });
 
@@ -206,7 +220,7 @@ app.final<{
     password?: string;
     confirmPassword?: string;
 }>((req, res) => {
-    req.session.save();
+    // req.session.save();
 
     serverLog('request', {
         date: Date.now(),

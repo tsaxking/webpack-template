@@ -4,15 +4,43 @@ import ThemeSwitch from '../ThemeSwitch.svelte';
 export let title: string;
 export let navItems: string[] = [];
 import { Account } from '../../../models/account';
+import { Modal } from '../../../utilities/modals';
+import Settings from '../../pages/Settings.svelte';
 
 export let active: string = '';
 
 let account: Account = Account.guest;
 
 export let accountLinks: (string | null)[] = [];
-Account.on('current', () => {
-    account = Account.current;
+
+Account.getAccount().then(a => {
+    if (a) account = a;
 });
+
+const fns = {
+    openSettings: () => {
+        const m = new Modal();
+        const body = document.createElement('div');
+        new Settings({
+            target: body,
+            props: {
+                settings: [
+                    {
+                        name: 'Theme',
+                        type: 'select',
+                        options: ['Light', 'Dark'],
+                        bindTo: 'theme',
+                        value: 'Dark'
+                    }
+                ]
+            }
+        });
+
+        m.setTitle('Settings');
+        m.setBody(body);
+        m.show();
+    }
+};
 </script>
 
 
@@ -75,8 +103,12 @@ Account.on('current', () => {
         id="navbarDropdown"
     >
         <li>
-            <a href="/settings" class="dropdown-item p-1">
-                <i class="material-icons">settings</i> Settings
+            <a
+                href="javascript:void(0);"
+                class="dropdown-item"
+                on:click="{fns.openSettings}"
+            >
+                <i class="material-icons">settings</i>&nbsp;Settings
             </a>
         </li>
         {#each accountLinks as link}

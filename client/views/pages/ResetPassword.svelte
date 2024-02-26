@@ -2,9 +2,10 @@
 import Password from '../components/Password.svelte';
 import { ServerRequest } from '../../utilities/requests';
 
-export let title: string;
+export let title: string = 'My App';
 
 const submit = () => {
+    if (i.value) return;
     ServerRequest.post('/account/reset-password', {
         password,
         confirmPassword,
@@ -25,6 +26,7 @@ const isPasswordValid = (password: string): string[] => {
 let valid = false;
 let password = '';
 let confirmPassword = '';
+let i: HTMLInputElement;
 
 $: valid =
     isPasswordValid(password).length === 0 && password === confirmPassword;
@@ -35,7 +37,7 @@ $: valid =
         <div class="col-md-6">
             <div class="row mb-3">
                 <h1>
-                    {title}: Sign up
+                    {title}: Reset Password
                 </h1>
             </div>
 
@@ -50,12 +52,35 @@ $: valid =
                     placeholder="Password"
                     label="Password"
                 />
+                {#if isPasswordValid(password).length > 0}
+                    <small class="text-danger">
+                        Password must have the following properties:
+                        <ul>
+                            {#each isPasswordValid(password) as property}
+                                <li>{property}</li>
+                            {/each}
+                        </ul>
+                    </small>
+                {:else}
+                    <small class="text-success"> Looks good! </small>
+                {/if}
 
                 <Password
                     bind:value="{confirmPassword}"
                     placeholder="Confirm Password"
                     label="Confirm Password"
                 />
+                {#if password.length > 0}
+                    {#if password !== confirmPassword}
+                        <small class="text-danger">
+                            Passwords do not match
+                        </small>
+                    {:else}
+                        <small class="text-success"> Looks good! </small>
+                    {/if}
+                {/if}
+
+                <hr />
 
                 <input
                     type="submit"
@@ -63,6 +88,14 @@ $: valid =
                     disabled="{!valid}"
                     value="Submit"
                     on:click|preventDefault="{submit}"
+                />
+
+                <input
+                    type="text"
+                    name="confirm-email"
+                    id="email"
+                    class="d-none"
+                    bind:this="{i}"
                 />
             </form>
         </div>

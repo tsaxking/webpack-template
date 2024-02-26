@@ -44,3 +44,23 @@ export const bigIntDecode = (obj: unknown) => {
     if (typeof obj === 'string') return decodeStr(obj);
     return obj;
 };
+
+export const toTable = (
+    data: {
+        [key: string]: string | number | boolean | undefined;
+    }[],
+) => {
+    const headers: string[] = [];
+    const rows = data.map((row) => {
+        const moreHeaders = Object.keys(row).filter(
+            (key) => !headers.includes(key),
+        );
+        if (moreHeaders.length > 0) {
+            headers.push(...moreHeaders);
+        }
+        return headers.map((header) => row[header]);
+    });
+
+    rows.unshift(headers);
+    return rows;
+};

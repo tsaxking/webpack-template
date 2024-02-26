@@ -26,6 +26,46 @@
     cursor: zoom-out !important;
 }
 
+.cursor-auto {
+    cursor: auto !important;
+}
+
+.cursor-default {
+    cursor: default !important;
+}
+
+.cursor-text {
+    cursor: text !important;
+}
+
+.cursor-ew-resize {
+    cursor: ew-resize !important;
+}
+
+.cursor-ns-resize {
+    cursor: ns-resize !important;
+}
+
+.cursor-nesw-resize {
+    cursor: nesw-resize !important;
+}
+
+.cursor-nwse-resize {
+    cursor: nwse-resize !important;
+}
+
+.cursor-col-resize {
+    cursor: col-resize !important;
+}
+
+.cursor-row-resize {
+    cursor: row-resize !important;
+}
+
+.cursor-help {
+    cursor: help !important;
+}
+
 .w-min {
     width: min-content !important;
 }

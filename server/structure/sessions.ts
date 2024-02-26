@@ -118,8 +118,10 @@ export class Session {
         }
 
         if (res.isErr()) {
-            console.error(res.error);
+            error(res.error);
         }
+
+        log('No session found :(');
     }
 
     /**
@@ -261,7 +263,8 @@ export class Session {
         }
     }
 
-    private timeout?: number;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private timeout?: any;
 
     public get latestActivity(): number | undefined {
         return this.$latestActivity;
@@ -276,7 +279,7 @@ export class Session {
             () => {
                 this.requests = 0;
                 this.save();
-                Session.cache.delete(this.id);
+                // Session.cache.delete(this.id);
             },
             1000 * 60 * 5,
         );
@@ -421,7 +424,7 @@ export class Session {
      * @param {string} event
      * @param {...any[]} args
      */
-    emit(event: string, ...args: unknown[]) {
-        app.io.to(this.id).emit(event, ...args);
+    emit(event: string, args: unknown) {
+        app.io.to(this.id).emit(event, args);
     }
 }

@@ -1,4 +1,6 @@
 import '../../utilities/imports';
-import App from '../../views/dashboards/User.svelte';
+import { Account } from '../../models/account';
 
-const myApp = new App({ target: document.body });
+Account.getAccount()
+    .then((a) => a?.getPermissions())
+    .then(console.log);

@@ -3,17 +3,17 @@ import Account from '../structure/accounts.ts';
 import { Status } from '../utilities/status.ts';
 import Role from '../structure/roles.ts';
 import { messages, StatusId } from '../../shared/status-messages.ts';
-import { validate } from '../middleware/data-type.ts';
+import { trimBody, validate } from '../middleware/data-type.ts';
 import env from '../utilities/env.ts';
 import { Req } from '../structure/app/req.ts';
 import { Res } from '../structure/app/res.ts';
+import { capitalize } from '../../shared/text.ts';
 
 export const router = new Route();
 
 const redirect = (req: Req, res: Res, next: Next) => {
     if (!req.session.accountId) return next();
 
-    // TODO: use prevurl
     res.redirect(req.session.prevUrl || '/');
 };
 
@@ -53,7 +53,7 @@ router.get('/sign-up', redirect, (req, res, next) => {
     });
 });
 
-router.get('/reset-password/:key', (req, res, next) => {
+router.get('/change-password/:key', (req, res, next) => {
     const { key } = req.params;
     if (!key) return next();
     const a = Account.fromPasswordChangeKey(key);
@@ -72,6 +72,7 @@ router.post<{
         username: 'string',
         password: 'string',
     }),
+    trimBody,
     async (req, res) => {
         const { username, password } = req.body;
 
@@ -129,6 +130,7 @@ router.post<{
         firstName: 'string',
         lastName: 'string',
     }),
+    trimBody,
     async (req, res) => {
         const {
             username,
@@ -143,7 +145,7 @@ router.post<{
             return Status.from('account:password-mismatch', req).send(res);
         }
 
-        const status = await Account.create(
+        const { status, data } = await Account.create(
             username,
             password,
             email,
@@ -151,7 +153,38 @@ router.post<{
             lastName,
         );
 
-        res.sendStatus(('account:' + status) as StatusId, { username });
+        switch (status) {
+            case 'created':
+                res.sendStatus('account:created', { username });
+                break;
+            case 'username-taken':
+                res.sendStatus('account:username-taken', { username });
+                break;
+            case 'email-taken':
+                res.sendStatus('account:email-taken', { email });
+                break;
+            case 'invalid-username':
+            case 'invalid-password':
+            case 'invalid-email':
+            case 'invalid-first-name':
+            case 'invalid-last-name':
+                res.sendCustomStatus(
+                    new Status(
+                        {
+                            message: 'Input contains invalid characters: ' +
+                                    data?.map((d) => `"${d}"`).join(', ') || '',
+                            color: 'warning',
+                            code: 400,
+                            instructions: 'Please try again.',
+                        },
+                        'Account',
+                        capitalize(status.split('-').join(' ')),
+                        JSON.stringify(req),
+                        req,
+                    ),
+                );
+                break;
+        }
 
         if (status === 'created') {
             req.io.emit('account:created', username);
@@ -321,7 +354,7 @@ router.post<{
 
         const status = await account.addRole(role);
         if (status === 'role-added') {
-            req.io.emit('account:role-added', accountId, roleId);
+            req.io.emit('account:role-added', { accountId, roleId });
         }
         if (!messages[('role:' + status) as keyof typeof messages]) {
             return res.sendStatus(('account:' + status) as StatusId, {
@@ -361,7 +394,7 @@ router.post<{
 
         const status = await account.removeRole(role);
         if (status === 'role-removed') {
-            req.io.emit('account:role-removed', accountId, roleId);
+            req.io.emit('account:role-removed', { accountId, roleId });
         }
         if (!messages[('role:' + status) as keyof typeof messages]) {
             return res.sendStatus(('account:' + status) as StatusId, {
@@ -443,6 +476,7 @@ router.post<{
         confirmPassword: 'string',
         key: 'string',
     }),
+    trimBody,
     async (req, res) => {
         const { password, confirmPassword, key } = req.body;
 
@@ -477,7 +511,14 @@ router.post<{
             if (await account.hasPermission('editRoles')) {
                 const roles = await (await Account.fromId(id))?.getRoles();
                 if (roles) {
-                    return res.json(roles);
+                    return res.json(
+                        await Promise.all(
+                            roles.map(async (r) => ({
+                                ...r,
+                                permissions: await r.getPermissions(),
+                            })),
+                        ),
+                    );
                 } else {
                     return res.json([]);
                 }

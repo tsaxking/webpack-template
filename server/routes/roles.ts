@@ -140,11 +140,10 @@ router.post<{
             permission,
         });
 
-        req.io.emit(
-            'roles:added-permission',
-            role.id,
-            await role.getPermissions(),
-        );
+        req.io.emit('roles:added-permission', {
+            roleId: role.id,
+            permissions: await role.getPermissions(),
+        });
     },
 );
 
@@ -180,10 +179,9 @@ router.post<{
             permission,
         });
 
-        req.io.emit(
-            'roles:added-permission',
-            role.id,
-            await role.getPermissions(),
-        );
+        req.io.emit('roles:added-permission', {
+            roleId: role.id,
+            permissions: await role.getPermissions(),
+        });
     },
 );

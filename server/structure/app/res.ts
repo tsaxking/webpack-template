@@ -402,8 +402,18 @@ export class Res {
                 this.req,
                 JSON.stringify(bigIntEncode(data)),
             );
-            s.redirect = redirect || s.redirect;
+            s.redirect = redirect || s.redirect || '';
             s.send(this);
+            return ResponseStatus.success;
+        } catch (error) {
+            log('Error sending status', error);
+            return ResponseStatus.error;
+        }
+    }
+
+    sendCustomStatus(status: Status): ResponseStatus {
+        try {
+            status.send(this);
             return ResponseStatus.success;
         } catch (error) {
             log('Error sending status', error);

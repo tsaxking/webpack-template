@@ -360,7 +360,10 @@ export default class Account {
      * @param {string[]} [chars=[]]
      * @returns {boolean}
      */
-    static isValid(str: string, chars: string[] = []): boolean {
+    static isValid(
+        str: string,
+        chars: string[] = [],
+    ): { valid: boolean; chars: string[] } {
         const allowedCharacters = [
             'a',
             'b',
@@ -462,7 +465,10 @@ export default class Account {
             console.log('Invalid characters/words:', invalidChars);
         }
 
-        return valid;
+        return {
+            valid,
+            chars: invalidChars,
+        };
     }
 
     /**
@@ -484,17 +490,50 @@ export default class Account {
         email: string,
         firstName: string,
         lastName: string,
-    ): Promise<AccountStatusId> {
-        if (await Account.fromUsername(username)) return 'username-taken';
-        if (await Account.fromEmail(email)) return 'email-taken';
+    ): Promise<{
+        status: AccountStatusId;
+        data?: string[];
+    }> {
+        if (await Account.fromUsername(username)) {
+            return {
+                status: 'username-taken',
+            };
+        }
+        if (await Account.fromEmail(email)) {
+            return {
+                status: 'email-taken',
+            };
+        }
 
         const { isValid } = Account;
 
-        if (!isValid(username)) return 'invalid-username';
-        if (!isValid(password)) return 'invalid-password';
-        if (!isValid(email)) return 'invalid-email';
-        if (!isValid(firstName)) return 'invalid-first-name';
-        if (!isValid(lastName)) return 'invalid-last-name';
+        const isValidUsername = isValid(username);
+        const isValidPassword = isValid(password);
+        const isValidEmail = isValid(email);
+        const isValidFirstName = isValid(firstName);
+        const isValidLastName = isValid(lastName);
+
+        if (!isValidUsername.valid) {
+            return {
+                status: 'invalid-username',
+                data: isValidUsername.chars,
+            };
+        }
+        if (!isValidPassword.valid) {
+            return { status: 'invalid-password', data: isValidPassword.chars };
+        }
+        if (!isValidEmail.valid) {
+            return { status: 'invalid-email', data: isValidEmail.chars };
+        }
+        if (!isValidFirstName.valid) {
+            return {
+                status: 'invalid-first-name',
+                data: isValidFirstName.chars,
+            };
+        }
+        if (!isValidLastName.valid) {
+            return { status: 'invalid-last-name', data: isValidLastName.chars };
+        }
 
         // log('Validating', email);
 
@@ -543,7 +582,7 @@ export default class Account {
 
         a.sendVerification();
 
-        return 'created';
+        return { status: 'created' };
     }
 
     /**
@@ -786,7 +825,9 @@ export default class Account {
             memberInfo: include?.memberInfo
                 ? await this.getMemberInfo()
                 : undefined,
-            permissions: include?.permissions ? this.getPermissions : [],
+            permissions: include?.permissions
+                ? await this.getPermissions()
+                : [],
             id: include?.id ? this.id : undefined,
             verified: this.verified,
         };

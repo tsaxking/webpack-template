@@ -14,6 +14,7 @@ import { Req } from './req.ts';
 import { Res } from './res.ts';
 import { ReqBody } from './req.ts';
 import { DB } from '../../utilities/databases.ts';
+import { io, SocketWrapper } from '../socket.ts';
 
 /**
  * All file types that can be sent (can be expanded)
@@ -320,6 +321,7 @@ type AppOptions = {
     onConnection?: (socket: any) => void;
     onDisconnect?: () => void;
     ioPort?: number;
+    blockedIps?: string[];
 };
 
 /**
@@ -361,7 +363,7 @@ export class App {
      * @readonly
      * @type {Server}
      */
-    public readonly io: Server;
+    public readonly io: SocketWrapper;
     /**
      * Deno server
      * @date 10/12/2023 - 2:49:37 PM
@@ -391,37 +393,12 @@ export class App {
             (req: Request, info: Deno.ServeHandlerInfo) =>
                 this.handler(req, info),
         );
-        this.io = new Server({
-            cors: {
-                origin: '*',
-                methods: ['GET', 'POST'],
-            },
-        });
-
-        this.io.on('connection', (socket: any) => {
-            log('New connection:', socket.id);
-
-            // socket.join(socket.id);
-
-            // join tab session
-            socket.on('ssid', (ssid: string) => {
-                socket.join(ssid);
-                socket.off('ssid');
-            });
-
-            // reload on file change
-            if (env.ENVIRONMENT === 'dev') {
-                socket.emit('reload');
-            }
-        });
+        // this.io = new SocketWrapper(options?.ioPort || 443);
+        this.io = io;
 
         if (options) {
             if (options.onListen) {
                 options.onListen(this.server);
-            }
-
-            if (options.ioPort) {
-                serve(this.io.handler(), { port: options.ioPort });
             }
 
             if (options.onConnection) {
@@ -431,8 +408,12 @@ export class App {
             if (options.onDisconnect) {
                 this.io.on('disconnect', options.onDisconnect);
             }
+
+            if (options.blockedIps) this.blockedIps = options.blockedIps;
         }
     }
+
+    private readonly blockedIps: string[] = [];
 
     /**
      * This is the main handler for all requests
@@ -449,20 +430,70 @@ export class App {
         denoReq: Request,
         info: Deno.ServeHandlerInfo,
     ): Promise<Response> {
+        if (this.blockedIps.includes(info.remoteAddr.hostname)) {
+            return new Response('Blocked', { status: 403 });
+        }
+
+        // block /socket.io
+        if (denoReq.url.includes('/socket.io')) {
+            return new Response('Blocked', { status: 403 });
+        }
+
         const { ssid } = parseCookie(denoReq.headers.get('cookie') || '');
+
+        // handle sockets before sessions
+        if (new URL(denoReq.url, this.domain).pathname === '/socket') {
+            const data = await denoReq.json();
+            const { cache, id } = data ||
+                ({} as Partial<{ cache: unknown[]; id: string }>);
+
+            const s = this.io.Socket.get(id, this.io, ssid);
+            s.setTimeout();
+            if (Array.isArray(cache)) {
+                for (const c of cache) s.newEvent(c.event, c.data);
+            }
+            setTimeout(() => (s.cache = [])); // clear cache after event loop is free
+            return new Response(
+                JSON.stringify({
+                    cache: s.cache,
+                    id: s.id,
+                }),
+            );
+        }
+
         let s = await Session.get(ssid);
 
         let setSsid = false;
 
         if (!s) {
             setSsid = true;
-            log('New session', ssid);
+            log('New session');
+
+            const userAgent = denoReq.headers.get('usr-agent') || '';
+
+            // prevent spam
+            if (
+                [
+                    'node',
+                    'axios',
+                    'curl',
+                    'postman',
+                    'insomnia',
+                    'httpie',
+                    'python-requests',
+                    // ''
+                ].find((t) => userAgent.toLowerCase().includes(t))
+            ) {
+                console.log('Spam');
+                return new Response('Hello there!', { status: 200 });
+            }
+
             const obj = {
                 id: Session.newId(),
                 ip: info.remoteAddr.hostname,
                 latestActivity: Date.now(),
                 accountId: '',
-                userAgent: denoReq.headers.get('user-agent') || '',
+                userAgent,
                 prevUrl: '',
                 requests: 1,
                 created: Date.now(),

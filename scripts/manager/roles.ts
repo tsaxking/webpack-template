@@ -77,6 +77,9 @@ export const addRoleToAccount = async () => {
     if (roleRes.isOk()) {
         const accountRes = await selectAccount();
         if (accountRes.isOk()) {
+            if (!accountRes.value) {
+                return backToMain('Did not select an account');
+            }
             const account = accountRes.value;
             const role = roleRes.value;
 
@@ -103,6 +106,9 @@ export const removeRoleFromAccount = async () => {
 
     if (accountRes.isOk()) {
         const account = accountRes.value;
+
+        if (!account) return backToMain('No account selected');
+
         const roles = await account.getRoles();
         if (!roles.length) {
             backToMain(`Account ${account.username} has no roles`);

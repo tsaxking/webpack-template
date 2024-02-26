@@ -18,6 +18,7 @@ credentials.json
 token.json
 
 cached-ids.json
+blocked-ips.json
 
 database.json
 

@@ -1,7 +1,7 @@
 import { EventEmitter } from '../../shared/event-emitter';
 import { Cache } from './cache';
-import { AccountSafe, Role as R } from '../../shared/db-types';
-import { Permission as P, RoleName } from '../../shared/permissions';
+import { AccountSafe, Role as R, RolePermission } from '../../shared/db-types';
+import { Permission as P } from '../../shared/permissions';
 import { attemptAsync, Result } from '../../shared/attempt';
 import { ServerRequest } from '../utilities/requests';
 import { Role } from './roles';
@@ -84,6 +84,19 @@ export class Account extends Cache<AccountEvents> {
      * @type {?Account}
      */
     public static current?: Account;
+
+    public static async getAccount(): Promise<Account | undefined> {
+        if (Account.current) return Account.current;
+        const res = await ServerRequest.post<AccountSafe>(
+            '/account/get-account',
+        );
+        if (res.isOk()) {
+            if (!res.value.id) return;
+            Account.current = new Account(res.value);
+            Account.emit('current', Account.current);
+            return Account.current;
+        }
+    }
 
     /**
      * Account emitter
@@ -175,7 +188,8 @@ export class Account extends Cache<AccountEvents> {
      */
     public static async all(): Promise<Result<Account[]>> {
         return attemptAsync(async () => {
-            if (Account.$cache.size > 0) {
+            if (Account.$cache.size > 1) {
+                // guest account is included
                 return Array.from(Account.$cache.values());
             }
 
@@ -300,10 +314,13 @@ export class Account extends Cache<AccountEvents> {
     public async getRoles(force = false): Promise<Result<Role[]>> {
         return attemptAsync(async () => {
             if (this.$cache.has('roles') && !force) {
-                return this.$cache.get('roles') as Role[];
+                const roles = this.$cache.get('roles') as Role[];
+                if (roles.length) return roles;
             }
 
-            const res = await ServerRequest.post<R[]>('/account/get-roles', {
+            const res = await ServerRequest.post<
+                (R & { permissions: RolePermission[] })[]
+            >('/account/get-roles', {
                 id: this.id,
             });
 
@@ -325,13 +342,15 @@ export class Account extends Cache<AccountEvents> {
      * @async
      * @returns {Promise<Result<P[]>>}
      */
-    public async getPermissions(force = false): Promise<Result<P[]>> {
+    public async getPermissions(
+        force = false,
+    ): Promise<Result<RolePermission[]>> {
         return attemptAsync(async () => {
             if (this.$cache.has('permissions') && !force) {
-                return this.$cache.get('permissions') as P[];
+                return this.$cache.get('permissions') as RolePermission[];
             }
 
-            const res = await ServerRequest.post<P[]>(
+            const res = await ServerRequest.post<RolePermission[]>(
                 '/account/get-permissions',
                 {
                     id: this.id,
@@ -496,6 +515,7 @@ socket.on('account:removed', (accountId: string) => {
     if (account) {
         console.log('account removed', account);
         Account.emit('delete', account);
+        Account.$cache.delete(accountId);
         account.emit('delete', undefined);
         account.destroy();
     }
@@ -506,27 +526,35 @@ socket.on('account:created', (account: AccountSafe) => {
     Account.emit('new', a);
 });
 
-socket.on('account:role-removed', async (accountId: string, roleId: string) => {
-    const account = Account.$cache.get(accountId);
-    if (account) {
-        await account.getRoles(true); // force update
+socket.on(
+    'account:role-removed',
+    async (data: { accountId: string; roleId: string }) => {
+        const { accountId, roleId } = data;
+        const account = Account.$cache.get(accountId);
+        if (account) {
+            await account.getRoles(true); // force update
 
-        account.emit('update', undefined);
-        account.emit('role-removed', roleId);
-        Account.emit('update', account);
-    }
-});
+            account.emit('update', undefined);
+            account.emit('role-removed', roleId);
+            Account.emit('update', account);
+        }
+    },
+);
 
-socket.on('account:role-added', async (accountId: string, roleId: string) => {
-    const account = Account.$cache.get(accountId);
-    if (account) {
-        await account.getRoles(true); // force update
+socket.on(
+    'account:role-added',
+    async (data: { accountId: string; roleId: string }) => {
+        const { accountId, roleId } = data;
+        const account = Account.$cache.get(accountId);
+        if (account) {
+            await account.getRoles(true); // force update
 
-        account.emit('update', undefined);
-        account.emit('role-added', roleId);
-        Account.emit('update', account);
-    }
-});
+            account.emit('update', undefined);
+            account.emit('role-added', roleId);
+            Account.emit('update', account);
+        }
+    },
+);
 
 socket.on('account:verified', (accountId: string) => {
     const account = Account.$cache.get(accountId);
@@ -545,13 +573,5 @@ socket.on('account:unverified', (accountId: string) => {
         account.emit('unverified', account);
         account.emit('update', undefined);
         Account.emit('update', account);
-    }
-});
-
-ServerRequest.post<AccountSafe>('/account/get-account').then((res) => {
-    if (res.isOk()) {
-        if (!res.value.id) return;
-        Account.current = new Account(res.value);
-        Account.emit('current', Account.current);
     }
 });

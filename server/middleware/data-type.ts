@@ -248,3 +248,23 @@ export const validate = <type = unknown>(
         return res.sendStatus('server:invalid-data', body);
     };
 };
+
+export const bodyPipe = <T>(pipe: (value: T) => T) => {
+    return (req: Req<T>, res: any, next: any) => {
+        req.body = pipe(req.body);
+        next();
+    };
+};
+
+export const trimBody = bodyPipe(
+    (body: {
+        [key: string]: string;
+    }): {
+        [key: string]: string;
+    } => {
+        for (const key in body) {
+            body[key] = body[key].trim();
+        }
+        return body;
+    },
+);

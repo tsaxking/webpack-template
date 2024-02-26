@@ -14,3 +14,5 @@ export let settings: SettingsType[] = [
 </script>
 
 <SettingsGroup {settings} />
+
+<!-- TODO: Change account information -->
