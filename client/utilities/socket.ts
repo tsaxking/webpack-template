@@ -12,10 +12,12 @@ const SOCKET_INTERVAL = 1500;
 class SocketWrapper {
     private cache: Cache[] = [];
     private id?: string;
+    public static isActive = false;
 
     private readonly em = new EventEmitter();
 
     private async ping() {
+        if (!SocketWrapper.isActive) return;
         const res = await ServerRequest.post<{
             cache: Cache[];
             id: string;
@@ -63,3 +65,25 @@ class SocketWrapper {
 export const socket = new SocketWrapper();
 
 Object.assign(window, { socket });
+
+{
+    let timeout: NodeJS.Timeout;
+    const setActivity = () => {
+        SocketWrapper.isActive = true;
+        clearTimeout(timeout);
+
+        // stop after 1 minute of inactivity
+        timeout = setTimeout(() => {
+            SocketWrapper.isActive = false;
+        }, 1000 * 60);
+    };
+    window.addEventListener('focus', setActivity);
+    document.addEventListener('click', setActivity);
+    document.addEventListener('mousemove', setActivity);
+    document.addEventListener('keydown', setActivity);
+    document.addEventListener('scroll', setActivity);
+    document.addEventListener('touchstart', setActivity);
+    document.addEventListener('touchmove', setActivity);
+    document.addEventListener('touchend', setActivity);
+    document.addEventListener('touchcancel', setActivity);
+}
