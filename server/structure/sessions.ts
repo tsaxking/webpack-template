@@ -8,6 +8,9 @@ import { Req } from './app/req.ts';
 import { Res } from './app/res.ts';
 import { error, log } from '../utilities/terminal-logging.ts';
 import { Colors } from '../utilities/colors.ts';
+import { getJSON, saveJSON } from '../utilities/files.ts';
+import { deleteJSON } from '../utilities/files.ts';
+import env from '../utilities/env.ts';
 
 /**
  * Session object from the database
@@ -90,6 +93,8 @@ export class Session {
         maxAge: 60 * 60 * 24 * 7,
         httpOnly: true,
         sameSite: 'Strict',
+        domain: env.DOMAIN,
+        path: '/'
     };
     /**
      * The cookie identifier for the session
@@ -98,7 +103,7 @@ export class Session {
      * @static
      * @type {string}
      */
-    static sessionName = 'ssid';
+    static sessionName = 'sessionId';
 
     /**
      * Retrieves a session from the database
@@ -108,11 +113,12 @@ export class Session {
      * @param {string} id
      * @returns {(Session | undefined)}
      */
-    static async get(id: string): Promise<Session | undefined> {
-        // if (Session.cache.has(id)) {
-        //     return Session.cache.get(id);
-        // }
-        const res = await DB.get('sessions/get', { id });
+    static async get(id: string, force = false): Promise<Session | undefined> {
+        if (Session.cache.has(id) && !force) {
+            return Session.cache.get(id);
+        }
+        // const res = await DB.get('sessions/get', { id });
+        const res = await getJSON<SessionObj>('sessions/' + id + '.session');
         if (res.isOk() && res.value) {
             return Session.fromSessObj(res.value);
         }
@@ -161,18 +167,20 @@ export class Session {
     static newSession(req: Req, res: Res): Session | undefined {
         const s = new Session(req);
         res.cookie(Session.sessionName, s.id, Session.cookieOptions);
-        req.addCookie('ssid', s.id);
+        // req.addCookie(Session.sessionName, s.id);
 
-        DB.run('sessions/new', {
-            id: s.id,
-            ip: s.ip || '',
-            latestActivity: s.latestActivity,
-            accountId: s.accountId || '',
-            userAgent: s.userAgent || '',
-            prevUrl: s.prevUrl || '',
-            requests: s.requests,
-            created: s.created,
-        });
+        // DB.run('sessions/new', {
+        //     id: s.id,
+        //     ip: s.ip || '',
+        //     latestActivity: s.latestActivity,
+        //     accountId: s.accountId || '',
+        //     userAgent: s.userAgent || '',
+        //     prevUrl: s.prevUrl || '',
+        //     requests: s.requests,
+        //     created: s.created,
+        // });
+
+        s.save();
 
         return s;
     }
@@ -251,7 +259,7 @@ export class Session {
 
         // Session.cache.set(this.id, this);
 
-        setTimeout(() => this.destroy(), Session.cookieOptions.maxAge);
+        // setTimeout(() => this.destroy(), Session.cookieOptions.maxAge);
 
         if (Session.requestsInfo.max < Infinity) {
             // log(Session.requestsInfo.max, Session.requestsInfo.per);
@@ -382,7 +390,8 @@ export class Session {
      * @date 10/12/2023 - 3:13:57 PM
      */
     destroy() {
-        return DB.run('sessions/delete', { id: this.id });
+        // return DB.run('sessions/delete', { id: this.id });
+        return deleteJSON('sessions/' + this.id + '.session');
     }
 
     /**
@@ -390,31 +399,49 @@ export class Session {
      * @date 10/12/2023 - 3:13:57 PM
      */
     async save() {
-        const s = await DB.get('sessions/get', { id: this.id });
+        const s = await getJSON<SessionObj>('sessions/' + this.id + '.session');
 
-        if (s.isOk() && s.value) {
-            // console.log(Colors.FgRed, '!!!Updating session!!!', Colors.Reset);
-            return DB.run('sessions/update', {
-                id: this.id,
-                ip: this.ip || '',
-                latestActivity: this.latestActivity,
-                accountId: this.accountId || '',
-                userAgent: this.userAgent || '',
-                prevUrl: this.prevUrl || '',
-                requests: this.requests,
-            });
-        } else {
-            return DB.run('sessions/new', {
-                id: this.id,
-                ip: this.ip || '',
-                latestActivity: this.latestActivity,
-                accountId: this.accountId || '',
-                userAgent: this.userAgent || '',
-                prevUrl: this.prevUrl || '',
-                requests: this.requests,
-                created: this.created,
-            });
-        }
+        const sessObj: SessionObj = {
+            ...(s.isOk() ? s.value : {}),
+            // updated
+            id: this.id,
+            ip: this.ip || '',
+            latestActivity: this.latestActivity,
+            accountId: this.accountId || '',
+            userAgent: this.userAgent || '',
+            prevUrl: this.prevUrl || '',
+            requests: this.requests,
+            created: this.created,
+        };
+
+        return saveJSON('sessions/' + this.id + '.session', sessObj);
+        
+
+        // const s = await DB.get('sessions/get', { id: this.id });
+
+        // if (s.isOk() && s.value) {
+        //     // console.log(Colors.FgRed, '!!!Updating session!!!', Colors.Reset);
+        //     return DB.run('sessions/update', {
+        //         id: this.id,
+        //         ip: this.ip || '',
+        //         latestActivity: this.latestActivity,
+        //         accountId: this.accountId || '',
+        //         userAgent: this.userAgent || '',
+        //         prevUrl: this.prevUrl || '',
+        //         requests: this.requests,
+        //     });
+        // } else {
+        //     return DB.run('sessions/new', {
+        //         id: this.id,
+        //         ip: this.ip || '',
+        //         latestActivity: this.latestActivity,
+        //         accountId: this.accountId || '',
+        //         userAgent: this.userAgent || '',
+        //         prevUrl: this.prevUrl || '',
+        //         requests: this.requests,
+        //         created: this.created,
+        //     });
+        // }
     }
 
     /**
