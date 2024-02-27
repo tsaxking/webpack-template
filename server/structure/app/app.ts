@@ -2,7 +2,7 @@
 /* eslint-disable no-async-promise-executor */
 // make a class that simulates npm:express using the deno std library
 import { __root } from '../../utilities/env.ts';
-import { error } from '../../utilities/terminal-logging.ts';
+import { error, log } from '../../utilities/terminal-logging.ts';
 import { Session } from '../sessions.ts';
 import { Req } from './req.ts';
 import { Res } from './res.ts';
@@ -89,7 +89,7 @@ export type CookieOptions = {
 };
 
 type Listener = {
-    type: RequestMethod;
+    method: RequestMethod;
     path: string;
     callback: ServerFunction<any>;
 }
@@ -156,13 +156,11 @@ export class Route {
      * @returns {this}
      */
     route(path: string, route: Route): this {
-        for (const listener of route.listeners) {
-            this.listeners.push({
-                type: listener.type,
-                path: path + listener.path,
-                callback: listener.callback,
-            });
-        }
+        // console.log('Routing:', path);
+        this.listeners.push(...route.listeners.map(l => ({
+            ...l,
+            path: path + l.path,
+        })));
         return this;
     }
 
@@ -180,35 +178,20 @@ export class Route {
 
     
     public parse<T>(
-        type: RequestMethod,
+        method: RequestMethod,
         path: string | ServerFunction<T>,
         ...callbacks: ServerFunction<T>[]
     ) {
-        if (typeof path === 'string') {
-            this.listeners.push({
-                type,
-                path,
-                callback: async (req, res, next) => {
-                    for (const callback of callbacks) {
-                        try {
-                            await callback(req, res, next);
-                        } catch (e) {
-                            error(e);
-                            if (!res.fulfilled) {
-                                res.sendStatus('unknown:error');
-                            }
-                        }
-                    }
-                }
-            })
-        } else {
-            this.listeners.push({
-                type,
-                path: '/*',
-                callback: path,
-            });
-        
+        // console.log('Adding listener', method, path, callbacks);
+        if (typeof path !== 'string') {
+            callbacks.unshift(path);
+            path = '/*';
         }
+        this.listeners.push(...callbacks.map(callback => ({
+            method,
+            path: path as string,
+            callback
+        })));
     }
 }
 
@@ -365,10 +348,10 @@ export class App {
      * @param {string} path
      * @param {string} filePath
      */
-    static(path: string, filePath: string) {
+    static(path: string, filePath?: string) {
         this.get(path + '/*', async (req, res) => {
             // log('Sending file:', filePath + req.pathname.replace(path, ''), req.pathname);
-            res.sendFile(filePath + req.pathname.replace(path, ''));
+            res.sendFile((filePath || path) + req.pathname.replace(path, ''));
         });
     }
 
@@ -415,38 +398,44 @@ export class App {
     }
 
     public parse<T>(
-        type: RequestMethod,
+        method: RequestMethod,
         path: string | ServerFunction<T>,
         ...callbacks: ServerFunction<T>[]
     ) {
-        if (typeof path === 'string') {
-            this.listeners.push({
-                type,
-                path,
-                callback: async (req, res, next) => {
-                    for (const callback of callbacks) {
-                        try {
-                            await callback(req, res, next);
-                        } catch (e) {
-                            error(e);
-                            if (!res.fulfilled) {
-                                res.sendStatus('unknown:error');
-                            }
-                        }
-                    }
-                }
-            })
-        } else {
-            this.listeners.push({
-                type,
-                path: '/*',
-                callback: path,
-            });
+        // console.log('Adding listener', method, path, callbacks);
+        if (typeof path !== 'string') {
+            callbacks.unshift(path);
+            path = '/*';
         }
+        this.listeners.push(...callbacks.map(callback => ({
+            method,
+            path: path as string,
+            callback
+        })));
     }
 
     listen(cb?: () => void) {
-        this.server.use(async (ctx) => {
+        this.server.use(async (ctx, next) => {
+            let ssid = await ctx.cookies.get('session');
+
+
+            if (ctx.request.url.pathname === '/socket') {
+                const data = await ctx.request.body.json();
+                const { cache, id } = data ||
+                    ({} as Partial<{ cache: unknown[]; id: string }>);
+    
+                const s = this.io.Socket.get(id, this.io, ssid || '');
+                s.setTimeout();
+                if (Array.isArray(cache)) {
+                    for (const c of cache) s.newEvent(c.event, c.data);
+                }
+                setTimeout(() => (s.cache = [])); // clear cache after event loop is free
+                return ctx.response.body = {
+                    cache: s.cache,
+                    id: s.id
+                }
+            }
+
             const req = new Req(ctx, this.io);
             const res = new Res(this, req);
 
@@ -454,7 +443,6 @@ export class App {
             // ssid in the cookie may not be valid or exist
             // the session on the server may not exist
 
-            let ssid = await ctx.cookies.get('session');
             let s: Session;
 
             if (ssid) {
@@ -474,6 +462,8 @@ export class App {
 
             req.session = s;
 
+            // console.log(req.session);
+
             // for the next middleware functions
             ctx.state.req = req;
             ctx.state.res = res;
@@ -486,42 +476,56 @@ export class App {
                 }
             })().catch(() => ({}));
 
-            const listeners = this.listeners.filter(l => {
-                const isMethod = (l.type === req.method) || (l.type === RequestMethod.USE); 
-                const isPath = l.path === req.pathname;
-
-                if (isMethod && isPath) {
-                    return true;
+            const listeners = this.listeners.filter((sf) => {
+                // get rid of query
+                const path = req.pathname.split('?')[0];
+                if (sf.method !== req.method && sf.method !== 'USE') {
+                    return false;
                 }
+                const pathParts = sf.path.split('/');
+                const urlParts = path.split('/');
 
-                // check if the path is a wildcard
-                if (l.path.endsWith('/*')) {
-                    const path = l.path.replace('/*', '');
-                    if (req.pathname.startsWith(path)) {
-                        return true;
-                    }
-                }
+                // if (pathParts.length !== urlParts.length) return false;
 
-                return false;
-            });
+                const test = pathParts.every((part: string, i: number) => {
+                    // log(part, urlParts[i]);
+
+                    if (part === '*') return true;
+                    if (part.startsWith(':')) return true;
+                    return part === urlParts[i];
+                });
+
+                // log(test);
+
+                return test;
+            }).map(l => this.listeners.indexOf(l));
 
             console.log(listeners, req.pathname, req.method);
 
-            for (const [i, listener] of listeners.entries()) {
-                try {
-                    console.log(i);
-                    await listener.callback(req, res, () => {});
+            const run = async (i: number) => {
+                const listener = this.listeners[listeners[i]];
+                const next = () => {
+                    run(i + 1);
+                }
 
-                    if (!res.fulfilled && i === listeners.length - 1) {
-                        error('Request not fulfilled');
-                    }
-                } catch (e) {
-                    error(e);
-                    if (!res.fulfilled) {
+                if (i < listeners.length) {
+                    console.log('Running', listener.path, listeners[i]);
+                    console.log(listeners[i], ctx.response);
+                    try {
+                        await listener.callback(req, res, next);
+                    } catch (e) {
+                        error('Error handling request:', e);
                         res.sendStatus('unknown:error');
                     }
+                } else {
+                    error('Request not fulfilled');
+                    res.sendStatus('unknown:error');
                 }
-            }
+            };
+
+            run(0);
+
+            return next();
         });
 
         // this.server.use(this.router.allowedMethods());
@@ -531,13 +535,11 @@ export class App {
     }
 
     route(path: string, route: Route): this {
-        for (const listener of route.listeners) {
-            this.listeners.push({
-                type: listener.type,
-                path: path + listener.path,
-                callback: listener.callback,
-            });
-        }
+        // console.log('Routing:', path);
+        this.listeners.push(...route.listeners.map(l => ({
+            ...l,
+            path: path + l.path,
+        })));
         return this;
     }
 }
