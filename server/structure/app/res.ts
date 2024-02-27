@@ -7,6 +7,7 @@ import {
     Constructor,
     getTemplate,
     getTemplateSync,
+    readFileSync,
 } from '../../utilities/files.ts';
 import { setCookie } from 'https://deno.land/std@0.203.0/http/cookie.ts';
 import { App } from './app.ts';
@@ -195,16 +196,18 @@ export class Res {
      * @returns {ResponseStatus}
      */
     json(data: unknown): ResponseStatus {
+        console.log(this.req.ctx.response);
         try {
             if (this.isFulfilled()) return ResponseStatus.alreadyFulfilled;
+            console.log('Sending json', data);
 
             const d = JSON.stringify(data);
-            this.headers.set('content-type', 'application/json');
+            // this.headers.set('content-type', 'application/json');
             this.req.ctx.response.body = d;
             this.fulfilled = true;
             return ResponseStatus.success;
         } catch (e) {
-            log('Cannot stringify data', e);
+            log(e);
             return ResponseStatus.error;
         }
     }
@@ -220,10 +223,11 @@ export class Res {
      */
     send(data: string, filetype: FileType = 'html'): ResponseStatus {
         if (this.isFulfilled()) return ResponseStatus.alreadyFulfilled;
-
-        this.headers.set('content-type', fileTypeHeaders[filetype]);
-        this.req.ctx.response.body = data;
         this.fulfilled = true;
+        // console.log('Sending data', data);
+
+        // this.headers.set('content-type', fileTypeHeaders[filetype]);
+        this.req.ctx.response.body = data;
 
         return ResponseStatus.success;
     }
@@ -236,18 +240,20 @@ export class Res {
      * @param {string} path
      * @returns {ResponseStatus}
      */
-    async sendFile(path: string): Promise<ResponseStatus> {
+    sendFile(path: string): ResponseStatus {
         // log('Sending file', path);
         try {
             if (this.isFulfilled()) return ResponseStatus.alreadyFulfilled;
-
-            const file = await readFile(path);
-            this.headers.set(
-                'content-type',
-                fileTypeHeaders[path.split('.').pop() || 'html'],
-            );
-            this.req.ctx.response.body = file;
             this.fulfilled = true;
+            // console.log('Sending file', path);
+
+            const file = readFileSync(path);
+            if (file.isErr()) throw new Error(file.error);
+            // this.headers.set(
+            //     'content-type',
+            //     fileTypeHeaders[path.split('.').pop() || 'html'],
+            // );
+            this.req.ctx.response.body = file.value;
 
             return ResponseStatus.success;
         } catch (e) {
@@ -277,8 +283,10 @@ export class Res {
      * @returns {ResponseStatus}
      */
     redirect(path: string): ResponseStatus {
-        this.req.ctx.response.redirect(path);
+        if (this.isFulfilled()) return ResponseStatus.alreadyFulfilled;
+        // console.log('Redirecting to', path);
         this.fulfilled = true;
+        this.req.ctx.response.redirect(path);
 
         return ResponseStatus.success;
     }
@@ -353,12 +361,12 @@ export class Res {
      * @param {?*} [options]
      * @returns {ResponseStatus}
      */
-    async sendTemplate(
+    sendTemplate(
         template: string,
         options?: Constructor,
-    ): Promise<ResponseStatus> {
+    ): ResponseStatus {
         try {
-            const t = await getTemplate(template, options);
+            const t = getTemplateSync(template, options);
             if (t.isErr()) throw new Error(t.error);
             this.send(t.value, 'html');
             return ResponseStatus.success;
@@ -410,7 +418,7 @@ export class Res {
             type: 'bytes',
         });
 
-        this.headers.set('content-type', 'octet/stream');
+        // this.headers.set('content-type', 'octet/stream');
         this.req.ctx.response.body = stream;
 
         return em;
@@ -425,9 +433,9 @@ export class Res {
      * @param {*} constructor
      * @returns {*}
      */
-    async render(template: string, constructor: Constructor) {
+    render(template: string, constructor: Constructor) {
         try {
-            const t = await getTemplate(template, constructor);
+            const t = getTemplateSync(template, constructor);
             if (t.isErr()) throw new Error(t.error);
             this.send(t.value, 'html');
         } catch (e) {

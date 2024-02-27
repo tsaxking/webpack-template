@@ -58,14 +58,14 @@ app.post('/socket-init', (req, res) => {
     res.json(parseCookie(cookie));
 });
 
-app.get((req, res, next) => {
+app.use((req, res, next) => {
     log(`[${req.method}] ${req.pathname}`);
     next();
 });
 
-app.static('/public', resolve(__root, './public'));
-app.static('/dist', resolve(__root, './dist'));
-app.static('/uploads', resolve(__root, './storage/uploads'));
+app.static('/public');
+app.static('/dist');
+app.static('/uploads');
 
 app.post('/socket-url', (req, res) => {
     res.json({
@@ -120,6 +120,7 @@ function stripHtml(body: ReqBody) {
     return obj;
 }
 
+
 app.post( (req, res, next) => {
     req.body = stripHtml(req.body as ReqBody);
 
@@ -156,16 +157,16 @@ app.get('/', (req, res) => {
     res.redirect('/home');
 });
 
-app.get(async (req, res, next) => {
-    const homePages = await getJSON<string[]>('pages/home');
-    if (homePages.isOk()) {
-        if (homePages.value.includes(req.url.href.slice(1))) {
-            const r = await homeBuilder(req.url.pathname);
-            if (r.isOk()) res.send(r.value);
-        }
-    }
-    next();
-});
+// app.get(async (req, res, next) => {
+//     const homePages = await getJSON<string[]>('pages/home');
+//     if (homePages.isOk()) {
+//         if (homePages.value.includes(req.url.href.slice(1))) {
+//             const r = await homeBuilder(req.url.pathname);
+//             if (r.isOk()) res.send(r.value);
+//         }
+//     }
+//     next();
+// });
 
 app.get('/test/:page', async (req, res, next) => {
     if (env.ENVIRONMENT !== 'dev') return next();
@@ -181,7 +182,7 @@ app.route('/roles', role);
 
 app.use( Account.autoSignIn(env.AUTO_SIGN_IN));
 
-app.get((req, res, next) => {
+app.get( (req, res, next) => {
     if (!req.session.accountId) {
         if (
             ![
