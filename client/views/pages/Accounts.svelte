@@ -60,7 +60,7 @@ const fns = {
                         phoneNumber: a.phoneNumber,
                         picture: a.picture,
                         roles,
-                        permissions
+                        permissions: permissions.map(p => p.permission) as P[]
                     };
                 })
             )
