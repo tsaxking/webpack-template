@@ -1,7 +1,7 @@
 <script lang="ts">
-    export let src: string;
+export let src: string;
 </script>
 
-<video src="{src}" controls>
-    <track kind="captions">
+<video {src} controls>
+    <track kind="captions" />
 </video>
