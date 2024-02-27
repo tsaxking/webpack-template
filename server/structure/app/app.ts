@@ -88,6 +88,12 @@ export type CookieOptions = {
     sameSite?: 'Strict' | 'Lax' | 'None';
 };
 
+type Listener = {
+    type: RequestMethod;
+    path: string;
+    callback: ServerFunction<any>;
+}
+
 /**
  * This class is used to group requests together from a single pathname
  * @date 10/12/2023 - 2:49:37 PM
@@ -97,7 +103,7 @@ export type CookieOptions = {
  * @typedef {Route}
  */
 export class Route {
-    public readonly router = new Router();
+    public readonly listeners: Listener[] = [];
 
     constructor() {}
 
@@ -150,7 +156,13 @@ export class Route {
      * @returns {this}
      */
     route(path: string, route: Route): this {
-        this.router.use(path, route.router.routes());
+        for (const listener of route.listeners) {
+            this.listeners.push({
+                type: listener.type,
+                path: path + listener.path,
+                callback: listener.callback,
+            });
+        }
         return this;
     }
 
@@ -172,108 +184,31 @@ export class Route {
         path: string | ServerFunction<T>,
         ...callbacks: ServerFunction<T>[]
     ) {
-
-        const parse = (cb: ServerFunction<T>): any => {
-            return async (ctx: Context, next: () => Promise<void>) => {
-                const req = ctx.state.req as Req<T>;
-                const res = ctx.state.res as Res;
-                try {
-                    await cb(req, res, next);
-                } catch (e) {
-                    error('Error handling request:', e);
-                    if (!res.fulfilled) {
-                        res.sendStatus('server:unknown-server-error');
+        if (typeof path === 'string') {
+            this.listeners.push({
+                type,
+                path,
+                callback: async (req, res, next) => {
+                    for (const callback of callbacks) {
+                        try {
+                            await callback(req, res, next);
+                        } catch (e) {
+                            error(e);
+                            if (!res.fulfilled) {
+                                res.sendStatus('unknown:error');
+                            }
+                        }
                     }
                 }
-            };
-        };
-
-        if (typeof path === 'string') {
-            this.router.use(
-                path,
-                parse(callbacks[0]),
-                ...callbacks.slice(1).map(parse),
-            );
+            })
         } else {
-            this.router.use(
-                parse(path),
-                parse(callbacks[0]),
-                ...callbacks.slice(1).map(parse),
-            )
+            this.listeners.push({
+                type,
+                path: '/*',
+                callback: path,
+            });
+        
         }
-
-        // switch (type) {
-        //     case RequestMethod.GET:
-        //         if (typeof path === 'string') {
-        //             return this.router.get(
-        //                 path,
-        //                 parse(callbacks[0]),
-        //                 ...callbacks.slice(1).map(parse),
-        //             );
-        //         } else {
-        //             return this.router.get(
-        //                 parse(path),
-        //                 parse(callbacks[0]),
-        //                 ...callbacks.slice(1).map(parse),
-        //             )
-        //         }
-        //     case RequestMethod.POST:
-        //         if (typeof path === 'string') {
-        //             return this.router.post(
-        //                 path,
-        //                 parse(callbacks[0]),
-        //                 ...callbacks.slice(1).map(parse),
-        //             );
-        //         } else {
-        //             return this.router.post(
-        //                 parse(path),
-        //                 parse(callbacks[0]),
-        //                 ...callbacks.slice(1).map(parse),
-        //             )
-        //         }
-        //     case RequestMethod.PUT:
-        //         if (typeof path === 'string') {
-        //             return this.router.put(
-        //                 path,
-        //                 parse(callbacks[0]),
-        //                 ...callbacks.slice(1).map(parse),
-        //             );
-        //         } else {
-        //             return this.router.put(
-        //                 parse(path),
-        //                 parse(callbacks[0]),
-        //                 ...callbacks.slice(1).map(parse),
-        //             )
-        //         }
-        //     case RequestMethod.DELETE:
-        //         if (typeof path === 'string') {
-        //             return this.router.delete(
-        //                 path,
-        //                 parse(callbacks[0]),
-        //                 ...callbacks.slice(1).map(parse),
-        //             );
-        //         } else {
-        //             return this.router.delete(
-        //                 parse(path),
-        //                 parse(callbacks[0]),
-        //                 ...callbacks.slice(1).map(parse),
-        //             )
-        //         }
-        //     case RequestMethod.USE:
-        //         if (typeof path === 'string') {
-        //             return this.router.use(
-        //                 path,
-        //                 parse(callbacks[0]),
-        //                 ...callbacks.slice(1).map(parse),
-        //             );
-        //         } else {
-        //             return this.router.use(
-        //                 parse(path),
-        //                 parse(callbacks[0]),
-        //                 ...callbacks.slice(1).map(parse),
-        //             )
-        //         }
-        // }
     }
 }
 
@@ -399,7 +334,7 @@ export class App {
      */
     public readonly server = new Application();
 
-    public readonly router = new Router();
+    // public readonly router = new Router();
 
     /**
      * Creates an instance of App.
@@ -418,63 +353,10 @@ export class App {
         // this.io = new SocketWrapper(options?.ioPort || 443);
         this.io = io;
 
-        this.router.use(async (ctx, next) => {
-            // this is not wrapped in a try catch, because if it fails, that means nothing should work
 
-            const req = new Req(ctx, this.io);
-            const res = new Res(this, req);
-
-            // 2 things need to be handled:
-            // ssid in the cookie may not be valid or exist
-            // the session on the server may not exist
-
-            let ssid = await ctx.cookies.get('session');
-            let s: Session;
-
-            if (ssid) {
-                const _s = await Session.get(ssid);
-                if (_s) {
-                    s = _s;
-                } else {
-                    s = new Session(req);
-                    res.cookie('session', s.id);
-                    ssid = s.id;
-                }
-            } else {
-                s = new Session(req);
-                res.cookie('session', s.id);
-                ssid = s.id;
-            }
-
-            req.session = s;
-
-            // for the next middleware functions
-            ctx.state.req = req;
-            ctx.state.res = res;
-
-            req.body = await req.ctx.request.body.json();
-
-            next();
-        });
-
-        if (options) {
-            // if (options.onListen) {
-            //     options.onListen();
-            // }
-
-            if (options.onConnection) {
-                this.io.on('connection', options.onConnection);
-            }
-
-            if (options.onDisconnect) {
-                this.io.on('disconnect', options.onDisconnect);
-            }
-
-            if (options.blockedIps) this.blockedIps = options.blockedIps;
-        }
     }
 
-    private readonly blockedIps: string[] = [];
+    private readonly listeners: Listener[] = [];
 
     /**
      * Serving static files
@@ -537,122 +419,125 @@ export class App {
         path: string | ServerFunction<T>,
         ...callbacks: ServerFunction<T>[]
     ) {
-        console.log('Adding', type, path, callbacks);
-
-        const parse = (cb: ServerFunction<T>): any => {
-            return async (ctx: Context, next: () => Promise<void>) => {
-                const req = ctx.state.req as Req<T>;
-                const res = ctx.state.res as Res;
-                try {
-                    await cb(req, res, next);
-                } catch (e) {
-                    error('Error handling request:', e);
-                    if (!res.fulfilled) {
-                        res.sendStatus('server:unknown-server-error');
+        if (typeof path === 'string') {
+            this.listeners.push({
+                type,
+                path,
+                callback: async (req, res, next) => {
+                    for (const callback of callbacks) {
+                        try {
+                            await callback(req, res, next);
+                        } catch (e) {
+                            error(e);
+                            if (!res.fulfilled) {
+                                res.sendStatus('unknown:error');
+                            }
+                        }
                     }
                 }
-            };
-        };
-
-        if (typeof path === 'string') {
-            this.router.use(
-                path,
-                parse(callbacks[0]),
-                ...callbacks.slice(1).map(parse),
-            );
+            })
         } else {
-            this.router.use(
-                parse(path),
-                parse(callbacks[0]),
-                ...callbacks.slice(1).map(parse),
-            )
+            this.listeners.push({
+                type,
+                path: '/*',
+                callback: path,
+            });
         }
-
-        // switch (type) {
-        //     case RequestMethod.GET:
-        //         if (typeof path === 'string') {
-        //             return this.router.get(
-        //                 path,
-        //                 parse(callbacks[0]),
-        //                 ...callbacks.slice(1).map(parse),
-        //             );
-        //         } else {
-        //             return this.router.get(
-        //                 '',
-        //                 parse(path),
-        //                 parse(callbacks[0]),
-        //                 ...callbacks.slice(1).map(parse),
-        //             )
-        //         }
-        //     case RequestMethod.POST:
-        //         if (typeof path === 'string') {
-        //             return this.router.post(
-        //                 path,
-        //                 parse(callbacks[0]),
-        //                 ...callbacks.slice(1).map(parse),
-        //             );
-        //         } else {
-        //             return this.router.post(
-        //                 parse(path),
-        //                 parse(callbacks[0]),
-        //                 ...callbacks.slice(1).map(parse),
-        //             )
-        //         }
-        //     case RequestMethod.PUT:
-        //         if (typeof path === 'string') {
-        //             return this.router.put(
-        //                 path,
-        //                 parse(callbacks[0]),
-        //                 ...callbacks.slice(1).map(parse),
-        //             );
-        //         } else {
-        //             return this.router.put(
-        //                 parse(path),
-        //                 parse(callbacks[0]),
-        //                 ...callbacks.slice(1).map(parse),
-        //             )
-        //         }
-        //     case RequestMethod.DELETE:
-        //         if (typeof path === 'string') {
-        //             return this.router.delete(
-        //                 path,
-        //                 parse(callbacks[0]),
-        //                 ...callbacks.slice(1).map(parse),
-        //             );
-        //         } else {
-        //             return this.router.delete(
-        //                 parse(path),
-        //                 parse(callbacks[0]),
-        //                 ...callbacks.slice(1).map(parse),
-        //             )
-        //         }
-        //     case RequestMethod.USE:
-        //         if (typeof path === 'string') {
-        //             return this.router.use(
-        //                 path,
-        //                 parse(callbacks[0]),
-        //                 ...callbacks.slice(1).map(parse),
-        //             );
-        //         } else {
-        //             return this.router.use(
-        //                 parse(path),
-        //                 parse(callbacks[0]),
-        //                 ...callbacks.slice(1).map(parse),
-        //             )
-        //         }
-        // }
     }
 
     listen(cb?: () => void) {
-        this.server.use(this.router.routes());
-        this.server.use(this.router.allowedMethods());
+        this.server.use(async (ctx) => {
+            const req = new Req(ctx, this.io);
+            const res = new Res(this, req);
+
+            // 2 things need to be handled:
+            // ssid in the cookie may not be valid or exist
+            // the session on the server may not exist
+
+            let ssid = await ctx.cookies.get('session');
+            let s: Session;
+
+            if (ssid) {
+                const _s = await Session.get(ssid);
+                if (_s) {
+                    s = _s;
+                } else {
+                    s = new Session(req);
+                    res.cookie('session', s.id);
+                    ssid = s.id;
+                }
+            } else {
+                s = new Session(req);
+                res.cookie('session', s.id);
+                ssid = s.id;
+            }
+
+            req.session = s;
+
+            // for the next middleware functions
+            ctx.state.req = req;
+            ctx.state.res = res;
+
+            req.body = await (async () => {
+                if (req.headers.get('content-type')?.includes('multipart/form-data')) {
+                    return ctx.request.body.formData();
+                } else {
+                    return ctx.request.body.json();
+                }
+            })().catch(() => ({}));
+
+            const listeners = this.listeners.filter(l => {
+                const isMethod = (l.type === req.method) || (l.type === RequestMethod.USE); 
+                const isPath = l.path === req.pathname;
+
+                if (isMethod && isPath) {
+                    return true;
+                }
+
+                // check if the path is a wildcard
+                if (l.path.endsWith('/*')) {
+                    const path = l.path.replace('/*', '');
+                    if (req.pathname.startsWith(path)) {
+                        return true;
+                    }
+                }
+
+                return false;
+            });
+
+            console.log(listeners, req.pathname, req.method);
+
+            for (const [i, listener] of listeners.entries()) {
+                try {
+                    console.log(i);
+                    await listener.callback(req, res, () => {});
+
+                    if (!res.fulfilled && i === listeners.length - 1) {
+                        error('Request not fulfilled');
+                    }
+                } catch (e) {
+                    error(e);
+                    if (!res.fulfilled) {
+                        res.sendStatus('unknown:error');
+                    }
+                }
+            }
+        });
+
+        // this.server.use(this.router.allowedMethods());
         this.server.listen({ port: this.port });
         console.log(`Listening on port ${this.port}...`);
         cb?.();
     }
 
     route(path: string, route: Route): this {
-        this.router.use(path, route.router.routes());
+        for (const listener of route.listeners) {
+            this.listeners.push({
+                type: listener.type,
+                path: path + listener.path,
+                callback: listener.callback,
+            });
+        }
         return this;
     }
 }
