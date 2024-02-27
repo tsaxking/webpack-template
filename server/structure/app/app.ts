@@ -1,20 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-async-promise-executor */
 // make a class that simulates npm:express using the deno std library
-import { serve } from 'https://deno.land/std@0.150.0/http/server.ts';
-import { Server } from 'https://deno.land/x/socket_io@0.2.0/mod.ts';
-import env, { __root } from '../../utilities/env.ts';
-import PATH from 'npm:path';
-import { log } from '../../utilities/terminal-logging.ts';
+import { __root } from '../../utilities/env.ts';
+import { error } from '../../utilities/terminal-logging.ts';
 import { Session } from '../sessions.ts';
-import stack from 'npm:callsite';
-import { Colors } from '../../utilities/colors.ts';
-import { parseCookie } from '../../../shared/cookie.ts';
 import { Req } from './req.ts';
 import { Res } from './res.ts';
 import { ReqBody } from './req.ts';
-import { DB } from '../../utilities/databases.ts';
 import { io, SocketWrapper } from '../socket.ts';
+import { Application, Context, Router } from 'https://deno.land/x/oak/mod.ts';
+// import { OakSession } from 'https://deno.land/x/sessions/mod.ts';
 
 /**
  * All file types that can be sent (can be expanded)
@@ -74,6 +69,7 @@ export enum ResponseStatus {
     fileNotFound,
     success,
     error,
+    alreadyFulfilled,
 }
 
 /**
@@ -101,15 +97,10 @@ export type CookieOptions = {
  * @typedef {Route}
  */
 export class Route {
-    /**
-     * These are all of the server functions that are grouped together
-     * @date 10/12/2023 - 2:49:37 PM
-     *
-     * @public
-     * @readonly
-     * @type {ServerFunctionHandler[]}
-     */
-    public readonly serverFunctions: ServerFunctionHandler<any>[] = [];
+    public readonly router = new Router();
+
+    constructor() {}
+
     /**
      * These are all of the final functions that are grouped together (run at the end of the request)
      * @date 10/12/2023 - 2:49:37 PM
@@ -120,102 +111,33 @@ export class Route {
      */
     public readonly finalFunctions: FinalFunction<unknown>[] = [];
 
-    /**
-     * Adds a get middleware function to the route
-     * @date 10/12/2023 - 2:49:37 PM
-     *
-     * @param {string} path
-     * @param {...ServerFunction[]} callbacks
-     * @returns {this}
-     */
-    get(
-        path: string | ServerFunction<null>,
-        ...callbacks: ServerFunction<null>[]
-    ): this {
-        if (typeof path === 'string') {
-            this.serverFunctions.push(
-                ...callbacks.map((cb) => ({
-                    path: path,
-                    callback: cb,
-                    method: RequestMethod.GET,
-                })),
-            );
-        } else {
-            this.serverFunctions.push(
-                ...[path, ...callbacks].map((cb) => ({
-                    path: '/*',
-                    callback: cb,
-                    method: RequestMethod.GET,
-                })),
-            );
-        }
+    get(path: string | ServerFunction, ...callbacks: ServerFunction[]): this {
+        this.parse(
+            RequestMethod.GET,
+            path,
+            ...callbacks,
+        );
         return this;
     }
 
-    /**
-     * Adds a post middleware function to the route
-     * @date 10/12/2023 - 2:49:37 PM
-     *
-     * @param {string} path
-     * @param {...ServerFunction[]} callbacks
-     * @returns {this}
-     */
     post<T>(
         path: string | ServerFunction<T>,
         ...callbacks: ServerFunction<T>[]
     ): this {
-        if (typeof path === 'string') {
-            this.serverFunctions.push(
-                ...callbacks.map(
-                    (cb) =>
-                        ({
-                            path: path,
-                            callback: cb,
-                            method: RequestMethod.POST,
-                        }) as ServerFunctionHandler<T>,
-                ),
-            );
-        } else {
-            this.serverFunctions.push(
-                ...[path, ...callbacks].map(
-                    (cb) =>
-                        ({
-                            path: '/*',
-                            callback: cb,
-                            method: RequestMethod.POST,
-                        }) as ServerFunctionHandler<T>,
-                ),
-            );
-        }
+        this.parse(
+            RequestMethod.POST,
+            path,
+            ...callbacks,
+        );
         return this;
     }
 
-    /**
-     * Adds a middleware function that is run for every request that matches the rout and path
-     * @date 10/12/2023 - 2:49:37 PM
-     *
-     * @param {string} path
-     * @param {...ServerFunction[]} callbacks
-     * @returns {this}
-     */
     use(path: string | ServerFunction, ...callbacks: ServerFunction[]): this {
-        if (typeof path === 'string') {
-            this.serverFunctions.push(
-                ...callbacks.map((cb) => ({
-                    path: path,
-                    callback: cb,
-                    method: RequestMethod.GET,
-                })),
-            );
-        } else {
-            this.serverFunctions.push(
-                ...[path, ...callbacks].map((cb) => ({
-                    path: '/*',
-                    callback: cb,
-                    method: RequestMethod.GET,
-                })),
-            );
-        }
+        this.parse(
+            RequestMethod.USE,
+            path,
+            ...callbacks,
+        );
         return this;
     }
 
@@ -228,13 +150,7 @@ export class Route {
      * @returns {this}
      */
     route(path: string, route: Route): this {
-        this.serverFunctions.push(
-            ...route.serverFunctions.map((sf) => ({
-                path: path + sf.path,
-                callback: sf.callback,
-                method: sf.method,
-            })),
-        );
+        this.router.use(path, route.router.routes());
         return this;
     }
 
@@ -247,8 +163,117 @@ export class Route {
      * @returns {this}
      */
     final(callback: FinalFunction<any>): this {
-        this.finalFunctions.push(callback);
         return this;
+    }
+
+    
+    public parse<T>(
+        type: RequestMethod,
+        path: string | ServerFunction<T>,
+        ...callbacks: ServerFunction<T>[]
+    ) {
+
+        const parse = (cb: ServerFunction<T>): any => {
+            return async (ctx: Context, next: () => Promise<void>) => {
+                const req = ctx.state.req as Req<T>;
+                const res = ctx.state.res as Res;
+                try {
+                    await cb(req, res, next);
+                } catch (e) {
+                    error('Error handling request:', e);
+                    if (!res.fulfilled) {
+                        res.sendStatus('server:unknown-server-error');
+                    }
+                }
+            };
+        };
+
+        if (typeof path === 'string') {
+            this.router.use(
+                path,
+                parse(callbacks[0]),
+                ...callbacks.slice(1).map(parse),
+            );
+        } else {
+            this.router.use(
+                parse(path),
+                parse(callbacks[0]),
+                ...callbacks.slice(1).map(parse),
+            )
+        }
+
+        // switch (type) {
+        //     case RequestMethod.GET:
+        //         if (typeof path === 'string') {
+        //             return this.router.get(
+        //                 path,
+        //                 parse(callbacks[0]),
+        //                 ...callbacks.slice(1).map(parse),
+        //             );
+        //         } else {
+        //             return this.router.get(
+        //                 parse(path),
+        //                 parse(callbacks[0]),
+        //                 ...callbacks.slice(1).map(parse),
+        //             )
+        //         }
+        //     case RequestMethod.POST:
+        //         if (typeof path === 'string') {
+        //             return this.router.post(
+        //                 path,
+        //                 parse(callbacks[0]),
+        //                 ...callbacks.slice(1).map(parse),
+        //             );
+        //         } else {
+        //             return this.router.post(
+        //                 parse(path),
+        //                 parse(callbacks[0]),
+        //                 ...callbacks.slice(1).map(parse),
+        //             )
+        //         }
+        //     case RequestMethod.PUT:
+        //         if (typeof path === 'string') {
+        //             return this.router.put(
+        //                 path,
+        //                 parse(callbacks[0]),
+        //                 ...callbacks.slice(1).map(parse),
+        //             );
+        //         } else {
+        //             return this.router.put(
+        //                 parse(path),
+        //                 parse(callbacks[0]),
+        //                 ...callbacks.slice(1).map(parse),
+        //             )
+        //         }
+        //     case RequestMethod.DELETE:
+        //         if (typeof path === 'string') {
+        //             return this.router.delete(
+        //                 path,
+        //                 parse(callbacks[0]),
+        //                 ...callbacks.slice(1).map(parse),
+        //             );
+        //         } else {
+        //             return this.router.delete(
+        //                 parse(path),
+        //                 parse(callbacks[0]),
+        //                 ...callbacks.slice(1).map(parse),
+        //             )
+        //         }
+        //     case RequestMethod.USE:
+        //         if (typeof path === 'string') {
+        //             return this.router.use(
+        //                 path,
+        //                 parse(callbacks[0]),
+        //                 ...callbacks.slice(1).map(parse),
+        //             );
+        //         } else {
+        //             return this.router.use(
+        //                 parse(path),
+        //                 parse(callbacks[0]),
+        //                 ...callbacks.slice(1).map(parse),
+        //             )
+        //         }
+        // }
     }
 }
 
@@ -372,7 +397,9 @@ export class App {
      * @readonly
      * @type {Deno.Server}
      */
-    public readonly server: Deno.HttpServer;
+    public readonly server = new Application();
+
+    public readonly router = new Router();
 
     /**
      * Creates an instance of App.
@@ -388,18 +415,52 @@ export class App {
         public readonly domain: string,
         options?: AppOptions,
     ) {
-        this.server = Deno.serve(
-            { port: this.port },
-            (req: Request, info: Deno.ServeHandlerInfo) =>
-                this.handler(req, info),
-        );
         // this.io = new SocketWrapper(options?.ioPort || 443);
         this.io = io;
 
-        if (options) {
-            if (options.onListen) {
-                options.onListen(this.server);
+        this.router.use(async (ctx, next) => {
+            // this is not wrapped in a try catch, because if it fails, that means nothing should work
+
+            const req = new Req(ctx, this.io);
+            const res = new Res(this, req);
+
+            // 2 things need to be handled:
+            // ssid in the cookie may not be valid or exist
+            // the session on the server may not exist
+
+            let ssid = await ctx.cookies.get('session');
+            let s: Session;
+
+            if (ssid) {
+                const _s = await Session.get(ssid);
+                if (_s) {
+                    s = _s;
+                } else {
+                    s = new Session(req);
+                    res.cookie('session', s.id);
+                    ssid = s.id;
+                }
+            } else {
+                s = new Session(req);
+                res.cookie('session', s.id);
+                ssid = s.id;
             }
+
+            req.session = s;
+
+            // for the next middleware functions
+            ctx.state.req = req;
+            ctx.state.res = res;
+
+            req.body = await req.ctx.request.body.json();
+
+            next();
+        });
+
+        if (options) {
+            // if (options.onListen) {
+            //     options.onListen();
+            // }
 
             if (options.onConnection) {
                 this.io.on('connection', options.onConnection);
@@ -416,255 +477,6 @@ export class App {
     private readonly blockedIps: string[] = [];
 
     /**
-     * This is the main handler for all requests
-     * Only used internally
-     * @date 10/12/2023 - 2:49:37 PM
-     *
-     * @private
-     * @async
-     * @param {Request} denoReq
-     * @param {Deno.ServeHandlerInfo} info
-     * @returns {Promise<Response>}
-     */
-    private async handler(
-        denoReq: Request,
-        info: Deno.ServeHandlerInfo,
-    ): Promise<Response> {
-        if (this.blockedIps.includes(info.remoteAddr.hostname)) {
-            return new Response('Blocked', { status: 403 });
-        }
-
-        // block /socket.io
-        if (denoReq.url.includes('/socket.io')) {
-            return new Response('Blocked', { status: 403 });
-        }
-
-        const { ssid } = parseCookie(denoReq.headers.get('cookie') || '');
-
-        // handle sockets before sessions
-        if (new URL(denoReq.url, this.domain).pathname === '/socket') {
-            const data = await denoReq.json();
-            const { cache, id } = data ||
-                ({} as Partial<{ cache: unknown[]; id: string }>);
-
-            const s = this.io.Socket.get(id, this.io, ssid);
-            s.setTimeout();
-            if (Array.isArray(cache)) {
-                for (const c of cache) s.newEvent(c.event, c.data);
-            }
-            setTimeout(() => (s.cache = [])); // clear cache after event loop is free
-            return new Response(
-                JSON.stringify({
-                    cache: s.cache,
-                    id: s.id,
-                }),
-            );
-        }
-
-        let s = await Session.get(ssid);
-
-        let setSsid = false;
-
-        if (!s) {
-            setSsid = true;
-            log('New session');
-
-            const userAgent = denoReq.headers.get('usr-agent') || '';
-
-            // prevent spam
-            if (
-                [
-                    'node',
-                    'axios',
-                    'curl',
-                    'postman',
-                    'insomnia',
-                    'httpie',
-                    'python-requests',
-                    // ''
-                ].find((t) => userAgent.toLowerCase().includes(t))
-            ) {
-                console.log('Spam');
-                return new Response('Hello there!', { status: 200 });
-            }
-
-            const obj = {
-                id: Session.newId(),
-                ip: info.remoteAddr.hostname,
-                latestActivity: Date.now(),
-                accountId: '',
-                userAgent,
-                prevUrl: '',
-                requests: 1,
-                created: Date.now(),
-            };
-
-            await DB.run('sessions/new', obj);
-
-            s = Session.fromSessObj(obj);
-        }
-
-        // log(s);
-
-        return new Promise<Response>(async (resolve, _reject) => {
-            const url = new URL(denoReq.url, this.domain);
-
-            // const finals = this.finalFunctions;
-
-            const fns = this.serverFunctions.filter((sf) => {
-                // get rid of query
-                const path = url.pathname.split('?')[0];
-                if (sf.method !== denoReq.method && sf.method !== 'USE') {
-                    return false;
-                }
-                const pathParts = sf.path.split('/');
-                const urlParts = path.split('/');
-
-                // if (pathParts.length !== urlParts.length) return false;
-
-                const test = pathParts.every((part: string, i: number) => {
-                    // log(part, urlParts[i]);
-
-                    if (part === '*') return true;
-                    if (part.startsWith(':')) return true;
-                    return part === urlParts[i];
-                });
-
-                // log(test);
-
-                return test;
-            });
-
-            // log(`[${denoReq.method}] ${denoReq.url}`, fns);
-
-            if (!s) {
-                throw new Error('No session. This should not have happened');
-            }
-
-            const req = new Req(denoReq, info, this.io, s as Session);
-            const res = new Res(this, req);
-
-            if (setSsid) {
-                res.cookie('ssid', s.id, Session.cookieOptions);
-            }
-
-            // log(parseCookie(denoReq.headers.get('cookie') || ''));
-
-            const cookie = parseCookie(req.headers.get('cookie') || '').ssid;
-            if (!cookie) {
-                Session.newSession(req, res);
-            } else {
-                Session.get(cookie) || Session.newSession(req, res);
-            }
-
-            req.body = await (async () => {
-                const hasHeader = denoReq.headers.get('X-Body');
-                if (hasHeader) return JSON.parse(hasHeader);
-
-                const body = (await req.req.json().catch(() => {})) || {};
-                return body;
-            })();
-
-            const runFn = async (i: number) => {
-                return new Promise<void>(async (resolve) => {
-                    // log('Running fn', i +'/'+ fns.length);
-
-                    const fn = fns[i] as ServerFunctionHandler<any> | undefined;
-
-                    if (!fn) {
-                        if (!res.fulfilled) {
-                            // there was no response
-                            resolve();
-                            return console.error(
-                                `No response was sent for request [${req.method}] ${req.pathname}`,
-                            );
-                        }
-
-                        // if the request was responded to, then the promise was resolved already.
-                        return resolve();
-                    }
-
-                    let ranNext = false;
-                    req.params = extractParams(fn.path, req.pathname);
-
-                    const next = async () => {
-                        ranNext = true;
-                        resolve(await runFn(i + 1));
-                    };
-
-                    try {
-                        await fn.callback(req, res, next);
-                    } catch (e) {
-                        log(`Error on callback [${req.method}] ${req.url}`, e);
-                        if (res.fulfilled) res.sendStatus('unknown:error');
-                    }
-                    if (!ranNext && !res.fulfilled && fns[i + 1]) {
-                        const site = stack().map((site: any) => {
-                            return (
-                                site.getFileName() + ':' + site.getLineNumber()
-                            );
-                        });
-                        const str = site
-                            .filter((t: string) => t !== 'null:null')
-                            .map((t: string) => {
-                                t = t
-                                    .replace('file://', '')
-                                    .replace('file:', '');
-                                t = PATH.relative(__root, t);
-                                t = `\n\t${Colors.FgYellow}${t}${Colors.Reset}`;
-                                return t;
-                            })
-                            .join('');
-
-                        log(
-                            `Request ${req.method}: ${req.pathname} was not resolved and did not call next() at ${str}`,
-                        );
-                        resolve();
-                    }
-                });
-            };
-
-            try {
-                runFn(0).then(() => {
-                    for (const fn of this.finalFunctions) {
-                        fn(req, res);
-                    }
-                });
-
-                await res.promise
-                    .then((response: Response) => {
-                        // console.log('Response:', response);
-                        resolve(response);
-                    })
-                    .catch((e: Error) => {
-                        log(e);
-                    });
-            } catch (e) {
-                log(e);
-            }
-        });
-    }
-
-    /**
-     * All of the server functions that are grouped together
-     * @date 10/12/2023 - 2:49:37 PM
-     *
-     * @private
-     * @readonly
-     * @type {ServerFunctionHandler[]}
-     */
-    private readonly serverFunctions: ServerFunctionHandler<any>[] = [];
-    /**
-     * All of the final functions that are grouped together (run at the end of the request)
-     * @date 10/12/2023 - 2:49:37 PM
-     *
-     * @private
-     * @readonly
-     * @type {FinalFunction[]}
-     */
-    private readonly finalFunctions: FinalFunction<any>[] = [];
-
-    /**
      * Serving static files
      * @date 10/12/2023 - 2:49:37 PM
      *
@@ -678,122 +490,33 @@ export class App {
         });
     }
 
-    /**
-     * Adds a get middleware function to the route
-     * @date 10/12/2023 - 2:49:37 PM
-     *
-     * @param {string} path
-     * @param {...ServerFunction[]} callbacks
-     * @returns {App}
-     */
-    get(
-        path: string | ServerFunction<null>,
-        ...callbacks: ServerFunction<null>[]
-    ): App {
-        if (typeof path === 'string') {
-            this.serverFunctions.push(
-                ...callbacks.map((cb) => ({
-                    path: path,
-                    callback: cb,
-                    method: RequestMethod.GET,
-                })),
-            );
-        } else {
-            this.serverFunctions.push(
-                ...[path, ...callbacks].map((cb) => ({
-                    path: '/*',
-                    callback: cb,
-                    method: RequestMethod.GET,
-                })),
-            );
-        }
+    get(path: string | ServerFunction, ...callbacks: ServerFunction[]): this {
+        this.parse(
+            RequestMethod.GET,
+            path,
+            ...callbacks,
+        );
         return this;
     }
 
-    /**
-     * Adds a middleware function that is run for every request that matches the path
-     * @date 10/12/2023 - 2:49:37 PM
-     *
-     * @param {string} path
-     * @param {...ServerFunction[]} callback
-     * @returns {App}
-     */
-    use(path: string | ServerFunction, ...callback: ServerFunction[]): App {
-        if (typeof path === 'string') {
-            this.serverFunctions.push(
-                ...callback.map((cb) => ({
-                    path: path,
-                    callback: cb,
-                    method: RequestMethod.GET,
-                })),
-            );
-        } else {
-            this.serverFunctions.push(
-                ...[path, ...callback].map((cb) => ({
-                    path: '/*',
-                    callback: cb,
-                    method: RequestMethod.GET,
-                })),
-            );
-        }
-        return this;
-    }
-
-    /**
-     * Adds a post middleware function to the route
-     * @date 10/12/2023 - 2:49:37 PM
-     *
-     * @param {string} path
-     * @param {...ServerFunction[]} callback
-     * @returns {App}
-     */
     post<T>(
         path: string | ServerFunction<T>,
-        ...callback: ServerFunction<T>[]
-    ): App {
-        if (typeof path === 'string') {
-            this.serverFunctions.push(
-                ...callback.map(
-                    (cb) =>
-                        ({
-                            path: path,
-                            callback: cb,
-                            method: RequestMethod.POST,
-                        }) as ServerFunctionHandler<T>,
-                ),
-            );
-        } else {
-            this.serverFunctions.push(
-                ...[path, ...callback].map(
-                    (cb) =>
-                        ({
-                            path: '/*',
-                            callback: cb,
-                            method: RequestMethod.POST,
-                        }) as ServerFunctionHandler<T>,
-                ),
-            );
-        }
+        ...callbacks: ServerFunction<T>[]
+    ): this {
+        this.parse(
+            RequestMethod.POST,
+            path,
+            ...callbacks,
+        );
         return this;
     }
 
-    /**
-     * Adds a route to the application
-     * @date 10/12/2023 - 2:49:37 PM
-     *
-     * @param {string} path
-     * @param {Route} route
-     * @returns {App}
-     */
-    route(path: string, route: Route): App {
-        this.serverFunctions.push(
-            ...route.serverFunctions.map((sf) => ({
-                path: path + sf.path,
-                callback: sf.callback,
-                method: sf.method,
-            })),
+    use(path: string | ServerFunction, ...callbacks: ServerFunction[]): this {
+        this.parse(
+            RequestMethod.USE,
+            path,
+            ...callbacks,
         );
-        // this.routes[path] = route;
         return this;
     }
 
@@ -805,7 +528,131 @@ export class App {
      * @returns {App}
      */
     final<T>(callback: FinalFunction<T>): App {
-        this.finalFunctions.push(callback as FinalFunction<T>);
+        console.error('Not implemented');
+        return this;
+    }
+
+    public parse<T>(
+        type: RequestMethod,
+        path: string | ServerFunction<T>,
+        ...callbacks: ServerFunction<T>[]
+    ) {
+        console.log('Adding', type, path, callbacks);
+
+        const parse = (cb: ServerFunction<T>): any => {
+            return async (ctx: Context, next: () => Promise<void>) => {
+                const req = ctx.state.req as Req<T>;
+                const res = ctx.state.res as Res;
+                try {
+                    await cb(req, res, next);
+                } catch (e) {
+                    error('Error handling request:', e);
+                    if (!res.fulfilled) {
+                        res.sendStatus('server:unknown-server-error');
+                    }
+                }
+            };
+        };
+
+        if (typeof path === 'string') {
+            this.router.use(
+                path,
+                parse(callbacks[0]),
+                ...callbacks.slice(1).map(parse),
+            );
+        } else {
+            this.router.use(
+                parse(path),
+                parse(callbacks[0]),
+                ...callbacks.slice(1).map(parse),
+            )
+        }
+
+        // switch (type) {
+        //     case RequestMethod.GET:
+        //         if (typeof path === 'string') {
+        //             return this.router.get(
+        //                 path,
+        //                 parse(callbacks[0]),
+        //                 ...callbacks.slice(1).map(parse),
+        //             );
+        //         } else {
+        //             return this.router.get(
+        //                 '',
+        //                 parse(path),
+        //                 parse(callbacks[0]),
+        //                 ...callbacks.slice(1).map(parse),
+        //             )
+        //         }
+        //     case RequestMethod.POST:
+        //         if (typeof path === 'string') {
+        //             return this.router.post(
+        //                 path,
+        //                 parse(callbacks[0]),
+        //                 ...callbacks.slice(1).map(parse),
+        //             );
+        //         } else {
+        //             return this.router.post(
+        //                 parse(path),
+        //                 parse(callbacks[0]),
+        //                 ...callbacks.slice(1).map(parse),
+        //             )
+        //         }
+        //     case RequestMethod.PUT:
+        //         if (typeof path === 'string') {
+        //             return this.router.put(
+        //                 path,
+        //                 parse(callbacks[0]),
+        //                 ...callbacks.slice(1).map(parse),
+        //             );
+        //         } else {
+        //             return this.router.put(
+        //                 parse(path),
+        //                 parse(callbacks[0]),
+        //                 ...callbacks.slice(1).map(parse),
+        //             )
+        //         }
+        //     case RequestMethod.DELETE:
+        //         if (typeof path === 'string') {
+        //             return this.router.delete(
+        //                 path,
+        //                 parse(callbacks[0]),
+        //                 ...callbacks.slice(1).map(parse),
+        //             );
+        //         } else {
+        //             return this.router.delete(
+        //                 parse(path),
+        //                 parse(callbacks[0]),
+        //                 ...callbacks.slice(1).map(parse),
+        //             )
+        //         }
+        //     case RequestMethod.USE:
+        //         if (typeof path === 'string') {
+        //             return this.router.use(
+        //                 path,
+        //                 parse(callbacks[0]),
+        //                 ...callbacks.slice(1).map(parse),
+        //             );
+        //         } else {
+        //             return this.router.use(
+        //                 parse(path),
+        //                 parse(callbacks[0]),
+        //                 ...callbacks.slice(1).map(parse),
+        //             )
+        //         }
+        // }
+    }
+
+    listen(cb?: () => void) {
+        this.server.use(this.router.routes());
+        this.server.use(this.router.allowedMethods());
+        this.server.listen({ port: this.port });
+        console.log(`Listening on port ${this.port}...`);
+        cb?.();
+    }
+
+    route(path: string, route: Route): this {
+        this.router.use(path, route.router.routes());
         return this;
     }
 }

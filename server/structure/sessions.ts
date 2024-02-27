@@ -158,10 +158,9 @@ export class Session {
      * @param {Res} res
      * @returns {(Session|undefined)}
      */
-    static newSession(req: Req, res: Res): Session | undefined {
+    static newSession(req: Req, res: Res): Session {
         const s = new Session(req);
         res.cookie(Session.sessionName, s.id, Session.cookieOptions);
-        req.addCookie('ssid', s.id);
 
         DB.run('sessions/new', {
             id: s.id,

@@ -4,6 +4,7 @@ import { Session } from '../sessions.ts';
 import { parseCookie } from '../../../shared/cookie.ts';
 import { FileUpload } from '../../middleware/stream.ts';
 import { SocketWrapper } from '../socket.ts';
+import { Context } from 'https://deno.land/x/oak@v14.0.0/mod.ts';
 
 type B = {
     [key: string]: unknown;
@@ -94,6 +95,7 @@ export class Req<T = unknown> {
      * @type {number}
      */
     readonly start: number = Date.now();
+    private $session?: Session;
 
     /**
      * Creates an instance of Req.
@@ -105,17 +107,21 @@ export class Req<T = unknown> {
      * @param {Server} io
      */
     constructor(
-        public readonly req: Request,
-        info: Deno.ServeHandlerInfo,
+        public readonly ctx: Context,
         public readonly io: SocketWrapper,
-        public readonly session: Session,
     ) {
-        this.url = new URL(
-            req.url.startsWith('http') ? req.url : `http://${req.url}`,
-        );
-        this.method = req.method;
-        this.headers = req.headers;
-        this.ip = info.remoteAddr.hostname;
+        this.url = new URL(ctx.request.url);
+        this.method = ctx.request.method;
+        this.headers = ctx.request.headers;
+        this.ip = ctx.request.ip;
+    }
+
+    public get session() {
+        return this.$session as Session;
+    }
+
+    public set session(s: Session) {
+        this.$session = s;
     }
 
     public get pathname() {
@@ -143,20 +149,6 @@ export class Req<T = unknown> {
         const c = parseCookie(this.headers.get('cookie') || '');
         this._cookie = c;
         return c;
-    }
-
-    /**
-     * Sets a cookie for the response
-     * @date 10/12/2023 - 3:02:55 PM
-     *
-     * @param {string} name
-     * @param {string} value
-     */
-    addCookie(name: string, value: string) {
-        this._cookie = {
-            ...this.cookie,
-            [name]: value,
-        };
     }
 
     /**
