@@ -439,7 +439,8 @@ export class App {
             return new Response('Blocked', { status: 403 });
         }
 
-        const { ssid } = parseCookie(denoReq.headers.get('cookie') || '');
+        const { sessionId } = parseCookie(denoReq.headers.get('cookie') || '');
+
 
         // handle sockets before sessions
         if (new URL(denoReq.url, this.domain).pathname === '/socket') {
@@ -447,7 +448,7 @@ export class App {
             const { cache, id } = data ||
                 ({} as Partial<{ cache: unknown[]; id: string }>);
 
-            const s = this.io.Socket.get(id, this.io, ssid);
+            const s = this.io.Socket.get(id, this.io, sessionId);
             s.setTimeout();
             if (Array.isArray(cache)) {
                 for (const c of cache) s.newEvent(c.event, c.data);
@@ -460,8 +461,9 @@ export class App {
                 }),
             );
         }
+        console.log(sessionId);
 
-        let s = await Session.get(ssid);
+        let s = await Session.get(sessionId);
 
         let setSsid = false;
 
@@ -545,7 +547,7 @@ export class App {
             const res = new Res(this, req);
 
             if (setSsid) {
-                res.cookie('ssid', s.id, Session.cookieOptions);
+                res.cookie(Session.sessionName, s.id, Session.cookieOptions);
             }
 
             // log(parseCookie(denoReq.headers.get('cookie') || ''));

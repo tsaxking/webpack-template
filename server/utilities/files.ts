@@ -149,6 +149,20 @@ export function getJSON<type = unknown>(
     });
 }
 
+export const deleteJSON = (file: string): Promise<Result<void, JSONError>> => {
+    return attemptAsync(async () => {
+        const filePath = filePathBuilder(file, '.json', './storage/jsons/');
+        await Deno.remove(filePath);
+    }, matchJSONError);
+}
+
+export const deleteJSONSync = (file: string): Result<void, JSONError> => {
+    return attempt(() => {
+        const filePath = filePathBuilder(file, '.json', './storage/jsons/');
+        Deno.removeSync(filePath);
+    }, matchJSONError);
+};
+
 /**
  * Returns the path to a json file
  * @date 1/9/2024 - 12:20:06 PM
@@ -174,7 +188,7 @@ export function saveJSONSync<T = unknown>(
     data: T,
 ): Result<void, JSONError> {
     return attempt<void, JSONError>(() => {
-        const str = JSON.stringify(data);
+        const str = JSON.stringify(data, null, 2);
 
         const p = filePathBuilder(file, '.json', './storage/jsons/');
         makeFolder(p);
@@ -197,7 +211,7 @@ export function saveJSON<T = unknown>(
 ): Promise<Result<void, JSONError>> {
     return new Promise((res, rej) => {
         attemptAsync(async () => {
-            const str = JSON.stringify(data);
+            const str = JSON.stringify(data, null, 2);
 
             const p = filePathBuilder(file, '.json', './storage/jsons/');
             makeFolder(p);

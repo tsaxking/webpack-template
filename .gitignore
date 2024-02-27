@@ -25,6 +25,8 @@ database.json
 # *.js
 # !require.js
 
+*.session.json
+
 sessions.txt
 /build/cache/
 archive/

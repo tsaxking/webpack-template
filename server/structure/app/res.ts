@@ -244,14 +244,17 @@ export class Res {
         this.isFulfilled();
         try {
             const d = JSON.stringify(bigIntEncode(data));
-            this.resolve?.(
-                new Response(d, {
-                    status: this._status,
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                }),
-            );
+            const r = 
+            new Response(d, {
+                status: this._status,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            this._setCookie(r);
+
+            this.resolve?.(r);
             return ResponseStatus.success;
         } catch (e) {
             log('Cannot stringify data', e);
