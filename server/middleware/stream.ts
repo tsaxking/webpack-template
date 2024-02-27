@@ -65,7 +65,7 @@ export const fileStream = (opts?: FileStreamOptions): ServerFunction => {
             }
         };
 
-        const reqBody = await req.req.formData();
+        const reqBody = await req.ctx.request.body.formData();
         const bodyStr = req.headers.get('X-Body'); // had to put body in headers because FormData is already in there
         let body: unknown;
         if (bodyStr) body = JSON.parse(bodyStr);

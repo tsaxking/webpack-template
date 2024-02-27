@@ -1,5 +1,4 @@
-import { __root } from '../../utilities/env.ts';
-import PATH from 'npm:path';
+import { __root, relative, unify } from '../../utilities/env.ts';
 import { log } from '../../utilities/terminal-logging.ts';
 import { Colors } from '../../utilities/colors.ts';
 import { StatusCode, StatusId } from '../../../shared/status-messages.ts';
@@ -20,6 +19,7 @@ import { streamDelimiter } from '../../../shared/text.ts';
 import * as blog from 'https://deno.land/x/blog@0.3.3/deps.ts';
 import { sleep } from '../../../shared/sleep.ts';
 import { bigIntDecode, bigIntEncode } from '../../../shared/objects.ts';
+import { readFile } from '../../utilities/files.ts';
 
 /**
  * All filetype headers (used for sending files, this is not a complete list)
@@ -94,34 +94,6 @@ type StreamEventData = {
  */
 export class Res {
     /**
-     * This is resolved when the response is sent
-     * Only to be use internally
-     * @date 10/12/2023 - 3:06:02 PM
-     *
-     * @public
-     * @readonly
-     * @type {Promise<Response>}
-     */
-    public readonly promise: Promise<Response>;
-    /**
-     * The resolve function for the promise
-     * Only to be use internally
-     * @date 10/12/2023 - 3:06:02 PM
-     *
-     * @public
-     * @type {?(res: Response) => void}
-     */
-    public resolve?: (res: Response) => void;
-    /**
-     * The reject function for the promise
-     * Only to be use internally
-     * @date 10/12/2023 - 3:06:02 PM
-     *
-     * @public
-     * @type {?(error: string) => void}
-     */
-    public reject?: (error: string) => void;
-    /**
      * Whether or not the response has been fulfilled
      * @date 10/12/2023 - 3:06:02 PM
      *
@@ -137,7 +109,7 @@ export class Res {
      * @readonly
      * @type {string[]}
      */
-    public readonly trace: string[] = [];
+    public trace: string[] = [];
     /**
      * The application object
      * @date 10/12/2023 - 3:06:02 PM
@@ -194,43 +166,25 @@ export class Res {
     constructor(app: App, req: Req) {
         this.req = req;
         this.app = app;
-        this.promise = new Promise((resolve, reject) => {
-            this.resolve = resolve;
-            this.reject = reject;
-        });
     }
 
-    /**
-     * Tests whether or not the response has been fulfilled, if it has, it will log the trace
-     * @date 10/12/2023 - 3:06:02 PM
-     *
-     * @private
-     * @returns {*}
-     */
-    private isFulfilled(): void | undefined {
-        if (this.fulfilled) {
-            log('Response already fulfilled at:');
-            return console.log(
-                this.trace
-                    .filter((t) => t !== 'null:null')
-                    .map((t) => {
-                        t = t.replace('file://', '').replace('file:', '');
-                        t = PATH.relative(__root, t);
-                        t = `\n\t${Colors.FgYellow}${t}${Colors.Reset}`;
-                        return t;
-                    })
-                    .join(''),
-            );
-        }
-        this.fulfilled = true;
+    get headers() {
+        return this.req.ctx.response.headers;
+    }
 
-        const stack = blog.callsites();
+    isFulfilled(): boolean {
+        if (!this.fulfilled) return false;
 
-        this.trace.push(
-            ...stack.map((site) => {
-                return site.getFileName() + ':' + site.getLineNumber();
-            }),
-        );
+        this.trace = blog.callsites().map((site) => {
+            const p = site.getFileName() || '';
+            return `${relative(__root, unify(p))}:${site.getLineNumber()}`;
+        });
+
+        // remove the first two traces
+        this.trace.shift();
+        this.trace.shift();
+
+        return true;
     }
 
     /**
@@ -241,17 +195,13 @@ export class Res {
      * @returns {ResponseStatus}
      */
     json(data: unknown): ResponseStatus {
-        this.isFulfilled();
         try {
-            const d = JSON.stringify(bigIntEncode(data));
-            this.resolve?.(
-                new Response(d, {
-                    status: this._status,
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                }),
-            );
+            if (this.isFulfilled()) return ResponseStatus.alreadyFulfilled;
+
+            const d = JSON.stringify(data);
+            this.headers.set('content-type', 'application/json');
+            this.req.ctx.response.body = d;
+            this.fulfilled = true;
             return ResponseStatus.success;
         } catch (e) {
             log('Cannot stringify data', e);
@@ -269,37 +219,11 @@ export class Res {
      * @returns {ResponseStatus}
      */
     send(data: string, filetype: FileType = 'html'): ResponseStatus {
-        this.isFulfilled();
-        const res = new Response(data, {
-            status: this._status,
-            headers: {
-                'Content-Type': fileTypeHeaders[filetype] || 'text/plain',
-            },
-        });
-        // console.log(this);
-        this._setCookie(res);
-        this.resolve?.(res);
+        if (this.isFulfilled()) return ResponseStatus.alreadyFulfilled;
 
-        return ResponseStatus.success;
-    }
-
-    /**
-     * Sets the cookie for the response
-     * @date 10/12/2023 - 3:06:01 PM
-     *
-     * @private
-     * @param {Response} res
-     * @returns {ResponseStatus}
-     */
-    private _setCookie(res: Response) {
-        for (const id in this._cookie) {
-            const c = this._cookie[id];
-            setCookie(res.headers, {
-                name: id,
-                value: c.value,
-                ...c.options,
-            });
-        }
+        this.headers.set('content-type', fileTypeHeaders[filetype]);
+        this.req.ctx.response.body = data;
+        this.fulfilled = true;
 
         return ResponseStatus.success;
     }
@@ -312,22 +236,19 @@ export class Res {
      * @param {string} path
      * @returns {ResponseStatus}
      */
-    sendFile(path: string): ResponseStatus {
+    async sendFile(path: string): Promise<ResponseStatus> {
         // log('Sending file', path);
         try {
-            this.isFulfilled();
-            const extName = PATH.extname(path).replace('.', '');
-            const data = Deno.readFileSync(path);
-            const res = new Response(data, {
-                status: this._status,
-                headers: {
-                    'Content-Type': fileTypeHeaders[
-                        extName as keyof typeof fileTypeHeaders
-                    ] || 'text/plain',
-                },
-            });
-            this._setCookie(res);
-            this.resolve?.(res);
+            if (this.isFulfilled()) return ResponseStatus.alreadyFulfilled;
+
+            const file = await readFile(path);
+            this.headers.set(
+                'content-type',
+                fileTypeHeaders[path.split('.').pop() || 'html'],
+            );
+            this.req.ctx.response.body = file;
+            this.fulfilled = true;
+
             return ResponseStatus.success;
         } catch (e) {
             log(e);
@@ -356,10 +277,9 @@ export class Res {
      * @returns {ResponseStatus}
      */
     redirect(path: string): ResponseStatus {
-        path = path.startsWith('/') ? this.req.url.origin + path : path;
+        this.req.ctx.response.redirect(path);
+        this.fulfilled = true;
 
-        this.isFulfilled();
-        this.resolve?.(Response.redirect(path));
         return ResponseStatus.success;
     }
 
@@ -380,6 +300,12 @@ export class Res {
 
         this.req.cookie[id] = value;
 
+        setCookie(this.headers, {
+            name: id,
+            value,
+            ...options,
+        });
+
         return this;
     }
 
@@ -397,13 +323,11 @@ export class Res {
         redirect?: string,
     ): ResponseStatus {
         try {
-            const s = Status.from(
-                id,
-                this.req,
-                JSON.stringify(bigIntEncode(data)),
-            );
-            s.redirect = redirect || s.redirect || '';
-            s.send(this);
+            const status = Status.from(id, this.req, data);
+            if (redirect) status.redirect = redirect;
+
+            status.send(this);
+
             return ResponseStatus.success;
         } catch (error) {
             log('Error sending status', error);
@@ -429,9 +353,12 @@ export class Res {
      * @param {?*} [options]
      * @returns {ResponseStatus}
      */
-    sendTemplate(template: string, options?: Constructor): ResponseStatus {
+    async sendTemplate(
+        template: string,
+        options?: Constructor,
+    ): Promise<ResponseStatus> {
         try {
-            const t = getTemplateSync(template, options);
+            const t = await getTemplate(template, options);
             if (t.isErr()) throw new Error(t.error);
             this.send(t.value, 'html');
             return ResponseStatus.success;
@@ -483,26 +410,8 @@ export class Res {
             type: 'bytes',
         });
 
-        try {
-            this.isFulfilled();
-
-            this.resolve?.(
-                new Response(stream, {
-                    headers: {
-                        'Content-Type': 'application/octet-stream',
-                        'x-content-type-options': 'nosniff',
-                        'x-content-size': new TextEncoder()
-                            .encode(content.join(''))
-                            .length.toString(),
-                        'x-data-length': content.length.toString(),
-                    },
-                }),
-            );
-        } catch (e) {
-            log('Error streaming', e);
-
-            em.emit('error', new Error(e));
-        }
+        this.headers.set('content-type', 'octet/stream');
+        this.req.ctx.response.body = stream;
 
         return em;
     }
