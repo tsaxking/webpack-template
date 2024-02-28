@@ -1,7 +1,7 @@
 import { stdin } from './utilities/stdin.ts';
 import { Builder } from './bundler.ts';
 import { Colors } from './utilities/colors.ts';
-import { pullDeps, deleteDeps } from '../scripts/pull-deps.ts';
+import { deleteDeps, pullDeps } from '../scripts/pull-deps.ts';
 
 const log = (...args: any[]) =>
     console.log(Colors.FgBlue, '[MAIN]', Colors.Reset, ...args, Colors.Reset);
