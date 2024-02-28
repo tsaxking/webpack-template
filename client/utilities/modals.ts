@@ -64,9 +64,13 @@ export class Modal {
     }
 
     set size(size: 'sm' | 'lg' | 'xl' | 'xxl' | 'auto') {
-        this.target.querySelector('.modal-dialog')?.classList.remove(`modal-${this.$size}`);
+        this.target
+            .querySelector('.modal-dialog')
+            ?.classList.remove(`modal-${this.$size}`);
         this.$size = size;
-        this.target.querySelector('.modal-dialog')?.classList.add(`modal-${size}`);
+        this.target
+            .querySelector('.modal-dialog')
+            ?.classList.add(`modal-${size}`);
     }
 
     get size() {

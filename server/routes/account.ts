@@ -588,13 +588,17 @@ router.post('/all', async (req, res) => {
 
 router.post<{
     id: string;
-}>('/account-info', validate({
-    id: 'string'
-}), async (req, res) => {
-    const { id } = req.body;
+}>(
+    '/account-info',
+    validate({
+        id: 'string',
+    }),
+    async (req, res) => {
+        const { id } = req.body;
 
-    const a = await Account.fromId(id);
+        const a = await Account.fromId(id);
 
-    if (a) res.json(await a.safe());
-    else res.sendStatus('account:not-found');
-});
+        if (a) res.json(await a.safe());
+        else res.sendStatus('account:not-found');
+    },
+);

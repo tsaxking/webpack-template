@@ -125,7 +125,7 @@ export const dateString = (format: string) => {
                         if (hours > 12) {
                             return (hours - 12).toString().padStart(2, '0');
                         }
-                    } 
+                    }
                     return hours.toString().padStart(2, '0');
                 }) // 24 hour
                 .replace(/mm/g, DATE.getMinutes().toString().padStart(2, '0'))
