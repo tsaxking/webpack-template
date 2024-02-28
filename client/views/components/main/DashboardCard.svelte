@@ -4,7 +4,7 @@ export let subtitle: string = '';
 export let scroll: boolean = false;
 </script>
 
-<div class="col-md-6 mb-3">
+<div class="col-lg-4 col-md-6 mb-3">
     <div class="card dashboard-card">
         <div class="card-header">
             <h5 class="card-title">{title}</h5>
