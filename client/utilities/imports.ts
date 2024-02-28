@@ -5,11 +5,8 @@ import '../styles/bootstrap-colors-extended.css';
 import '../styles/global.css';
 import '../styles/style.css';
 
-
-
 // socket
 import './socket';
-
 
 // settings
 import './settings';
