@@ -15,7 +15,7 @@ body {
 }
 
 #top-navbar {
-    z-index: 9999;
+    z-index: 100;
     /* height: var(--topNavbarHeight) !important; */
 }
 
@@ -160,28 +160,6 @@ main {
 #new-student-log-button {
     height: 100px;
     width: 100%;
-}
-
-/* #wb--whiteboard {
-    width: 100%;
-    aspect-ratio: 2;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 1;
-} */
-
-#wb--field-view {
-    width: 100%;
-    aspect-ratio: 2;
-    position: absolute;
-    top: 0;
-    left: 0;
-}
-
-#wb--pen-dot {
-    border-radius: 50%;
-    background-color: black;
 }
 
 #contextmenu-container {

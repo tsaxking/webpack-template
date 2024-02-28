@@ -48,6 +48,8 @@ export class Modal {
     readonly target = document.createElement('div');
     readonly id: string;
 
+    private $size: 'sm' | 'lg' | 'xl' | 'xxl' | 'auto' = 'auto';
+
     constructor(id?: string) {
         this.id = id || `modal-${Math.random().toString(36).substr(2, 9)}`;
         this.render();
@@ -59,6 +61,16 @@ export class Modal {
         this.on('hide', () => {
             $(this.target).modal('hide');
         });
+    }
+
+    set size(size: 'sm' | 'lg' | 'xl' | 'xxl' | 'auto') {
+        this.target.querySelector('.modal-dialog')?.classList.remove(`modal-${this.$size}`);
+        this.$size = size;
+        this.target.querySelector('.modal-dialog')?.classList.add(`modal-${size}`);
+    }
+
+    get size() {
+        return this.$size;
     }
 
     private render() {
@@ -108,6 +120,8 @@ export class Modal {
         content.appendChild(footer);
         dialog.appendChild(content);
         modal.appendChild(dialog);
+
+        this.size = 'auto';
     }
 
     addButton(button: HTMLButtonElement) {

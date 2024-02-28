@@ -100,45 +100,59 @@ type D = Date | number | string;
 export const dateString = (format: string) => {
     return (date: D = new Date()) => {
         if (!(date instanceof Date)) date = new Date(date);
+        const DATE = date as Date;
         return (
             format
                 // year
-                .replace(/YYYY/g, date.getFullYear().toString())
-                .replace(/YY/g, date.getFullYear().toString().slice(-2))
+                .replace(/YYYY/g, DATE.getFullYear().toString())
+                .replace(/YY/g, DATE.getFullYear().toString().slice(-2))
                 // month
-                .replace(/MMM/g, monthsShort[date.getMonth()].toString())
+                .replace(/MMM/g, monthsShort[DATE.getMonth()].toString())
                 .replace(
                     /MM/g,
-                    (date.getMonth() + 1).toString().padStart(2, '0'),
+                    (DATE.getMonth() + 1).toString().padStart(2, '0'),
                 )
-                .replace(/month/gi, months[date.getMonth()].toString())
+                .replace(/month/gi, months[DATE.getMonth()].toString())
                 // day
-                .replace(/DDD/g, daysShort[date.getDay()].toString())
-                .replace(/DD/g, date.getDate().toString().padStart(2, '0'))
-                .replace(/day/gi, days[date.getDay()].toString())
+                .replace(/DDD/g, daysShort[DATE.getDay()].toString())
+                .replace(/DD/g, DATE.getDate().toString().padStart(2, '0'))
+                .replace(/day/gi, days[DATE.getDay()].toString())
                 // time
-                .replace(/hh/g, date.getHours().toString().padStart(2, '0')) // 24 hour
-                .replace(/mm/g, date.getMinutes().toString().padStart(2, '0'))
-                .replace(/ss/g, date.getSeconds().toString().padStart(2, '0'))
+                .replace(/hh/g, () => {
+                    const hours = DATE.getHours();
+                    if (format.includes('AM') || format.includes('PM')) {
+                        if (hours === 0) return '12';
+                        if (hours > 12) {
+                            return (hours - 12).toString().padStart(2, '0');
+                        }
+                    } 
+                    return hours.toString().padStart(2, '0');
+                }) // 24 hour
+                .replace(/mm/g, DATE.getMinutes().toString().padStart(2, '0'))
+                .replace(/ss/g, DATE.getSeconds().toString().padStart(2, '0'))
                 .replace(
                     /ms/g,
-                    date.getMilliseconds().toString().padStart(3, '0'),
+                    DATE.getMilliseconds().toString().padStart(3, '0'),
                 )
                 // time no padding
                 .replace(
                     /h/g,
-                    date.getHours() > 12
-                        ? (date.getHours() - 12).toString()
-                        : date.getHours().toString(),
+                    DATE.getHours() > 12
+                        ? (DATE.getHours() - 12).toString()
+                        : DATE.getHours().toString(),
                 ) // 12 hour
-                .replace(/m/g, date.getMinutes().toString())
-                .replace(/s/g, date.getSeconds().toString())
-                .replace(/ms/g, date.getMilliseconds().toString())
+                .replace(/m/g, DATE.getMinutes().toString())
+                .replace(/s/g, DATE.getSeconds().toString())
+                .replace(/ms/g, DATE.getMilliseconds().toString())
                 // am/pm
-                .replace(/am/g, date.getHours() >= 12 ? 'pm' : 'am')
-                .replace(/AM/g, date.getHours() >= 12 ? 'PM' : 'AM')
-                .replace(/a.m./g, date.getHours() >= 12 ? 'p.m.' : 'a.m.')
-                .replace(/A.M./g, date.getHours() >= 12 ? 'P.M.' : 'A.M.')
+                .replace(/am/g, DATE.getHours() >= 12 ? 'pm' : 'am')
+                .replace(/AM/g, DATE.getHours() >= 12 ? 'PM' : 'AM')
+                .replace(/a.m./g, DATE.getHours() >= 12 ? 'p.m.' : 'a.m.')
+                .replace(/A.M./g, DATE.getHours() >= 12 ? 'P.M.' : 'A.M.')
+                .replace(/pm/g, DATE.getHours() >= 12 ? 'pm' : 'am')
+                .replace(/PM/g, DATE.getHours() >= 12 ? 'PM' : 'AM')
+                .replace(/p.m./g, DATE.getHours() >= 12 ? 'p.m.' : 'a.m.')
+                .replace(/P.M./g, DATE.getHours() >= 12 ? 'P.M.' : 'A.M.')
         );
     };
 };

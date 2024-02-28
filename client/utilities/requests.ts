@@ -4,7 +4,7 @@ import { EventEmitter } from '../../shared/event-emitter';
 import { StatusJson } from '../../shared/status';
 import { streamDelimiter } from '../../shared/text';
 import { uuid as _uuid } from '../../server/utilities/uuid';
-import { attemptAsync, Result } from '../../shared/attempt';
+import { attemptAsync, Result } from '../../shared/check';
 import { error, log, warn } from './logging';
 import { bigIntDecode } from '../../shared/objects';
 
@@ -20,7 +20,7 @@ export type RequestOptions = {
         [key: string]: string;
     };
 
-    cached: boolean;
+    cached?: boolean;
 };
 
 /**
@@ -533,22 +533,29 @@ export class ServerRequest<T = unknown> {
             emitter.emit('error', e);
         };
 
-        xhr.upload.onload = (e) => {
+        xhr.upload.onloadend = (e) => {
             emitter.emit('complete', e);
-            const data = bigIntDecode(JSON.parse(xhr.responseText));
-            if (data?.$status) {
-                // this is a notification
-                const d = data as StatusJson;
-                notify(
-                    {
-                        title: d.title,
-                        message: d.message,
-                        status: d.$status,
-                        color: d.color,
-                    },
-                    'alert',
-                );
-            }
+
+            const interval = setInterval(() => {
+                if (xhr.readyState === 4) {
+                    clearInterval(interval);
+                    emitter.emit('complete', e);
+                    const data = JSON.parse(xhr.responseText || '{}');
+                    if (data.$status) {
+                        // this is a notification
+                        const d = data as StatusJson;
+                        notify(
+                            {
+                                title: d.title,
+                                message: d.message,
+                                status: d.$status,
+                                color: d.color,
+                            },
+                            'alert',
+                        );
+                    }
+                }
+            }, 10);
         };
 
         xhr.send(formData);

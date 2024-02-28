@@ -98,7 +98,7 @@ Account.on('delete', set);
 </script>
 
 <div class="table-responsive">
-    <table class="table table-striped table-dark table-hover" bind:this="{div}">
+    <table class="table table-striped table-hover" bind:this="{div}">
         <thead>
             <tr>
                 <th scope="col">Name</th>
