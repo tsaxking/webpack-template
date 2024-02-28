@@ -15,8 +15,6 @@ import {
 } from '../../shared/text.ts';
 import { bigIntDecode, bigIntEncode } from '../../shared/objects.ts';
 import { daysTimeout } from '../../shared/sleep.ts';
-import { confirm } from '../../scripts/prompt.ts';
-import { Colors } from './colors.ts';
 
 /**
  * The name of the main database
@@ -754,6 +752,7 @@ export class DB {
         query: string,
         args: Parameter[],
     ): Promise<Result<QueryResult<unknown>>> {
+        await DB.connect();
         const run = () =>
             attemptAsync(async () => {
                 const q = DB.parseQuery(query, args);
