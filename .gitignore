@@ -6,6 +6,8 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
+*/deps/*
+
 */templates/entries/
 
 */dir-tree.txt

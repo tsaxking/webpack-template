@@ -6,6 +6,7 @@ import { DB } from '../../server/utilities/databases.ts';
 import Account from '../../server/structure/accounts.ts';
 import { uuid } from '../../server/utilities/uuid.ts';
 import { dateTime } from '../../shared/clock.ts';
+import { pullDeps } from '../pull-deps.ts';
 // import { run } from '../../server/utilities/run-task.ts';
 
 // const format = async () => {
@@ -206,6 +207,12 @@ const blacklist = async () => {
     }
 };
 
+const getDependencies = async () => {
+    const res = await pullDeps();
+    if (res.isOk()) return backToMain('Dependencies pulled');
+    return backToMain('Failed to pull dependencies: ' + res.error.message);
+};
+
 export const general = [
     {
         icon: '📄',
@@ -214,5 +221,9 @@ export const general = [
     {
         icon: '🚫',
         value: blacklist,
+    },
+    {
+        icon: '📦',
+        value: getDependencies,
     },
 ];
