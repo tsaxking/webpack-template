@@ -535,6 +535,20 @@ export class ServerRequest<T = unknown> {
 
         xhr.upload.onload = (e) => {
             emitter.emit('complete', e);
+            const data = bigIntDecode(JSON.parse(xhr.responseText));
+            if (data?.$status) {
+                // this is a notification
+                const d = data as StatusJson;
+                notify(
+                    {
+                        title: d.title,
+                        message: d.message,
+                        status: d.$status,
+                        color: d.color,
+                    },
+                    'alert',
+                );
+            }
         };
 
         xhr.send(formData);
