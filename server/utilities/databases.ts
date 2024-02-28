@@ -117,7 +117,6 @@ export class DB {
 
     static async connect() {
         return attemptAsync(async () => {
-            if (DB.connected) await DB.disconnect();
             return new Promise((res, rej) => {
                 setTimeout(() => {
                     rej('Database connection timed out');
