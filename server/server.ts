@@ -16,7 +16,6 @@ import { stdin } from './utilities/stdin.ts';
 import { io, Socket } from './structure/socket.ts';
 import { getJSONSync } from './utilities/files.ts';
 
-
 if (Deno.args.includes('--stats')) {
     const measure = () => {
         console.clear();
@@ -25,7 +24,7 @@ if (Deno.args.includes('--stats')) {
         console.log('heap:', heapUsed / 1024 / 1024, 'MB');
         console.log('total:', heapTotal / 1024 / 1024, 'MB');
     };
-    
+
     setInterval(measure, 1000);
 }
 

@@ -17,7 +17,7 @@ const main = () => {
                 '--allow-all',
                 '--v8-flags=--max-old-space-size=8000',
                 './server/server.ts',
-                ...args
+                ...args,
             ],
             stdout: 'inherit',
             stderr: 'inherit',
