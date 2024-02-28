@@ -138,7 +138,7 @@ const forgotPassword = async () => {
                     <a
                         href="javascript:void(0)"
                         class="link-primary"
-                        on:click="{forgotPassword}">Forgot password?</a
+                        on:click="{forgotPassword}">Reset Password</a
                     >
 
                     <hr />
