@@ -298,7 +298,7 @@ export class Res {
                 name: id,
                 value: c.value,
                 ...c.options,
-                path: '/'
+                path: '/',
             });
         }
 
