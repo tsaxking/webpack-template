@@ -47,7 +47,7 @@ const fns = {
     class="navbar navbar-expand-lg fixed-top shadow text-light bg-dark d-flex justify-content-between"
     id="top-navbar"
 >
-    <div class="d-inline-flex p-0">
+    <div class="d-inline-flex p-0" style="height: 42px;">
         <button
             class="btn btn-dark navbar-toggler border-0"
             type="button"
