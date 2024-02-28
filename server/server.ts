@@ -24,7 +24,6 @@ if (Deno.args.includes('--stats')) {
         console.log('heap:', heapUsed / 1024 / 1024, 'MB');
         console.log('total:', heapTotal / 1024 / 1024, 'MB');
     };
-
     setInterval(measure, 1000);
 }
 
