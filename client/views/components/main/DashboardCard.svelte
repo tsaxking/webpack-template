@@ -19,6 +19,6 @@ export let scroll: boolean = false;
 <style>
 .dashboard-card {
     /* Force all cards to be the same height */
-    height: 425px !important;
+    height: 400px !important;
 }
 </style>
