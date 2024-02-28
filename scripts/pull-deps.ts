@@ -35,7 +35,7 @@ export const pullDeps = async () => {
             }
         }
 
-        const parse = (url: string) => url.replace(/([/\\.])/g, '_');
+        const parse = (url: string) => url.replace(/([/\\?=+])/g, '_');
 
         const promises = deps.map(async (dep) =>
             fetch(dep)
