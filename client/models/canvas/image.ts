@@ -29,7 +29,7 @@ export class Img extends Drawable<Img> {
 
     constructor(
         public readonly src: string,
-        public readonly options: Partial<CanvasImgOptions> = {}
+        public readonly options: Partial<CanvasImgOptions> = {},
     ) {
         super();
 
@@ -158,7 +158,7 @@ export class Img extends Drawable<Img> {
             (x || 0) * ctx.canvas.width,
             (y || 0) * ctx.canvas.height,
             (width || 0) * ctx.canvas.width,
-            (height || 0) * ctx.canvas.height
+            (height || 0) * ctx.canvas.height,
         );
     }
 
