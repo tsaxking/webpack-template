@@ -6,7 +6,7 @@ import { log } from './logging';
  * @param _target Fullscreen target
  * @returns A function that exits fullscreen
  */
-export const fullscreen = (_target: HTMLElement) => {
+export const fullscreen = (_target?: HTMLElement) => {
     const end = () =>
         attempt(() => {
             // exit fullscreen

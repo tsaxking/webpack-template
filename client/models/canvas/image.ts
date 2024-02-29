@@ -24,12 +24,12 @@ export class Img extends Drawable<Img> {
      * @readonly
      * @type {HTMLImageElement}
      */
-    public readonly img: HTMLImageElement = new Image();
+    private img: HTMLImageElement = document.createElement('img');
     private data: HTMLImageElement | null = null;
 
     constructor(
         public readonly src: string,
-        public readonly options: Partial<CanvasImgOptions> = {},
+        public readonly options: Partial<CanvasImgOptions> = {}
     ) {
         super();
 
@@ -41,19 +41,6 @@ export class Img extends Drawable<Img> {
             canvas.height = this.img.height;
             const ctx = canvas.getContext('2d');
             if (!ctx) return;
-
-            if (this.properties?.mirror) {
-                const { x, y } = this.properties.mirror;
-                if (x) {
-                    ctx.translate(canvas.width, 0);
-                    ctx.scale(-1, 1);
-                }
-
-                if (y) {
-                    ctx.translate(0, canvas.height);
-                    ctx.scale(1, -1);
-                }
-            }
 
             ctx.drawImage(this.img, 0, 0);
             // to data url
@@ -153,12 +140,25 @@ export class Img extends Drawable<Img> {
         const { x, y, width, height } = this.options;
         if (!this.data) return;
 
+        {
+            const { x, y } = this.mirror;
+            if (x) {
+                ctx.translate(ctx.canvas.width, 0);
+            }
+
+            if (y) {
+                ctx.translate(0, ctx.canvas.height);
+            }
+
+            ctx.scale(x ? -1 : 1, y ? -1 : 1);
+        }
+
         ctx.drawImage(
             this.data,
             (x || 0) * ctx.canvas.width,
             (y || 0) * ctx.canvas.height,
             (width || 0) * ctx.canvas.width,
-            (height || 0) * ctx.canvas.height,
+            (height || 0) * ctx.canvas.height
         );
     }
 
@@ -181,8 +181,12 @@ export class Img extends Drawable<Img> {
     }
 
     clone(): Img {
-        const i = new Img(this.src, this.options);
-        copy(this, i);
+        const i = new Img(this.src, JSON.parse(JSON.stringify(this.options)));
+        i.x = this.x;
+        i.y = this.y;
+        i.width = this.width;
+        i.height = this.height;
+
         return i;
     }
 }
