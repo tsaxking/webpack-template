@@ -243,18 +243,18 @@ export const addStatusPrompt = async () => {
 //     const name = repeatPrompt('Socket event name');
 //     addSocket(name);
 // }
-if (require.main) {
-    console.warn(
-        `⚠️ ${Colors.FgYellow}Running this script will be deprecated soon, please use "deno task manager" and select [Status] -> Create Status instead.${Colors.Reset} ⚠️`,
-    );
-    addStatusPrompt();
-}
-if (require.main && process.argv.includes('socket')) {
-    console.warn(
-        `⚠️ ${Colors.FgYellow}Running this script will be deprecated soon, please use "deno task manager" and select [Status] -> Create Socket Event instead.${Colors.Reset} ⚠️`,
-    );
+// if (require.main) {
+//     console.warn(
+//         `⚠️ ${Colors.FgYellow}Running this script will be deprecated soon, please use "deno task manager" and select [Status] -> Create Status instead.${Colors.Reset} ⚠️`,
+//     );
+//     addStatusPrompt();
+// }
+// if (require.main && process.argv.includes('socket')) {
+//     console.warn(
+//         `⚠️ ${Colors.FgYellow}Running this script will be deprecated soon, please use "deno task manager" and select [Status] -> Create Socket Event instead.${Colors.Reset} ⚠️`,
+//     );
 
-    repeatPrompt('Socket event name').then(
-        (name) => addSocket(name),
-    );
-}
+//     repeatPrompt('Socket event name').then(
+//         (name) => addSocket(name),
+//     );
+// }

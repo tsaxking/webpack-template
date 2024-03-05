@@ -1,8 +1,8 @@
-import cliSelect from 'cli-select';
 import FuzzySearch from 'fuzzy-search';
 import { Colors } from '../server/utilities/colors';
 import { attemptAsync, Result } from '../shared/check';
 import prompts from 'prompts';
+import { stdin } from '../server/utilities/stdin';
 
 export const prompt = async (message: string): Promise<string> => {
     const res = await prompts({
@@ -52,6 +52,58 @@ type Option<T = unknown> = {
     value: T;
 };
 
+export const _select = async <T>(message: string, options: {
+    name: string;
+    value: T;
+}[]): Promise<T> => {
+    const data = await new Promise<T>((res) => {
+        const run = (selected: number) => {
+            console.clear();
+            console.log(Colors.FgBlue, '?', Colors.Reset, message, '\n');
+            for (let i = 0; i < options.length; i++) {
+                const o = options[i];
+                console.log(Colors.FgGreen, i === selected ? '>' : ' ', Colors.Reset, o.name);
+            }
+
+            stdin.on('data', handleKey);
+        }
+
+        let selected = 0;
+
+
+        const stdin = process.stdin;
+
+        stdin.setRawMode(true);
+        stdin.resume();
+        stdin.setEncoding('utf8');
+
+        const handleKey = (key: string) => {
+            if (key === '\u0003') {
+                process.exit();
+            } else if (key === '\r') {
+                stdin.setRawMode(false);
+                stdin.pause();
+                console.log('\n');
+                res(options[selected].value);
+            } else if (key === '\u001b[A') {
+                selected = selected === 0 ? options.length - 1 : selected - 1;
+                run(selected);
+            } else if (key === '\u001b[B') {
+                selected = selected === options.length - 1 ? 0 : selected + 1;
+                run(selected);
+            }
+
+            stdin.off('data', handleKey);
+        }
+        run(selected);
+    });
+
+    process.stdin.pause();
+    process.stdin.setRawMode(false);
+
+    return data;
+}
+
 export const select = async <T = unknown>(
     message: string,
     data: (Option<T> | string)[],
@@ -74,23 +126,20 @@ export const select = async <T = unknown>(
             value: '$$exit$$' as unknown as T,
         });
     }
-    // const res = await cliffy.Select.prompt({
-    //     message: message,
-    //     options: data,
-    // });
 
-    const res = await cliSelect({
-        values: data.map(d => (typeof d === 'string' ? { name: d, value: d } as Option<string> : d)),
-    });
+    const res = await _select(
+        message,
+        data.map(d => (typeof d === 'string' ? { name: d, value: d } as Option<T> : d)),
+    );
 
-    if (res.value.value === '$$exit$$') {
+    if (res === '$$exit$$') {
         if (options.exit) {
             process.exit(0);
         }
         throw new Error('exit');
     }
 
-    if (res.value.value === '$$return$$') {
+    if (res === '$$return$$') {
         throw new Error('return');
     }
 
