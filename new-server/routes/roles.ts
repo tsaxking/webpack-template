@@ -1,7 +1,7 @@
-import { validate } from '../middleware/data-type.ts';
-import { Route } from '../structure/app/app.ts';
-import Role from '../structure/roles.ts';
-import { Permission } from '../../shared/permissions.ts';
+import { validate } from '../middleware/data-type';
+import { Route } from '../structure/app/app';
+import Role from '../structure/roles';
+import { Permission } from '../../shared/permissions';
 
 export const router = new Route();
 

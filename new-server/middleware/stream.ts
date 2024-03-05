@@ -1,18 +1,18 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { uuid } from '../utilities/uuid.ts';
+import { uuid } from '../utilities/uuid';
 import {
     createUploadsFolder,
-    formatBytes,
+    // formatBytes,
     saveUpload,
-} from '../utilities/files.ts';
-import { __uploads } from '../utilities/env.ts';
-import { Next, ServerFunction } from '../structure/app/app.ts';
-import { Req } from '../structure/app/req.ts';
-import { Res } from '../structure/app/res.ts';
-import { StatusId } from '../../shared/status-messages.ts';
-import { EventEmitter } from '../../shared/event-emitter.ts';
-import { error } from '../utilities/terminal-logging.ts';
+} from '../utilities/files';
+import { __uploads } from '../utilities/env';
+import { Next, ServerFunction } from '../structure/app/app';
+import { Req } from '../structure/app/req';
+import { Res } from '../structure/app/res';
+import { StatusId } from '../../shared/status-messages';
+import { EventEmitter } from '../../shared/event-emitter';
+import { error } from '../utilities/terminal-logging';
 
 /**
  * Options for file upload streams

@@ -1,4 +1,3 @@
-import stack from 'callsite';
 import render from 'node-html-constructor/versions/v4';
 import ObjectsToCsv from 'objects-to-csv';
 import {
@@ -249,6 +248,20 @@ export const saveFileSync = (file: string, data: string): Result<void, FileError
     }, matchFileError);
 }
 
+export const removeFile = (file: string): Promise<Result<void, FileError>> => {
+    return attemptAsync(async () => {
+        const p = path.resolve(__root, file);
+        await fs.promises.rm(p);
+    }, matchFileError);
+}
+
+export const removeFileSync = (file: string): Result<void, FileError> => {
+    return attempt(() => {
+        const p = path.resolve(__root, file);
+        fs.rmSync(p);
+    }, matchFileError);
+}
+
 export const readDir = (dir: string): Promise<Result<string[], FileError>> => {
     return attemptAsync(() => {
         return fs.promises.readdir(path.resolve(__root, dir));
@@ -298,9 +311,9 @@ export type LogObj = {
  * @returns {*}
  */
 export function log(type: LogType, dataObj: LogObj): Promise<Result<void>> {
-    return attemptAsync(() => {
+    return attemptAsync(async () => {
         createLogsFolder();
-        return new ObjectsToCsv([dataObj]).toDisk(
+        new ObjectsToCsv([dataObj]).toDisk(
             path.resolve(__logs, `${type}.csv`),
             { append: true },
         );

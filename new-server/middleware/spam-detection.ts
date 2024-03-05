@@ -1,6 +1,6 @@
 // const SpamScanner = require('spamscanner');
-import { validate } from 'npm:deep-email-validator';
-import { ServerFunction } from '../structure/app/app.ts';
+import { validate } from 'deep-email-validator';
+import { ServerFunction } from '../structure/app/app';
 /**
  * Options for the spam detection middleware
  * @date 1/9/2024 - 1:19:48 PM

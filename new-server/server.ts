@@ -1,19 +1,18 @@
-import env, { __root } from './utilities/env.ts';
-import { log } from './utilities/terminal-logging.ts';
-import { App, ResponseStatus } from './structure/app/app.ts';
-import { getJSON, log as serverLog } from './utilities/files.ts';
-import { homeBuilder } from './utilities/page-builder.ts';
-import Account from './structure/accounts.ts';
-import { router as admin } from './routes/admin.ts';
-import { router as account } from './routes/account.ts';
-import { router as api } from './routes/api.ts';
-import { router as role } from './routes/roles.ts';
-import { FileUpload } from './middleware/stream.ts';
-import { ReqBody } from './structure/app/req.ts';
-import { parseCookie } from '../shared/cookie.ts';
-import { stdin } from './utilities/stdin.ts';
-import { io, Socket } from './structure/socket.ts';
-import { getJSONSync } from './utilities/files.ts';
+import env, { __root } from './utilities/env';
+import { log } from './utilities/terminal-logging';
+import { App, ResponseStatus } from './structure/app/app';
+import { getJSON, log as serverLog } from './utilities/files';
+import { homeBuilder } from './utilities/page-builder';
+import Account from './structure/accounts';
+import { router as admin } from './routes/admin';
+import { router as account } from './routes/account';
+import { router as api } from './routes/api';
+import { router as role } from './routes/roles';
+import { FileUpload } from './middleware/stream';
+import { ReqBody } from './structure/app/req';
+import { parseCookie } from '../shared/cookie';
+import { stdin } from './utilities/stdin';
+import { getJSONSync } from './utilities/files';
 import path from 'path';
 
 if (process.argv.includes('--stats')) {
@@ -29,20 +28,7 @@ if (process.argv.includes('--stats')) {
 
 const port = +(env.PORT || 3000);
 
-export const app = new App(port, env.DOMAIN || `http://localhost:${port}`, {
-    // onListen: () => {
-    // log(`Listening on ${domain}`);
-    // },
-    // onConnection: (socket) => {
-    // log('New connection:', socket.id);
-    // },
-    blockedIps: (() => {
-        const blocked = getJSONSync<string[]>('blocked-ips');
-        if (blocked.isOk()) return blocked.value;
-        return [];
-    })(),
-    ioPort: +(env.SOCKET_PORT || port + 1),
-});
+export const app = new App(port, env.DOMAIN || `http://localhost:${port}`);
 
 if (env.ENVIRONMENT === 'dev') {
     stdin.on('rb', () => {
@@ -50,13 +36,6 @@ if (env.ENVIRONMENT === 'dev') {
         app.io.emit('reload');
     });
 }
-
-io.on('connection', (s: Socket) => {
-    log('New connection:', s.id);
-    s.on('disconnect', () => {
-        log('Disconnected:', s.id);
-    });
-});
 
 app.post('/env', (req, res) => {
     res.json({
@@ -66,7 +45,7 @@ app.post('/env', (req, res) => {
 
 app.post('/socket-init', (req, res) => {
     const cookie = req.headers.get('cookie');
-    res.json(parseCookie(cookie));
+    res.json(parseCookie(cookie || ''));
 });
 
 app.get('/*', (req, res, next) => {
@@ -106,7 +85,8 @@ function stripHtml(body: ReqBody) {
 
     const remove = (str: string) => str.replace(/(<([^>]+)>)/gi, '');
 
-    const strip = (obj: unknown): unknown => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const strip = (obj: any): unknown => {
         switch (typeof obj) {
             case 'string':
                 return remove(obj);
@@ -135,7 +115,7 @@ function stripHtml(body: ReqBody) {
 app.post('/*', (req, res, next) => {
     req.body = stripHtml(req.body as ReqBody);
 
-    log('[POST]', req.url.pathname);
+    log('[POST]', req.url);
     try {
         const b = JSON.parse(JSON.stringify(req.body)) as {
             $$files?: FileUpload[];
@@ -200,11 +180,11 @@ app.get('/*', (req, res, next) => {
                 '/account/sign-in',
                 '/account/sign-up',
                 '/account/forgot-password',
-            ].includes(req.url.pathname)
+            ].includes(req.url)
         ) {
             // only save the previous url if it's not a sign-in, sign-up, or forgot-password page
             // this is so that the user can be redirected back to the page they initially were trying to access
-            req.session.prevUrl = req.url.href;
+            req.session.prevUrl = req.url;
         }
         return res.redirect('/account/sign-in');
     }

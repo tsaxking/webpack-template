@@ -1,13 +1,13 @@
-import { Next, Route } from '../structure/app/app.ts';
-import Account from '../structure/accounts.ts';
-import { Status } from '../utilities/status.ts';
-import Role from '../structure/roles.ts';
-import { messages, StatusId } from '../../shared/status-messages.ts';
-import { trimBody, validate } from '../middleware/data-type.ts';
-import env from '../utilities/env.ts';
-import { Req } from '../structure/app/req.ts';
-import { Res } from '../structure/app/res.ts';
-import { capitalize } from '../../shared/text.ts';
+import { Next, Route } from '../structure/app/app';
+import Account from '../structure/accounts';
+import { Status } from '../utilities/status';
+import Role from '../structure/roles';
+import { messages, StatusId } from '../../shared/status-messages';
+import { trimBody, validate } from '../middleware/data-type';
+import env from '../utilities/env';
+import { Req } from '../structure/app/req';
+import { Res } from '../structure/app/res';
+import { capitalize } from '../../shared/text';
 
 export const router = new Route();
 

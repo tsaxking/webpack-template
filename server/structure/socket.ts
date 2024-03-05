@@ -3,6 +3,8 @@ import { Req } from './app/req.ts';
 import { Res } from './app/res.ts';
 import { uuid } from '../utilities/uuid.ts';
 import { EventEmitter } from '../../shared/event-emitter.ts';
+import { Server } from 'socket.io';
+import { App } from './app/app.ts';
 
 type Cache = {
     event: string;
@@ -107,9 +109,9 @@ export class Socket {
 }
 
 export class SocketWrapper {
+    Socket = Socket;
     private readonly em = new EventEmitter();
 
-    Socket = Socket;
 
     // middleware() {
     //     return (

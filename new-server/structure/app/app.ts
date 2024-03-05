@@ -1,7 +1,13 @@
 import express from 'express';
 // import { __root } from '../../utilities/env.ts';
-import path from 'path';
 import { log } from '../../../server/utilities/terminal-logging';
+import { Req } from './req';
+import { Res } from './res';
+import { SocketWrapper } from '../socket';
+import http from 'http';
+import { Server } from 'socket.io';
+import { Session } from '../sessions';
+import session from 'express-session';
 
 /**
  * All file types that can be sent (can be expanded)
@@ -86,11 +92,11 @@ export type CookieOptions = {
  * @enum {number}
  */
 enum RequestMethod {
-    GET = 'GET',
-    POST = 'POST',
-    PUT = 'PUT',
-    DELETE = 'DELETE',
-    USE = 'USE',
+    GET = 'get',
+    POST = 'post',
+    PUT = 'put',
+    DELETE = 'delete',
+    USE = 'use',
 }
 
 /**
@@ -123,24 +129,58 @@ export type ServerFunction<T = unknown> = (
  */
 export type FinalFunction<T> = (req: Req<T>, res: Res) => any;
 
-/**
- * Options for starting the application
- * @date 10/12/2023 - 2:49:37 PM
- *
- * @typedef {AppOptions}
- */
-type AppOptions = {
-    onListen?: (server: Deno.Server) => void;
-    onConnection?: (socket: any) => void;
-    onDisconnect?: () => void;
-    ioPort?: number;
-    blockedIps?: string[];
-};
+declare module "express-serve-static-core" {
+    interface Request {
+        request: Req;
+        response: Res;
+    }
+}
+
+export class Route {
+    readonly router = express.Router();
+
+    private addListener<T>(
+        method: RequestMethod,
+        path: string,
+        ...fn: ServerFunction<T>[]
+    ) {
+        this.router[method](path, async (req: express.Request) => {
+            const { request, response } = req;
+            
+            try {
+                const run = async (i: number) => {
+                    if (i >= fn.length) return;
+                    await fn[i](request as Req<T>, response, () => run(i + 1));
+                }
+
+                await run(0);
+            } catch (e) {
+                response.sendStatus('unknown:error');
+            }
+        });
+    }
+    
+    public get<T>(path: string, ...fn: ServerFunction<T>[]) {
+        this.addListener(RequestMethod.GET, path, ...fn);
+    }
+
+    public post<T>(path: string, ...fn: ServerFunction<T>[]) {
+        this.addListener(RequestMethod.POST, path, ...fn);
+    }
+
+    public put<T>(path: string, ...fn: ServerFunction<T>[]) {
+        this.addListener(RequestMethod.PUT, path, ...fn);
+    }
+
+    public delete<T>(path: string, ...fn: ServerFunction<T>[]) {
+        this.addListener(RequestMethod.DELETE, path, ...fn);
+    }
+}
 
 export class App {
     public static headerAuth(key: string, value: string): ServerFunction {
         return (req, res, next) => {
-            if (req.headers.get(name) === value){
+            if (req.headers.get(key) === value){
                 next();
             } else {
                 res.sendStatus('permissions:unauthorized');
@@ -154,12 +194,84 @@ export class App {
     constructor(
         public readonly port: number,
         public readonly domain: string,
-        options?: Partial<AppOptions> 
     ) {
         this.server = express();
+        const s = http.createServer(this.server);
+        this.io = new SocketWrapper(this, new Server(s));
 
-        this.server.listen(port, () => {
+        s.listen(port, () => {
             log(`Server is listening on port ${port}`);
         });
+
+        this.server.use(express.json());
+        this.server.use(express.urlencoded({ extended: true }));
+        this.server.use(session({
+            secret: 'hello darkness my old friend',
+            resave: false,
+            saveUninitialized: true,
+            cookie: {
+                secure: true,
+                maxAge: 1000 * 60 * 60 * 24 * 365
+            }
+        }));
+        this.server.use(async (req, res, next) => {
+            const id = req.sessionID;
+            
+            const s = await Session.from(this, req, res);
+            const request = new Req(this, req, s);
+            req.request = request;
+            req.response = new Res(this, res, request);
+            next();
+        });
+    }
+
+    private addListener<T>(
+        method: RequestMethod,
+        path: string,
+        ...fn: ServerFunction<T>[]
+    ) {
+        this.server[method](path, async (req: express.Request) => {
+            try {
+                const run = async (i: number) => {
+                    if (i >= fn.length) return;
+                    await fn[i](req.request as Req<T>, req.response, () => run(i + 1));
+                }
+
+                await run(0);
+            } catch (e) {
+                req.response.sendStatus('unknown:error');
+            }
+        });
+    }
+
+    public get<T>(path: string, ...fn: ServerFunction<T>[]) {
+        this.addListener<T>(RequestMethod.GET, path, ...fn);
+    }
+
+    public post<T>(path: string, ...fn: ServerFunction<T>[]) {
+        this.addListener<T>(RequestMethod.POST, path, ...fn);
+    }
+
+    public put<T>(path: string, ...fn: ServerFunction<T>[]) {
+        this.addListener<T>(RequestMethod.PUT, path, ...fn);
+    }
+
+    public delete<T>(path: string, ...fn: ServerFunction<T>[]) {
+        this.addListener<T>(RequestMethod.DELETE, path, ...fn);
+    }
+
+    public use<T>(path: string, ...fn: ServerFunction<T>[]) {
+        this.addListener<T>(RequestMethod.USE, path, ...fn);
+    }
+
+    public route(path: string, route: Route) {
+        this.server.use(path, route.router);
+    }
+
+    public static(
+        path: string,
+        dirPath: string,
+    ) {
+        this.server.use(path, express.static(dirPath));
     }
 }

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { EventEmitter } from '../../shared/event-emitter.ts';
-import { ServerFunction } from '../structure/app/app.ts';
-import { Req } from '../structure/app/req.ts';
+import { EventEmitter } from '../../shared/event-emitter';
+import { ServerFunction } from '../structure/app/app';
+import { Req } from '../structure/app/req';
 
 /**
  * Options for the validate function

@@ -1,5 +1,5 @@
 import Filter from 'npm:bad-words';
-import { ServerFunction } from '../structure/app/app.ts';
+import { ServerFunction } from '../structure/app/app';
 
 /**
  * Bad word filter

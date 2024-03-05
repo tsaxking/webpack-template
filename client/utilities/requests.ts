@@ -199,7 +199,7 @@ export class SendStream {
      * @private
      * @type {(number | NodeJS.Timeout)}
      */
-    private interval: number | NodeJS.Timeout;
+    private interval?: number | NodeJS.Timeout;
 
     /**
      * Creates an instance of SendStream.
