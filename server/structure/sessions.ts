@@ -36,7 +36,7 @@ export type SessionObj = {
  */
 export class Session {
     public static async from(app: App, req: express.Request, res: express.Response): Promise<Session> {
-        const id = req.cookies[Session.sessionName];
+        const id = req.cookies?.[Session.sessionName];
         if (id) {
             const s = await Session.get(app, id);
             if (s) return s;
@@ -158,7 +158,7 @@ export class Session {
             httpOnly: Session.cookieOptions.httpOnly,
             path: '/',
         });
-        req.cookies[Session.sessionName] = s.id;
+        // req.cookies[Session.sessionName] = s.id;
 
         DB.run('sessions/new', {
             id: s.id,

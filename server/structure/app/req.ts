@@ -53,7 +53,7 @@ export class Req<T = unknown> {
     }
 
     public get cookie() {
-        return this.req.cookies;
+        return this.req.cookies ? this.req.cookies : {};
     }
 
     public get query() {

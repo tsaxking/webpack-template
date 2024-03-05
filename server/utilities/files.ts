@@ -39,8 +39,9 @@ const makeFolder = (folder: string) => {
 
 const filePathBuilder = (file: string, ext: string, dir: string) => {
     let output: string;
+    // console.log(file, ext, dir);
     if (!file.endsWith(ext)) {
-        output = file + ext;
+        file += ext;
     }
 
     if (file.startsWith('.')) {
@@ -51,6 +52,7 @@ const filePathBuilder = (file: string, ext: string, dir: string) => {
     } else {
         output = path.resolve(__root, dir, file);
     }
+    // console.log({ output });
 
     return output;
 }

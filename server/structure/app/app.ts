@@ -144,12 +144,12 @@ export class Route {
         path: string,
         ...fn: ServerFunction<T>[]
     ) {
-        this.router[method](path, async (req: express.Request) => {
+        this.router[method](path, async (req: express.Request, _res, next) => {
             const { request, response } = req;
             
             try {
                 const run = async (i: number) => {
-                    if (i >= fn.length) return;
+                    if (i >= fn.length) return next();
                     await fn[i](request as Req<T>, response, () => run(i + 1));
                 }
 
@@ -230,10 +230,10 @@ export class App {
         path: string,
         ...fn: ServerFunction<T>[]
     ) {
-        this.server[method](path, async (req: express.Request) => {
+        this.server[method](path, async (req: express.Request, _res, next) => {
             try {
                 const run = async (i: number) => {
-                    if (i >= fn.length) return;
+                    if (i >= fn.length) return next();
                     await fn[i](req.request as Req<T>, req.response, () => run(i + 1));
                 }
 

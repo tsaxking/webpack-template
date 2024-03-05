@@ -55,7 +55,8 @@ export class Err<E = Error, T = unknown> {
      * @constructor
      * @param {E} error
      */
-    constructor(public readonly error: E) {}
+    constructor(public readonly error: E) {
+    }
 
     /**
      * Returns true if the result is Ok
@@ -104,6 +105,7 @@ export const attempt = <T = unknown, E = Error>(
     try {
         return new Ok(fn());
     } catch (e) {
+        console.error('[check.ts]', e);
         if (parseError) {
             const err = attempt(
                 () => parseError(e as Error),

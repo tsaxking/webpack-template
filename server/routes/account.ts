@@ -11,6 +11,11 @@ import { capitalize } from '../../shared/text';
 
 export const router = new Route();
 
+router.get('/*', (req, res, next) => {
+    console.log('Account route');
+    next();
+});
+
 const redirect = (req: Req, res: Res, next: Next) => {
     if (!req.session.accountId) return next();
 
