@@ -1,11 +1,11 @@
-import { backToMain } from '../manager.ts';
-import { repeatPrompt, select } from '../prompt.ts';
-import { selectRole } from './roles.ts';
-import { Permission } from '../../shared/permissions.ts';
-import Role from '../../server/structure/roles.ts';
-import { DB } from '../../server/utilities/databases.ts';
-import { saveFile } from '../../server/utilities/files.ts';
-import { attemptAsync } from '../../shared/check.ts';
+import { backToMain } from '../manager';
+import { repeatPrompt, select } from '../prompt';
+import { selectRole } from './roles';
+import { Permission } from '../../shared/permissions';
+import Role from '../../server/structure/roles';
+import { DB } from '../../server/utilities/databases';
+import { saveFile } from '../../server/utilities/files';
+import { attemptAsync } from '../../shared/check';
 
 const createPermission = async (perm: Permission, description: string) => {
     return attemptAsync(async () => {
@@ -70,7 +70,7 @@ export const addPermissions = async () => {
                     !allPerms.some((p) => p.permission === data),
                 false,
             ) as unknown as Permission;
-            const description = repeatPrompt(
+            const description = await repeatPrompt(
                 'Enter the permission description',
             );
             createPermission(perm, description);

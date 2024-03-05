@@ -1,97 +1,93 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-// this needs to be upgraded, but esbuild has not integrated "watch" yet
-import * as esbuild from 'https://deno.land/x/esbuild@v0.20.0/mod.js';
-import { sveltePlugin, typescript } from './build/esbuild-svelte.ts';
-import { getTemplateSync, saveTemplateSync } from './utilities/files.ts';
+import esbuild from "esbuild";
+import sveltePlugin from "esbuild-svelte";
+import fs from 'fs';
+import path from "path";
+import env, { __root, __templates } from "./utilities/env";
+import { getTemplateSync, saveTemplateSync } from "./utilities/files";
+import { attemptAsync } from "../shared/check";
 
-import env, {
-    __root,
-    __templates,
-    relative,
-    resolve,
-} from './utilities/env.ts';
-import { attemptAsync } from '../shared/check.ts';
 
-/**
- * Recursively reads a directory, saves the template, and returns the file paths
- * @date 10/12/2023 - 3:26:56 PM
- */
 const readDir = (dirPath: string): string[] => {
-    const entries = Array.from(Deno.readDirSync(dirPath));
-    return entries.flatMap((e) => {
-        if (!e.isFile) return readDir(`${dirPath}/${e.name}`);
+    const entries = Array.from(fs.readdirSync(dirPath));
 
-        const file = dirPath.split('/').slice(2).join('/') +
-            '/' +
-            e.name.replace('.ts', '.html');
+    return entries.flatMap(e => {
+        if (fs.statSync(path.resolve(dirPath, e)).isDirectory()) {
+            return readDir(path.resolve(dirPath, e));
+        }
+
+        const file = dirPath.split('/').slice(2).join('/') + '/' + e.replace('.ts', '.html');
 
         const result = getTemplateSync('index', {
-            script: relative(
-                resolve(__templates, file),
-                resolve(
+            script: path.relative(
+                path.resolve(__templates, file),
+                path.resolve(
                     __root,
                     'dist',
                     dirPath.split('/').slice(3).join('/'),
-                    e.name.replace('.ts', '.js'),
-                ),
+                    e.replace('.ts', '.js'),
+                )
             ),
-            style: relative(
-                resolve(__templates, file),
-                resolve(
+            style: path.relative(
+                path.resolve(__templates, file),
+                path.resolve(
                     __root,
                     'dist',
                     dirPath.split('/').slice(3).join('/'),
-                    e.name.replace('.ts', '.css'),
-                ),
+                    e.replace('.ts', '.css'),
+                )
             ),
-            title: env.TITLE || 'Untitled',
+            title: env.TITLE || 'Untitled'
         });
 
         if (result.isOk()) {
-            saveTemplateSync('/' + file, result.value);
+            saveTemplateSync(
+                '/' + file,
+                result.value
+            );
         }
-        return `${dirPath}/${e.name}`;
+
+        return `${dirPath}/${e}`;
     });
-};
+}
 
 export class Builder {
-    private watchers = new Map<string, Deno.FsWatcher>();
+    private watchers = new Map<string, fs.FSWatcher>();
 
-    public watch = async (path: string) => {
-        const watcher = Deno.watchFs(path);
-        this.watchers.set(path, watcher);
+    public watch = (dir: string) => {
+        const watcher = fs.watch(
+            path.resolve(__dirname, '../', dir)
+        );
+        this.watchers.set(dir, watcher);
 
-        for await (const event of watcher) {
-            console.log('file change detected', event);
-            switch (event.kind) {
-                case 'create':
-                case 'modify':
+        watcher.on('change', (type, filename) => {
+            switch (type) {
+                case 'change':
+                case 'rename':
                 case 'remove':
+                case 'add':
                     this.build();
                     break;
             }
-        }
-    };
+        });
+    }
 
     close = () => {
         for (const watcher of this.watchers.values()) {
             watcher.close();
         }
-    };
+    }
 
-    public build = () =>
-        attemptAsync(async () =>
-            esbuild.build({
-                entryPoints: readDir('./client/entries'),
+    public build = () => {
+        return attemptAsync(async() => {
+            return esbuild.build({
+                entryPoints: readDir('/client/entries'),
                 bundle: true,
                 minify: env.MINIFY === 'y',
                 outdir: './dist',
                 mainFields: ['svelte', 'browser', 'module', 'main'],
                 conditions: ['svelte', 'browser'],
                 plugins: [
-                    (sveltePlugin as any)({
-                        preprocess: [typescript()],
-                    }),
+                    sveltePlugin()
                 ],
                 logLevel: 'info',
                 loader: {
@@ -101,24 +97,16 @@ export class Builder {
                     '.eot': 'dataurl',
                     '.ttf': 'dataurl',
                     '.svg': 'dataurl',
-                },
+                }
             })
-        );
-
-    public run = async () => {
-        await this.build();
-
-        if (Deno.args.includes('--watch')) {
-            this.watch('./client');
-            this.watch('./shared');
-        }
-    };
+        });
+    }
 }
 
 // if this file is the main file, run the build
-if (import.meta.main) {
-    new Builder()
-        .build()
-        .then(() => Deno.exit(0))
-        .catch(() => Deno.exit(1));
+if (require.main === module) {
+    const builder = new Builder();
+    builder.build()
+        .then(() => process.exit(0))
+        .catch(() => process.exit(1));
 }

@@ -1,18 +1,12 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import { uuid } from '../utilities/uuid';
 import {
     createUploadsFolder,
-    // formatBytes,
-    saveUpload,
 } from '../utilities/files';
 import { __uploads } from '../utilities/env';
-import { Next, ServerFunction } from '../structure/app/app';
+import { ServerFunction } from '../structure/app/app';
 import { Req } from '../structure/app/req';
 import { Res } from '../structure/app/res';
-import { StatusId } from '../../shared/status-messages';
 import { EventEmitter } from '../../shared/event-emitter';
-import { error } from '../utilities/terminal-logging';
+import multer from 'multer';
 
 /**
  * Options for file upload streams
@@ -47,86 +41,39 @@ export type FileUpload = {
  */
 export const fileStream = (opts?: FileStreamOptions): ServerFunction => {
     createUploadsFolder();
-    return async (req: Req, res: Res, next: Next) => {
-        let { maxFileSize, extensions } = opts || {};
-        extensions = extensions?.map((e) => e.toLowerCase()) || [];
-        maxFileSize = maxFileSize ? maxFileSize : 1024 * 1024 * 10;
 
-        const generateFileId = (ext: string) => {
-            return uuid() + '-' + Date.now() + '.' + ext;
-        };
+    const upload = multer({
+        dest: __uploads,
+        limits: {
+            fileSize: opts?.maxFileSize,
+            files: opts?.maxFiles,
+        },
+    });
 
-        let sent = false;
-
-        const sendStatus = (status: StatusId, data: unknown) => {
-            if (!sent) {
-                sent = true;
-                res.sendStatus(status, data);
-            }
-        };
-
-        const reqBody = await req.req.formData();
-        const bodyStr = req.headers.get('X-Body'); // had to put body in headers because FormData is already in there
-        let body: unknown;
-        if (bodyStr) body = JSON.parse(bodyStr);
-        else body = {};
-
-        // forced to use any because Deno FormData is not typed accurately yet
-
-        const files = reqBody.getAll('file');
-        if (opts?.maxFiles && files.length > opts.maxFiles) {
-            return res.sendStatus('files:too-many-files', {
-                maxFiles: opts.maxFiles,
-                ...(body || {}),
-            });
+    return async (req, res, next) => {
+        const { files } = req;
+        if (!files) {
+            return res.sendStatus('files:missing');
         }
 
-        for (let i = 0; i < files.length; i++) {
-            const file = files[i];
-            if (file instanceof File) {
-                const name = file.name;
-                const ext = name.split('.').pop()?.toLowerCase() || '';
-                const size = file.size;
+        if (files.length > (opts?.maxFiles ?? 1)) {
+            return res.sendStatus('files:too-many');
+        }
 
-                if (
-                    (extensions as string[]).length &&
-                    !(extensions as string[]).includes(ext)
-                ) {
-                    return sendStatus('files:invalid-extension', {
-                        name,
-                        ext,
-                        extensions,
-                        ...(body || {}),
-                    });
-                }
-
-                if (size > (maxFileSize as number)) {
-                    return sendStatus('files:too-large', {
-                        name,
-                        size: formatBytes(size),
-                        maxFileSize: formatBytes(maxFileSize as number),
-                        ...(body || {}),
-                    });
-                }
-
-                let id: string;
-                do {
-                    id = generateFileId(ext);
-                } while (fs.existsSync(path.join(__uploads, id)));
-
-                const buffer = new Uint8Array(await file.arrayBuffer());
-                const result = await saveUpload(id, buffer);
-                if (result.isOk()) {
-                    req.files.push({ name, id, ext, size });
-                } else {
-                    error(result.error);
-                    return res.sendStatus('files:unknown-error');
+        if (opts?.extensions) {
+            for (const file of files) {
+                if (!opts.extensions.includes(file.mimetype)) {
+                    return res.sendStatus('files:invalid-extension');
                 }
             }
         }
 
-        next();
-    };
+        upload.array('files', opts?.maxFiles ?? 1)(
+            req.req,
+            res.res,
+            next
+        )
+    }
 };
 
 /**

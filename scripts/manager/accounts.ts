@@ -1,8 +1,8 @@
-import { backToMain } from '../manager.ts';
-import { repeatPrompt, search } from '../prompt.ts';
-import Account from '../../server/structure/accounts.ts';
-import { attemptAsync, Result } from '../../shared/check.ts';
-import { addRoleToAccount, removeRoleFromAccount } from './roles.ts';
+import { backToMain } from '../manager';
+import { repeatPrompt, search, confirm } from '../prompt';
+import Account from '../../server/structure/accounts';
+import { attemptAsync, Result } from '../../shared/check';
+import { addRoleToAccount, removeRoleFromAccount } from './roles';
 
 export const selectAccount = async (
     message = 'select an account',
@@ -72,37 +72,37 @@ export const removeAccount = async () => {
     }
 };
 export const createAccount = async () => {
-    const username = repeatPrompt(
+    const username = await repeatPrompt(
         'Enter the username',
         undefined,
         (str: string) => Account.isValid(str).valid,
         false,
     );
-    const password = repeatPrompt(
+    const password = await repeatPrompt(
         'Enter the password',
         undefined,
         (data) => !!data.length,
         false,
     );
-    repeatPrompt(
+    await repeatPrompt(
         'Confirm the password',
         undefined,
         (data) => data === password,
         false,
     );
-    const email = repeatPrompt(
+    const email = await repeatPrompt(
         'Enter the email',
         undefined,
         (data) => !!data.length && /^.+@.+\..+$/.test(data),
         false,
     );
-    const firstName = repeatPrompt(
+    const firstName = await repeatPrompt(
         'Enter the first name',
         undefined,
         (str: string) => Account.isValid(str).valid,
         false,
     );
-    const lastName = repeatPrompt(
+    const lastName = await repeatPrompt(
         'Enter the last name',
         undefined,
         (str: string) => Account.isValid(str).valid,

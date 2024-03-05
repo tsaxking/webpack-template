@@ -1,211 +1,112 @@
-import callsite from 'npm:callsite';
-import * as htmlConstructor from 'npm:node-html-constructor';
-import ObjectsToCsv from 'npm:objects-to-csv';
+import render from 'node-html-constructor/versions/v4';
+import ObjectsToCsv from 'objects-to-csv';
 import {
     __logs,
     __root,
     __templates,
     __uploads,
-    dirname,
-    resolve,
-} from './env.ts';
-// import fs from 'node:fs';
-import { attempt, attemptAsync, Result } from '../../shared/check.ts';
-import { match, matchInstance } from '../../shared/match.ts';
+} from './env';
+import { attempt, attemptAsync, Result } from '../../shared/check';
+import { match, matchInstance } from '../../shared/match';
+import { error } from './terminal-logging';
+import fs from 'fs';
+import path from 'path';
+import callsite from 'callsite';
+
 
 export type JSONError = 'InvalidJSON' | 'Unknown';
 export type FileError = 'NoFile' | 'FileExists' | 'NoAccess' | 'Unknown';
 
-const matchJSONError = (e: Error): JSONError =>
-    matchInstance<Error, JSONError>(
-        e,
-        [SyntaxError, () => 'InvalidJSON'],
+const matchJSONError = (e: Error): JSONError => 
+    matchInstance<Error, JSONError>(e,
+         [SyntaxError, () => 'InvalidJSON'],
+         [Error, () => 'Unknown']) ?? 'Unknown';
+
+const matchFileError = (e: Error): FileError =>
+    matchInstance<Error, FileError>(e,
         [Error, () => 'Unknown'],
-    ) ?? 'Unknown';
+        [TypeError, () => 'NoFile'],
+        [Error, () => 'FileExists'],
+        [Error, () => 'NoAccess']) ?? 'Unknown';
 
-const matchFileError = (e: Error): FileError => {
-    console.error(e);
-    return (
-        match<Error, FileError>(
-            e,
-            [(e) => e.message.includes('ENOENT'), () => 'NoFile'],
-            [(e) => e.message.includes('EEXIST'), () => 'FileExists'],
-            [(e) => e.message.includes('EACCES'), () => 'NoAccess'],
-            [(e) => e.message.includes('EISDIR'), () => 'NoAccess'],
-        ) ?? 'Unknown'
-    );
-};
-
-/**
- * Used to render html templates
- * @date 1/9/2024 - 12:20:06 PM
- *
- * @type {*}
- */
-const render = htmlConstructor.v4;
-
-/**
- * Recursively Makes a folder if it does not exist
- * @date 10/12/2023 - 3:24:47 PM
- */
 const makeFolder = (folder: string) => {
     try {
-        const dirs = dirname(folder);
-        Deno.mkdirSync(dirs, { recursive: true });
+        fs.mkdirSync(folder, { recursive: true });
     } catch {
-        console.log('Dir exists');
+        error('Dir exists');
     }
-};
+}
 
-/**
- * Used to build file paths, only to be used within this file
- * @date 10/12/2023 - 3:24:47 PM
- */
-const filePathBuilder = (file: string, ext: string, parentFolder: string) => {
+const filePathBuilder = (file: string, ext: string, dir: string) => {
     let output: string;
-    if (!file.endsWith(ext)) file += ext;
+    if (!file.endsWith(ext)) {
+        output = file + ext;
+    }
 
     if (file.startsWith('.')) {
-        // use callsite
         const stack = callsite(),
-            requester = stack[2].getFileName(),
-            requesterDir = dirname(requester);
-        output = resolve(requesterDir.replace('file:/', ''), file);
+            caller = stack[2].getFileName(),
+            requesterDir = path.dirname(caller);
+        output = path.resolve(__root, requesterDir, file);
     } else {
-        output = resolve(__root, parentFolder, ...file.split('/'));
+        output = path.resolve(__root, dir, file);
     }
 
     return output;
-};
+}
 
-/**
- * Removes all comments from a string
- * @date 10/12/2023 - 3:24:47 PM
- */
 const removeComments = (content: string) => {
     return content
         .replace(/\/\*[\s\S]*?\*\//g, '') // multi line comments (js & css)
         .replace(/\/\/ .*/g, '') // single line comments (js)
         .replace(/<!--[\s\S]*?-->/g, ''); // html comments (html)
-};
-
-/**
- * returns the contents of a file
- * @date 10/12/2023 - 3:24:47 PM
- *
- * @export
- * @template [type=unknown]
- * @param {string} file
- * @returns {type}
- */
-export function getJSONSync<type = unknown>(
-    file: string,
-): Result<type, JSONError> {
-    return attempt<type, JSONError>(
-        () => {
-            const filePath = filePathBuilder(file, '.json', './storage/jsons/');
-            const data = Deno.readFileSync(filePath);
-            const decoder = new TextDecoder();
-            const decoded = decoder.decode(data);
-
-            return JSON.parse(removeComments(decoded));
-        },
-        (e) => {
-            // if error
-            return (
-                matchInstance<Error, JSONError>(
-                    e,
-                    [SyntaxError, () => 'InvalidJSON'],
-                    [Error, () => 'Unknown'],
-                ) ?? 'InvalidJSON'
-            );
-        },
-    );
 }
 
-/**
- * Returns the contents of a json file (async)
- * @date 10/12/2023 - 3:24:47 PM
- *
- * @export
- * @template [type=unknown]
- * @param {string} file
- * @returns {Promise<type>}
- */
-export function getJSON<type = unknown>(
-    file: string,
-): Promise<Result<type, JSONError>> {
-    return new Promise((res, rej) => {
-        attemptAsync<type, JSONError>(async () => {
-            const filePath = filePathBuilder(file, '.json', './storage/jsons/');
-            const data = await Deno.readFile(filePath);
-            const decoder = new TextDecoder();
-            const decoded = decoder.decode(data);
-
-            return JSON.parse(removeComments(decoded));
-        }, matchJSONError)
-            .then(res)
-            .catch(rej);
-    });
-}
-
-/**
- * Returns the path to a json file
- * @date 1/9/2024 - 12:20:06 PM
- *
- * @export
- * @param {string} file
- * @returns {string}
- */
-export function JSONPath(file: string): string {
-    return filePathBuilder(file, '.json', './storage/jsons/');
-}
-
-/**
- * Saves a json file
- * @date 10/12/2023 - 3:24:47 PM
- *
- * @export
- * @param {string} file
- * @param {*} data
- */
-export function saveJSONSync<T = unknown>(
-    file: string,
-    data: T,
-): Result<void, JSONError> {
-    return attempt<void, JSONError>(() => {
-        const str = JSON.stringify(data);
-
-        const p = filePathBuilder(file, '.json', './storage/jsons/');
-        makeFolder(p);
-        Deno.writeFileSync(p, new TextEncoder().encode(str));
+export const getJSONSync = <T = unknown>(file: string): Result<T, JSONError> => {
+    return attempt(() => {
+        const filePath = filePathBuilder(file, '.json', './storage/jsons');
+        const data = fs.readFileSync(filePath, 'utf-8');
+        return JSON.parse(removeComments(data)) as T;
     }, matchJSONError);
 }
 
-/**
- * Saves a json file (async)
- * @date 10/12/2023 - 3:24:47 PM
- *
- * @export
- * @param {string} file
- * @param {*} data
- * @returns {*}
- */
-export function saveJSON<T = unknown>(
-    file: string,
-    data: T,
-): Promise<Result<void, JSONError>> {
-    return new Promise((res, rej) => {
-        attemptAsync(async () => {
-            const str = JSON.stringify(data);
+export const getJSON = <T = unknown>(file: string): Promise<Result<T, JSONError>> => {
+    return attemptAsync(async () => {
+        const filePath = filePathBuilder(file, '.json', './storage/jsons');
+        const data = await fs.promises.readFile(filePath, 'utf-8');
+        return JSON.parse(removeComments(data)) as T;
+    }, matchJSONError);
+}
 
-            const p = filePathBuilder(file, '.json', './storage/jsons/');
-            makeFolder(p);
-            await Deno.writeFile(p, new TextEncoder().encode(str));
-        }, matchJSONError)
-            .then(res)
-            .catch(rej);
-    });
+export const saveJSONSync = <T = unknown>(file: string, data: T): Result<void, JSONError> => {
+    return attempt(() => {
+        const filePath = filePathBuilder(file, '.json', './storage/jsons');
+        makeFolder(path.dirname(filePath));
+        fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+    }
+    , matchJSONError);
+}
+
+export const saveJSON = <T = unknown>(file: string, data: T): Promise<Result<void, JSONError>> => {
+    return attemptAsync(async () => {
+        const filePath = filePathBuilder(file, '.json', './storage/jsons');
+        makeFolder(path.dirname(filePath));
+        await fs.promises.writeFile(filePath, JSON.stringify(data, null, 2));
+    }, matchJSONError);
+}
+
+export const removeJSONSync = (file: string): Result<void, JSONError> => {
+    return attempt(() => {
+        const filePath = filePathBuilder(file, '.json', './storage/jsons');
+        fs.rmSync(filePath);
+    }, matchJSONError);
+}
+
+export const removeJSON = (file: string): Promise<Result<void, JSONError>> => {
+    return attemptAsync(async () => {
+        const filePath = filePathBuilder(file, '.json', './storage/jsons');
+        await fs.promises.rm(filePath);
+    }, matchJSONError);
 }
 
 export type Constructor = {
@@ -218,317 +119,169 @@ export type Constructor = {
         | Constructor;
 };
 
-/**
- * Returns the contents of an html file
- * @date 10/12/2023 - 3:24:47 PM
- *
- * @export
- * @param {string} file
- * @param {?{ [key: string]: any }} [options]
- * @returns {string}
- */
-export function getTemplateSync(
-    file: string,
-    options?: Constructor,
-): Result<string, FileError> {
+export const getTemplateSync = (file: string, options?: Constructor): Result<string, FileError> => {
     return attempt(() => {
-        const p = filePathBuilder(file, '.html', './public/templates/');
+        const p = filePathBuilder(file, '.html', './public/templates');
+        const data = fs.readFileSync(p, 'utf-8');
 
-        const data = Deno.readFileSync(p);
-        const decoder = new TextDecoder();
-
-        return options
-            ? render(decoder.decode(data), options)
-            : decoder.decode(data);
+        return removeComments(options ? render(data, options) : data);
     }, matchFileError);
 }
 
-/**
- * Returns the contents of an html file (async)
- * @date 10/12/2023 - 3:24:47 PM
- *
- * @export
- * @param {string} file
- * @param {?{ [key: string]: any }} [options]
- * @returns {Promise<string>}
- */
-export function getTemplate(
-    file: string,
-    options?: Constructor,
-): Promise<Result<string, FileError>> {
-    return new Promise((res, rej) => {
-        attemptAsync(async () => {
-            return new Promise<string>((r, rj) => {
-                const p = filePathBuilder(file, '.html', './public/templates/');
-
-                Deno.readFile(p)
-                    .then((data) => {
-                        const decoder = new TextDecoder();
-                        const decoded = decoder.decode(data);
-
-                        r(options ? render(decoded, options) : decoded);
-                    })
-                    .catch(rj);
-            });
-        }, matchFileError)
-            .then(res)
-            .catch(rej);
-    });
-}
-
-/**
- * Saves an html file
- * @date 10/12/2023 - 3:24:47 PM
- *
- * @export
- * @param {string} file
- * @param {string} data
- * @returns {*}
- */
-export function saveTemplateSync(
-    file: string,
-    data: string,
-): Result<void, FileError> {
-    return attempt(() => {
-        const p = filePathBuilder(file, '.html', './public/templates/');
-        makeFolder(p);
-        Deno.writeFileSync(p, new TextEncoder().encode(data));
-    }, matchFileError);
-}
-
-/**
- * Saves an html file (async)
- * @date 10/12/2023 - 3:24:47 PM
- *
- * @export
- * @param {string} file
- * @param {string} data
- * @returns {*}
- */
-export function saveTemplate(
-    file: string,
-    data: string,
-): Promise<Result<void, FileError>> {
+export const getTemplate = (file: string, options?: Constructor): Promise<Result<string, FileError>> => {
     return attemptAsync(async () => {
-        const p = filePathBuilder(file, '.html', './public/templates/');
-        makeFolder(p);
-        Deno.writeFile(p, new TextEncoder().encode(data));
+        const p = filePathBuilder(file, '.html', './public/templates');
+        const data = await fs.promises.readFile(p, 'utf-8');
+
+        return removeComments(options ? render(data, options) : data);
     }, matchFileError);
 }
 
-/**
- * Creates the uploads folder if it does not exist
- * @date 10/12/2023 - 3:24:47 PM
- */
-export const createUploadsFolder = (): Result<void, FileError> => {
+export const saveTemplateSync = (file: string, data: string): Result<void, FileError> => {
     return attempt(() => {
-        Deno.mkdirSync(__uploads, { recursive: true });
-    }, matchFileError);
-};
-
-/**
- * Creates the logs folder if it does not exist
- * @date 10/12/2023 - 3:24:47 PM
- */
-export const createLogsFolder = (): Result<void, FileError> => {
-    return attempt(() => {
-        Deno.mkdirSync(__logs, { recursive: true });
-    }, matchFileError);
-};
-
-/**
- * Saves a file to the uploads folder
- * @date 10/12/2023 - 3:24:47 PM
- *
- * @export
- * @param {string} filename
- * @param {Uint8Array} data
- * @returns {*}
- */
-export function saveUpload(
-    filename: string,
-    data: Uint8Array,
-): Promise<Result<void, FileError>> {
-    return attemptAsync(() => {
-        createUploadsFolder();
-        const p = filePathBuilder(filename, '', __uploads);
-
-        return Deno.writeFile(p, data);
+        const p = filePathBuilder(file, '.html', './public/templates');
+        makeFolder(path.dirname(p));
+        fs.writeFileSync(p, data);
     }, matchFileError);
 }
 
-/**
- * Returns the contents of a file in the uploads folder (async)
- * @date 10/12/2023 - 3:24:47 PM
- *
- * @export
- * @param {string} filename
- * @returns {*}
- */
-export function getUpload(
-    filename: string,
-): Promise<Result<Uint8Array, FileError>> {
-    return attemptAsync(() => {
-        createUploadsFolder();
-        const p = filePathBuilder(filename, '', __uploads);
-        return Deno.readFile(p);
-    }, matchFileError);
-}
-
-/**
- * Returns the contents of a file in the uploads folder (sync)
- * @date 10/12/2023 - 3:24:47 PM
- *
- * @export
- * @param {string} filename
- * @returns {*}
- */
-export function getUploadSync(filename: string): Result<Uint8Array, FileError> {
-    return attempt(() => {
-        createUploadsFolder();
-        const p = filePathBuilder(filename, '', __uploads);
-        return Deno.readFileSync(p);
-    }, matchFileError);
-}
-
-/**
- * Deletes a file in the uploads folder
- * @date 10/12/2023 - 3:24:47 PM
- *
- * @export
- * @param {string} filename
- * @returns {*}
- */
-export function deleteUpload(
-    filename: string,
-): Promise<Result<void, FileError>> {
+export const saveTemplate = (file: string, data: string): Promise<Result<void, FileError>> => {
     return attemptAsync(async () => {
-        createUploadsFolder();
-        const p = filePathBuilder(filename, '', __uploads);
-        return Deno.remove(p);
+        const p = filePathBuilder(file, '.html', './public/templates');
+        makeFolder(path.dirname(p));
+        await fs.promises.writeFile(p, data);
     }, matchFileError);
 }
 
-/**
- * The different types of byte sizes
- * @date 10/12/2023 - 3:24:47 PM
- *
- * @typedef {Bytes}
- */
-type Bytes = 'Bytes' | 'KB' | 'MB' | 'GB' | 'TB' | 'PB' | 'EB' | 'ZB' | 'YB';
+export const removeTemplateSync = (file: string): Result<void, FileError> => {
+    return attempt(() => {
+        const p = filePathBuilder(file, '.html', './public/templates');
+        fs.rmSync(p);
+    }, matchFileError);
+}
 
-/**
- * Formats a number of bytes into a string
- * @date 10/12/2023 - 3:24:47 PM
- *
- * @export
- * @param {number} bytes
- * @param {number} [decimals=2]
- * @returns {{ string: string, type: Bytes }}
- */
-export function formatBytes(
-    bytes: number,
-    decimals = 2,
-): { string: string; type: Bytes } {
-    if (bytes === 0) {
-        return {
-            string: '0 Bytes',
-            type: 'Bytes',
-        };
+export const removeTemplate = (file: string): Promise<Result<void, FileError>> => {
+    return attemptAsync(async () => {
+        const p = filePathBuilder(file, '.html', './public/templates');
+        await fs.promises.rm(p);
+    }, matchFileError);
+}
+
+export const createUploadsFolder = () => makeFolder(__uploads);
+export const createLogsFolder = () => makeFolder(__logs);
+
+export const saveUpload = (filename: string, data: Uint8Array): Promise<Result<void, FileError>> => {
+    return attemptAsync(async () => {
+        const p = path.resolve(__uploads, filename);
+        makeFolder(path.dirname(p));
+        await
+            fs.promises.writeFile(p
+                , data);
     }
+    , matchFileError);
+}
 
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes: Bytes[] = [
-        'Bytes',
-        'KB',
-        'MB',
-        'GB',
-        'TB',
-        'PB',
-        'EB',
-        'ZB',
-        'YB',
-    ];
+export const saveUploadSync = (filename: string, data: Uint8Array): Result<void, FileError> => {
+    return attempt(() => {
+        const p = path.resolve(__uploads, filename);
+        makeFolder(path.dirname(p));
+        fs.writeFileSync(p, data);
+    }, matchFileError);
+}
 
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
+export const removeUpload = (filename: string): Promise<Result<void, FileError>> => {
+    return attemptAsync(async () => {
+        const p = path.resolve(__uploads, filename);
+        await fs.promises.rm(p);
+    }, matchFileError);
+}
 
-    return {
-        string: parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' +
-            sizes[i],
-        type: sizes[i],
-    };
+export const removeUploadSync = (filename: string): Result<void, FileError> => {
+    return attempt(() => {
+        const p = path.resolve(__uploads, filename);
+        fs.rmSync(p);
+    }, matchFileError);
+}
+
+export const getUpload = (filename: string): Promise<Result<Uint8Array, FileError>> => {
+    return attemptAsync(async () => {
+        const p = path.resolve(__uploads, filename);
+        return await fs.promises.readFile(p);
+    }, matchFileError);
+}
+
+export const getUploadSync = (filename: string): Result<Uint8Array, FileError> => {
+    return attempt(() => {
+        const p = path.resolve(__uploads, filename);
+        return fs.readFileSync(p);
+    }, matchFileError);
 }
 
 export const readFileSync = (file: string): Result<string, FileError> => {
     return attempt(() => {
-        const p = filePathBuilder(file, '', '');
-        return Deno.readTextFileSync(p);
-    }, matchFileError);
-};
+        const p = path.resolve(__root, file);
+        return fs.readFileSync(p, 'utf-8');
+    }
+    , matchFileError);
+}
 
 export const readFile = (file: string): Promise<Result<string, FileError>> => {
-    return attemptAsync(() => {
-        const p = filePathBuilder(file, '', '');
-        return Deno.readTextFile(p);
-    }, matchFileError);
-};
-
-export const saveFileSync = (
-    file: string,
-    data: string,
-): Result<void, FileError> => {
-    return attempt(() => {
-        const p = filePathBuilder(file, '', '');
-        makeFolder(p);
-        Deno.writeTextFileSync(p, data);
-    }, matchFileError);
-};
-
-export const saveFile = (
-    file: string,
-    data: string,
-): Promise<Result<void, FileError>> => {
-    return attemptAsync(() => {
-        const p = filePathBuilder(file, '', '');
-        makeFolder(p);
-        return Deno.writeTextFile(p, data);
-    }, matchFileError);
-};
-
-export const readDir = (path: string): Promise<Result<Deno.DirEntry[]>> => {
     return attemptAsync(async () => {
-        const dir = Deno.readDir(path);
-        const entries: Deno.DirEntry[] = [];
-        for await (const entry of dir) entries.push(entry);
-        return entries;
-    });
-};
+        const p = path.resolve(__root, file);
+        return await fs.promises.readFile(p, 'utf-8');
+    }, matchFileError);
+}
 
-export const readDirSync = (path: string): Result<Deno.DirEntry[]> => {
+export const saveFile = (file: string, data: string | ArrayBuffer): Promise<Result<void, FileError>> => {
+    return attemptAsync(async () => {
+        const p = path.resolve(__root, file);
+        makeFolder(path.dirname(p));
+        await fs.promises.writeFile(p, 
+            data instanceof ArrayBuffer ? new Uint8Array(data) : data
+        );
+    }, matchFileError);
+}
+
+export const saveFileSync = (file: string, data: string): Result<void, FileError> => {
     return attempt(() => {
-        const dir = Deno.readDirSync(path);
-        const entries: Deno.DirEntry[] = [];
-        for (const entry of dir) entries.push(entry);
-        return entries;
-    });
-};
+        const p = path.resolve(__root, file);
+        makeFolder(path.dirname(p));
+        fs.writeFileSync(p, data);
+    }, matchFileError);
+}
 
-export const exists = (path: string): Promise<boolean> =>
-    new Promise((res) => {
-        Deno.stat(path)
-            .then(() => res(true))
-            .catch(() => res(false));
-    });
+export const removeFile = (file: string): Promise<Result<void, FileError>> => {
+    return attemptAsync(async () => {
+        const p = path.resolve(__root, file);
+        await fs.promises.rm(p);
+    }, matchFileError);
+}
 
-export const existsSync = (path: string): boolean => {
-    try {
-        Deno.statSync(path);
-        return true;
-    } catch {
-        return false;
+export const removeFileSync = (file: string): Result<void, FileError> => {
+    return attempt(() => {
+        const p = path.resolve(__root, file);
+        fs.rmSync(p);
+    }, matchFileError);
+}
+
+export const readDir = (dir: string): Promise<Result<string[], FileError>> => {
+    return attemptAsync(() => {
+        return fs.promises.readdir(path.resolve(__root, dir));
     }
-};
+    , matchFileError);
+}
+
+export const readDirSync = (dir: string): Result<string[], FileError> => {
+    return attempt(() => {
+        return fs.readdirSync(path.resolve(__root, dir));
+    }, matchFileError);
+}
+
+export const exists = (file: string): boolean => {
+    return fs.existsSync(path.resolve(__root, file));
+}
+
+
 
 /**
  * Types of logs
@@ -560,10 +313,10 @@ export type LogObj = {
  * @returns {*}
  */
 export function log(type: LogType, dataObj: LogObj): Promise<Result<void>> {
-    return attemptAsync(() => {
+    return attemptAsync(async () => {
         createLogsFolder();
-        return new ObjectsToCsv([dataObj]).toDisk(
-            resolve(__logs, `${type}.csv`),
+        new ObjectsToCsv([dataObj]).toDisk(
+            path.resolve(__logs, `${type}.csv`),
             { append: true },
         );
     });

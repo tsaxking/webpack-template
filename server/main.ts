@@ -1,108 +1,126 @@
-import { stdin } from './utilities/stdin.ts';
-import { Builder } from './bundler.ts';
-import { Colors } from './utilities/colors.ts';
-import { deleteDeps, pullDeps } from '../scripts/pull-deps.ts';
+import { Builder } from "./bundler";
+import { Colors } from "./utilities/colors";
+import { deleteDeps, pullDeps } from "../scripts/pull-deps";
+// import { Worker } from "worker_threads";
+// import env from "./utilities/env";
+import { ChildProcess, spawn } from "child_process";
+import { stdin } from "./utilities/stdin";
+import path from "path";
 
-const log = (...args: any[]) =>
-    console.log(Colors.FgBlue, '[MAIN]', Colors.Reset, ...args, Colors.Reset);
+// TODO: Multithreading
+// class Server {
+//     static readonly workers = new Map<number, Server>();
+
+//     static start() {
+//         const workers = Server.workers.values();
+//         for (const worker of workers) {
+//             worker.start();
+//         }
+//     }
+//     static kill() {
+//         const workers = Server.workers.values();
+//         for (const worker of workers) {
+//             worker.kill();
+//         }
+//     }
+//     static restart() {
+//         Server.kill();
+//         Server.start();
+//     }
+
+
+//     private worker: Worker;
+
+//     constructor(public readonly id: number) {
+//         Server.workers.set(id, this);
+//     }
+
+//     start() {
+//         this.worker = new Worker('./server.ts', {
+//             workerData: {
+//                 port: this.id
+//             }
+//         });
+//     }
+//     kill() {
+//         this.worker.terminate();
+//     }
+// }
+
+const log = (...args: unknown[]) => 
+    console.log(Colors.FgBlue, '[Main]', Colors.Reset, new Date().toISOString(), ...args);
 
 const main = async () => {
-    const { args } = Deno;
-    const builder = new Builder();
-    const res = await pullDeps();
-    if (res.isErr()) throw res.error;
+    const args = process.argv.slice(2);
 
-    const start = (): Deno.ChildProcess => {
+    // const res = await pullDeps();
+    // if (res.isErr()) throw res.error;
+
+    // const servers = Number(env.NUM_SERVERS) || 1;
+
+    // for (let i = 0; i < servers; i++) new Server(i);
+
+
+    // temporary
+    const start = (): ChildProcess => {
         log('Starting server...');
-        const child = new Deno.Command(Deno.execPath(), {
-            args: [
-                'run',
-                '--allow-all',
-                '--v8-flags=--max-old-space-size=8000',
-                './server/server.ts',
-                ...args,
-            ],
-            stdout: 'inherit',
-            stderr: 'inherit',
-            stdin: 'inherit',
-        }).spawn();
+        const child = spawn('ts-node', [
+            path.resolve(__dirname, './server.ts')
+        ]);
 
-        // child.stderr.pipeTo(Deno.stderr.writable);
-        // child.stdout.pipeTo(Deno.stdout.writable);
+        child.stdout.pipe(process.stdout);
+        child.stderr.pipe(process.stderr);
+        child.stdin.pipe(process.stdin);
+
         return child;
     };
-
-    const restart = (child: Deno.ChildProcess): Deno.ChildProcess => {
-        try {
-            child.kill();
-            log('Terminated server');
-        } catch (error) {
-            log('Failed to kill server', error);
-        }
+    const kill = (child: ChildProcess) => {
+        child.kill();
+    };
+    const restart = (child: ChildProcess): ChildProcess => {
+        kill(child);
         return start();
-    };
-
-    const build = () => {
-        builder.build();
-        if (child) child = restart(child);
-    };
-
-    let child: Deno.ChildProcess;
-    build();
-    child = start();
-
-    if (args.includes('--stdin')) {
-        log('Listening for rs and rb');
-        stdin.on('rs', () => {
-            log('Restarting...');
-            child = restart(child);
-        });
-
-        stdin.on('rb', () => {
-            build();
-        });
     }
 
-    const watchers: Deno.FsWatcher[] = [];
+    const builder = new Builder();
+    let child = start();
+
+    if (args.includes('--stdin')) {
+        stdin.on('rs', () => {
+            child = restart(child);
+        });
+        stdin.on('rb', async () => {
+            await builder.build();
+            child = restart(child);
+        });
+    }
 
     if (args.includes('--watch')) {
         builder.watch('./client');
         builder.watch('./shared');
-
-        const watch = async (path: string) => {
-            log('Watching', path);
-            const watcher = Deno.watchFs(path);
-            watchers.push(watcher);
-            for await (const event of watcher) {
-                log('file change detected.. Restarting server');
-                switch (event.kind) {
-                    case 'create':
-                    case 'modify':
-                    case 'remove':
-                        child = restart(child);
-                        break;
-                }
-            }
-        };
-
-        watch('./server');
-        watch('./shared');
     }
 
-    Deno.addSignalListener('SIGINT', () => {
-        child.kill();
+    const close = () => {
         builder.close();
-        for (const watcher of watchers) watcher.close();
-        deleteDeps()
-            .then(() => {
-                console.log('Goodbye! 👋');
-                Deno.exit(0);
-            })
-            .catch((error) => {
-                console.error(error);
-                Deno.exit(1);
-            });
-    });
-};
+        kill(child);
+        // Server.kill();
+        // deleteDeps()
+        //     .then(() => {
+        //         log('Goodbye! 👋')
+        //         process.exit(0);
+        //     })
+        //     .catch((e) => {
+        //         log('Failed to delete deps', e);
+        //         process.exit(1);
+        //     });
+        process.exit(0);
+    }
+}
 
-if (import.meta.main) main();
+if (require.main === module) {
+    main()
+        .catch((e) => {
+            console.error(e);
+            process.exit(1);
+        });
+}

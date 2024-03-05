@@ -1,16 +1,17 @@
 // The point of this file is to work with another server that generates ids and pulls them form random.org
 
-import * as randomString from 'npm:uuid';
-import env from './env.ts';
-import { attemptAsync, Result } from '../../shared/check.ts';
-import { getJSON, saveJSON } from './files.ts';
+import { v4 as randomString } from 'uuid';
+import env from './env';
+import { attemptAsync, Result } from '../../shared/check';
+import { getJSON, saveJSON } from './files';
 
 // limit 5 keys in cache at a time
 let cache: string[] = [];
 
-const res = await getJSON<string[]>('cached-ids');
-
-if (res.isOk()) cache = res.value;
+getJSON<string[]>('cached-ids')
+    .then((res) => {
+        if (res.isOk()) cache = res.value;
+    });
 
 const retrieve = async (): Promise<Result<string[]>> => {
     return attemptAsync(async () => {
@@ -26,7 +27,7 @@ const retrieve = async (): Promise<Result<string[]>> => {
 
         if (data.ok) {
             // console.log('Retrieved keys!');
-            const json = await data.json();
+            const json = await data.json() as string[];
 
             if (!Array.isArray(json)) {
                 throw new Error('Failed to retrieve keys, invalid response');
@@ -57,5 +58,5 @@ export const uuid = (): string => {
     });
 
     if (cache.length) return cache.pop() as string;
-    return randomString.v4();
+    return randomString();
 };

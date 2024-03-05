@@ -1,9 +1,8 @@
-import { DB } from '../utilities/databases.ts';
-import { RolePermission } from '../../shared/db-types.ts';
-import { Permission } from '../../shared/permissions.ts';
-import { Role as RoleObject } from '../../shared/db-types.ts';
-import { ServerFunction } from './app/app.ts';
-import { uuid } from '../utilities/uuid.ts';
+import { DB } from '../utilities/databases';
+import { RolePermission } from '../../shared/db-types';
+import { Role as RoleObject } from '../../shared/db-types';
+import { ServerFunction } from './app/app';
+import { uuid } from '../utilities/uuid';
 
 /**
  * Role object, contains permission information and role name

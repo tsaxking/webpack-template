@@ -1,17 +1,17 @@
-import { FileError, getTemplateSync, log } from './files.ts';
-import { Session } from '../structure/sessions.ts';
+import { FileError, getTemplateSync, log } from './files';
+import { Session } from '../structure/sessions';
 import {
     messages,
     StatusCode,
     StatusColor,
     StatusId,
     StatusMessage,
-} from '../../shared/status-messages.ts';
-import { Next, ServerFunction } from '../structure/app/app.ts';
-import { Req } from '../structure/app/req.ts';
-import { Res } from '../structure/app/res.ts';
-import { Result } from '../../shared/check.ts';
-import env from './env.ts';
+} from '../../shared/status-messages';
+import { Next, ServerFunction } from '../structure/app/app';
+import { Req } from '../structure/app/req';
+import { Res } from '../structure/app/res';
+import { Result } from '../../shared/check';
+import env from './env';
 
 /**
  * Status class, used to send pre-made status messages to the client
@@ -227,9 +227,15 @@ export class Status {
      */
     get html() {
         return getTemplateSync('status', {
-            ...this.json,
+            title: this.title,
+            status: this.status,
+            message: this.message,
+            code: this.code,
+            instructions: this.instructions,
+            data: this.data,
+            redirect: this.redirect,
+            color: this.color,
             page: env.TITLE || 'My App',
-            // data: this.data ? JSON.stringify(this.data) : 'No data provided.',
         });
     }
 

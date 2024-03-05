@@ -1,4 +1,4 @@
-import { StatusMessage } from './status-messages.ts';
+import { StatusMessage } from './status-messages';
 
 export type StatusCode =
     | 100

@@ -1,16 +1,20 @@
-import { select } from './prompt.ts';
-import { Colors } from '../server/utilities/colors.ts';
-import { attemptAsync, Result } from '../shared/check.ts';
-import { __root, relative, resolve } from '../server/utilities/env.ts';
-import Filter from 'npm:bad-words';
-import { capitalize, fromCamelCase } from '../shared/text.ts';
-import { accounts } from './manager/accounts.ts';
-import { roles } from './manager/roles.ts';
-import { statuses } from './manager/status.ts';
-import { permissions } from './manager/permissions.ts';
-import { databases } from './manager/database.ts';
-import { general } from './manager/general.ts';
-import { serverController } from './manager/server-controller.ts';
+import { select } from './prompt';
+import { Colors } from '../server/utilities/colors';
+import { attemptAsync, Result } from '../shared/check';
+import { __root } from '../server/utilities/env';
+import Filter from 'bad-words';
+import { capitalize, fromCamelCase } from '../shared/text';
+import { accounts } from './manager/accounts';
+import { roles } from './manager/roles';
+import { statuses } from './manager/status';
+import { permissions } from './manager/permissions';
+import { databases } from './manager/database';
+import { general } from './manager/general';
+import { serverController } from './manager/server-controller';
+import fs from 'fs';
+import path from 'path';
+
+const { resolve, relative } = path;
 
 export const icons = {
     success: '✅',
@@ -60,7 +64,7 @@ export const title = (t: string) => {
 export const selectBootstrapColor = async (
     message = 'Select a color',
 ): Promise<string> => {
-    const runSelect = async () => {
+    const runSelect = async (): Promise<string> => {
         const data = await attemptAsync(async () => {
             return await select(
                 message,
@@ -103,7 +107,13 @@ export const selectFile = async (
     };
 
     const run = async (dir: string): Promise<string | null> => {
-        const entries = Array.from(Deno.readDirSync(dir));
+        // const entries = Array.from(Deno.readDirSync(dir));
+        const entries = Array.from(fs.readdirSync(dir)).map((e) => ({
+            name: e,
+            isDirectory: fs.statSync(e).isDirectory(),
+            isFile: fs.statSync(e).isFile(),
+            isSymlink: fs.lstatSync(e).isSymbolicLink(),
+        }));
         entries.push({
             name: '..',
             isDirectory: true,
@@ -173,9 +183,14 @@ export const selectDir = async (
     };
 
     const run = async (dir: string): Promise<string | null> => {
-        const entries = Array.from(Deno.readDirSync(dir)).filter(
-            (e) => e.isDirectory,
-        );
+        const entries = Array.from(fs.readdirSync(dir)).filter(
+            (e) => fs.statSync(e).isDirectory(),
+        ).map((e) =>  ({
+            name: e,
+            isDirectory: true,
+            isFile: false,
+            isSymlink: fs.lstatSync(e).isSymbolicLink(),
+        }));
         entries.push({
             name: '..',
             isDirectory: true,
@@ -240,10 +255,11 @@ export const main = async () => {
     title('Welcome to the Task Manager!');
     const exit = () => {
         console.log('Goodbye!');
-        Deno.exit(0);
+        // Deno.exit(0);
+        process.exit(0);
     };
 
-    if (Deno.args.includes('-h') || Deno.args.includes('--help')) {
+    if (process.argv.includes('-h') || process.argv.includes('--help')) {
         console.log('This is a task manager for the server');
         console.log('It allows you to perform various tasks');
 

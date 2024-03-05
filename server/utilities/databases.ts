@@ -1,10 +1,9 @@
-import env, { __root } from './env.ts';
-import { Client } from 'https://deno.land/x/postgres@v0.17.0/mod.ts';
-import { error, log } from './terminal-logging.ts';
-import { Queries } from './queries.ts';
-import { exists, readDir, readFile, readFileSync, saveFile } from './files.ts';
-import { attemptAsync, Result } from '../../shared/check.ts';
-import { run } from './run-task.ts';
+import env, { __root } from './env';
+import { error, log } from './terminal-logging';
+import { Client } from 'pg';
+import { Queries } from './queries';
+import { exists, readDir, readFile, readFileSync, saveFile } from './files';
+import { attemptAsync, Result } from '../../shared/check';
 import {
     capitalize,
     fromCamelCase,
@@ -12,9 +11,14 @@ import {
     parseObject,
     toCamelCase,
     toSnakeCase,
-} from '../../shared/text.ts';
-import { bigIntDecode, bigIntEncode } from '../../shared/objects.ts';
-import { daysTimeout } from '../../shared/sleep.ts';
+} from '../../shared/text';
+import { bigIntDecode, bigIntEncode } from '../../shared/objects';
+import { daysTimeout } from '../../shared/sleep';
+import { runTask } from './run-task';
+import { removeFile } from './files';
+import fs from 'fs';
+import path from 'path';
+
 
 /**
  * The name of the main database
@@ -108,7 +112,7 @@ export class DB {
     static readonly db = new Client({
         user: DATABASE_USER,
         database: DATABASE_NAME,
-        hostname: DATABASE_HOST,
+        host: DATABASE_HOST,
         password: DATABASE_PASSWORD,
         port: Number(DATABASE_PORT),
     });
@@ -294,7 +298,7 @@ export class DB {
             if (versions.isOk()) {
                 return versions.value
                     .map((v) => {
-                        const [major, minor, patch] = v.name
+                        const [major, minor, patch] = v
                             .replace('.sql', '')
                             .split('-')
                             .map(Number);
@@ -339,18 +343,18 @@ export class DB {
                         version.join(
                             '-',
                         )
-                    }.ts`;
+                    }`;
                     // see if update script exists
                     const scriptExists = await exists(script);
 
                     if (scriptExists) {
                         console.log('Running update script', version.join('.'));
-                        const scriptRes = await run(
+                        const scriptRes = await runTask(
                             'run',
-                            '--allow-all',
+                            ['--allow-all',
                             script,
                             '--update',
-                            version.join('.'),
+                            version.join('.'),]
                         );
                         if (scriptRes.isErr()) {
                             console.log(
@@ -387,7 +391,7 @@ export class DB {
         return attemptAsync(async () => {
             const backups = await readDir('storage/db/backups');
             if (backups.isOk()) {
-                return backups.value.map((b) => b.name);
+                return backups.value.map((b) => b);
             }
             return [];
         });
@@ -590,7 +594,7 @@ export class DB {
             const deleteAfter = (backup: string, days: number) => {
                 daysTimeout(() => {
                     console.log('Deleting backup:', backup);
-                    Deno.remove(`storage/db/backups/${backup}`);
+                    removeFile(`storage/db/backups/${backup}`);
                 }, days);
             };
 
@@ -617,7 +621,7 @@ export class DB {
 
                 if (deleteDate < now) {
                     console.log('Deleting backup:', b);
-                    await Deno.remove(`storage/db/backups/${b}`);
+                    await removeFile(`storage/db/backups/${b}`);
                 } else {
                     deleteAfter(b, +BACKUP_DAYS);
                 }
@@ -734,16 +738,18 @@ export class DB {
         ...args: QParams<T> extends [undefined] ? [] : QParams<T>
     ): Promise<Result<[string, Parameter[]]>> {
         return attemptAsync(async () => {
-            const sql = readFileSync('/storage/db/queries/' + type + '.sql');
-            if (sql.isOk()) {
-                const [parsedQuery, parsedArgs] = DB.parseQuery(
-                    sql.value,
-                    args,
-                );
-                return [parsedQuery, parsedArgs] as [string, Parameter[]];
-            } else {
-                throw new Error('Unable to read query file: ' + type);
-            }
+            const sql = fs.readFileSync(
+                path.resolve(
+                    __dirname,
+                    '../../storage/db/queries/' + type + '.sql',
+                ),
+                'utf-8'
+            );
+            const [parsedQuery, parsedArgs] = DB.parseQuery(
+                sql,
+                args,
+            );
+            return [parsedQuery, parsedArgs] as [string, Parameter[]];
         });
     }
 
@@ -757,10 +763,7 @@ export class DB {
                 const q = DB.parseQuery(query, args);
                 const [sql, newArgs] = q;
 
-                const result = await DB.db.queryObject(sql, newArgs);
-                if (result.warnings.length) {
-                    log('Database warnings:', result.warnings);
-                }
+                const result = await DB.db.query(sql, newArgs);
 
                 return {
                     rows: bigIntDecode(DB.parseObj(result.rows) as unknown[]),
@@ -871,7 +874,7 @@ export class DB {
                 console.error(q.error);
                 throw q.error;
             }
-            return q.value.rows[0];
+            return q.value.rows?.[0] as Queries[T][1];
         });
     }
 
@@ -937,14 +940,13 @@ export class DB {
             run: (
                 query: string,
                 ...args: Parameter[]
-            ): Promise<Result<unknown>> => {
+            ): Promise<Result<void>> => {
                 return attemptAsync(async () => {
                     const r = await DB.pipeUnsafe(query, ...args);
                     if (r.isErr()) {
                         console.error(r.error);
                         throw r.error;
                     }
-                    return r.value.rows[0];
                 });
             },
             get: <type = unknown>(
@@ -977,25 +979,19 @@ export class DB {
     }
 }
 
-// when the program exits, close the database
-// this is to prevent the database from being locked after the program exits
-await DB.connect().then(async (result) => {
-    if (result.isOk()) {
-        log('Connected to the database');
-        if (Deno.args.includes('--update')) return;
+export const run = () => {
+    return attemptAsync(async () => {
         await DB.runAllUpdates();
-        await DB.makeBackup();
         await DB.setIntervals();
-    } else {
-        error('FATAL:', result.error);
-        error(
-            'You may need to ensure that your .env file has the correct database information or you may not be connected to the internet.',
-        );
-        error('If you believe this is a bug, please report it to the admin');
-        Deno.exit(1);
-    }
-});
-// if the program exits, close the database
-Deno.addSignalListener('SIGINT', () => {
-    DB.disconnect();
-});
+    });
+};
+
+DB.connect()
+    .then(() => {
+        console.log('Connected to the database');
+        run();
+    })
+    .catch((e) => {
+        console.error('Error connecting to the database', e);
+        process.exit(1);
+    });

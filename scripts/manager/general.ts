@@ -1,13 +1,17 @@
-import { backToMain, selectFile } from '../manager.ts';
-import { repeatPrompt, select } from '../prompt.ts';
-import { addEntry } from '../add-entry.ts';
-import { __root, resolve } from '../../server/utilities/env.ts';
-import { DB } from '../../server/utilities/databases.ts';
-import Account from '../../server/structure/accounts.ts';
-import { uuid } from '../../server/utilities/uuid.ts';
-import { dateTime } from '../../shared/clock.ts';
-import { pullDeps } from '../pull-deps.ts';
-// import { run } from '../../server/utilities/run-task.ts';
+import { backToMain, selectFile } from '../manager';
+import { repeatPrompt, select, confirm, prompt } from '../prompt';
+import { addEntry } from '../add-entry';
+import { __root } from '../../server/utilities/env';
+import { DB } from '../../server/utilities/databases';
+import Account from '../../server/structure/accounts';
+import { uuid } from '../../server/utilities/uuid';
+import { dateTime } from '../../shared/clock';
+import { pullDeps } from '../pull-deps';
+// import { run } from '../../new-server/utilities/run-task';
+import fs from 'fs';
+import path from 'path';
+
+const { resolve } = path;
 
 // const format = async () => {
 //     return run('fmt', '.');
@@ -19,7 +23,7 @@ import { pullDeps } from '../pull-deps.ts';
 //     return run('task', 'build');
 // };
 const createEntry = async () => {
-    const entryName = repeatPrompt(
+    const entryName = await repeatPrompt(
         'Enter the file name (relative to client/entries)',
         undefined,
         (data) => !!data.length,
@@ -29,7 +33,7 @@ const createEntry = async () => {
     try {
         // check if file exists
         const file = resolve(__root, 'client', 'entries', entryName + '.ts');
-        if (Deno.statSync(file)) {
+        if (fs.existsSync(file)) {
             const isGood = await confirm(
                 `File ${entryName}.ts already exists, do you want to overwrite it?`,
             );
@@ -109,7 +113,7 @@ const blacklist = async () => {
         );
 
         if (fromNew === 'new') {
-            const ip = prompt('Enter the IP to blacklist');
+            const ip = await prompt('Enter the IP to blacklist');
             if (!ip) return backToMain('No IP entered');
             if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(ip)) {
                 const doBlacklist = await confirm(

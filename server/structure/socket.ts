@@ -1,171 +1,48 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { Req } from './app/req.ts';
-import { Res } from './app/res.ts';
-import { uuid } from '../utilities/uuid.ts';
-import { EventEmitter } from '../../shared/event-emitter.ts';
-import { Server } from 'socket.io';
-import { App } from './app/app.ts';
+import { App } from "./app/app";
+import { EventEmitter } from "../../shared/event-emitter";
+import { Server } from "socket.io";
+import { parseCookie } from "../../shared/cookie";
 
-type Cache = {
-    event: string;
-    data: any;
-};
+export class SocketWrapper {
+    public static readonly sockets = new Map<string, SocketWrapper>();
 
-// type GlobalEvents = {
-//     connection: Socket;
-// }
-
-// type SocketEvents = {
-//     disconnect: void;
-//     [event: string]: any;
-// }
-
-export class Socket {
-    static readonly sockets = new Map<string, Socket>();
-    static get(
-        id: string | undefined,
-        io: SocketWrapper,
-        sessionId: string,
-    ): Socket {
-        const s = Socket.sockets.get(String(id));
-        if (!s) return Socket.build(io, sessionId);
-        s.setTimeout();
-        return s;
-    }
-
-    static build(io: SocketWrapper, sessionId: string): Socket {
-        const id = uuid();
-        const s = new Socket(id, io);
-        s.join(sessionId);
-        io.newIoEvent('connection', s);
-        return s;
-    }
-
-    timeout: any;
-    cache: Cache[] = [];
-    connected = false;
-
+    private readonly em = new EventEmitter();
     constructor(
-        public readonly id: string,
-        public readonly io: SocketWrapper,
+        private readonly app: App,
+        private readonly io: Server,
     ) {
-        Socket.sockets.set(id, this);
-    }
+        io.on('connection', (socket) => {
+            console.log('connected');
 
-    setTimeout() {
-        // if (this.timeout) clearTimeout(this.timeout);
-        // this.timeout = setTimeout(() => {
-        //     this.disconnect();
-        // }, 1000 * 60);
-        // this.connected = true;
-    }
+            const cookie = socket.handshake.headers.cookie;
+            if (cookie) {
+                const { ssid } = parseCookie(cookie);
+                
+                if (ssid) {
+                    socket.join(ssid);
+                    SocketWrapper.sockets.set(ssid, this);
+                }
+            }
 
-    emit(event: string, data: any) {
-        this.cache.push({
-            event,
-            data,
+            socket.on('disconnect', () => {
+                console.log('disconnected');
+            });
         });
     }
 
-    public rooms: string[] = [];
-
-    join(room: string) {
-        this.rooms.push(room);
+    emit(event: string, data?: unknown) {
+        this.io.emit(event, data);
     }
 
-    leave(room: string) {
-        this.rooms = this.rooms.filter((r) => r !== room);
+    on(event: string, fn: (data?: unknown) => void) {
+        this.em.on(event, fn);
     }
 
-    private readonly em = new EventEmitter();
-
-    on(event: string, callback: (data?: any) => void) {
-        this.em.on(event, callback);
-    }
-
-    off(event: string, callback: (data?: any) => void) {
-        this.em.off(event, callback);
-    }
-
-    newEvent(event: string, data?: any) {
-        this.em.emit(event, data);
-    }
-
-    disconnect() {
-        if (this.timeout) clearTimeout(this.timeout);
-        this.cache = [];
-        // Socket.sockets.delete(this.id);
-        this.newEvent('disconnect');
-        this.connected = false;
-    }
-
-    broadcast(event: string, data?: any) {
-        const sockets = Array.from(Socket.sockets.values()).filter(
-            (s) => s.id !== this.id,
-        );
-
-        for (const s of sockets) s.emit(event, data);
-    }
-}
-
-export class SocketWrapper {
-    Socket = Socket;
-    private readonly em = new EventEmitter();
-
-
-    // middleware() {
-    //     return (
-    //         req: Req<{
-    //             cache?: {
-    //                 event: string;
-    //                 data: any;
-    //             }[];
-    //             id?: string;
-    //         }>,
-    //         res: Res,
-    //     ) => {
-    //         const { cache, id } = req.body;
-    //         const s = Socket.get(id, this);
-    //         // console.log({ socket: s })
-    //         res.json({
-    //             cache: s.cache,
-    //             id: s.id,
-    //         });
-    //         s.cache = [];
-    //         s.setTimeout();
-    //         if (Array.isArray(cache)) {
-    //             for (const c of cache) s.newEvent(c.event, c.data);
-    //         }
-    //     };
-    // }
-
-    emit(event: string, data?: any) {
-        const sockets = Socket.sockets.values();
-        for (const s of sockets) s.emit(event, data);
+    off(event: string, fn: (data?: unknown) => void) {
+        this.em.off(event, fn);
     }
 
     to(room: string) {
-        const sockets = Array.from(Socket.sockets.values()).filter((s) =>
-            s.rooms.includes(room)
-        );
-        return {
-            emit(event: string, data: any) {
-                for (const s of sockets) s.emit(event, data);
-            },
-        };
-    }
-
-    newIoEvent(event: string, data?: any) {
-        this.em.emit(event, data);
-    }
-
-    on(event: string, callback: (data?: any) => void) {
-        this.em.on(event, callback);
-    }
-
-    off(event: string, callback: (data?: any) => void) {
-        this.em.off(event, callback);
+        return this.io.to(room);
     }
 }
-
-export const io = new SocketWrapper();

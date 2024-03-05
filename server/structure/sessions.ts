@@ -1,13 +1,10 @@
-// import { Request, Response, NextFunction } from 'npm:express';
-import { uuid } from '../utilities/uuid.ts';
-import Account from './accounts.ts';
-import { DB } from '../utilities/databases.ts';
-import { CookieOptions, Next, ServerFunction } from './app/app.ts';
-import { app } from '../server.ts';
-import { Req } from './app/req.ts';
-import { Res } from './app/res.ts';
-import { error, log } from '../utilities/terminal-logging.ts';
-import { Colors } from '../utilities/colors.ts';
+import express from 'express';
+import { DB } from '../utilities/databases';
+import { uuid } from '../utilities/uuid';
+import { error, log } from '../utilities/terminal-logging';
+import { App, CookieOptions } from './app/app';
+import Account from './accounts';
+
 
 /**
  * Session object from the database
@@ -29,22 +26,6 @@ export type SessionObj = {
 };
 
 /**
- * The options for the session middleware
- * @date 10/12/2023 - 3:13:58 PM
- *
- * @typedef {SessionOptions}
- */
-type SessionOptions = {
-    cookie?: CookieOptions;
-    request?: {
-        max: number;
-        per: number;
-        onOverload?: (session: Session) => void;
-    };
-    name?: string;
-};
-
-/**
  * This session class represents a session, which is a connection from a client.
  * Use this to store account information, etc.
  * @date 10/12/2023 - 3:13:58 PM
@@ -54,6 +35,18 @@ type SessionOptions = {
  * @typedef {Session}
  */
 export class Session {
+    public static async from(app: App, req: express.Request, res: express.Response): Promise<Session> {
+        const id = req.cookies[Session.sessionName];
+        if (id) {
+            const s = await Session.get(app, id);
+            if (s) return s;
+
+            return Session.newSession(app, req, res);
+        } else {
+            return Session.newSession(app, req, res);
+        }
+    }
+
     private static readonly cache = new Map<string, Session>();
 
     static newId() {
@@ -108,13 +101,13 @@ export class Session {
      * @param {string} id
      * @returns {(Session | undefined)}
      */
-    static async get(id: string): Promise<Session | undefined> {
+    static async get(app: App, id: string): Promise<Session | undefined> {
         // if (Session.cache.has(id)) {
         //     return Session.cache.get(id);
         // }
         const res = await DB.get('sessions/get', { id });
         if (res.isOk() && res.value) {
-            return Session.fromSessObj(res.value);
+            return Session.fromSessObj(app, res.value);
         }
 
         if (res.isErr()) {
@@ -132,10 +125,10 @@ export class Session {
      * @param {SessionObj} s
      * @returns {Session}
      */
-    static fromSessObj(s: SessionObj): Session {
+    static fromSessObj(app: App, s: SessionObj): Session {
         // log('Building from:', s);
 
-        const session = new Session();
+        const session = new Session(app);
         session.ip = s.ip;
         session.id = s.id;
         session.latestActivity = s.latestActivity;
@@ -158,10 +151,14 @@ export class Session {
      * @param {Res} res
      * @returns {(Session|undefined)}
      */
-    static newSession(req: Req, res: Res): Session | undefined {
-        const s = new Session(req);
-        res.cookie(Session.sessionName, s.id, Session.cookieOptions);
-        req.addCookie('ssid', s.id);
+    static newSession(app: App, req: express.Request, res: express.Response): Session {
+        const s = new Session(app, req);
+        res.cookie(Session.sessionName, s.id, {
+            maxAge: Session.cookieOptions.maxAge,
+            httpOnly: Session.cookieOptions.httpOnly,
+            path: '/',
+        });
+        req.cookies[Session.sessionName] = s.id;
 
         DB.run('sessions/new', {
             id: s.id,
@@ -241,12 +238,12 @@ export class Session {
      * @constructor
      * @param {?Req} [req]
      */
-    constructor(req?: Req) {
+    constructor(private readonly app: App, req?: express.Request) {
         this.id = Session.newId();
 
         if (req) {
             this.ip = req.ip;
-            this.userAgent = req.headers.get('user-agent') || '';
+            this.userAgent = req.headers['user-agent'] || '';
         }
 
         // Session.cache.set(this.id, this);
@@ -425,6 +422,6 @@ export class Session {
      * @param {...any[]} args
      */
     emit(event: string, args: unknown) {
-        app.io.to(this.id).emit(event, args);
+        this.app.io.to(this.id).emit(event, args);
     }
 }

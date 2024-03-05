@@ -1,15 +1,18 @@
-import { backToMain, main, selectFile } from '../manager.ts';
-import { __root } from '../../server/utilities/env.ts';
-import { addQuery, merge, parseSql } from '../parse-sql.ts';
-import { DB } from '../../server/utilities/databases.ts';
-import { confirm, repeatPrompt, search, select } from '../prompt.ts';
+import { backToMain, main, selectFile } from '../manager';
+import { __root } from '../../server/utilities/env';
+import { addQuery, merge, parseSql } from '../parse-sql';
+import { DB } from '../../server/utilities/databases';
+import { confirm, repeatPrompt, search, select } from '../prompt';
 import {
     readDir,
     readFile,
     saveFileSync,
-} from '../../server/utilities/files.ts';
-import { relative, resolve } from '../../server/utilities/env.ts';
-import * as cliffy from 'https://deno.land/x/cliffy@v1.0.0-rc.3/table/mod.ts';
+} from '../../server/utilities/files';
+import cliSelect from 'cli-select';
+import fs from 'fs';
+import path from 'path';
+
+const { resolve, relative } = path;
 
 export const buildQueries = async () => {
     await parseSql('server/utilities', 'server/utilities');
@@ -88,8 +91,7 @@ export const viewTables = async () => {
                 })
             );
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const table = new cliffy.Table().header(keys).body(values as any);
-            console.log(table.toString());
+            console.table(keys, values as any);
 
             await select('', ['[Back]']);
             return main();
@@ -105,11 +107,11 @@ export const mergeQueries = async () => {
     const allFiles = await readDir(resolve(__root, './server/utilities'));
     if (allFiles.isOk()) {
         const files = allFiles.value.filter(
-            (f) => f.isFile && f.name.match(/\w+-[0-9]+.ts/)?.length,
+            (f) => fs.statSync(f).isFile()  && f.match(/\w+-[0-9]+.ts/)?.length,
         );
         if (!files.length) return backToMain('No files to merge');
         const mergables = files.reduce((acc, f) => {
-            const num = Number(f.name.match(/[0-9]+/)?.[0] || 'NaN');
+            const num = Number(f.match(/[0-9]+/)?.[0] || 'NaN');
             if (!isNaN(num) && !acc.includes(num)) acc.push(num);
             return acc;
         }, [] as number[]);
@@ -130,7 +132,7 @@ export const mergeQueries = async () => {
             backToMain('Error merging queries: ' + res.error.message);
         }
     } else {
-        backToMain('Error reading files: ' + allFiles.error.message);
+        backToMain('Error reading files: ' + allFiles.error);
     }
 };
 
@@ -218,14 +220,14 @@ export const clearTable = async () => {
 export const restoreBackup = async () => {
     const backups = await readDir(resolve(__root, './storage/db/backups'));
     if (backups.isErr()) {
-        return backToMain('Error reading backups: ' + backups.error.message);
+        return backToMain('Error reading backups: ' + backups.error);
     }
 
     const backup = await search(
         'Search for a backup to restore',
         backups.value.map((b) => ({
-            name: b.name,
-            value: b.name,
+            name: b,
+            value: b,
         })),
     );
 

@@ -86,7 +86,7 @@ export const emitter = (() => {
             const e = new DataValidationFaliure(
                 event,
                 data,
-                req.url.href,
+                req.url,
                 req.method,
                 reason,
             );
@@ -113,7 +113,7 @@ export const validate = <type = unknown>(
 
         // body can be stored here because it could be a file stream
         if (!Object.entries(body as any).length) {
-            body = JSON.parse(req.headers.get('X-Body') || '{}');
+            body = JSON.parse(req.headers.get('X-Body') || '{}') as type;
         }
 
         let passed = true;
@@ -125,12 +125,12 @@ export const validate = <type = unknown>(
                 if (options?.log) console.log('[validate]', key, ...args);
             };
 
-            if (!body || body[key] === undefined) {
+            if (!body || (body as any)[key] === undefined) {
                 passed = false;
                 missing.push(key);
                 emitter.emit(
                     'fail',
-                    [key, body[key], isValid as IsValid],
+                    [key, (body as any)[key], isValid as IsValid],
                     req,
                     'missing-key',
                 );
@@ -152,7 +152,7 @@ export const validate = <type = unknown>(
                     log('is primitive array');
                     if (
                         !(isValid as AllowedPrimitive[]).includes(
-                            typeof body[key] as AllowedPrimitive,
+                            typeof (body as any)[key] as AllowedPrimitive,
                         )
                     ) {
                         log('invalid primitive array');
@@ -161,7 +161,7 @@ export const validate = <type = unknown>(
                         failed.push(key);
                         emitter.emit(
                             'fail',
-                            [key, body[key], isValid],
+                            [key, (body as any)[key], isValid as IsValid],
                             req,
                             'invalid-primitive-array',
                         );
@@ -169,7 +169,7 @@ export const validate = <type = unknown>(
                     }
                 } else {
                     log('is normal array');
-                    if (isValid.includes(body[key] as never)) {
+                    if (isValid.includes((body as any)[key] as never)) {
                         log('valid normal array');
                         // valid
                         continue;
@@ -180,7 +180,7 @@ export const validate = <type = unknown>(
                         failed.push(key);
                         emitter.emit(
                             'fail',
-                            [key, body[key], isValid],
+                            [key, (body as any)[key], isValid as IsValid],
                             req,
                             'invalid-normal-array',
                         );
@@ -196,14 +196,14 @@ export const validate = <type = unknown>(
 
                 if (isPrimitive) {
                     log('is primitive');
-                    if (typeof body[key] !== isValid) {
+                    if (typeof (body as any)[key] !== isValid) {
                         log('invalid primitive');
                         // invalid, not a primitive
                         passed = false;
                         failed.push(key);
                         emitter.emit(
                             'fail',
-                            [key, body[key], isValid as IsValid],
+                            [key, (body as any)[key], isValid as IsValid],
                             req,
                             'invalid-primitive',
                         );
@@ -211,7 +211,7 @@ export const validate = <type = unknown>(
                     }
                 } else {
                     log('is not primitive');
-                    if ((isValid as (data: any) => boolean)(body[key])) {
+                    if ((isValid as (data: any) => boolean)((body as any)[key])) {
                         log('valid non-primitive');
                         // valid
                         continue;
@@ -221,7 +221,7 @@ export const validate = <type = unknown>(
                         failed.push(key);
                         emitter.emit(
                             'fail',
-                            [key, body[key], isValid as IsValid],
+                            [key, (body as any)[key], isValid as IsValid],
                             req,
                             'invalid-non-primitive',
                         );
@@ -235,7 +235,7 @@ export const validate = <type = unknown>(
 
         if (options?.onInvalid) {
             for (const key of failed) {
-                options.onInvalid(key, body[key]);
+                options.onInvalid(key, (body as any)[key]);
             }
         }
 

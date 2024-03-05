@@ -72,7 +72,8 @@ export const emailValidation = (
 ): ServerFunction => {
     return (req, res, next) => {
         const arr = keys
-            .map((key) => (req.body ? req.body[key] : ''))
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            .map((key) => (req.body ? (req.body as any)[key] : ''))
             .filter(Boolean);
 
         if (!arr.length) return next();

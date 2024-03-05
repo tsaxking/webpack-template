@@ -1,16 +1,27 @@
-import * as cliffy from 'https://deno.land/x/cliffy@v1.0.0-rc.3/prompt/select.ts';
-import FuzzySearch from 'npm:fuzzy-search';
-import { Colors } from '../server/utilities/colors.ts';
-import { attemptAsync, Result } from '../shared/check.ts';
+import cliSelect from 'cli-select';
+import FuzzySearch from 'fuzzy-search';
+import { Colors } from '../server/utilities/colors';
+import { attemptAsync, Result } from '../shared/check';
+import prompts from 'prompts';
 
-export const repeatPrompt = (
+export const prompt = async (message: string): Promise<string> => {
+    const res = await prompts({
+        type: 'text',
+        name: 'value',
+        message: message,
+    });
+
+    return res.value;
+}
+
+export const repeatPrompt = async (
     message: string,
     original?: string,
     validate?: (data: string) => boolean,
     allowBlank = false,
-): string => {
+): Promise<string> => {
     if (!original) original = message;
-    const i = prompt(message + ':');
+    const i = await prompt(message + ':');
 
     if (i === null) {
         throw new Error('exit');
@@ -63,19 +74,23 @@ export const select = async <T = unknown>(
             value: '$$exit$$' as unknown as T,
         });
     }
-    const res = await cliffy.Select.prompt({
-        message: message,
-        options: data,
+    // const res = await cliffy.Select.prompt({
+    //     message: message,
+    //     options: data,
+    // });
+
+    const res = await cliSelect({
+        values: data.map(d => (typeof d === 'string' ? { name: d, value: d } as Option<string> : d)),
     });
 
-    if (res === '$$exit$$') {
+    if (res.value.value === '$$exit$$') {
         if (options.exit) {
-            Deno.exit(0);
+            process.exit(0);
         }
         throw new Error('exit');
     }
 
-    if (res === '$$return$$') {
+    if (res.value.value === '$$return$$') {
         throw new Error('return');
     }
 
@@ -86,7 +101,7 @@ export const confirm = async (message = 'Confirm'): Promise<boolean> => {
     return (await select(message, ['Yes', 'No'])) === 'Yes';
 };
 
-export const search = async <T>(
+export const search = async <T extends string | Option>(
     message: string,
     options: (
         | {
@@ -102,9 +117,9 @@ export const search = async <T>(
 
     const run = async (): Promise<Result<string>> => {
         return attemptAsync(async () => {
-            const data = prompt(`${Colors.FgCyan}? ${Colors.Reset} ${message}`);
+            const data = await prompt(`${Colors.FgCyan}? ${Colors.Reset} ${message}`);
 
-            const values = s.search(data);
+            const values = s.search(data || '');
 
             const res = await select<string>('Select a value', [
                 {
@@ -115,7 +130,7 @@ export const search = async <T>(
                     name: '[Exit search]',
                     value: '$$exit$$',
                 },
-                ...values.map((v) => v.name || v.toString()),
+                ...values.map((v) => typeof v === 'string' ? v : v.name || v.toString()),
             ]);
 
             if (res === '$$back$$') {

@@ -1,4 +1,4 @@
-import Filter from 'npm:bad-words';
+import Filter from 'bad-words';
 import { ServerFunction } from '../structure/app/app';
 
 /**
@@ -16,7 +16,8 @@ const filter = new Filter();
 export const detect = (...keys: string[]): ServerFunction => {
     return (req, res, next) => {
         for (const key of keys) {
-            if (filter.isProfane(req.body ? req.body[key] : '')) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            if (filter.isProfane(req.body ? (req.body as any)[key] : '')) {
                 return res.sendStatus('profanity:detected');
             }
         }

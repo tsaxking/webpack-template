@@ -1,4 +1,5 @@
-export const bigIntEncode = (obj: unknown) => {
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export const bigIntEncode = (obj: unknown): any => {
     if (!obj) return obj;
     if (typeof obj === 'object') {
         if (Array.isArray(obj)) return obj.map(bigIntEncode);
@@ -6,7 +7,7 @@ export const bigIntEncode = (obj: unknown) => {
             [key: string]: unknown;
         } = {};
         for (const key in obj) {
-            newObj[key] = bigIntEncode(obj[key]);
+            newObj[key] = bigIntEncode((obj as any)[key]);
         }
         return newObj;
     }
@@ -14,7 +15,7 @@ export const bigIntEncode = (obj: unknown) => {
     return obj;
 };
 
-export const bigIntDecode = (obj: unknown) => {
+export const bigIntDecode = (obj: unknown): any => {
     if (!obj) return obj;
     if (typeof obj === 'object') {
         if (Array.isArray(obj)) return obj.map(bigIntDecode);
@@ -22,7 +23,7 @@ export const bigIntDecode = (obj: unknown) => {
             [key: string]: unknown;
         } = {};
         for (const key in obj) {
-            newObj[key] = bigIntDecode(obj[key]);
+            newObj[key] = bigIntDecode((obj as any)[key]);
         }
         return newObj;
     }

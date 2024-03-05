@@ -8,7 +8,11 @@
     "editor.formatOnSave": true, // optional
     "editor.formatOnSaveMode": "file", // required to format on save
     "spellright.addToSystemDictionary": true,
-    "cSpell.words": ["Deno", "Deno's"],
+    "cSpell.words": [
+        "Deno",
+        "Deno's",
+        "sendgrid"
+    ],
     "enumMemberValues.enabled": true,
     // "functionLikeReturnTypes.enabled": true,
     "parameterNames.enabled": "all",

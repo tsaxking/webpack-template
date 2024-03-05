@@ -1,14 +1,19 @@
-import { assertEquals } from 'https://deno.land/std@0.205.0/assert/mod.ts';
-import { __root } from '../../server/utilities/env.ts';
-import { runCommand, runTask } from '../../server/utilities/run-task.ts';
-import { log } from '../../server/utilities/terminal-logging.ts';
-import { validate } from '../../server/middleware/data-type.ts';
-import { Req } from '../../server/structure/app/req.ts';
-import { Res } from '../../server/structure/app/res.ts';
+import { __root } from '../../server/utilities/env';
+import { runTask, runFile } from '../../server/utilities/run-task';
+import { log } from '../../server/utilities/terminal-logging';
+import { validate } from '../../server/middleware/data-type';
+import { Req } from '../../server/structure/app/req';
+import { Res } from '../../server/structure/app/res';
+import test from 'test';
+import assert from 'assert';
+
+const assertEquals = (a: unknown, b: unknown) => {
+    assert.strictEqual(a, b);
+}
 
 export const runTests = async () => {
-    Deno.test('Run async task functionality', async () => {
-        const asyncTest = await runTask<string[]>(
+    test('Run async task functionality', async () => {
+        const asyncTest = await runFile<string[]>(
             '/scripts/tests/run-task-test.ts',
             'asyncFn',
             'a',
@@ -20,8 +25,8 @@ export const runTests = async () => {
         else assertEquals(asyncTest.value, ['a', 'b', 'c']);
     });
 
-    Deno.test('Run sync task functionality', async () => {
-        const syncTest = await runTask<string[]>(
+    test('Run sync task functionality', async () => {
+        const syncTest = await runFile<string[]>(
             '/scripts/tests/run-task-test.ts',
             'syncFn',
             'a',
@@ -33,14 +38,14 @@ export const runTests = async () => {
         else assertEquals(syncTest.value, ['a', 'b', 'c']);
     });
 
-    Deno.test('Run command', async () => {
-        const result = await runCommand('echo "test"');
+    test('Run command', async () => {
+        const result = await runTask('echo', ['"test"']);
         log('Command result:', result);
         if (result.isOk()) assertEquals(true, true);
         else throw result.error;
     });
 
-    Deno.test('Data validation', async () => {
+    test('Data validation', async () => {
         const fail = () => {
             console.log('Validation should not have passed');
 
@@ -98,7 +103,7 @@ export const runTests = async () => {
                     failFunction: false,
                 },
                 url: new URL('http://localhost:1234'),
-            } as Req,
+            } as unknown as Req,
             {
                 sendStatus: () => {
                     const passedInvalids = invalid.every(([key, _value]) => {
@@ -131,3 +136,5 @@ export const runTests = async () => {
         );
     });
 };
+
+if (require.main) runTests();

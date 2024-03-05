@@ -1,4 +1,4 @@
-const parse = (ts: string) => {
+{const parse = (ts: string) => {
     // console.log(ts);
     // ts is a typescript file
     // parse it for the generic
@@ -114,3 +114,4 @@ router.post<{
 });
 `),
 );
+}

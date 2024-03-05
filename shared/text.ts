@@ -83,7 +83,7 @@ export const toByteString = (byte: number): string => {
     };
 
     const i = Math.floor(Math.log(byte) / Math.log(1024));
-    return `${(byte / sizes[Object.keys(sizes)[i]]).toFixed(2)} ${
+    return `${(byte / sizes[Object.keys(sizes)[i] as keyof typeof sizes]).toFixed(2)} ${
         Object.keys(sizes)[i]
     }`;
 };
@@ -97,12 +97,13 @@ export const parseObject = (
     parser: (str: string) => string,
 ): unknown => {
     if (typeof obj !== 'object') return obj;
-    if (Array.isArray(obj)) return obj.map((o) => parseObject(o, parser));
+    if (Array.isArray(obj)) return obj.map((o) => parseObject(o as object, parser));
     const newObj: Record<string, unknown> = {};
     for (const key in obj) {
         if (Object.prototype.hasOwnProperty.call(obj, key)) {
             // only do the keys, not the values
-            newObj[parser(key)] = obj[key];
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            newObj[parser(key)] = (obj as any)[key];
         }
     }
     return newObj;

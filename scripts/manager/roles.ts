@@ -1,12 +1,12 @@
-import { backToMain } from '../manager.ts';
-import Role from '../../server/structure/roles.ts';
-import { selectAccount } from './accounts.ts';
-import { confirm, repeatPrompt, select } from '../prompt.ts';
-import { attemptAsync, Result } from '../../shared/check.ts';
-import { addPermissions, removePermissions } from './permissions.ts';
-import { getJSON, saveJSON } from '../../server/utilities/files.ts';
-import { RolePermission } from '../../shared/db-types.ts';
-import { DB } from '../../server/utilities/databases.ts';
+import { backToMain } from '../manager';
+import Role from '../../server/structure/roles';
+import { selectAccount } from './accounts';
+import { confirm, repeatPrompt, select } from '../prompt';
+import { attemptAsync, Result } from '../../shared/check';
+import { addPermissions, removePermissions } from './permissions';
+import { getJSON, saveJSON } from '../../server/utilities/files';
+import { RolePermission } from '../../shared/db-types';
+import { DB } from '../../server/utilities/databases';
 
 export const selectRole = async (
     message = 'Select a role',
@@ -28,19 +28,19 @@ export const selectRole = async (
 };
 
 export const createRole = async () => {
-    const name = repeatPrompt(
+    const name = await repeatPrompt(
         'Enter the new role name',
         undefined,
         (data) => !!Role.fromName(data),
         false,
     );
-    const description = repeatPrompt('Enter the role description');
-    const rank = +repeatPrompt(
+    const description = await repeatPrompt('Enter the role description');
+    const rank = Number(await repeatPrompt(
         'Enter the role rank',
         undefined,
         (data) => !isNaN(parseInt(data)),
         false,
-    );
+    ));
 
     Role.new(name, description, rank);
 

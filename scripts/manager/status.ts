@@ -1,8 +1,10 @@
-import { filter, selectBootstrapColor, title } from '../manager.ts';
-import { repeatPrompt, select } from '../prompt.ts';
-import { StatusCode } from '../../shared/status-messages.ts';
-import { addSocket, addStatus } from '../add-status.ts';
-import { backToMain } from '../manager.ts';
+import { filter, selectBootstrapColor, title } from '../manager';
+import { repeatPrompt, select, prompt } from '../prompt';
+import { StatusCode } from '../../shared/status-messages';
+import { addSocket, addStatus } from '../add-status';
+import { backToMain } from '../manager';
+import fs from 'fs';
+import path from 'path';
 
 export const selectStatusCode = async (): Promise<number> => {
     const level = await select('Select a status code level', [
@@ -303,7 +305,11 @@ export const selectStatusCode = async (): Promise<number> => {
 };
 
 export const createStatus = async () => {
-    const text = Deno.readTextFileSync('shared/status-messages.ts');
+    // const text = Deno.readTextFileSync('shared/status-messages.ts');
+    const text = fs.readFileSync(
+        path.join('shared', 'status-messages.ts'),
+        'utf-8',
+    );
 
     const allStatuses = Array.from(text.matchAll(/('[\w:-]+'):/g)); // match all status message names
 
@@ -318,7 +324,7 @@ export const createStatus = async () => {
     ] as string[]);
 
     if (group === '[new]') {
-        group = repeatPrompt(
+        group = await repeatPrompt(
             'Enter the new status group name',
             undefined,
             (data) => {
@@ -334,7 +340,7 @@ export const createStatus = async () => {
         );
     }
 
-    const name = repeatPrompt(
+    const name = await repeatPrompt(
         'Enter the status name',
         undefined,
         (data) => {
@@ -348,11 +354,11 @@ export const createStatus = async () => {
         false,
     );
 
-    const message = repeatPrompt('Enter the status message', undefined, filter);
+    const message = await repeatPrompt('Enter the status message', undefined, filter);
     const color = await selectBootstrapColor('Select a color');
     const code = (await selectStatusCode()) as StatusCode;
-    const instructions = prompt('Enter the status instructions (if any)') || '';
-    const redirect = prompt('Enter the status redirect (if any)') || undefined;
+    const instructions = await prompt('Enter the status instructions (if any)') || '';
+    const redirect = await prompt('Enter the status redirect (if any)') || undefined;
 
     addStatus({
         group,
@@ -370,10 +376,12 @@ export const createStatus = async () => {
 export const addSocketEvent = async () => {
     title('Create a socket event');
 
-    const text = Deno.readTextFileSync('shared/socket.ts');
+    // const text = Deno.readTextFileSync('shared/socket.ts');
+    const text = fs.readFileSync(path.join('shared', 'socket.ts'), 'utf-8');
+
     const currentSockets = Array.from(text.matchAll(/'([\w:-]+)'/g));
 
-    const socketEvent = repeatPrompt(
+    const socketEvent = await repeatPrompt(
         'Please enter a socket name',
         undefined,
         (data) => !currentSockets.find((m) => m[0] === `'${data}'`),

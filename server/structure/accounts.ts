@@ -1,29 +1,29 @@
-import { DB } from '../utilities/databases.ts';
+import { DB } from '../utilities/databases';
 import crypto from 'node:crypto';
-import { uuid } from '../utilities/uuid.ts';
-import Role from './roles.ts';
-import { Status } from '../utilities/status.ts';
-import { Email, EmailOptions, EmailType } from '../utilities/email.ts';
-import Filter from 'npm:bad-words';
-import { Member } from './member.ts';
+import { uuid } from '../utilities/uuid';
+import { Status } from '../utilities/status';
+import { Email, EmailOptions, EmailType } from '../utilities/email';
+import Filter from 'bad-words';
+import { Member } from './member';
 import {
     Account as AccountObject,
     AccountSettings,
-} from '../../shared/db-types.ts';
-import env from '../utilities/env.ts';
-import { deleteUpload } from '../utilities/files.ts';
-import { Next, ServerFunction } from './app/app.ts';
-import { Req } from './app/req.ts';
-import { Res } from './app/res.ts';
+} from '../../shared/db-types';
+import env from '../utilities/env';
+import { removeUpload } from '../utilities/files';
+import { Next, ServerFunction } from './app/app';
+import { Req } from './app/req';
+import { Res } from './app/res';
 import {
     AccountStatusId,
     RolesStatusId,
-} from '../../shared/status-messages.ts';
-import { validate } from '../middleware/data-type.ts';
-import { Role as RoleObj } from '../../shared/db-types.ts';
-import { Permission } from '../../shared/permissions.ts';
-import { attemptAsync } from '../../shared/check.ts';
-import { RolePermission } from '../../shared/db-types.ts';
+} from '../../shared/status-messages';
+import { validate } from '../middleware/data-type';
+import { Role as RoleObj } from '../../shared/db-types';
+import { Permission } from '../../shared/permissions';
+import { attemptAsync } from '../../shared/check';
+import { RolePermission } from '../../shared/db-types';
+import Role from './roles';
 
 /**
  * Properties that can be changed dynamically
@@ -926,7 +926,7 @@ export default class Account {
      */
     changePicture(id: string): AccountStatusId {
         if (this.picture) {
-            deleteUpload(this.picture);
+            removeUpload(this.picture);
         }
 
         DB.run('account/update-picture', {
@@ -1191,7 +1191,7 @@ export default class Account {
         const res = await DB.get('account/get-settings', {
             accountId: this.id,
         });
-        if (res.isOk() && res.value) return JSON.parse(res.value.settings);
+        if (res.isOk() && res.value) return JSON.parse(res.value.settings) as AccountSettings;
         return undefined;
     }
 

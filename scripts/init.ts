@@ -1,6 +1,10 @@
-import { repeatPrompt } from './prompt.ts';
-import { __root, resolve } from '../server/utilities/env.ts';
-import { runTask } from '../server/utilities/run-task.ts';
+import { repeatPrompt } from './prompt';
+import { __root } from '../server/utilities/env';
+import { runFile } from '../server/utilities/run-task';
+import path from 'path';
+import fs from 'fs';
+
+const { resolve } = path;
 
 const runPrompt = (
     message: string,
@@ -8,7 +12,7 @@ const runPrompt = (
     validation?: (data: string) => boolean,
     allowBlank?: boolean,
 ): string => {
-    if (Deno.args.includes('--default')) return defaultValue || '';
+    if (process.argv.includes('--default')) return defaultValue || '';
     if (validation) {
         const r = repeatPrompt(message, undefined, validation, allowBlank);
         if (r) return r;
@@ -19,13 +23,16 @@ const runPrompt = (
 };
 
 const createEnv = () => {
-    const values = {
+    const values: {
+        [key: string]: string | number;
+    } = {
         SESSION_DURATION: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
     };
 
     try {
         const file = resolve(__root, './.env');
-        const data = Deno.readTextFileSync(file);
+        // const data = Deno.readTextFileSync(file);
+        const data = fs.readFileSync(file, 'utf8');
         const lines = data.split('\n');
         for (const line of lines) {
             const [key, value] = line.split('=');
@@ -204,17 +211,29 @@ const createEnv = () => {
     const e = Object.keys(values)
         .map((key) => `${key} = '${values[key]}'`)
         .join('\n');
-    Deno.writeTextFileSync(resolve(__root, './.env'), e);
+    // Deno.writeTextFileSync(resolve(__root, './.env'), e);
+
 
     return values;
 };
 
-if (import.meta.main) createEnv();
+// if (import.meta.main) createEnv();
+if (require.main) createEnv();
 
-if (Deno.args.includes('--db')) {
-    // this will run the database setup.
-    // You cannot import DB because github actions will not have access to the database.
-    const res = await runTask('/server/utilities/databases.ts');
-    if (res.isOk()) console.log(res.value);
-    else console.error(res.error);
+if (process.argv.includes('--db')) {
+    (async () => {
+        // this will run the database setup.
+        // You cannot import DB because github actions will not have access to the database.
+        const res = await runFile('/server/utilities/databases.ts', 'run');
+        if (res.isOk()) console.log(res.value);
+        else console.error(res.error);
+    })();
 }
+
+// if (Deno.args.includes('--db')) {
+//     // this will run the database setup.
+//     // You cannot import DB because github actions will not have access to the database.
+//     const res = await runTask('/server/utilities/databases.ts');
+//     if (res.isOk()) console.log(res.value);
+//     else console.error(res.error);
+// }

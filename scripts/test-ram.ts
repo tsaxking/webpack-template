@@ -1,4 +1,4 @@
-import { toByteString } from '../shared/text.ts';
+import { toByteString } from '../shared/text';
 // the purpose of this fil is to test how much memory deno can use before crashing
 // each tick will create a 1MB object and store it in an array
 // it will then log the memory usage
@@ -19,7 +19,7 @@ const stored: any[] = [];
 while (true) {
     stored.push(runTest());
     console.clear();
-    const memory = Deno.memoryUsage();
+    const memory = process.memoryUsage();
     // console.log(memory);
     // console.log(runs);
     console.log('rss:', toByteString(memory.rss));

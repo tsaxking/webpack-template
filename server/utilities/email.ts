@@ -1,12 +1,9 @@
-import nodemailer from 'npm:nodemailer';
-import sgTransport from 'npm:nodemailer-sendgrid-transport';
-import { config } from 'npm:dotenv';
-import { Constructor, FileError, getTemplateSync } from './files.ts';
-import env from './env.ts';
-import { error } from './terminal-logging.ts';
-import { Result } from '../../shared/check.ts';
-
-config();
+import nodemailer from 'nodemailer';
+import {sgTransport} from '@neoxia-js/nodemailer-sendgrid-transport';
+import { Constructor, FileError, getTemplateSync } from './files';
+import env from './env';
+import { error } from './terminal-logging';
+import { Result } from '../../shared/check';
 
 /**
  * Sendgrid transporter, used to send emails
@@ -16,9 +13,8 @@ config();
  */
 const transporter = nodemailer.createTransport(
     sgTransport({
-        service: 'gmail',
         auth: {
-            api_key: env.SENDGRID_API_KEY,
+            apiKey: env.SENDGRID_API_KEY || '',
         },
     }),
 );
@@ -134,14 +130,14 @@ export class Email {
                 return new Promise((resolve) => {
                     transporter.sendMail(
                         mailOptions,
-                        (err: Error, info: { response: string }) => {
-                            if (err) {
-                                console.error(err);
-                            } else {
-                                console.log('Email sent: ' + info.response);
-                                resolve(info);
-                            }
-                        },
+                        // (err: Error, info: { response: string }) => {
+                        //     if (err) {
+                        //         console.error(err);
+                        //     } else {
+                        //         console.log('Email sent: ' + info.response);
+                        //         resolve(info);
+                        //     }
+                        // },
                     );
                 });
             }

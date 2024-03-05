@@ -1,4 +1,6 @@
-import dirTree from 'npm:directory-tree';
+import dirTree from 'directory-tree';
+import fs from 'fs';
+import path from 'path';
 
 const tree = dirTree('./', {
     extensions: /\.(ts|html|js|svelte|json)/,
@@ -61,4 +63,5 @@ const generateStr = (tree: Directory | File, depth: number, _line: boolean) => {
 
 const str = generateStr(tree, 0, false);
 
-Deno.writeFileSync('./scripts/dir-tree.txt', new TextEncoder().encode(str));
+// Deno.writeFileSync('./scripts/dir-tree.txt', new TextEncoder().encode(str));
+fs.writeFileSync('./scripts/dir-tree.txt', str);

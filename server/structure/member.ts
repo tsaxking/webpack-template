@@ -1,19 +1,19 @@
 // This is essentially an extension off of an account. It is used to manage members of the site, their bios, resumes, and other information.
 // This isn't documented yet because I'm still working on it. It's not a priority right now.
 
-import { DB } from '../utilities/databases.ts';
-import Account from './accounts.ts';
-import { EmailType } from '../utilities/email.ts';
-import { deleteUpload } from '../utilities/files.ts';
+import { DB } from '../utilities/databases';
+import Account from './accounts';
+import { EmailType } from '../utilities/email';
+import { removeUpload } from '../utilities/files';
 import {
     Member as MemberObj,
     MemberSafe,
     MembershipStatus,
-} from '../../shared/db-types.ts';
-import { Next } from './app/app.ts';
-import { Req } from './app/req.ts';
-import { Res } from './app/res.ts';
-import env from '../../server/utilities/env.ts';
+} from '../../shared/db-types';
+import { Next } from './app/app';
+import { Req } from './app/req';
+import { Res } from './app/res';
+import env from '../utilities/env';
 
 export enum MemberReturnStatus {
     invalidBio = 'invalidBio',
@@ -285,7 +285,7 @@ export class Member {
     changeResume(id: string) {
         const { resume } = this;
         if (resume) {
-            deleteUpload(resume + '.pdf');
+            removeUpload(resume + '.pdf');
         }
 
         this.resume = resume;
