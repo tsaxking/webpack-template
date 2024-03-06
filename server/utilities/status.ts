@@ -1,17 +1,17 @@
-import { FileError, getTemplateSync, log } from './files.ts';
-import { Session } from '../structure/sessions.ts';
+import { FileError, getTemplateSync, log } from './files';
+import { Session } from '../structure/sessions';
 import {
     messages,
     StatusCode,
     StatusColor,
     StatusId,
-    StatusMessage,
-} from '../../shared/status-messages.ts';
-import { Next, ServerFunction } from '../structure/app/app.ts';
-import { Req } from '../structure/app/req.ts';
-import { Res } from '../structure/app/res.ts';
-import { Result } from '../../shared/check.ts';
-import env from './env.ts';
+    StatusMessage
+} from '../../shared/status-messages';
+import { Next, ServerFunction } from '../structure/app/app';
+import { Req } from '../structure/app/req';
+import { Res } from '../structure/app/res';
+import { Result } from '../../shared/check';
+import env from './env';
 
 /**
  * Status class, used to send pre-made status messages to the client
@@ -35,7 +35,7 @@ export class Status {
      */
     static middleware(
         id: StatusId,
-        test: (session: Session) => boolean,
+        test: (session: Session) => boolean
     ): ServerFunction {
         return (req: Req, res: Res, next: Next) => {
             if (test(req.session)) {
@@ -75,18 +75,18 @@ export class Status {
                     message: 'An unknown status message was requested.',
                     color: 'danger',
                     code: 500,
-                    instructions: 'Please contact an administrator.',
+                    instructions: 'Please contact an administrator.'
                 },
                 'Unknown Status Message',
                 'Unknown',
                 dataStr,
-                req,
+                req
             );
         }
 
         if (typeof id === 'number') {
             throw new Error(
-                'Status message requested by number. Please use a string instead.',
+                'Status message requested by number. Please use a string instead.'
             );
         }
 
@@ -166,7 +166,7 @@ export class Status {
         public readonly title: string,
         public readonly status: string,
         public readonly data: string,
-        req: Req,
+        req: Req
     ) {
         this.message = message.message;
         this.color = message.color;
@@ -187,7 +187,7 @@ export class Status {
                 data: data ? JSON.stringify(data) : 'No data provided.',
                 ip: req.session.ip,
                 username: a?.username,
-                sessionId: req.session.id,
+                sessionId: req.session.id
             });
         });
 
@@ -227,9 +227,15 @@ export class Status {
      */
     get html() {
         return getTemplateSync('status', {
-            ...this.json,
-            page: env.TITLE || 'My App',
-            // data: this.data ? JSON.stringify(this.data) : 'No data provided.',
+            title: this.title,
+            status: this.status,
+            message: this.message,
+            code: this.code,
+            instructions: this.instructions,
+            data: this.data,
+            redirect: this.redirect,
+            color: this.color,
+            page: env.TITLE || 'My App'
         });
     }
 
@@ -249,7 +255,7 @@ export class Status {
             instructions: this.instructions,
             data: JSON.parse(this.data || '{}'),
             redirect: this.redirect,
-            color: this.color,
+            color: this.color
         };
     }
 

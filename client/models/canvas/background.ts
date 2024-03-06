@@ -9,7 +9,7 @@ export class Background extends Drawable<Background> {
 
     set color(value: Color) {
         this.$properties.fill = {
-            color: value.toString('rgba'),
+            color: value.toString('rgba')
         };
     }
 

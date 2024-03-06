@@ -1,76 +1,101 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-// this needs to be upgraded, but esbuild has not integrated "watch" yet
-import * as esbuild from 'https://deno.land/x/esbuild@v0.20.0/mod.js';
-import { sveltePlugin, typescript } from './build/esbuild-svelte.ts';
-import { getTemplateSync, saveTemplateSync } from './utilities/files.ts';
+import esbuild from 'esbuild';
+import sveltePlugin from 'esbuild-svelte';
+import { typescript } from 'svelte-preprocess-esbuild';
+// import preprocess from 'svelte-preprocess';
+import fs from 'fs';
+import path from 'path';
+import env, { __entries, __root, __templates } from './utilities/env';
+import {
+    getTemplate,
+    getTemplateSync,
+    saveTemplate,
+    saveTemplateSync
+} from './utilities/files';
+import { attemptAsync } from '../shared/check';
+import { EventEmitter } from '../shared/event-emitter';
 
-import env, {
-    __root,
-    __templates,
-    relative,
-    resolve,
-} from './utilities/env.ts';
-import { attemptAsync } from '../shared/check.ts';
+(async () => {
+    // clear the dist folder
+    
+    fs.rmdirSync(path.resolve(__root, 'dist'), { recursive: true });
+    fs.mkdirSync(path.resolve(__root, 'dist'));
 
-/**
- * Recursively reads a directory, saves the template, and returns the file paths
- * @date 10/12/2023 - 3:26:56 PM
- */
-const readDir = (dirPath: string): string[] => {
-    const entries = Array.from(Deno.readDirSync(dirPath));
-    return entries.flatMap((e) => {
-        if (!e.isFile) return readDir(`${dirPath}/${e.name}`);
+    // remove the /public/templates/entries folder
+    fs.rmdirSync(path.resolve(__templates, 'entries'), { recursive: true });
+    fs.mkdirSync(path.resolve(__templates, 'entries'));
+})();
 
-        const file = dirPath.split('/').slice(2).join('/') +
-            '/' +
-            e.name.replace('.ts', '.html');
+const readDir = async (dirPath: string): Promise<string[]> => {
+    // console.log('Reading:', dirPath);
+    const entries = await fs.promises.readdir(dirPath);
+    // console.log('Entries:', entries);
 
-        const result = getTemplateSync('index', {
-            script: relative(
-                resolve(__templates, file),
-                resolve(
-                    __root,
-                    'dist',
-                    dirPath.split('/').slice(3).join('/'),
-                    e.name.replace('.ts', '.js'),
-                ),
-            ),
-            style: relative(
-                resolve(__templates, file),
-                resolve(
-                    __root,
-                    'dist',
-                    dirPath.split('/').slice(3).join('/'),
-                    e.name.replace('.ts', '.css'),
-                ),
-            ),
-            title: env.TITLE || 'Untitled',
-        });
+    return (
+        await Promise.all(
+            entries.map(async e => {
+                const fullpath = path.resolve(dirPath, e);
 
-        if (result.isOk()) {
-            saveTemplateSync('/' + file, result.value);
-        }
-        return `${dirPath}/${e.name}`;
-    });
+                if ((await fs.promises.stat(fullpath)).isFile()) {
+                    const templateFilePath = path.resolve(
+                        __templates,
+                        'entries',
+                        path.relative(__entries, fullpath)
+                    ).replace('.ts','.html')
+
+                    const index = await getTemplate('index', {
+                        script: path.relative(
+                            templateFilePath,
+                            path.resolve(
+                            __root,
+                            'dist',
+                            path.relative(__entries, fullpath)
+                        )).replace('.ts','.js'),
+                        style: 
+                        path.relative(
+                            templateFilePath,
+                            path.resolve(
+                                __root,
+                                'dist',
+                                path.relative(__entries, fullpath)
+                            ).replace('.ts','.css')
+                        ),
+                        title: env.TITLE || 'Untitled'
+                    });
+                    if (index.isOk()) {
+                        await saveTemplate(
+                            templateFilePath,
+                            index.value
+                        );
+                    }
+                    return fullpath;
+                } else {
+                    return readDir(fullpath);
+                }
+            })
+        )
+    ).flat(Infinity) as string[];
 };
 
 export class Builder {
-    private watchers = new Map<string, Deno.FsWatcher>();
+    private watchers = new Map<string, fs.FSWatcher>();
+    private building = false;
 
-    public watch = async (path: string) => {
-        const watcher = Deno.watchFs(path);
-        this.watchers.set(path, watcher);
+    public readonly em = new EventEmitter();
 
-        for await (const event of watcher) {
-            console.log('file change detected', event);
-            switch (event.kind) {
-                case 'create':
-                case 'modify':
-                case 'remove':
+    public watch = (dir: string) => {
+        console.log('Watching:', dir);
+        const watcher = fs.watch(
+            path.resolve(__dirname, '../', dir),
+            {
+                recursive: true
+            },
+            (event, _filename) => {
+                if (event === 'change' || event === 'rename') {
                     this.build();
-                    break;
+                }
             }
-        }
+        );
+        this.watchers.set(dir, watcher);
     };
 
     close = () => {
@@ -79,19 +104,28 @@ export class Builder {
         }
     };
 
-    public build = () =>
-        attemptAsync(async () =>
-            esbuild.build({
-                entryPoints: readDir('./client/entries'),
+    public build = () => {
+        return attemptAsync(async () => {
+            if (this.building) return;
+            this.building = true;
+            const dirs = await readDir(__entries);
+            const b = await esbuild.build({
+                entryPoints: dirs,
                 bundle: true,
                 minify: env.MINIFY === 'y',
                 outdir: './dist',
                 mainFields: ['svelte', 'browser', 'module', 'main'],
                 conditions: ['svelte', 'browser'],
                 plugins: [
-                    (sveltePlugin as any)({
-                        preprocess: [typescript()],
-                    }),
+                    sveltePlugin({
+                        preprocess: [
+                            typescript({
+                                tsconfigRaw: {
+                                    compilerOptions: {}
+                                }
+                            })
+                        ]
+                    })
                 ],
                 logLevel: 'info',
                 loader: {
@@ -100,25 +134,27 @@ export class Builder {
                     '.woff2': 'dataurl',
                     '.eot': 'dataurl',
                     '.ttf': 'dataurl',
-                    '.svg': 'dataurl',
+                    '.svg': 'dataurl'
                 },
-            })
-        );
-
-    public run = async () => {
-        await this.build();
-
-        if (Deno.args.includes('--watch')) {
-            this.watch('./client');
-            this.watch('./shared');
-        }
+                tsconfig: path.resolve(__dirname, '../tsconfig.json')
+            });
+            console.log('Build complete');
+            this.em.emit('build');
+            this.building = false;
+            return b;
+        });
     };
 }
 
 // if this file is the main file, run the build
-if (import.meta.main) {
-    new Builder()
+if (require.main === module) {
+    const builder = new Builder();
+    builder
         .build()
-        .then(() => Deno.exit(0))
-        .catch(() => Deno.exit(1));
+        .then(res => {
+            if (res.isOk()) process.exit(0);
+            console.error(res.error);
+            process.exit(1);
+        })
+        .catch(() => process.exit(1));
 }

@@ -18,7 +18,7 @@ class Bubble extends Circle {
     constructor(
         center: [number, number],
         radius: number,
-        public velocity: [number, number],
+        public velocity: [number, number]
     ) {
         super(center, radius);
         this.properties.fill.color = 'rgba(255, 255, 255, 0.5)';
@@ -28,10 +28,10 @@ class Bubble extends Circle {
 
 const { sin, PI, cos, random } = Math;
 
-const bubbles = Array.from({ length: 100 }).map((_) => {
+const bubbles = Array.from({ length: 100 }).map(_ => {
     return new Bubble([random(), random()], Random.between(0.01, 0.05), [
         Random.between(-0.01, 0.01),
-        Random.between(-0.01, 0.01),
+        Random.between(-0.01, 0.01)
     ]);
 });
 
@@ -41,7 +41,7 @@ c.animate(() => {
     for (const b of bubbles) {
         b.center = [
             (b.center[0] + b.velocity[0]) % 1,
-            (b.center[1] + b.velocity[1]) % 1,
+            (b.center[1] + b.velocity[1]) % 1
         ];
     }
 });

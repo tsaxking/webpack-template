@@ -1,4 +1,4 @@
-import { StatusMessage } from './status-messages.ts';
+import { StatusMessage } from './status-messages';
 
 export type StatusCode =
     | 100
@@ -66,69 +66,11 @@ export type StatusCode =
     | 511;
 
 export const validCodes: StatusCode[] = [
-    100,
-    101,
-    102,
-    103,
-    200,
-    201,
-    202,
-    203,
-    204,
-    205,
-    206,
-    207,
-    208,
-    226,
-    300,
-    301,
-    302,
-    303,
-    304,
-    305,
-    306,
-    307,
-    308,
-    400,
-    401,
-    402,
-    403,
-    404,
-    405,
-    406,
-    407,
-    408,
-    409,
-    410,
-    411,
-    412,
-    413,
-    414,
-    415,
-    416,
-    417,
-    418,
-    421,
-    422,
-    423,
-    424,
-    425,
-    426,
-    428,
-    429,
-    431,
-    451,
-    500,
-    501,
-    502,
-    503,
-    504,
-    505,
-    506,
-    507,
-    508,
-    510,
-    511,
+    100, 101, 102, 103, 200, 201, 202, 203, 204, 205, 206, 207, 208, 226, 300,
+    301, 302, 303, 304, 305, 306, 307, 308, 400, 401, 402, 403, 404, 405, 406,
+    407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417, 418, 421, 422, 423,
+    424, 425, 426, 428, 429, 431, 451, 500, 501, 502, 503, 504, 505, 506, 507,
+    508, 510, 511
 ];
 
 export enum ServerCode {
@@ -198,7 +140,7 @@ export enum ServerCode {
     insufficientStorage = 507,
     loopDetected = 508,
     notExtended = 510,
-    networkAuthenticationRequired = 511,
+    networkAuthenticationRequired = 511
 }
 
 export type StatusJson = StatusMessage & {
@@ -207,4 +149,5 @@ export type StatusJson = StatusMessage & {
     data?: {
         [key: string]: unknown;
     };
+    sleep?: number;
 };

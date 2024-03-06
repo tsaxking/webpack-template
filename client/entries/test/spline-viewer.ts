@@ -20,7 +20,7 @@ resetBtn.classList.add(
     'position-absolute',
     'top-0',
     'start-0',
-    'm-2',
+    'm-2'
 );
 resetBtn.innerText = 'Reset';
 document.body.appendChild(resetBtn);
@@ -32,7 +32,7 @@ downloadBtn.classList.add(
     'position-absolute',
     'top-0',
     'end-0',
-    'm-2',
+    'm-2'
 );
 downloadBtn.innerText = 'Download JSON';
 document.body.appendChild(downloadBtn);
@@ -50,8 +50,8 @@ const c = new Canvas(ctx, {
         'touchstart',
         'touchend',
         'touchmove',
-        'touchcancel',
-    ],
+        'touchcancel'
+    ]
 });
 
 const stop = () => (c.$animating = false);
@@ -64,54 +64,54 @@ const start = () => {
     const paths = {
         y1: new Path([
             [0, 0],
-            [0, 1],
+            [0, 1]
         ]),
         'y0.25': new Path([
             [0.25, 0],
-            [0.25, 1],
+            [0.25, 1]
         ]),
         'y0.5': new Path([
             [0.5, 0],
-            [0.5, 1],
+            [0.5, 1]
         ]),
         'y0.75': new Path([
             [0.75, 0],
-            [0.75, 1],
+            [0.75, 1]
         ]),
         y0: new Path([
             [1, 0],
-            [1, 1],
+            [1, 1]
         ]),
         x1: new Path([
             [0, 0],
-            [1, 0],
+            [1, 0]
         ]),
         'x0.25': new Path([
             [0, 0.25],
-            [1, 0.25],
+            [1, 0.25]
         ]),
         'x0.5': new Path([
             [0, 0.5],
-            [1, 0.5],
+            [1, 0.5]
         ]),
         'x0.75': new Path([
             [0, 0.75],
-            [1, 0.75],
+            [1, 0.75]
         ]),
         x0: new Path([
             [0, 1],
-            [1, 1],
-        ]),
+            [1, 1]
+        ])
     };
 
     c.add(
-        ...Object.values(paths).map((p) => {
+        ...Object.values(paths).map(p => {
             p.$properties.line = {
                 color: Color.fromBootstrap('gray').toString('rgba'),
-                width: 1,
+                width: 1
             };
             return p;
-        }),
+        })
     );
 
     spline.points = new Array(10).fill(0).map((_, i, a) => {
@@ -121,7 +121,7 @@ const start = () => {
     const circles = spline.points.map((_, i, a) => {
         const cir = new Circle([i / a.length, 1 - i / a.length], 0.02);
         cir.$properties.fill = {
-            color: Color.fromBootstrap('primary').toString('rgba'),
+            color: Color.fromBootstrap('primary').toString('rgba')
         };
 
         let dragging = false;
@@ -146,14 +146,14 @@ const start = () => {
     });
 
     const s = new Spline(spline, {
-        frames: 1000,
+        frames: 1000
     });
 
-    spline.magnitude = 5;
+    // spline.magnitude = 5;
 
     s.$properties.line = {
         color: Color.fromBootstrap('primary').toString('rgba'),
-        width: 2,
+        width: 2
     };
 
     c.add(...circles, s);
@@ -170,9 +170,9 @@ resetBtn.onclick = reset;
 downloadBtn.onclick = () => {
     downloadText(
         JSON.stringify(
-            new Array(1000).fill(0).map((_, i) => spline.ft(i / 1000)),
+            new Array(1000).fill(0).map((_, i) => spline.ft(i / 1000))
         ),
-        'spline.json',
+        'spline.json'
     );
 };
 

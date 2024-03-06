@@ -1,4 +1,4 @@
-import { attempt, attemptAsync, Result } from '../../shared/attempt';
+import { attempt, attemptAsync, Result } from '../../shared/check';
 
 /**
  * Download a file from a URL
@@ -85,13 +85,13 @@ export const loadFileContents = (): Promise<
             const files = Array.from(res.value);
 
             const contents = await Promise.all(
-                files.map(async (file) => {
+                files.map(async file => {
                     const text = await file.text();
                     if (!text) {
                         throw new Error(`File ${file.name} is empty`);
                     }
                     return { name: file.name, text };
-                }),
+                })
             );
 
             return contents;

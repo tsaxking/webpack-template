@@ -1,7 +1,7 @@
-import { validate } from '../middleware/data-type.ts';
-import { Route } from '../structure/app/app.ts';
-import Role from '../structure/roles.ts';
-import { Permission } from '../../shared/permissions.ts';
+import { validate } from '../middleware/data-type';
+import { Route } from '../structure/app/app';
+import Role from '../structure/roles';
+import { Permission } from '../../shared/permissions';
 
 export const router = new Route();
 
@@ -9,11 +9,11 @@ router.post('/all', async (req, res) => {
     const roles = await Role.all();
     res.json(
         await Promise.all(
-            roles.map(async (r) => ({
+            roles.map(async r => ({
                 ...r,
-                permissions: await r.getPermissions(),
-            })),
-        ),
+                permissions: await r.getPermissions()
+            }))
+        )
     );
 });
 
@@ -32,13 +32,13 @@ router.post<{
     validate({
         name: 'string',
         description: 'string',
-        rank: 'number',
+        rank: 'number'
     }),
     async (req, res) => {
         const { name, description, rank } = req.body;
 
         const roles = await Role.all();
-        if (roles.find((r) => r.name === name)) {
+        if (roles.find(r => r.name === name)) {
             return res.sendStatus('roles:already-exists');
         }
 
@@ -47,7 +47,7 @@ router.post<{
         res.sendStatus('roles:new');
 
         req.io.emit('roles:new', role);
-    },
+    }
 );
 
 router.post<{
@@ -61,7 +61,7 @@ router.post<{
         id: 'string',
         name: 'string',
         description: 'string',
-        rank: 'number',
+        rank: 'number'
     }),
     async (req, res) => {
         const { id, name, description, rank } = req.body;
@@ -76,7 +76,7 @@ router.post<{
 
         res.sendStatus('roles:updated', role);
         req.io.emit('roles:update', role);
-    },
+    }
 );
 
 router.post<{
@@ -84,7 +84,7 @@ router.post<{
 }>(
     '/delete',
     validate({
-        id: 'string',
+        id: 'string'
     }),
     async (req, res) => {
         const { id } = req.body;
@@ -99,7 +99,7 @@ router.post<{
 
         res.sendStatus('roles:deleted', role);
         req.io.emit('roles:delete', role);
-    },
+    }
 );
 
 router.post<{
@@ -109,7 +109,7 @@ router.post<{
     '/add-permission',
     validate({
         id: 'string',
-        permission: 'string',
+        permission: 'string'
     }),
     async (req, res) => {
         const { id, permission } = req.body;
@@ -122,14 +122,14 @@ router.post<{
 
         const perms = await role.getPermissions();
 
-        if (perms.find((p) => p.permission === permission)) {
+        if (perms.find(p => p.permission === permission)) {
             // permission already exists on role
             return res.sendStatus('permissions:error');
         }
 
         const p = await Role.getAllPermissions();
 
-        if (!p.find((p) => p.permission === permission)) {
+        if (!p.find(p => p.permission === permission)) {
             return res.sendStatus('permissions:not-found');
         }
 
@@ -137,14 +137,14 @@ router.post<{
 
         res.sendStatus('roles:added-permission', {
             id: role.id,
-            permission,
+            permission
         });
 
         req.io.emit('roles:added-permission', {
             roleId: role.id,
-            permissions: await role.getPermissions(),
+            permissions: await role.getPermissions()
         });
-    },
+    }
 );
 
 router.post<{
@@ -154,7 +154,7 @@ router.post<{
     '/remove-permission',
     validate({
         id: 'string',
-        permission: 'string',
+        permission: 'string'
     }),
     async (req, res) => {
         const { id, permission } = req.body;
@@ -168,7 +168,7 @@ router.post<{
 
         const perms = await role.getPermissions();
 
-        if (!perms.find((p) => p.permission === permission)) {
+        if (!perms.find(p => p.permission === permission)) {
             return res.sendStatus('permissions:error');
         }
 
@@ -176,12 +176,12 @@ router.post<{
 
         res.sendStatus('roles:removed-permission', {
             id: role.id,
-            permission,
+            permission
         });
 
         req.io.emit('roles:added-permission', {
             roleId: role.id,
-            permissions: await role.getPermissions(),
+            permissions: await role.getPermissions()
         });
-    },
+    }
 );

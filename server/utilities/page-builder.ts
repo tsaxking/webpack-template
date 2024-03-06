@@ -2,12 +2,12 @@
  * @fileoverview This file is used to build static home pages given the request object. It is used for server side rendering and front end multi-page applications.
  */
 
-import { getJSON, getTemplate } from './files.ts';
-import { capitalize, fromSnakeCase } from '../../shared/text.ts';
-import { Req } from '../structure/app/req.ts';
-import { Res } from '../structure/app/res.ts';
-import { Next } from '../structure/app/app.ts';
-import { attemptAsync } from '../../shared/check.ts';
+import { getJSON, getTemplate } from './files';
+import { capitalize, fromSnakeCase } from '../../shared/text';
+import { Req } from '../structure/app/req';
+import { Res } from '../structure/app/res';
+import { Next } from '../structure/app/app';
+import { attemptAsync } from '../../shared/check';
 
 /**
  * Object containing all the pages that can be built
@@ -44,8 +44,8 @@ const builds: {
  */
 export const builder = async (req: Req, res: Res, next: Next) => {
     const { url } = req;
-    if (builds[url.pathname]) {
-        const r = await homeBuilder(url.pathname);
+    if (builds[url]) {
+        const r = await homeBuilder(url);
         if (r.isOk()) res.send(r.value);
         else {
             res.sendStatus('server:unknown-server-error');
@@ -65,9 +65,9 @@ export const homeBuilder = async (url: string) => {
     return attemptAsync(async () => {
         const [footerResult, navbarResult] = await Promise.all([
             getTemplate('components/footer', {
-                year: new Date().getFullYear(),
+                year: new Date().getFullYear()
             }),
-            navBuilder(url, false),
+            navBuilder(url, false)
         ]);
 
         if (footerResult.isErr()) throw new Error(footerResult.error);
@@ -77,7 +77,7 @@ export const homeBuilder = async (url: string) => {
             pageTitle: capitalize(fromSnakeCase(url, '-')).slice(1),
             content: builds[url] ? await builds[url]() : '',
             footer: footerResult.value,
-            navbar: navbarResult.value,
+            navbar: navbarResult.value
         });
 
         if (r.isErr()) throw new Error(r.error);
@@ -94,17 +94,17 @@ export const homeBuilder = async (url: string) => {
 export const navBuilder = async (url: string, offcanvas: boolean) => {
     return await getTemplate('components/navbar', {
         offcanvas: {
-            offcanvas,
+            offcanvas
         },
-        navbarRepeat: await getJSON<string[]>('pages/home').then((r) => {
+        navbarRepeat: await getJSON<string[]>('pages/home').then(r => {
             if (r.isErr()) throw new Error(r.error);
             return r.value.map((page: string) => {
                 return {
                     active: '/' + page === url,
                     name: capitalize(fromSnakeCase(page, '-')),
-                    link: '/' + page,
+                    link: '/' + page
                 };
             });
-        }),
+        })
     });
 };

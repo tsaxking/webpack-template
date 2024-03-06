@@ -31,11 +31,11 @@ jobs:
             - name: Ignore if changes were automated
               run: |
 
-            - name: Setup Deno
-              # uses: denoland/setup-deno@v1
-              uses: denoland/setup-deno@61fe2df320078202e33d7d5ad347e7dcfa0e8f31 # v1.1.2
-              with:
-                  deno-version: v1.x
+            # - name: Setup Deno
+            #   # uses: denoland/setup-deno@v1
+            #   uses: denoland/setup-deno@61fe2df320078202e33d7d5ad347e7dcfa0e8f31 # v1.1.2
+            #   with:
+            #       deno-version: v1.x
 
             - name: Setup Node.js
               uses: actions/setup-node@v4
@@ -46,8 +46,13 @@ jobs:
               run: |
                   echo "Rename package.json and package-lock.json to .package.json and .package-lock.json so that they are not picked up by npm install"
 
-                  mv package.json .package.json
-                  mv package-lock.json .package-lock.json
+                  cp package.json .package.json
+                  cp package-lock.json .package-lock.json
+
+            - name: Install all dependencies
+              run: |
+                  echo "Installing all dependencies"
+                  npm i
 
             - name: Install local dependencies
               run: |

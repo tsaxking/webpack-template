@@ -19,7 +19,7 @@ const { sin, PI, cos } = Math;
 const s = new Surface((x, y) => cos(PI * x) * sin(PI * y), 100, [
     [0.5, 0.4, 0.5],
     [0.7, 1, 0.9],
-    [0.6, 0.2, 0.1],
+    [0.6, 0.2, 0.1]
 ]);
 
 console.log(s.triangles);

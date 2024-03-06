@@ -1,15 +1,14 @@
-import { backToMain, main, selectFile } from '../manager.ts';
-import { __root } from '../../server/utilities/env.ts';
-import { addQuery, merge, parseSql } from '../parse-sql.ts';
-import { DB } from '../../server/utilities/databases.ts';
-import { confirm, repeatPrompt, search, select } from '../prompt.ts';
-import {
-    readDir,
-    readFile,
-    saveFileSync,
-} from '../../server/utilities/files.ts';
-import { relative, resolve } from '../../server/utilities/env.ts';
-import * as cliffy from 'https://deno.land/x/cliffy@v1.0.0-rc.3/table/mod.ts';
+import { backToMain, main, selectFile } from '../manager';
+import { __root } from '../../server/utilities/env';
+import { addQuery, merge, parseSql } from '../parse-sql';
+import { DB } from '../../server/utilities/databases';
+import { confirm, repeatPrompt, search, select } from '../prompt';
+import { readDir, readFile, saveFileSync } from '../../server/utilities/files';
+import cliSelect from 'cli-select';
+import fs from 'fs';
+import path from 'path';
+
+const { resolve, relative } = path;
 
 export const buildQueries = async () => {
     await parseSql('server/utilities', 'server/utilities');
@@ -19,7 +18,7 @@ export const buildQueries = async () => {
 export const versionInfo = async () => {
     const [current, latest] = await Promise.all([
         DB.getVersion(),
-        DB.latestVersion(),
+        DB.latestVersion()
     ]);
 
     console.log(`Current: ${current.join('.')}\nLatest: ${latest.join('.')}`);
@@ -31,14 +30,14 @@ export const newVersion = async () => {
     const minor = repeatPrompt(
         'Minor version (1.x.0)',
         undefined,
-        (d) => !isNaN(+d),
-        false,
+        d => !isNaN(+d),
+        false
     );
     const patch = repeatPrompt(
         `Patch version (1.${minor}.x)`,
         undefined,
-        (d) => !isNaN(+d),
-        false,
+        d => !isNaN(+d),
+        false
     );
 
     if (await DB.hasVersion([1, +minor, +patch])) {
@@ -47,14 +46,14 @@ export const newVersion = async () => {
 
     saveFileSync(
         `storage/db/queries/db/versions/1-${minor}-${patch}.sql`,
-        `-- New version 1.${minor}.${patch}\n\n`,
+        `-- New version 1.${minor}.${patch}\n\n`
     );
 
     const doScript = await confirm('Do you want a script for this version?');
     if (doScript) {
         saveFileSync(
             `storage/db/scripts/versions/1-${minor}-${patch}.ts`,
-            `// New version 1.${minor}.${patch}\n\nDeno.exit(0) // Please do not remove this`,
+            `// New version 1.${minor}.${patch}\n\nDeno.exit(0) // Please do not remove this`
         );
     }
 
@@ -64,7 +63,7 @@ export const newVersion = async () => {
 export const viewTables = async () => {
     const tables = await DB.getTables();
     if (tables.isOk()) {
-        const values = tables.value.map((t) => ({ name: t, value: t }));
+        const values = tables.value.map(t => ({ name: t, value: t }));
         values.push({ name: '[Back]', value: 'back' });
         const table = await select('Select table to view', values);
         if (table === 'back') return main();
@@ -75,8 +74,8 @@ export const viewTables = async () => {
             // using cliffy to display the data
             const tableData = data.value;
             const keys = Object.keys(tableData[0] || {});
-            const values = tableData.map((d) =>
-                Object.values(d).map((a) => {
+            const values = tableData.map(d =>
+                Object.values(d).map(a => {
                     switch (typeof a) {
                         case 'bigint':
                             return a.toString() + 'n';
@@ -88,8 +87,7 @@ export const viewTables = async () => {
                 })
             );
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const table = new cliffy.Table().header(keys).body(values as any);
-            console.log(table.toString());
+            console.table(keys, values as any);
 
             await select('', ['[Back]']);
             return main();
@@ -105,20 +103,20 @@ export const mergeQueries = async () => {
     const allFiles = await readDir(resolve(__root, './server/utilities'));
     if (allFiles.isOk()) {
         const files = allFiles.value.filter(
-            (f) => f.isFile && f.name.match(/\w+-[0-9]+.ts/)?.length,
+            f => fs.statSync(f).isFile() && f.match(/\w+-[0-9]+.ts/)?.length
         );
         if (!files.length) return backToMain('No files to merge');
         const mergables = files.reduce((acc, f) => {
-            const num = Number(f.name.match(/[0-9]+/)?.[0] || 'NaN');
+            const num = Number(f.match(/[0-9]+/)?.[0] || 'NaN');
             if (!isNaN(num) && !acc.includes(num)) acc.push(num);
             return acc;
         }, [] as number[]);
         const selected = await select(
             'Select file to merge',
-            mergables.map((m) => ({
+            mergables.map(m => ({
                 name: `Merge ${m}`,
-                value: m,
-            })),
+                value: m
+            }))
         );
 
         if (isNaN(selected)) return backToMain('Invalid file selected');
@@ -130,7 +128,7 @@ export const mergeQueries = async () => {
             backToMain('Error merging queries: ' + res.error.message);
         }
     } else {
-        backToMain('Error reading files: ' + allFiles.error.message);
+        backToMain('Error reading files: ' + allFiles.error);
     }
 };
 
@@ -142,13 +140,13 @@ export const addQueryType = async () => {
         if (contents.isOk()) {
             const rel = relative(
                 resolve(__root, './storage/db/queries'),
-                file.value,
+                file.value
             );
             const res = await addQuery(
                 'server/utilities/queries.ts',
                 'server/utilities/tables.ts',
                 contents.value,
-                rel,
+                rel
             );
 
             if (res.isOk()) backToMain('Query added');
@@ -163,7 +161,7 @@ export const addQueryType = async () => {
 
 export const reset = async () => {
     const doReset = await confirm(
-        'Are you sure you want to reset the database?',
+        'Are you sure you want to reset the database?'
     );
 
     if (doReset) {
@@ -175,7 +173,7 @@ export const reset = async () => {
         const reset = await DB.reset();
         if (reset.isErr()) {
             return backToMain(
-                'Error resetting database: ' + reset.error.message,
+                'Error resetting database: ' + reset.error.message
             );
         }
         return backToMain('Database reset and updated to latest version.');
@@ -194,11 +192,11 @@ export const clearTable = async () => {
     if (tables.isOk()) {
         const table = await select(
             'Select table to clear',
-            tables.value.map((t) => ({ name: t, value: t })),
+            tables.value.map(t => ({ name: t, value: t }))
         );
 
         const doClear = await confirm(
-            `Are you sure you want to clear ${table}?`,
+            `Are you sure you want to clear ${table}?`
         );
         if (doClear) {
             const res = await DB.unsafe.run(`DELETE FROM ${table}`);
@@ -218,15 +216,15 @@ export const clearTable = async () => {
 export const restoreBackup = async () => {
     const backups = await readDir(resolve(__root, './storage/db/backups'));
     if (backups.isErr()) {
-        return backToMain('Error reading backups: ' + backups.error.message);
+        return backToMain('Error reading backups: ' + backups.error);
     }
 
     const backup = await search(
         'Search for a backup to restore',
-        backups.value.map((b) => ({
-            name: b.name,
-            value: b.name,
-        })),
+        backups.value.map(b => ({
+            name: b,
+            value: b
+        }))
     );
 
     if (backup.isErr()) {
@@ -254,52 +252,52 @@ export const databases = [
     {
         value: buildQueries,
         icon: '🔨',
-        description: 'Builds the query types from the sql files',
+        description: 'Builds the query types from the sql files'
     },
     {
         value: mergeQueries,
         icon: '🔀',
-        description: 'Merges the query files into a single file',
+        description: 'Merges the query files into a single file'
     },
     {
         value: versionInfo,
         icon: '📊',
-        description: 'Shows the current and latest version of the database',
+        description: 'Shows the current and latest version of the database'
     },
     {
         value: newVersion,
         icon: '🆕',
         description:
-            'Creates a new version of the database, can create a .ts file if you need to also run a script',
+            'Creates a new version of the database, can create a .ts file if you need to also run a script'
     },
     {
         value: viewTables,
         icon: '📇',
-        description: 'View the data in a table',
+        description: 'View the data in a table'
     },
     {
         value: reset,
         icon: '🔄',
-        description: 'Resets the database to the latest version',
+        description: 'Resets the database to the latest version'
     },
     {
         value: runUpdates,
         icon: '🔃',
-        description: 'Runs any available updates',
+        description: 'Runs any available updates'
     },
     {
         value: clearTable,
         icon: '🗑️',
-        description: 'Clears all data from a table',
+        description: 'Clears all data from a table'
     },
     {
         value: restoreBackup,
         icon: '🔙',
-        description: 'Restores a backup',
+        description: 'Restores a backup'
     },
     {
         value: backup,
         icon: '💾',
-        description: 'Creates a backup',
-    },
+        description: 'Creates a backup'
+    }
 ];

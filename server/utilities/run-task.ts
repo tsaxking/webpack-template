@@ -1,132 +1,46 @@
-import { error, log } from './terminal-logging.ts';
-import { __dirname, __root, addFileProtocol, resolve } from './env.ts';
-import { spawn } from 'node:child_process';
-import { attemptAsync, Result } from '../../shared/check.ts';
+import { attemptAsync } from '../../shared/check';
+import { spawn } from 'child_process';
+import path from 'path';
+import * as tsNode from 'ts-node';
+import { __root } from './env';
 
-/**
- * Runs a deno file
- * @param {string} file File path from the root of the project (must start with a slash)
- * @param {string} functionName Function to run from the file
- * @param {string[]} args Arguments to pass to the function
- * @returns
- */
-export const runTask = async <T>(
-    file: string,
-    functionName?: string,
-    ...args: string[]
-): Promise<Result<T>> => {
-    return attemptAsync(async () => {
-        return new Promise<T>((res, rej) => {
-            import(addFileProtocol(resolve(__root, file)))
-                .then(async (module) => {
-                    if (functionName) {
-                        if (typeof module[functionName] === 'function') {
-                            log(
-                                'Running task:',
-                                __dirname(),
-                                file,
-                                functionName,
-                            );
-                            try {
-                                const result = await module[functionName](
-                                    ...args,
-                                ); // run the function, if it's async it will wait, otherwise it will just run
-                                return res(result as T);
-                            } catch (e) {
-                                error(
-                                    'Error running task:',
-                                    __dirname(),
-                                    'function',
-                                    functionName,
-                                    e,
-                                );
-                                return rej(e);
-                            }
-                        } else {
-                            error(
-                                'Error running task:',
-                                __dirname(),
-                                'function',
-                                functionName,
-                                'not found',
-                            );
-                            return rej('Function not found');
-                        }
-                    }
-
-                    log('Running task:', __dirname(), file);
-                    res(null as T);
-                })
-                .catch((err) => {
-                    error('Error running task:', __dirname(), err);
-                    rej(err);
-                });
-        });
-    });
-};
-
-/**
- * Runs a command (unstable!)
- * @date 1/9/2024 - 12:33:21 PM
- *
- * @async
- */
-export const runCommand = async (
-    command: string,
-    ...args: string[]
-): Promise<Result<void>> => {
-    return attemptAsync(async () => {
-        return new Promise<void>((res, rej) => {
-            try {
-                // using spawn from node
-                const process = spawn(command, args, {
-                    stdio: 'pipe',
-                    shell: true,
-                });
-
-                process.stdout.on('data', (data) => {
-                    console.log(`stdout: ${data}`);
-                });
-
-                process.stderr.on('data', (data) => {
-                    console.log(`stderr: ${data}`);
-                });
-
-                process.on('close', (code) => {
-                    console.log(`child process exited with code ${code}`);
-
-                    if (code) {
-                        rej('Process exited with code ' + code);
-                    } else {
-                        res();
-                    }
-                });
-            } catch (e) {
-                rej(e);
-            }
-        });
-    });
-};
-
-export const run = async (...cmd: string[]) => {
+export const runTask = async (command: string, args: string[]) => {
     return attemptAsync(() => {
         return new Promise<void>((res, rej) => {
-            const process = new Deno.Command(Deno.execPath(), {
-                args: cmd,
-                stdout: 'inherit',
-                stderr: 'inherit',
-                stdin: 'inherit',
-            }).spawn();
-
-            process.status
-                .then((s) => {
-                    if (s.success) {
-                        res();
-                    } else {
-                        rej('Process exited with code ' + s.code);
-                    }
-                })
-                .catch(rej);
+            const task = spawn(command, args, {
+                cwd: __root,
+                stdio: 'pipe'
+            });
+            const end = (num: number) => {
+                clearTimeout(timeout);
+                if (!task.killed) task.kill();
+                if (num === 0) res();
+                else rej(new Error(`child process exited with code ${num}`));
+            };
+            const timeout = setTimeout(() => end(1), 1000 * 5);
+            task.stdout.on('data', data => {
+                console.log(data.toString());
+            });
+            task.stderr.on('data', data => {
+                console.error(data.toString());
+            });
+            task.on('close', code => {
+                end(code || 0);
+            });
         });
+    });
+};
+
+export const runFile = async <T>(
+    file: string,
+    fn: string,
+    ...params: string[]
+) => {
+    return attemptAsync(async () => {
+        tsNode.register({ transpileOnly: true });
+        const mod = await import(path.resolve(__root, file));
+        const func = mod[fn];
+        if (typeof func !== 'function') throw new Error('Function not found');
+        return (await func(...params)) as T;
     });
 };

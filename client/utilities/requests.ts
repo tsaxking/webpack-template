@@ -94,7 +94,7 @@ export class RetrieveStreamEventEmitter<T = string> extends EventEmitter<
      */
     on<K extends keyof RetrieveStreamEventData<T>>(
         event: K,
-        callback: (data: RetrieveStreamEventData<T>[K]) => void,
+        callback: (data: RetrieveStreamEventData<T>[K]) => void
     ): void {
         super.on(event, callback);
     }
@@ -109,7 +109,7 @@ export class RetrieveStreamEventEmitter<T = string> extends EventEmitter<
      */
     emit<K extends keyof RetrieveStreamEventData<T>>(
         event: K,
-        data: RetrieveStreamEventData<T>[K],
+        data: RetrieveStreamEventData<T>[K]
     ): void {
         super.emit(event, data);
     }
@@ -124,7 +124,7 @@ export class RetrieveStreamEventEmitter<T = string> extends EventEmitter<
      */
     off<K extends keyof RetrieveStreamEventData<T>>(
         event: K,
-        callback: (data: RetrieveStreamEventData<T>[K]) => void,
+        callback: (data: RetrieveStreamEventData<T>[K]) => void
     ): void {
         super.off(event, callback);
     }
@@ -138,7 +138,7 @@ export class RetrieveStreamEventEmitter<T = string> extends EventEmitter<
      * @returns {Promise<T[]>}
      */
     get promise() {
-        return new Promise<T[]>((res) => {
+        return new Promise<T[]>(res => {
             this.on('complete', res);
         });
     }
@@ -199,7 +199,7 @@ export class SendStream {
      * @private
      * @type {(number | NodeJS.Timeout)}
      */
-    private interval: number | NodeJS.Timeout;
+    private interval?: number | NodeJS.Timeout;
 
     /**
      * Creates an instance of SendStream.
@@ -211,7 +211,7 @@ export class SendStream {
      */
     constructor(
         public readonly url: string,
-        public readonly options: SendStreamOptions,
+        public readonly options: SendStreamOptions
     ) {}
 
     /**
@@ -234,7 +234,7 @@ export class SendStream {
      */
     on<K extends keyof SendStreamEventData>(
         event: K,
-        callback: (data: SendStreamEventData[K]) => void,
+        callback: (data: SendStreamEventData[K]) => void
     ): void {
         this.$emitter.on(event, callback);
     }
@@ -249,7 +249,7 @@ export class SendStream {
      */
     emit<K extends keyof SendStreamEventData>(
         event: K,
-        data: SendStreamEventData[K],
+        data: SendStreamEventData[K]
     ): void {
         this.$emitter.emit(event, data);
     }
@@ -264,7 +264,7 @@ export class SendStream {
      */
     off<K extends keyof SendStreamEventData>(
         event: K,
-        callback: (data: SendStreamEventData[K]) => void,
+        callback: (data: SendStreamEventData[K]) => void
     ): void {
         this.$emitter.off(event, callback);
     }
@@ -286,9 +286,9 @@ export class SendStream {
                         data,
                         index: i,
                         size: new TextEncoder().encode(data).length,
-                        type: 'data',
+                        type: 'data'
                     })
-                        .then((data) => {
+                        .then(data => {
                             if (data.isOk()) {
                                 const { value } = data;
 
@@ -302,7 +302,7 @@ export class SendStream {
                                     case 'error':
                                         this.emit(
                                             'error',
-                                            new Error('Server error'),
+                                            new Error('Server error')
                                         );
                                         break;
                                 }
@@ -326,7 +326,7 @@ export class SendStream {
         if (this.interval) clearInterval(this.interval);
         this.emit('end', undefined);
         ServerRequest.post(this.url, {
-            type: 'end',
+            type: 'end'
         });
     }
 }
@@ -372,7 +372,7 @@ export class ServerRequest<T = unknown> {
      * @type {ServerRequest[]}
      */
     static get errors(): ServerRequest[] {
-        return this.all.filter((r) => r.error);
+        return this.all.filter(r => r.error);
     }
 
     /**
@@ -384,7 +384,7 @@ export class ServerRequest<T = unknown> {
      * @type {ServerRequest[]}
      */
     static get successes(): ServerRequest[] {
-        return this.all.filter((r) => !r.error);
+        return this.all.filter(r => !r.error);
     }
 
     /**
@@ -438,7 +438,7 @@ export class ServerRequest<T = unknown> {
     static async post<T>(
         url: string,
         body?: unknown,
-        options?: RequestOptions,
+        options?: RequestOptions
     ): Promise<Result<T>> {
         return attemptAsync(async () => {
             const r = new ServerRequest<T>(url, 'post', body, options);
@@ -459,7 +459,7 @@ export class ServerRequest<T = unknown> {
      */
     static async get<T>(
         url: string,
-        options?: RequestOptions,
+        options?: RequestOptions
     ): Promise<Result<T>> {
         return attemptAsync(async () => {
             const r = new ServerRequest<T>(url, 'get', undefined, options);
@@ -477,7 +477,7 @@ export class ServerRequest<T = unknown> {
      * @returns {Promise<any[]>}
      */
     static async multiple(requests: ServerRequest[]): Promise<unknown[]> {
-        return Promise.all(requests.map((r) => r.send()));
+        return Promise.all(requests.map(r => r.send()));
     }
 
     /**
@@ -495,7 +495,7 @@ export class ServerRequest<T = unknown> {
         url: string,
         files: FileList,
         body?: unknown,
-        options?: StreamOptions,
+        options?: StreamOptions
     ): EventEmitter<keyof SendFileStreamEventData> {
         const emitter = new EventEmitter<keyof SendFileStreamEventData>();
 
@@ -525,22 +525,24 @@ export class ServerRequest<T = unknown> {
             xhr.setRequestHeader('X-Body', JSON.stringify(body));
         }
 
-        xhr.upload.onprogress = (e) => {
+        xhr.upload.onprogress = e => {
             emitter.emit('progress', e);
         };
 
-        xhr.upload.onerror = (e) => {
+        xhr.upload.onerror = e => {
             emitter.emit('error', e);
         };
 
-        xhr.upload.onloadend = (e) => {
+        xhr.upload.onloadend = e => {
             emitter.emit('complete', e);
 
             const interval = setInterval(() => {
                 if (xhr.readyState === 4) {
                     clearInterval(interval);
                     emitter.emit('complete', e);
-                    const data = JSON.parse(xhr.responseText || '{}');
+                    const data = JSON.parse(
+                        xhr.responseText || '{}'
+                    ) as StatusJson;
                     if (data.$status) {
                         // this is a notification
                         const d = data as StatusJson;
@@ -549,9 +551,9 @@ export class ServerRequest<T = unknown> {
                                 title: d.title,
                                 message: d.message,
                                 status: d.$status,
-                                color: d.color,
+                                color: d.color
                             },
-                            'alert',
+                            'alert'
                         );
                     }
                 }
@@ -576,7 +578,7 @@ export class ServerRequest<T = unknown> {
     static retrieveStream<K = string>(
         url: string,
         body?: unknown,
-        parser?: (data: string) => K,
+        parser?: (data: string) => K
     ): RetrieveStreamEventEmitter<K> {
         const output: K[] = [];
 
@@ -585,13 +587,13 @@ export class ServerRequest<T = unknown> {
         fetch(url, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/json'
             },
-            body: JSON.stringify(body),
+            body: JSON.stringify(body)
         })
-            .then((res) => {
+            .then(res => {
                 const dataLength = parseInt(
-                    res.headers.get('x-data-length') || '0',
+                    res.headers.get('x-data-length') || '0'
                 );
 
                 const reader = res.body?.getReader();
@@ -601,7 +603,10 @@ export class ServerRequest<T = unknown> {
 
                 let i = 0;
                 let last: string | undefined;
-                reader.read().then(function process({ done, value }) {
+                reader.read().then(async function process({
+                    done,
+                    value
+                }): Promise<ReadableStreamReadResult<Uint8Array> | undefined> {
                     if (done) {
                         emitter.emit('complete', output);
                         return;
@@ -635,7 +640,7 @@ export class ServerRequest<T = unknown> {
                     return reader.read().then(process);
                 });
             })
-            .catch((e) => emitter.emit('error', new Error(e)));
+            .catch(e => emitter.emit('error', new Error(e)));
 
         return emitter;
     }
@@ -650,8 +655,8 @@ export class ServerRequest<T = unknown> {
         const sendStream = new SendStream(
             url,
             options || {
-                rate: 1000 / 30,
-            },
+                rate: 1000 / 30
+            }
         );
 
         if (data) {
@@ -734,7 +739,7 @@ export class ServerRequest<T = unknown> {
         public readonly url: string,
         public readonly method: 'get' | 'post' = 'post',
         public readonly body?: unknown,
-        public readonly options?: RequestOptions,
+        public readonly options?: RequestOptions
     ) {
         ServerRequest.all.push(this);
     }
@@ -757,13 +762,13 @@ export class ServerRequest<T = unknown> {
             this.sent = true;
 
             if (this.options?.cached) {
-                const reqs = ServerRequest.all.filter((r) => r.url == this.url);
+                const reqs = ServerRequest.all.filter(r => r.url == this.url);
                 const req = reqs[reqs.length - 1];
                 if (req) {
                     this.cached = true;
                     this.duration = Date.now() - start;
                     this.response = req.response as T;
-                    req.promise?.then((r) => res(r as T));
+                    req.promise?.then(r => res(r as T));
                 }
             }
 
@@ -771,19 +776,19 @@ export class ServerRequest<T = unknown> {
                 method: this.method.toUpperCase(),
                 headers: {
                     'Content-Type': 'application/json',
-                    ...this.options?.headers,
+                    ...this.options?.headers
                 },
-                body: JSON.stringify(this.body),
+                body: JSON.stringify(this.body)
             })
-                .then((r) => r.json())
-                .then(async (data) => {
+                .then(r => r.json() as Promise<T>)
+                .then(async data => {
                     data = bigIntDecode(data);
 
                     if (!this.url.includes('socket')) {
                         if (this.cached) log(data, '(cached)');
                         else log(data);
                     }
-                    if (data?.$status) {
+                    if ((data as StatusJson)?.$status) {
                         // this is a notification
                         const d = data as StatusJson;
                         notify(
@@ -791,23 +796,24 @@ export class ServerRequest<T = unknown> {
                                 title: d.title,
                                 message: d.message,
                                 status: d.$status,
-                                color: d.color,
+                                color: d.color
                             },
-                            'alert',
+                            'alert'
                         );
                     }
 
                     this.duration = Date.now() - start;
                     this.response = data;
 
-                    if (data?.redirect) {
-                        if (typeof data.sleep !== 'number') data.sleep = 1000;
-                        await sleep(data.sleep);
-                        location.href = data.redirect;
+                    if ((data as StatusJson)?.redirect) {
+                        if (typeof (data as StatusJson).sleep !== 'number')
+                            (data as StatusJson).sleep = 1000;
+                        await sleep((data as StatusJson).sleep as number);
+                        location.href = (data as StatusJson).redirect as string;
                     }
                     res(data as T);
                 })
-                .catch((e) => {
+                .catch(e => {
                     this.duration = Date.now() - start;
                     this.error = new Error(e);
                     rej(e);

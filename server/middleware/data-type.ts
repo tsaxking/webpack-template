@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { EventEmitter } from '../../shared/event-emitter.ts';
-import { ServerFunction } from '../structure/app/app.ts';
-import { Req } from '../structure/app/req.ts';
+import { EventEmitter } from '../../shared/event-emitter';
+import { ServerFunction } from '../structure/app/app';
+import { Req } from '../structure/app/req';
 
 /**
  * Options for the validate function
@@ -56,7 +56,7 @@ export const emitter = (() => {
             public readonly data: Updates[T],
             public readonly url: string,
             public readonly method: string,
-            public readonly reason: Reason,
+            public readonly reason: Reason
         ) {}
     }
 
@@ -65,14 +65,14 @@ export const emitter = (() => {
 
         on<K extends keyof Updates>(
             event: K,
-            callback: (data: DataValidationFaliure<K>) => void,
+            callback: (data: DataValidationFaliure<K>) => void
         ): void {
             this.emitter.on(event, callback);
         }
 
         off<K extends keyof Updates>(
             event: K,
-            callback?: (data: DataValidationFaliure<K>) => void,
+            callback?: (data: DataValidationFaliure<K>) => void
         ): void {
             this.emitter.off(event, callback);
         }
@@ -81,14 +81,14 @@ export const emitter = (() => {
             event: K,
             data: Updates[K],
             req: Req,
-            reason: Reason,
+            reason: Reason
         ): void {
             const e = new DataValidationFaliure(
                 event,
                 data,
-                req.url.href,
+                req.url,
                 req.method,
-                reason,
+                reason
             );
             this.emitter.emit(event, e);
         }
@@ -106,14 +106,14 @@ export const validate = <type = unknown>(
         // each key is a key in the type generic
         [key in keyof type]: IsValid;
     },
-    options?: ValidateOptions,
+    options?: ValidateOptions
 ): ServerFunction<type> => {
     return (req, res, next) => {
         let { body } = req;
 
         // body can be stored here because it could be a file stream
         if (!Object.entries(body as any).length) {
-            body = JSON.parse(req.headers.get('X-Body') || '{}');
+            body = JSON.parse(req.headers.get('X-Body') || '{}') as type;
         }
 
         let passed = true;
@@ -125,14 +125,14 @@ export const validate = <type = unknown>(
                 if (options?.log) console.log('[validate]', key, ...args);
             };
 
-            if (!body || body[key] === undefined) {
+            if (!body || (body as any)[key] === undefined) {
                 passed = false;
                 missing.push(key);
                 emitter.emit(
                     'fail',
-                    [key, body[key], isValid as IsValid],
+                    [key, (body as any)[key], isValid as IsValid],
                     req,
-                    'missing-key',
+                    'missing-key'
                 );
                 continue;
             }
@@ -141,9 +141,9 @@ export const validate = <type = unknown>(
             if (Array.isArray(isValid)) {
                 log('is array');
                 // is it a primitive array?
-                const isPrimitive = isValid.every((value) =>
+                const isPrimitive = isValid.every(value =>
                     ['string', 'number', 'boolean'].includes(
-                        value as AllowedPrimitive,
+                        value as AllowedPrimitive
                     )
                 );
                 // if not, it's just a normal array
@@ -152,7 +152,7 @@ export const validate = <type = unknown>(
                     log('is primitive array');
                     if (
                         !(isValid as AllowedPrimitive[]).includes(
-                            typeof body[key] as AllowedPrimitive,
+                            typeof (body as any)[key] as AllowedPrimitive
                         )
                     ) {
                         log('invalid primitive array');
@@ -161,15 +161,15 @@ export const validate = <type = unknown>(
                         failed.push(key);
                         emitter.emit(
                             'fail',
-                            [key, body[key], isValid],
+                            [key, (body as any)[key], isValid as IsValid],
                             req,
-                            'invalid-primitive-array',
+                            'invalid-primitive-array'
                         );
                         continue;
                     }
                 } else {
                     log('is normal array');
-                    if (isValid.includes(body[key] as never)) {
+                    if (isValid.includes((body as any)[key] as never)) {
                         log('valid normal array');
                         // valid
                         continue;
@@ -180,9 +180,9 @@ export const validate = <type = unknown>(
                         failed.push(key);
                         emitter.emit(
                             'fail',
-                            [key, body[key], isValid],
+                            [key, (body as any)[key], isValid as IsValid],
                             req,
-                            'invalid-normal-array',
+                            'invalid-normal-array'
                         );
                         continue;
                     }
@@ -191,27 +191,29 @@ export const validate = <type = unknown>(
                 log('is not array');
                 // is it a primitive?
                 const isPrimitive = ['string', 'number', 'boolean'].includes(
-                    isValid as unknown as AllowedPrimitive,
+                    isValid as unknown as AllowedPrimitive
                 );
 
                 if (isPrimitive) {
                     log('is primitive');
-                    if (typeof body[key] !== isValid) {
+                    if (typeof (body as any)[key] !== isValid) {
                         log('invalid primitive');
                         // invalid, not a primitive
                         passed = false;
                         failed.push(key);
                         emitter.emit(
                             'fail',
-                            [key, body[key], isValid as IsValid],
+                            [key, (body as any)[key], isValid as IsValid],
                             req,
-                            'invalid-primitive',
+                            'invalid-primitive'
                         );
                         continue;
                     }
                 } else {
                     log('is not primitive');
-                    if ((isValid as (data: any) => boolean)(body[key])) {
+                    if (
+                        (isValid as (data: any) => boolean)((body as any)[key])
+                    ) {
                         log('valid non-primitive');
                         // valid
                         continue;
@@ -221,9 +223,9 @@ export const validate = <type = unknown>(
                         failed.push(key);
                         emitter.emit(
                             'fail',
-                            [key, body[key], isValid as IsValid],
+                            [key, (body as any)[key], isValid as IsValid],
                             req,
-                            'invalid-non-primitive',
+                            'invalid-non-primitive'
                         );
                         continue;
                     }
@@ -235,7 +237,7 @@ export const validate = <type = unknown>(
 
         if (options?.onInvalid) {
             for (const key of failed) {
-                options.onInvalid(key, body[key]);
+                options.onInvalid(key, (body as any)[key]);
             }
         }
 
@@ -266,5 +268,5 @@ export const trimBody = bodyPipe(
             body[key] = body[key].trim();
         }
         return body;
-    },
+    }
 );

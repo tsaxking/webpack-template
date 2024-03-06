@@ -1,15 +1,15 @@
-import { backToMain } from '../manager.ts';
-import Role from '../../server/structure/roles.ts';
-import { selectAccount } from './accounts.ts';
-import { confirm, repeatPrompt, select } from '../prompt.ts';
-import { attemptAsync, Result } from '../../shared/check.ts';
-import { addPermissions, removePermissions } from './permissions.ts';
-import { getJSON, saveJSON } from '../../server/utilities/files.ts';
-import { RolePermission } from '../../shared/db-types.ts';
-import { DB } from '../../server/utilities/databases.ts';
+import { backToMain } from '../manager';
+import Role from '../../server/structure/roles';
+import { selectAccount } from './accounts';
+import { confirm, repeatPrompt, select } from '../prompt';
+import { attemptAsync, Result } from '../../shared/check';
+import { addPermissions, removePermissions } from './permissions';
+import { getJSON, saveJSON } from '../../server/utilities/files';
+import { RolePermission } from '../../shared/db-types';
+import { DB } from '../../server/utilities/databases';
 
 export const selectRole = async (
-    message = 'Select a role',
+    message = 'Select a role'
 ): Promise<Result<Role>> => {
     return attemptAsync(async () => {
         const roles = await Role.all();
@@ -19,27 +19,29 @@ export const selectRole = async (
 
         return await select<Role>(
             message,
-            roles.map((role) => ({
+            roles.map(role => ({
                 name: role.name,
-                value: role,
-            })),
+                value: role
+            }))
         );
     });
 };
 
 export const createRole = async () => {
-    const name = repeatPrompt(
+    const name = await repeatPrompt(
         'Enter the new role name',
         undefined,
-        (data) => !!Role.fromName(data),
-        false,
+        data => !!Role.fromName(data),
+        false
     );
-    const description = repeatPrompt('Enter the role description');
-    const rank = +repeatPrompt(
-        'Enter the role rank',
-        undefined,
-        (data) => !isNaN(parseInt(data)),
-        false,
+    const description = await repeatPrompt('Enter the role description');
+    const rank = Number(
+        await repeatPrompt(
+            'Enter the role rank',
+            undefined,
+            data => !isNaN(parseInt(data)),
+            false
+        )
     );
 
     Role.new(name, description, rank);
@@ -52,12 +54,12 @@ export const deleteRole = async () => {
     if (res.isOk()) {
         if (!res.value) {
             return backToMain(
-                'Failure to find role (this is a bug, please report)',
+                'Failure to find role (this is a bug, please report)'
             );
         }
 
         const isGood = await confirm(
-            `Are you sure you want to delete the role ${res.value.name}?`,
+            `Are you sure you want to delete the role ${res.value.name}?`
         );
 
         if (isGood) {
@@ -85,14 +87,14 @@ export const addRoleToAccount = async () => {
 
             const roles = await account.getRoles();
 
-            if (roles.some((r) => r.name === role.name)) {
+            if (roles.some(r => r.name === role.name)) {
                 backToMain(
-                    `Account ${account.username} already has role ${role.name}`,
+                    `Account ${account.username} already has role ${role.name}`
                 );
             } else {
                 account.addRole(role);
                 backToMain(
-                    `Role ${role.name} added to account ${account.username}`,
+                    `Role ${role.name} added to account ${account.username}`
                 );
             }
         }
@@ -115,16 +117,16 @@ export const removeRoleFromAccount = async () => {
         } else {
             const role = await select<Role>(
                 'Select a role to remove',
-                roles.map((r) => ({
+                roles.map(r => ({
                     name: r.name,
-                    value: r,
-                })),
+                    value: r
+                }))
             );
 
             if (role) {
                 account.removeRole(role);
                 backToMain(
-                    `Role ${role.name} removed from account ${account.username}`,
+                    `Role ${role.name} removed from account ${account.username}`
                 );
             } else {
                 backToMain('No roles to remove');
@@ -138,19 +140,19 @@ export const removeRoleFromAccount = async () => {
 export const saveRolesToJson = async () => {
     const [roles, permissions] = await Promise.all([
         Role.all(),
-        Role.getAllPermissions(),
+        Role.getAllPermissions()
     ]);
 
     const data = {
         roles: await Promise.all(
-            roles.map(async (role) => {
+            roles.map(async role => {
                 return {
                     role,
-                    permissions: await role.getPermissions(),
+                    permissions: await role.getPermissions()
                 };
-            }),
+            })
         ),
-        permissions,
+        permissions
     };
 
     const res = await saveJSON('roles', data);
@@ -169,7 +171,7 @@ export const applyRolesFromJson = async () => {
 
     if (currentRoles.length || currentPermissions.length) {
         const res = await confirm(
-            'This will overwrite all current roles and permissions in the database. Are you sure you want to continue?',
+            'This will overwrite all current roles and permissions in the database. Are you sure you want to continue?'
         );
         if (!res) return backToMain('Roles not applied');
     }
@@ -212,13 +214,13 @@ export const applyRolesFromJson = async () => {
             id: r.role.id,
             name: r.role.name,
             description: r.role.description,
-            rank: r.role.rank,
+            rank: r.role.rank
         });
 
         for (const p of r.permissions) {
             DB.run('permissions/add-to-role', {
                 roleId: r.role.id,
-                permission: p.permission,
+                permission: p.permission
             });
         }
     }
@@ -234,7 +236,7 @@ export const applyRolesFromJson = async () => {
                 :description
             )
         `,
-            p,
+            p
         );
     }
 
@@ -245,41 +247,41 @@ export const roles = [
     {
         icon: '📝',
         value: createRole,
-        description: 'Create a new role',
+        description: 'Create a new role'
     },
     {
         icon: '🗑️',
         value: deleteRole,
-        description: 'Delete a role',
+        description: 'Delete a role'
     },
     {
         icon: '➕',
         value: addRoleToAccount,
-        description: 'Add a role to an account',
+        description: 'Add a role to an account'
     },
     {
         icon: '➖',
         value: removeRoleFromAccount,
-        description: 'Remove a role from an account',
+        description: 'Remove a role from an account'
     },
     {
         icon: '🔒',
         value: addPermissions,
-        description: 'Add permissions to a role',
+        description: 'Add permissions to a role'
     },
     {
         icon: '🔓',
         value: removePermissions,
-        description: 'Remove permissions from a role',
+        description: 'Remove permissions from a role'
     },
     {
         icon: '💾',
         value: saveRolesToJson,
-        description: 'Save roles to ./storage/jsons/roles.json',
+        description: 'Save roles to ./storage/jsons/roles.json'
     },
     {
         icon: '📥',
         value: applyRolesFromJson,
-        description: 'Apply roles from ./storage/jsons/roles.json',
-    },
+        description: 'Apply roles from ./storage/jsons/roles.json'
+    }
 ];

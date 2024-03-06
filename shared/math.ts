@@ -19,13 +19,14 @@ export class Random {
      */
     static uuid(options?: { length?: number; charset?: string }) {
         const length = options?.length ?? 16;
-        const charset = options?.charset ??
+        const charset =
+            options?.charset ??
             'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
         let result = '';
         for (let i = 0; i < length; i++) {
             result += charset.charAt(
-                Math.floor(Math.random() * charset.length),
+                Math.floor(Math.random() * charset.length)
             );
         }
 
@@ -106,7 +107,7 @@ export class $Math {
      * @returns {(value: number, index: number, array: {}) => number}
      */
     static movingAverage(
-        window: number,
+        window: number
     ): (value: number, index: number, array: number[]) => number {
         if (window < 1) throw new Error('Window must be greater than 0');
         if (Math.round(window) !== window) {

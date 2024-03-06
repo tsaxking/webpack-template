@@ -1,5 +1,5 @@
 export const asyncFn = async (...params: unknown[]) => {
-    return new Promise<unknown[]>((resolve) => {
+    return new Promise<unknown[]>(resolve => {
         resolve(params);
     });
 };

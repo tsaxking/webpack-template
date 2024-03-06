@@ -6,8 +6,8 @@ const ping = async (): Promise<number> => {
     await fetch('/ping', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
-        },
+            'Content-Type': 'application/json'
+        }
     });
 
     const end = Date.now();
@@ -44,7 +44,7 @@ class Ping {
         this.timeout = setInterval(async () => {
             const currentState = this.state;
             await ping()
-                .then((p) => {
+                .then(p => {
                     this.$pings.push(p);
                     this.emit('ping', p);
 
@@ -52,7 +52,7 @@ class Ping {
                     if (p > 1000 && p < 2000) this.state = 'medium';
                     if (p > 2000) this.state = 'weak';
                 })
-                .catch((err) => {
+                .catch(err => {
                     this.emit('error', err);
                     this.state = 'disconnected';
                 });
@@ -91,14 +91,14 @@ class Ping {
 
     on<K extends keyof PingEventData>(
         event: K,
-        callback: (data: PingEventData[K]) => void,
+        callback: (data: PingEventData[K]) => void
     ) {
         this.$emitter.on(event, callback);
     }
 
     off<K extends keyof PingEventData>(
         event: K,
-        callback?: (data: PingEventData[K]) => void,
+        callback?: (data: PingEventData[K]) => void
     ) {
         this.$emitter.off(event, callback);
     }

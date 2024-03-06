@@ -1,4 +1,6 @@
-import { DB } from '../server/utilities/databases.ts';
+import { DB } from '../server/utilities/databases';
 
-const v = await DB.getVersion();
-console.log('Database version:', v.join('.'));
+(async () => {
+    const v = await DB.getVersion();
+    console.log('Database version:', v.join('.'));
+})();

@@ -62,10 +62,10 @@ export class EventEmitter<allowedEvents = string | number | '*'> {
             return;
         }
 
-        this.events.get(event)?.forEach((callback) => callback(...args));
+        this.events.get(event)?.forEach(callback => callback(...args));
         this.events
             .get('*' as allowedEvents)
-            ?.forEach((callback) => callback(...args));
+            ?.forEach(callback => callback(...args));
     }
 
     /**
@@ -86,7 +86,7 @@ export class EventEmitter<allowedEvents = string | number | '*'> {
         if (callback) {
             this.events.set(
                 event,
-                this.events.get(event)?.filter((cb) => cb !== callback) ?? [],
+                this.events.get(event)?.filter(cb => cb !== callback) ?? []
             );
         } else {
             this.events.set(event, []);

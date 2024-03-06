@@ -99,25 +99,26 @@ export type Result<T, E = Error> = Ok<T> | Err<E, T>;
  */
 export const attempt = <T = unknown, E = Error>(
     fn: () => T,
-    parseError?: (error: Error) => E,
+    parseError?: (error: Error) => E
 ): Result<T, E> => {
     try {
         return new Ok(fn());
     } catch (e) {
+        console.error('[check.ts]', e);
         if (parseError) {
             const err = attempt(
-                () => parseError(e),
-                (e) => 'Error parsing error: ' + e,
+                () => parseError(e as Error),
+                e => 'Error parsing error: ' + e
             );
             if (err.isOk()) {
                 // console.warn(err.value);
                 return new Err(err.value);
             }
             // console.warn(err.error, e);
-            return new Err(e);
+            return new Err(e) as Result<T, E>;
         }
         // console.warn(e);
-        return new Err(e);
+        return new Err(e) as Result<T, E>;
     }
 };
 /**
@@ -128,25 +129,25 @@ export const attempt = <T = unknown, E = Error>(
  */
 export const attemptAsync = async <T = unknown, E = Error>(
     fn: () => Promise<T>,
-    parseError?: (error: Error) => E,
+    parseError?: (error: Error) => E
 ): Promise<Result<T, E>> => {
     try {
         return new Ok(await fn());
     } catch (e) {
         if (parseError) {
             const err = attempt(
-                () => parseError(e),
-                (e) => 'Error parsing error: ' + e,
+                () => parseError(e as Error),
+                e => 'Error parsing error: ' + e
             );
             if (err.isOk()) {
                 // console.warn(err.value);
                 return new Err(err.value);
             }
             // console.warn(err.error, e);
-            return new Err(e);
+            return new Err(e) as Result<T, E>;
         }
         // console.warn(e);
-        return new Err(e);
+        return new Err(e) as Result<T, E>;
     }
 };
 
@@ -197,7 +198,7 @@ export const check = (data: unknown, type: Primitive | O | A): boolean => {
         JSON.stringify(data);
     } catch (error) {
         console.error(
-            'Invalid data, it is likely that you have a circular reference in your "data" definition',
+            'Invalid data, it is likely that you have a circular reference in your "data" definition'
         );
         return false;
     }
@@ -206,7 +207,7 @@ export const check = (data: unknown, type: Primitive | O | A): boolean => {
         JSON.stringify(type);
     } catch (error) {
         console.error(
-            'Invalid type, it is likely that you have a circular reference in your "type" definition',
+            'Invalid type, it is likely that you have a circular reference in your "type" definition'
         );
         return false;
     }
@@ -219,12 +220,12 @@ export const check = (data: unknown, type: Primitive | O | A): boolean => {
         if (isArray(type)) {
             return (
                 isArray(data) &&
-                data.every((item) => type.some((t) => runCheck(item, t)))
+                data.every(item => type.some(t => runCheck(item, t)))
             );
         }
 
         if (isObject(data) && isObject(type)) {
-            return Object.keys(type).every((key) =>
+            return Object.keys(type).every(key =>
                 runCheck(data[key], type[key])
             );
         }
@@ -236,8 +237,8 @@ export const check = (data: unknown, type: Primitive | O | A): boolean => {
 };
 
 export const resolveAll = <T>(results: Result<T>[]): Result<T[]> => {
-    if (results.some((r) => r.isErr())) {
-        const e = results.find((r) => r.isErr());
+    if (results.some(r => r.isErr())) {
+        const e = results.find(r => r.isErr());
         if (e && e.isErr()) {
             // this should always be true
             return new Err(e.error);
@@ -245,11 +246,11 @@ export const resolveAll = <T>(results: Result<T>[]): Result<T[]> => {
     }
 
     return new Ok(
-        results.map((r) => {
+        results.map(r => {
             if (r.isOk()) {
                 return r.value;
             }
             return null as T; // this should never happen
-        }),
+        })
     );
 };

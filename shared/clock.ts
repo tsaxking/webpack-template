@@ -29,7 +29,7 @@ export const months: string[] = [
     'September',
     'October',
     'November',
-    'December',
+    'December'
 ];
 
 export const monthsShort: string[] = [
@@ -44,7 +44,7 @@ export const monthsShort: string[] = [
     'Sept',
     'Oct',
     'Nov',
-    'Dec',
+    'Dec'
 ];
 
 /**
@@ -60,7 +60,7 @@ export const days: string[] = [
     'Wednesday',
     'Thursday',
     'Friday',
-    'Saturday',
+    'Saturday'
 ];
 
 export const daysShort: string[] = [
@@ -70,7 +70,7 @@ export const daysShort: string[] = [
     'Wed',
     'Thu',
     'Fri',
-    'Sat',
+    'Sat'
 ];
 
 /**
@@ -110,7 +110,7 @@ export const dateString = (format: string) => {
                 .replace(/MMM/g, monthsShort[DATE.getMonth()].toString())
                 .replace(
                     /MM/g,
-                    (DATE.getMonth() + 1).toString().padStart(2, '0'),
+                    (DATE.getMonth() + 1).toString().padStart(2, '0')
                 )
                 .replace(/month/gi, months[DATE.getMonth()].toString())
                 // day
@@ -132,14 +132,14 @@ export const dateString = (format: string) => {
                 .replace(/ss/g, DATE.getSeconds().toString().padStart(2, '0'))
                 .replace(
                     /ms/g,
-                    DATE.getMilliseconds().toString().padStart(3, '0'),
+                    DATE.getMilliseconds().toString().padStart(3, '0')
                 )
                 // time no padding
                 .replace(
                     /h/g,
                     DATE.getHours() > 12
                         ? (DATE.getHours() - 12).toString()
-                        : DATE.getHours().toString(),
+                        : DATE.getHours().toString()
                 ) // 12 hour
                 .replace(/m/g, DATE.getMinutes().toString())
                 .replace(/s/g, DATE.getSeconds().toString())
@@ -184,7 +184,7 @@ const timezoneOffsets = {
     SST: -11, // Samoa Standard Time
     SDT: -10, // Samoa Daylight Time
     CHST: 10, // Chamorro Standard Time
-    UTC: 0, // Coordinated Universal Time
+    UTC: 0 // Coordinated Universal Time
 };
 
 type Timezone = keyof typeof timezoneOffsets;

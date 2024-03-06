@@ -4,7 +4,7 @@ import {
     choose,
     confirm,
     prompt,
-    select,
+    select
 } from '../../utilities/notifications';
 
 const createButton = (text: string, onClick: () => void) => {

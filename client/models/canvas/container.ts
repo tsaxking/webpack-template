@@ -14,7 +14,7 @@ export class Container extends Drawable<Container> {
 
     set children(children: (Drawable | null)[]) {
         this.$children = children;
-        this.filter((child) => child !== null);
+        this.filter(child => child !== null);
     }
 
     get children() {
@@ -29,12 +29,12 @@ export class Container extends Drawable<Container> {
         fn: (
             element: Drawable | null,
             i: number,
-            arr: (Drawable | null)[],
-        ) => boolean,
+            arr: (Drawable | null)[]
+        ) => boolean
     ) {
         this.$filtered = this.$children
             .filter(fn)
-            .filter((child) => child !== null) as Drawable[];
+            .filter(child => child !== null) as Drawable[];
     }
 
     sort(fn: (a: Drawable, b: Drawable) => number) {
@@ -42,16 +42,16 @@ export class Container extends Drawable<Container> {
     }
 
     draw(ctx: CanvasRenderingContext2D) {
-        this.$filtered.forEach((child) => child.draw(ctx));
+        this.$filtered.forEach(child => child.draw(ctx));
     }
 
     isIn(point: Point2D) {
-        return this.$filtered.some((child) => child.isIn(point));
+        return this.$filtered.some(child => child.isIn(point));
     }
 
     clone(): Container {
         const c = new Container(
-            ...this.$children.map((child) => child?.clone() || null),
+            ...this.$children.map(child => child?.clone() || null)
         );
         copy(this, c);
         return c;

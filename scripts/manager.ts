@@ -1,16 +1,20 @@
-import { select } from './prompt.ts';
-import { Colors } from '../server/utilities/colors.ts';
-import { attemptAsync, Result } from '../shared/check.ts';
-import { __root, relative, resolve } from '../server/utilities/env.ts';
-import Filter from 'npm:bad-words';
-import { capitalize, fromCamelCase } from '../shared/text.ts';
-import { accounts } from './manager/accounts.ts';
-import { roles } from './manager/roles.ts';
-import { statuses } from './manager/status.ts';
-import { permissions } from './manager/permissions.ts';
-import { databases } from './manager/database.ts';
-import { general } from './manager/general.ts';
-import { serverController } from './manager/server-controller.ts';
+import { select } from './prompt';
+import { Colors } from '../server/utilities/colors';
+import { attemptAsync, Result } from '../shared/check';
+import { __root } from '../server/utilities/env';
+import Filter from 'bad-words';
+import { capitalize, fromCamelCase } from '../shared/text';
+import { accounts } from './manager/accounts';
+import { roles } from './manager/roles';
+import { statuses } from './manager/status';
+import { permissions } from './manager/permissions';
+import { databases } from './manager/database';
+import { general } from './manager/general';
+import { serverController } from './manager/server-controller';
+import fs from 'fs';
+import path from 'path';
+
+const { resolve, relative } = path;
 
 export const icons = {
     success: '✅',
@@ -29,7 +33,7 @@ export const icons = {
     create: '➕',
     restore: '🔄',
     back: '⬅️',
-    controller: '🎮',
+    controller: '🎮'
 };
 
 const colorTitle = (str: string) => name(str, Colors.FgBlue);
@@ -58,9 +62,9 @@ export const title = (t: string) => {
 };
 
 export const selectBootstrapColor = async (
-    message = 'Select a color',
+    message = 'Select a color'
 ): Promise<string> => {
-    const runSelect = async () => {
+    const runSelect = async (): Promise<string> => {
         const data = await attemptAsync(async () => {
             return await select(
                 message,
@@ -72,11 +76,11 @@ export const selectBootstrapColor = async (
                     'warning',
                     'info',
                     'light',
-                    'dark',
-                ].map((i) => ({
+                    'dark'
+                ].map(i => ({
                     name: i,
-                    value: i,
-                })),
+                    value: i
+                }))
             );
         });
 
@@ -90,7 +94,7 @@ export const selectBootstrapColor = async (
 export const selectFile = async (
     dir: string,
     message = 'Select a file or directory',
-    test?: (file: string) => boolean,
+    test?: (file: string) => boolean
 ): Promise<Result<string>> => {
     const root = relative(__root, dir);
     dir = root;
@@ -103,22 +107,28 @@ export const selectFile = async (
     };
 
     const run = async (dir: string): Promise<string | null> => {
-        const entries = Array.from(Deno.readDirSync(dir));
+        // const entries = Array.from(Deno.readDirSync(dir));
+        const entries = Array.from(fs.readdirSync(dir)).map(e => ({
+            name: e,
+            isDirectory: fs.statSync(e).isDirectory(),
+            isFile: fs.statSync(e).isFile(),
+            isSymlink: fs.lstatSync(e).isSymbolicLink()
+        }));
         entries.push({
             name: '..',
             isDirectory: true,
             isFile: false,
-            isSymlink: false,
+            isSymlink: false
         });
 
         const data = await select(
             message,
-            entries.map((e) => ({
+            entries.map(e => ({
                 name: e.isDirectory
                     ? `${dirIcon} ${e.name}`
                     : `${fileIcon} ${e.name}`,
-                value: e,
-            })),
+                value: e
+            }))
         );
 
         if (data) {
@@ -158,7 +168,7 @@ export const selectFile = async (
 
 export const selectDir = async (
     dir: string,
-    message = 'Select a directory',
+    message = 'Select a directory'
 ): Promise<Result<string>> => {
     const root = relative(__root, dir);
     // dir = root;
@@ -173,30 +183,35 @@ export const selectDir = async (
     };
 
     const run = async (dir: string): Promise<string | null> => {
-        const entries = Array.from(Deno.readDirSync(dir)).filter(
-            (e) => e.isDirectory,
-        );
+        const entries = Array.from(fs.readdirSync(dir))
+            .filter(e => fs.statSync(e).isDirectory())
+            .map(e => ({
+                name: e,
+                isDirectory: true,
+                isFile: false,
+                isSymlink: fs.lstatSync(e).isSymbolicLink()
+            }));
         entries.push({
             name: '..',
             isDirectory: true,
             isFile: false,
-            isSymlink: false,
+            isSymlink: false
         });
         entries.unshift({
             name: '[Select this directory]',
             isDirectory: false,
             isFile: false,
-            isSymlink: false,
+            isSymlink: false
         });
 
         const data = await select(
             message,
-            entries.map((e) => ({
+            entries.map(e => ({
                 name: e.isDirectory
                     ? `${dirIcon} ${e.name}`
                     : `${dirIcon} ${e.name}`,
-                value: e,
-            })),
+                value: e
+            }))
         );
 
         if (data) {
@@ -206,7 +221,7 @@ export const selectDir = async (
                 // if they reached this point, they selected the current directory
                 if (!rootTest(dir)) {
                     console.log(
-                        `Invalid directory, the directory must be in ${root}`,
+                        `Invalid directory, the directory must be in ${root}`
                     );
                     return run(dir);
                 }
@@ -240,10 +255,11 @@ export const main = async () => {
     title('Welcome to the Task Manager!');
     const exit = () => {
         console.log('Goodbye!');
-        Deno.exit(0);
+        // Deno.exit(0);
+        process.exit(0);
     };
 
-    if (Deno.args.includes('-h') || Deno.args.includes('--help')) {
+    if (process.argv.includes('-h') || process.argv.includes('--help')) {
         console.log('This is a task manager for the server');
         console.log('It allows you to perform various tasks');
 
@@ -252,12 +268,10 @@ export const main = async () => {
             value: () => Promise<void>;
             description?: string;
         }): string => {
-            return `  ${s.icon} ${
-                name(
-                    s.value.name,
-                    Colors.FgMagenta,
-                )
-            } ${s.description}`;
+            return `  ${s.icon} ${name(
+                s.value.name,
+                Colors.FgMagenta
+            )} ${s.description}`;
         };
 
         const doMap = (
@@ -265,7 +279,7 @@ export const main = async () => {
                 icon: string;
                 value: () => Promise<void>;
                 description?: string;
-            }[],
+            }[]
         ) => data.map(map);
 
         console.log(
@@ -283,8 +297,8 @@ export const main = async () => {
                 colorTitle('Permissions'),
                 ...doMap(permissions),
                 colorTitle('Databases'),
-                ...doMap(databases),
-            ].join('\n'),
+                ...doMap(databases)
+            ].join('\n')
         );
 
         await select('', ['[Exit]']).then(exit);
@@ -297,7 +311,7 @@ export const main = async () => {
             value: () => void;
             description?: string;
         }[],
-        icon: string,
+        icon: string
     ) => {
         if (!data.length) return [];
         return [
@@ -308,19 +322,15 @@ export const main = async () => {
                     const res = await select(
                         `Please select a task for ${name}`,
                         [
-                            ...data.map((d) => ({
-                                name: `${d.icon} ${
-                                    capitalize(
-                                        fromCamelCase(d.value.name),
-                                    )
-                                }`,
+                            ...data.map(d => ({
+                                name: `${d.icon} ${capitalize(
+                                    fromCamelCase(d.value.name)
+                                )}`,
                                 value: async () => {
                                     title(
-                                        `${name} > ${
-                                            capitalize(
-                                                fromCamelCase(d.value.name),
-                                            )
-                                        }`,
+                                        `${name} > ${capitalize(
+                                            fromCamelCase(d.value.name)
+                                        )}`
                                     );
 
                                     try {
@@ -329,17 +339,17 @@ export const main = async () => {
                                         console.error(e);
                                         return await select('', ['[Ok]']);
                                     }
-                                },
+                                }
                             })),
                             {
                                 name: `${icons.back} [Back]`,
-                                value: main,
+                                value: main
                             },
                             {
                                 name: `${icons.exit} Exit`,
-                                value: exit,
-                            },
-                        ],
+                                value: exit
+                            }
+                        ]
                     );
 
                     if (res) {
@@ -347,8 +357,8 @@ export const main = async () => {
                     } else {
                         backToMain('No tasks selected');
                     }
-                },
-            },
+                }
+            }
         ];
     };
 
@@ -362,8 +372,8 @@ export const main = async () => {
         ...makeObj('Databases', databases, icons.database),
         {
             name: `${icons.exit} Exit`,
-            value: exit,
-        },
+            value: exit
+        }
     ]);
 
     await fn();

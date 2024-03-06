@@ -9,8 +9,8 @@ module.exports = {
         '@typescript-eslint/no-explicit-any': 'warn',
         '@typescript-eslint/no-unused-vars': [
             'warn',
-            { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
-        ],
+            { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }
+        ]
     },
 
     parserOptions: {
@@ -18,5 +18,5 @@ module.exports = {
         // tsconfigRootDir: __dirname,
     },
 
-    ignorePatterns: ['node_modules/', 'dist/', '**/*.js', '**/submodules/'],
+    ignorePatterns: ['node_modules/', 'dist/', '**/*.js', '**/submodules/']
 };

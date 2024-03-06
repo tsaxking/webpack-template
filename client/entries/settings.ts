@@ -10,8 +10,8 @@ new Settings({
                 type: 'select',
                 options: ['Light', 'Dark'],
                 bindTo: 'theme',
-                value: 'Dark',
-            },
-        ],
-    },
+                value: 'Dark'
+            }
+        ]
+    }
 });

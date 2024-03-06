@@ -1,7 +1,7 @@
 import { Drawable } from './drawable';
 import {
     Point2D,
-    Point3D,
+    Point3D
 } from '../../../shared/submodules/calculations/src/linear-algebra/point';
 import { copy } from '../../../shared/copy';
 
@@ -18,12 +18,12 @@ export class Path extends Drawable<Path> {
      */
     draw(ctx: CanvasRenderingContext2D) {
         ctx.beginPath();
-        const points = this.points.map((p) => this.reflect(p));
+        const points = this.points.map(p => this.reflect(p));
 
         if (!points[0]) return;
         ctx.moveTo(
             points[0][0] * ctx.canvas.width,
-            points[0][1] * ctx.canvas.height,
+            points[0][1] * ctx.canvas.height
         );
         if (this.$properties?.line?.color) {
             ctx.strokeStyle = this.$properties.line?.color;
@@ -34,7 +34,7 @@ export class Path extends Drawable<Path> {
         for (let i = 1; i < this.points.length; i++) {
             ctx.lineTo(
                 points[i][0] * ctx.canvas.width,
-                points[i][1] * ctx.canvas.height,
+                points[i][1] * ctx.canvas.height
             );
         }
         ctx.stroke();
@@ -46,14 +46,14 @@ export class Path extends Drawable<Path> {
 
     isIn(point: Point2D) {
         const [px, py] = point;
-        return this.points.some((p) => {
+        return this.points.some(p => {
             const [x, y] = this.reflect(p);
             return px === x && py === y;
         });
     }
 
     clone(): Path {
-        const p = new Path(this.points.map((p) => [...p]));
+        const p = new Path(this.points.map(p => [...p]));
         copy(this, p);
         return p;
     }

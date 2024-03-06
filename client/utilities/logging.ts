@@ -12,7 +12,7 @@ const runLog = (type: 'log' | 'error' | 'warn', ...args: unknown[]) => {
             ServerRequest.post('/error', {
                 type,
                 date: d,
-                args: args ? JSON.stringify(args) : '',
+                args: args ? JSON.stringify(args) : ''
             });
         }
     }

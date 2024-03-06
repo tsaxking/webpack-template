@@ -1,4 +1,4 @@
-import { EventEmitter } from './event-emitter.ts';
+import { EventEmitter } from './event-emitter';
 
 /**
  * Options for the state stack
@@ -56,7 +56,7 @@ export class State<T = unknown> {
      */
     constructor(
         public readonly data: T,
-        private readonly stack: StateStack<T>,
+        private readonly stack: StateStack<T>
     ) {}
 
     /**
@@ -218,7 +218,7 @@ export class StateStack<T = unknown> {
      */
     on<K extends keyof StateStackEventData<T>>(
         event: K,
-        callback: (data: StateStackEventData<T>[K]) => void,
+        callback: (data: StateStackEventData<T>[K]) => void
     ): void {
         this.$emitter.on(event, callback);
     }
@@ -233,7 +233,7 @@ export class StateStack<T = unknown> {
      */
     off<K extends keyof StateStackEventData<T>>(
         event: K,
-        callback?: (data: StateStackEventData<T>[K]) => void,
+        callback?: (data: StateStackEventData<T>[K]) => void
     ): void {
         this.$emitter.off(event, callback);
     }
@@ -248,7 +248,7 @@ export class StateStack<T = unknown> {
      */
     emit<K extends keyof StateStackEventData<T>>(
         event: K,
-        data: StateStackEventData<T>[K],
+        data: StateStackEventData<T>[K]
     ): void {
         this.$emitter.emit(event, data);
     }
@@ -395,7 +395,7 @@ export class BranchStack<T = unknown> {
      */
     on<K extends keyof BranchEventData<T>>(
         event: K,
-        callback: (data: BranchEventData<T>[K]) => void,
+        callback: (data: BranchEventData<T>[K]) => void
     ): void {
         this.$emitter.on(event, callback);
     }
@@ -410,7 +410,7 @@ export class BranchStack<T = unknown> {
      */
     off<K extends keyof BranchEventData<T>>(
         event: K,
-        callback?: (data: BranchEventData<T>[K]) => void,
+        callback?: (data: BranchEventData<T>[K]) => void
     ): void {
         this.$emitter.off(event, callback);
     }

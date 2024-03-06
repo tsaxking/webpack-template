@@ -11,7 +11,7 @@ export class Surface extends Drawable<Surface> {
         public resolution: number,
         // for drawing the 3d surface on the 2d canvas
         // this is called every time the surface is drawn
-        public transformMatrix: [Point3D, Point3D, Point3D],
+        public transformMatrix: [Point3D, Point3D, Point3D]
     ) {
         super();
         this.createTriangles();
@@ -24,16 +24,16 @@ export class Surface extends Drawable<Surface> {
                     i,
                     j / this.resolution,
                     this.fz(i / this.resolution, j / this.resolution) *
-                    this.resolution,
+                        this.resolution
                 ];
             });
             // need to flatten the array because the array is an array of arrays, and we want an array of points
         }).flat() as Point3D[];
 
-        const max = Math.max(...a.map((p) => p[2]));
+        const max = Math.max(...a.map(p => p[2]));
         // normalize the z values
 
-        return a.map((p) => {
+        return a.map(p => {
             return [p[0], p[1], p[2] / max];
         });
     }
@@ -80,7 +80,7 @@ export class Surface extends Drawable<Surface> {
         if (!this.triangles.length) this.createTriangles();
         for (const triangle of this.triangles) {
             const { points } = triangle;
-            triangle.points = points.map((p) =>
+            triangle.points = points.map(p =>
                 transform(p as Point3D, this.transformMatrix)
             );
             triangle.draw(ctx);

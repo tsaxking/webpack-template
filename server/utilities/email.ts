@@ -1,12 +1,9 @@
-import nodemailer from 'npm:nodemailer';
-import sgTransport from 'npm:nodemailer-sendgrid-transport';
-import { config } from 'npm:dotenv';
-import { Constructor, FileError, getTemplateSync } from './files.ts';
-import env from './env.ts';
-import { error } from './terminal-logging.ts';
-import { Result } from '../../shared/check.ts';
-
-config();
+import nodemailer from 'nodemailer';
+import { sgTransport } from '@neoxia-js/nodemailer-sendgrid-transport';
+import { Constructor, FileError, getTemplateSync } from './files';
+import env from './env';
+import { error } from './terminal-logging';
+import { Result } from '../../shared/check';
 
 /**
  * Sendgrid transporter, used to send emails
@@ -16,11 +13,10 @@ config();
  */
 const transporter = nodemailer.createTransport(
     sgTransport({
-        service: 'gmail',
         auth: {
-            api_key: env.SENDGRID_API_KEY,
-        },
-    }),
+            apiKey: env.SENDGRID_API_KEY || ''
+        }
+    })
 );
 
 /**
@@ -53,7 +49,7 @@ export type EmailOptions = {
 export enum EmailType {
     link,
     text,
-    error,
+    error
 }
 
 /**
@@ -79,7 +75,7 @@ export class Email {
         public to: string | string[],
         public subject: string,
         public type: EmailType,
-        public options: EmailOptions,
+        public options: EmailOptions
     ) {}
 
     /**
@@ -98,7 +94,7 @@ export class Email {
                 ...(constructor || {}),
                 logo: (env.DOMAIN || '') + (env.LOGO || ''),
                 homeLink: (env.DOMAIN || '') + (env.HOME_LINK || ''),
-                footer: env.FOOTER || '',
+                footer: env.FOOTER || ''
             };
 
             let r: Result<string, FileError> | undefined;
@@ -128,20 +124,20 @@ export class Email {
                     to,
                     subject,
                     html,
-                    attachments,
+                    attachments
                 };
 
-                return new Promise((resolve) => {
+                return new Promise(resolve => {
                     transporter.sendMail(
-                        mailOptions,
-                        (err: Error, info: { response: string }) => {
-                            if (err) {
-                                console.error(err);
-                            } else {
-                                console.log('Email sent: ' + info.response);
-                                resolve(info);
-                            }
-                        },
+                        mailOptions
+                        // (err: Error, info: { response: string }) => {
+                        //     if (err) {
+                        //         console.error(err);
+                        //     } else {
+                        //         console.log('Email sent: ' + info.response);
+                        //         resolve(info);
+                        //     }
+                        // },
                     );
                 });
             }

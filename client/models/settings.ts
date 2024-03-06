@@ -186,9 +186,9 @@ export class Settings {
         callbackfn: (
             value: unknown,
             key: string,
-            map: Map<string, unknown>,
+            map: Map<string, unknown>
         ) => void,
-        thisArg?: unknown,
+        thisArg?: unknown
     ) {
         this.$settings.forEach(callbackfn, thisArg);
     }
@@ -204,7 +204,7 @@ export class Settings {
     static async change() {
         if (!Account.current) return; // local changes only
         await ServerRequest.post('/account/set-settings', {
-            settings: JSON.stringify([...this.$settings]),
+            settings: JSON.stringify([...this.$settings])
         });
     }
 
@@ -220,7 +220,7 @@ export class Settings {
      */
     static on<K extends keyof SettingsEvents>(
         event: K,
-        listener: (value: SettingsEvents[K]) => void,
+        listener: (value: SettingsEvents[K]) => void
     ) {
         Settings.$emitter.on(event, listener);
     }
@@ -237,7 +237,7 @@ export class Settings {
      */
     static once<K extends keyof SettingsEvents>(
         event: K,
-        listener: (value: SettingsEvents[K]) => void,
+        listener: (value: SettingsEvents[K]) => void
     ) {
         Settings.$emitter.once(event, listener);
     }
@@ -254,7 +254,7 @@ export class Settings {
      */
     static off<K extends keyof SettingsEvents>(
         event: K,
-        listener: (value: SettingsEvents[K]) => void,
+        listener: (value: SettingsEvents[K]) => void
     ) {
         Settings.$emitter.off(event, listener);
     }
@@ -270,7 +270,7 @@ export class Settings {
      */
     static emit<K extends keyof SettingsEvents>(
         event: K,
-        value: SettingsEvents[K],
+        value: SettingsEvents[K]
     ) {
         Settings.$emitter.emit(event, value);
     }

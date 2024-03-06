@@ -1,12 +1,12 @@
-import { backToMain } from '../manager.ts';
-import { repeatPrompt, search } from '../prompt.ts';
-import Account from '../../server/structure/accounts.ts';
-import { attemptAsync, Result } from '../../shared/check.ts';
-import { addRoleToAccount, removeRoleFromAccount } from './roles.ts';
+import { backToMain } from '../manager';
+import { repeatPrompt, search, confirm } from '../prompt';
+import Account from '../../server/structure/accounts';
+import { attemptAsync, Result } from '../../shared/check';
+import { addRoleToAccount, removeRoleFromAccount } from './roles';
 
 export const selectAccount = async (
     message = 'select an account',
-    filter: (a: Account) => boolean = () => true,
+    filter: (a: Account) => boolean = () => true
 ): Promise<Result<Account | undefined>> => {
     return attemptAsync(async () => {
         const accounts = (await Account.getAll()).filter(filter);
@@ -16,19 +16,19 @@ export const selectAccount = async (
 
         const res = await search(
             message,
-            accounts.map((a) => a.username),
+            accounts.map(a => a.username)
         );
 
         if (res.isErr()) return;
 
-        return accounts.find((a) => a.username === res.value);
+        return accounts.find(a => a.username === res.value);
     });
 };
 
 export const verifyAccount = async () => {
     const account = await selectAccount(
         'Select an account to verify',
-        (a) => !a.verified,
+        a => !a.verified
     );
 
     if (account.isErr()) return backToMain('No accounts to verify');
@@ -43,7 +43,7 @@ export const verifyAccount = async () => {
 export const unverifyAccount = async () => {
     const res = await selectAccount(
         'Select an account to unverify',
-        (a) => !!a.verified,
+        a => !!a.verified
     );
 
     if (res.isErr()) return backToMain('No accounts to unverify');
@@ -61,7 +61,7 @@ export const removeAccount = async () => {
     if (account.isOk()) {
         if (!account.value) return backToMain('Could not find account :(');
         const isGood = await confirm(
-            `Are you sure you want to remove this account? (${account.value.username})`,
+            `Are you sure you want to remove this account? (${account.value.username})`
         );
         if (isGood) {
             Account.delete(account.value.id);
@@ -72,41 +72,41 @@ export const removeAccount = async () => {
     }
 };
 export const createAccount = async () => {
-    const username = repeatPrompt(
+    const username = await repeatPrompt(
         'Enter the username',
         undefined,
         (str: string) => Account.isValid(str).valid,
-        false,
+        false
     );
-    const password = repeatPrompt(
+    const password = await repeatPrompt(
         'Enter the password',
         undefined,
-        (data) => !!data.length,
-        false,
+        data => !!data.length,
+        false
     );
-    repeatPrompt(
+    await repeatPrompt(
         'Confirm the password',
         undefined,
-        (data) => data === password,
-        false,
+        data => data === password,
+        false
     );
-    const email = repeatPrompt(
+    const email = await repeatPrompt(
         'Enter the email',
         undefined,
-        (data) => !!data.length && /^.+@.+\..+$/.test(data),
-        false,
+        data => !!data.length && /^.+@.+\..+$/.test(data),
+        false
     );
-    const firstName = repeatPrompt(
+    const firstName = await repeatPrompt(
         'Enter the first name',
         undefined,
         (str: string) => Account.isValid(str).valid,
-        false,
+        false
     );
-    const lastName = repeatPrompt(
+    const lastName = await repeatPrompt(
         'Enter the last name',
         undefined,
         (str: string) => Account.isValid(str).valid,
-        false,
+        false
     );
 
     const a = await Account.create(
@@ -114,7 +114,7 @@ export const createAccount = async () => {
         password,
         email,
         firstName,
-        lastName,
+        lastName
     );
 
     if (a.status === 'created') {
@@ -128,31 +128,31 @@ export const accounts = [
     {
         icon: '🔍',
         value: verifyAccount,
-        description: 'Verify an account',
+        description: 'Verify an account'
     },
     {
         icon: '🗑️',
         value: removeAccount,
-        description: 'Remove an account',
+        description: 'Remove an account'
     },
     {
         icon: '📝',
         value: createAccount,
-        description: 'Create an account',
+        description: 'Create an account'
     },
     {
         icon: '🔄',
         value: unverifyAccount,
-        description: 'Unverify an account',
+        description: 'Unverify an account'
     },
     {
         icon: '➕',
         value: addRoleToAccount,
-        description: 'Add a role to an account',
+        description: 'Add a role to an account'
     },
     {
         icon: '➖',
         value: removeRoleFromAccount,
-        description: 'Remove a role from an account',
-    },
+        description: 'Remove a role from an account'
+    }
 ];
