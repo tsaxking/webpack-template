@@ -2,7 +2,7 @@ import FuzzySearch from 'fuzzy-search';
 import { Colors } from '../server/utilities/colors';
 import { attemptAsync, Result } from '../shared/check';
 import prompts from 'prompts';
-import { stdin } from '../server/utilities/stdin';
+// import {choose} from '@putout/cli-choose';
 
 export const prompt = async (message: string): Promise<string> => {
     const res = await prompts({
@@ -52,14 +52,11 @@ type Option<T = unknown> = {
     value: T;
 };
 
-export const _select = async <T>(
+const _select = async <T = unknown>(
     message: string,
-    options: {
-        name: string;
-        value: T;
-    }[]
+    options: Option<T>[]
 ): Promise<T> => {
-    const data = await new Promise<T>(res => {
+    const res = await new Promise<T>(res => {
         const run = (selected: number) => {
             console.clear();
             console.log(Colors.FgBlue, '?', Colors.Reset, message, '\n');
@@ -98,17 +95,17 @@ export const _select = async <T>(
             } else if (key === '\u001b[B') {
                 selected = selected === options.length - 1 ? 0 : selected + 1;
                 run(selected);
+            } else {
+                return;
             }
 
             stdin.off('data', handleKey);
-        };
+        }
+
         run(selected);
     });
 
-    process.stdin.pause();
-    process.stdin.setRawMode(false);
-
-    return data;
+    return res;
 };
 
 export const select = async <T = unknown>(

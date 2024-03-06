@@ -6,15 +6,20 @@ import fs from 'fs';
 
 const { resolve } = path;
 
-const runPrompt = (
+const runPrompt = async (
     message: string,
     defaultValue?: string,
     validation?: (data: string) => boolean,
     allowBlank?: boolean
-): string => {
+): Promise<string> => {
     if (process.argv.includes('--default')) return defaultValue || '';
     if (validation) {
-        const r = repeatPrompt(message, undefined, validation, allowBlank);
+        const r = await repeatPrompt(
+            message,
+            undefined,
+            validation,
+            allowBlank
+        );
         if (r) return r;
         else return defaultValue || '';
     }
@@ -22,7 +27,7 @@ const runPrompt = (
     return r;
 };
 
-const createEnv = () => {
+const createEnv = async () => {
     const values: {
         [key: string]: string | number;
     } = {
@@ -47,7 +52,7 @@ const createEnv = () => {
         );
     }
 
-    const setKey = (
+    const setKey = async (
         key: string,
         message: string,
         defaultValue?: string,
@@ -55,7 +60,12 @@ const createEnv = () => {
         allowBlank = true
     ) => {
         if (typeof values[key] !== 'undefined') return;
-        const value = runPrompt(message, defaultValue, validation, allowBlank);
+        const value = await runPrompt(
+            message,
+            defaultValue,
+            validation,
+            allowBlank
+        );
         if (value) {
             values[key] = value;
 
@@ -68,81 +78,87 @@ const createEnv = () => {
     };
 
     // APP
-    setKey(
+    await setKey(
         'PORT',
         'Port: (default: 3000)',
         '3000',
         i => +i > 0 && +i < 65535,
         true
     );
-    setKey(
+    await setKey(
         'SOCKET_PORT',
         'Session Port: (default: 3001)',
         '3001',
         i => +i > 0 && +i < 65535,
         true
     );
-    setKey(
+    await setKey(
         'ENVIRONMENT',
         'Environment: (default: dev)',
         'dev',
         i => ['dev', 'prod'].includes(i),
         true
     );
-    setKey(
+    await setKey(
         'DOMAIN',
         'Domain: (default: localhost)',
         'http://localhost:' + values['PORT'],
         i => i.length > 0,
         true
     );
-    setKey(
+    await setKey(
         'SOCKET_DOMAIN',
         'Socket Domain: (default: localhost)',
         'http://localhost:' + values['SOCKET_PORT'],
         i => i.length > 0,
         true
     );
-    setKey(
+    await setKey(
         'TITLE',
         'Title: (default: My App)',
         'My App',
         i => i.length > 0,
         true
     );
-    setKey('AUTO_SIGN_IN', 'Auto Sign In: (no default)', '', undefined, true);
+    await setKey(
+        'AUTO_SIGN_IN',
+        'Auto Sign In: (no default)',
+        '',
+        undefined,
+        true
+    );
 
     // API KEYS
-    setKey(
+    await setKey(
         'SENDGRID_API_KEY',
         'Sendgrid API Key: (no default)',
         '',
         undefined,
         true
     );
-    setKey(
+    await setKey(
         'SENDGRID_DEFAULT_FROM',
         'Sendgrid Default From: (no default)',
         '',
         undefined,
         true
     );
-    setKey(
+    await setKey(
         'SEND_STATUS_EMAILS',
         'Send Status Emails: (default: false) (y/n)',
         'FALSE',
         i => ['y', 'n'].includes(i),
         true
     );
-    setKey('TBA_KEY', 'TBA Key: (no default)', '', undefined, true);
-    setKey(
+    await setKey('TBA_KEY', 'TBA Key: (no default)', '', undefined, true);
+    await setKey(
         'RANDOM_KEY_AUTH',
         'Random Key Auth: (no default)',
         '',
         undefined,
         true
     );
-    setKey(
+    await setKey(
         'RANDOM_KEY_LINK',
         'Random Key Link: (no default)',
         '',
@@ -151,56 +167,56 @@ const createEnv = () => {
     );
 
     // DATABASE
-    setKey(
+    await setKey(
         'DATABASE_USER',
         'Database User: (default user)',
         'user',
         i => i.length > 0,
         true
     );
-    setKey(
+    await setKey(
         'DATABASE_PASSWORD',
         'Database Password: (default 1234)',
         '1234',
         i => i.length > 0,
         true
     );
-    setKey(
+    await setKey(
         'DATABASE_NAME',
         'Database Name: (default template1)',
         'template1',
         i => i.length > 0,
         true
     );
-    setKey(
+    await setKey(
         'DATABASE_HOST',
         'Database Host: (default localhost)',
         'localhost',
         i => i.length > 0,
         true
     );
-    setKey(
+    await setKey(
         'DATABASE_PORT',
         'Database Port: (default 5432)',
         '5432',
         i => i.length > 0,
         true
     );
-    setKey(
+    await setKey(
         'MINIFY',
         'Minify: (default: n) (y/n)',
         'n',
         i => ['y', 'n'].includes(i),
         true
     );
-    setKey(
+    await setKey(
         'RECAPTCHA_SITE_KEY',
         'Recaptcha Site Key: (no default)',
         '',
         undefined,
         true
     );
-    setKey(
+    await setKey(
         'RECAPTCHA_SECRET_KEY',
         'Recaptcha Secret Key: (no default)',
         '',

@@ -540,7 +540,9 @@ export class ServerRequest<T = unknown> {
                 if (xhr.readyState === 4) {
                     clearInterval(interval);
                     emitter.emit('complete', e);
-                    const data = JSON.parse(xhr.responseText || '{}');
+                    const data = JSON.parse(
+                        xhr.responseText || '{}'
+                    ) as StatusJson;
                     if (data.$status) {
                         // this is a notification
                         const d = data as StatusJson;
@@ -601,7 +603,10 @@ export class ServerRequest<T = unknown> {
 
                 let i = 0;
                 let last: string | undefined;
-                reader.read().then(function process({ done, value }) {
+                reader.read().then(async function process({
+                    done,
+                    value
+                }): Promise<ReadableStreamReadResult<Uint8Array> | undefined> {
                     if (done) {
                         emitter.emit('complete', output);
                         return;
@@ -775,7 +780,7 @@ export class ServerRequest<T = unknown> {
                 },
                 body: JSON.stringify(this.body)
             })
-                .then(r => r.json())
+                .then(r => r.json() as Promise<T>)
                 .then(async data => {
                     data = bigIntDecode(data);
 
@@ -783,7 +788,7 @@ export class ServerRequest<T = unknown> {
                         if (this.cached) log(data, '(cached)');
                         else log(data);
                     }
-                    if (data?.$status) {
+                    if ((data as StatusJson)?.$status) {
                         // this is a notification
                         const d = data as StatusJson;
                         notify(
@@ -800,10 +805,11 @@ export class ServerRequest<T = unknown> {
                     this.duration = Date.now() - start;
                     this.response = data;
 
-                    if (data?.redirect) {
-                        if (typeof data.sleep !== 'number') data.sleep = 1000;
-                        await sleep(data.sleep);
-                        location.href = data.redirect;
+                    if ((data as StatusJson)?.redirect) {
+                        if (typeof (data as StatusJson).sleep !== 'number')
+                            (data as StatusJson).sleep = 1000;
+                        await sleep((data as StatusJson).sleep as number);
+                        location.href = (data as StatusJson).redirect as string;
                     }
                     res(data as T);
                 })

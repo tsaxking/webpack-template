@@ -149,7 +149,7 @@ const start = () => {
         frames: 1000
     });
 
-    spline.magnitude = 5;
+    // spline.magnitude = 5;
 
     s.$properties.line = {
         color: Color.fromBootstrap('primary').toString('rgba'),

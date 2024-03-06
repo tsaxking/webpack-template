@@ -181,7 +181,10 @@ export class Img extends Drawable<Img> {
     }
 
     clone(): Img {
-        const i = new Img(this.src, JSON.parse(JSON.stringify(this.options)));
+        const i = new Img(
+            this.src,
+            JSON.parse(JSON.stringify(this.options)) as CanvasImgOptions
+        );
         i.x = this.x;
         i.y = this.y;
         i.width = this.width;

@@ -21,7 +21,8 @@ const myApp = new App({
             id: '1',
             name: 'Test',
             description: 'Test',
-            rank: 1
+            rank: 1,
+            permissions: []
         }),
         deletable: true
     }

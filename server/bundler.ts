@@ -74,6 +74,9 @@ export class Builder {
         console.log('Watching:', dir);
         const watcher = fs.watch(
             path.resolve(__dirname, '../', dir),
+            {
+                recursive: true
+            },
             (event, _filename) => {
                 if (event === 'change' || event === 'rename') {
                     this.build();

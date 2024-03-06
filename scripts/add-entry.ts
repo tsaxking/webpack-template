@@ -59,9 +59,9 @@ const myApp = new App({ target: document.body });
 //     runEntryPrompt();
 // }
 
-if (require.main) {
-    console.warn(
-        `⚠️ ${Colors.FgYellow}Running this script will be deprecated soon, please use "deno task manager" and select [General] -> Create Entry instead.${Colors.Reset} ⚠️`
-    );
-    runEntryPrompt();
-}
+// if (require.main) {
+//     console.warn(
+//         `⚠️ ${Colors.FgYellow}Running this script will be deprecated soon, please use "deno task manager" and select [General] -> Create Entry instead.${Colors.Reset} ⚠️`
+//     );
+//     runEntryPrompt();
+// }

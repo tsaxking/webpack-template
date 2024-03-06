@@ -149,4 +149,5 @@ export type StatusJson = StatusMessage & {
     data?: {
         [key: string]: unknown;
     };
+    sleep?: number;
 };
