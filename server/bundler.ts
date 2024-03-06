@@ -25,33 +25,34 @@ const readDir = async (dirPath: string): Promise<string[]> => {
                 const fullpath = path.resolve(dirPath, e);
 
                 if ((await fs.promises.stat(fullpath)).isFile()) {
+                    const templateFilePath = path.resolve(
+                        __templates,
+                        'entries',
+                        path.relative(__entries, fullpath)
+                    ).replace('.ts','.html')
+
                     const index = await getTemplate('index', {
                         script: path.relative(
-                            path.resolve(__templates, fullpath),
+                            templateFilePath,
+                            path.resolve(
+                            __root,
+                            'dist',
+                            path.relative(__entries, fullpath)
+                        )).replace('.ts','.js'),
+                        style: 
+                        path.relative(
+                            templateFilePath,
                             path.resolve(
                                 __root,
                                 'dist',
-                                dirPath.split('/').slice(3).join('/'),
-                                e.replace('.ts', '.js')
-                            )
-                        ),
-                        style: path.relative(
-                            path.resolve(__templates, fullpath),
-                            path.resolve(
-                                __root,
-                                'dist',
-                                dirPath.split('/').slice(3).join('/'),
-                                e.replace('.ts', '.css')
-                            )
+                                path.relative(__entries, fullpath)
+                            ).replace('.ts','.css')
                         ),
                         title: env.TITLE || 'Untitled'
                     });
                     if (index.isOk()) {
                         await saveTemplate(
-                            path.resolve(
-                                __templates,
-                                path.relative(__entries, fullpath)
-                            ),
+                            templateFilePath,
                             index.value
                         );
                     }

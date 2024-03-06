@@ -39,7 +39,8 @@ export class Session {
         req: express.Request,
         res: express.Response
     ): Promise<Session> {
-        const id = req.cookies?.[Session.sessionName];
+        const id = req.headers.cookie?.split(';').find(c => c.includes('ssid'))?.split('=')[1];
+        console.log(id);
         if (id) {
             const s = await Session.get(app, id);
             if (s) return s;
@@ -160,11 +161,11 @@ export class Session {
         res: express.Response
     ): Session {
         const s = new Session(app, req);
-        res.cookie(Session.sessionName, s.id, {
-            maxAge: Session.cookieOptions.maxAge,
-            httpOnly: Session.cookieOptions.httpOnly,
-            path: '/'
-        });
+        // res.cookie(Session.sessionName, s.id, {
+        //     maxAge: Session.cookieOptions.maxAge,
+        //     httpOnly: Session.cookieOptions.httpOnly,
+        //     path: '/'
+        // });
         // req.cookies[Session.sessionName] = s.id;
 
         DB.run('sessions/new', {
