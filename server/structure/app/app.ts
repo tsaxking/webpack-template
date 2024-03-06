@@ -190,6 +190,7 @@ export class App {
 
     public readonly io: SocketWrapper;
     public readonly server: express.Application;
+    public readonly finalFunctions: FinalFunction<unknown>[] = [];
 
     constructor(
         public readonly port: number,
@@ -232,15 +233,25 @@ export class App {
         ...fn: ServerFunction<T>[]
     ) {
         this.server[method](path, async (req: express.Request, _res, next) => {
+            const final = async () => {
+                // console.log('Final');
+                // if (!req.response.fulfilled) return console.log('Not fulfilled');
+                for (const fn of this.finalFunctions) {
+                    await fn(req.request as Req<unknown>, req.response);
+                } 
+            }
             try {
                 const run = async (i: number) => {
+                    // console.log('Running:', i);
                     if (i >= fn.length) return next();
                     await fn[i](req.request as Req<T>, req.response, () =>
                         run(i + 1)
                     );
+                    // console.log('Ran:', i, 'of', fn.length, 'for', path);
                 };
 
                 await run(0);
+                await final();
             } catch (e) {
                 req.response.sendStatus('unknown:error');
             }
@@ -275,13 +286,7 @@ export class App {
         this.server.use(path, express.static(dirPath));
     }
 
-    public final(fn: FinalFunction<unknown>) {
-        // this.server.use(async (req: express.Request, res: express.Response) => {
-        //     try {
-        //         await fn(req.request, req.response);
-        //     } catch (e) {
-        //         req.response.sendStatus('unknown:error');
-        //     }
-        // });
+    public final<T>(fn: FinalFunction<T>) {
+        this.finalFunctions.push(fn as FinalFunction<unknown>);
     }
 }

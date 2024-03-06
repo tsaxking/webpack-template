@@ -14,6 +14,8 @@ type FileBody = B & {
 export type ReqBody = B | FileBody;
 
 export class Req<T = unknown> {
+    public readonly start = Date.now();
+
     constructor(
         public readonly app: App,
         public readonly req: express.Request,

@@ -40,7 +40,7 @@ export class Session {
         res: express.Response
     ): Promise<Session> {
         const id = req.headers.cookie?.split(';').find(c => c.includes('ssid'))?.split('=')[1];
-        console.log(id);
+        // console.log(id);
         if (id) {
             const s = await Session.get(app, id);
             if (s) return s;
@@ -84,7 +84,7 @@ export class Session {
      * @type {CookieOptions}
      */
     static cookieOptions: CookieOptions = {
-        maxAge: 60 * 60 * 24 * 7,
+        maxAge: 60 * 60 * 24 * 7 * 1000,
         httpOnly: true,
         sameSite: 'Strict'
     };

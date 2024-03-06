@@ -1,6 +1,6 @@
 import express from 'express';
 import { App } from './app';
-import { attempt } from '../../../shared/check';
+import { attempt, Result } from '../../../shared/check';
 import { StatusCode, StatusId } from '../../../shared/status-messages';
 import { bigIntEncode } from '../../../shared/objects';
 import { Status } from '../../utilities/status';
@@ -24,30 +24,43 @@ type StreamEventData<T> = {
 };
 
 export class Res {
+    public fulfilled = false;
+    public _status: StatusCode = 200;
+
     constructor(
         public readonly app: App,
         public readonly res: express.Response,
         public readonly req: Req
     ) {}
 
+    private isFulfilled() {
+        if (this.fulfilled) {
+            throw new Error('Response already fulfilled');
+        }
+        this.fulfilled = true;
+        return false;
+    }
+
     json(data: unknown) {
-        return attempt(() => this.res.json(data));
+        return attempt(() => {
+            if (!this.isFulfilled()) this.res.json(data)});
     }
 
     send(data: string) {
-        return attempt(() => this.res.send(data));
+        return attempt(() => {if (!this.isFulfilled())this.res.send(data)});
     }
 
     sendFile(path: string) {
-        return attempt(() => this.res.sendFile(path));
+        return attempt(() => {if (!this.isFulfilled()) this.res.sendFile(path)});
     }
 
     status(code: StatusCode) {
+        this._status = code;
         return this.res.status(code);
     }
 
     redirect(path: string) {
-        return attempt(() => this.res.redirect(path));
+        return attempt(() => {if (!this.isFulfilled())this.res.redirect(path)});
     }
 
     cookie(name: string, value: string, options: express.CookieOptions) {
@@ -77,38 +90,41 @@ export class Res {
         });
     }
 
-    stream<T = unknown>(content: T[]): EventEmitter<keyof StreamEventData<T>> {
-        const em = new EventEmitter<keyof StreamEventData<T>>();
+    stream<T = unknown>(content: T[]): Result<EventEmitter<keyof StreamEventData<T>>> {
+        return attempt(() => {
+            this.isFulfilled();
+            const em = new EventEmitter<keyof StreamEventData<T>>();
 
-        const stream = new ReadableStream({
-            start: controller => {
-                const send = (i: number) => {
-                    if (i < content.length) {
-                        const buffer = new TextEncoder().encode(
-                            JSON.stringify(bigIntEncode(content[i]))
-                        );
-                        controller.enqueue(buffer);
-                        setTimeout(() => send(i + 1), 100);
-                        em.emit('chunk', content[i]);
-                    } else {
-                        controller.close();
-                        em.emit('end');
-                    }
-                };
+            const stream = new ReadableStream({
+                start: controller => {
+                    const send = (i: number) => {
+                        if (i < content.length) {
+                            const buffer = new TextEncoder().encode(
+                                JSON.stringify(bigIntEncode(content[i]))
+                            );
+                            controller.enqueue(buffer);
+                            setTimeout(() => send(i + 1), 100);
+                            em.emit('chunk', content[i]);
+                        } else {
+                            controller.close();
+                            em.emit('end');
+                        }
+                    };
 
-                send(0);
-            },
+                    send(0);
+                },
 
-            cancel() {
-                em.emit('cancel');
-            },
+                cancel() {
+                    em.emit('cancel');
+                },
 
-            type: 'bytes'
+                type: 'bytes'
+            });
+
+            this.res.write(stream);
+
+            return em;
         });
-
-        this.res.write(stream);
-
-        return em;
     }
 
     sendTemplate(path: string, options?: Constructor) {
