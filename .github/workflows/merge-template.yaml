@@ -14,16 +14,16 @@ jobs:
             matrix:
                 templates:
                     [
-                        budgeting,
-                        sfz,
-                        minecraft,
-                        scouting-app,
-                        tators-dashboard,
-                        personal-website,
-                        cadre,
-                        audio-part-picker,
-                        scouting-webcam,
-                        random
+                        tsaxking/template-budgeting,
+                        tsaxking/template-sfz,
+                        tsaxking/template-minecraft,
+                        tsaxking/template-scouting-app,
+                        tsaxking/template-tators-dashboard,
+                        tsaxking/template-personal-website,
+                        tsaxking/template-cadre,
+                        tsaxking/template-audio-part-picker,
+                        tsaxking/template-scouting-webcam,
+                        tsaxking/template-random
                     ]
 
         steps:
@@ -45,7 +45,7 @@ jobs:
                   echo "Creating variables"
                   LATEST_TAG=$(git describe --tags --always --abbrev=0)
                   LAST_COMMIT_MESSAGE=$(git log -1 --pretty=%B)
-                  REPOSITORY="tsaxking/template-${{ matrix.templates }}"
+                  REPOSITORY="${{ matrix.templates }}"
                   BRANCH_NAME="chore-update-scripts-to-$LATEST_TAG"
                   echo " latest tag: $LATEST_TAG"
                   echo " repository: $REPSOITORY"
@@ -62,7 +62,7 @@ jobs:
                   # git clone \
                   #   --depth=1 \
                   #   --branch=main \
-                  #   git@github.com:tsaxking/template-${{ matrix.templates }}.git
+                  #   git@github.com:${{ matrix.templates }}.git
                   # ls -la
 
                   # cd template-${{ matrix.templates }}
@@ -75,7 +75,7 @@ jobs:
                   echo "Changing remote"
                   # Change the remote to the repository we want to push to.
                   git remote rm origin
-                  git remote add origin git@github.com:tsaxking/template-${{ matrix.templates }}.git
+                  git remote add origin git@github.com:${{ matrix.templates }}.git
 
                   echo "Checking out Branch: $BRANCH_NAME"
                   # Create a new feature branch for the changes.
