@@ -332,12 +332,6 @@ export const messages: {
         code: 400,
         instructions: 'Please try again.'
     },
-    'files:missing': {
-        message: 'Files were missing during upload',
-        color: 'danger',
-        code: 400,
-        instructions: ''
-    },
     'files:no-files': {
         message: 'Request was empty',
         color: 'danger',
@@ -349,12 +343,6 @@ export const messages: {
         color: 'danger',
         code: 400,
         instructions: 'Please try again.'
-    },
-    'files:too-many': {
-        message: 'Attempted to upload too many files',
-        color: 'danger',
-        code: 413,
-        instructions: ''
     },
     'files:too-many-files': {
         message: 'Too many files were uploaded',
@@ -721,10 +709,8 @@ export type StatusId =
     | 'admin:invalid-key'
     | 'files:invalid'
     | 'files:invalid-extension'
-    | 'files:missing'
     | 'files:no-files'
     | 'files:too-large'
-    | 'files:too-many'
     | 'files:too-many-files'
     | 'files:unknown-error'
     | 'files:uploaded'
@@ -825,13 +811,11 @@ export type AdminStatusId = 'invalid-key';
 export type FilesStatusId =
     | 'invalid'
     | 'invalid-extension'
-    | 'missing'
     | 'no-files'
     | 'too-large'
     | 'too-many-files'
     | 'unknown-error'
-    | 'uploaded'
-    | 'too-many';
+    | 'uploaded';
 
 export type MemberStatusId =
     | 'accepted'

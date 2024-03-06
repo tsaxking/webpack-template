@@ -175,6 +175,14 @@ export class Route {
     public delete<T>(path: string, ...fn: ServerFunction<T>[]) {
         this.addListener(RequestMethod.DELETE, path, ...fn);
     }
+
+    public use<T>(path: string, ...fn: ServerFunction<T>[]) {
+        this.addListener(RequestMethod.USE, path, ...fn);
+    }
+
+    public route(path: string, route: Route) {
+        this.router.use(path, route.router);
+    }
 }
 
 export class App {

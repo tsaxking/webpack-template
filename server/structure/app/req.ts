@@ -15,6 +15,7 @@ export type ReqBody = B | FileBody;
 
 export class Req<T = unknown> {
     public readonly start = Date.now();
+    private $files: FileUpload[] = [];
 
     constructor(
         public readonly app: App,
@@ -85,6 +86,10 @@ export class Req<T = unknown> {
     }
 
     public get files() {
-        return this.req.files as Express.Multer.File[];
+        return this.$files;
+    }
+
+    public set files(files: FileUpload[]) {
+        this.$files = files;
     }
 }

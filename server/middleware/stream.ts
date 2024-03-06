@@ -4,7 +4,11 @@ import { ServerFunction } from '../structure/app/app';
 import { Req } from '../structure/app/req';
 import { Res } from '../structure/app/res';
 import { EventEmitter } from '../../shared/event-emitter';
-import multer from 'multer';
+import busboy from 'busboy';
+import { uuid } from '../utilities/uuid';
+import { StatusId } from '../../shared/status-messages';
+import path from 'path';
+import fs from 'fs';
 
 /**
  * Options for file upload streams
@@ -40,33 +44,73 @@ export type FileUpload = {
 export const fileStream = (opts?: FileStreamOptions): ServerFunction => {
     createUploadsFolder();
 
-    const upload = multer({
-        dest: __uploads,
-        limits: {
-            fileSize: opts?.maxFileSize,
-            files: opts?.maxFiles
-        }
-    });
 
     return async (req, res, next) => {
-        const { files } = req;
-        if (!files) {
-            return res.sendStatus('files:missing');
-        }
+        const bb = busboy({ headers: req.req.headers });        
+        
+        let { maxFileSize, extensions } = opts || {};
+        extensions = extensions?.map((e) => e.toLowerCase()) || [];
+        maxFileSize = maxFileSize ? maxFileSize : 1024 * 1024 * 10;
+        let sent = false;
 
-        if (files.length > (opts?.maxFiles ?? 1)) {
-            return res.sendStatus('files:too-many');
-        }
-
-        if (opts?.extensions) {
-            for (const file of files) {
-                if (!opts.extensions.includes(file.mimetype)) {
-                    return res.sendStatus('files:invalid-extension');
-                }
+        const sendStatus = (status: StatusId, data: unknown) => {
+            if (!sent) {
+                sent = true;
+                res.sendStatus(status, data);
             }
-        }
+        };
 
-        upload.array('files', opts?.maxFiles ?? 1)(req.req, res.res, next);
+        const generateFileId = () => {
+            return uuid() + '-' + Date.now();
+        };
+
+        const files: FileUpload[] = [];
+
+        bb.on('file', (name, file, info) => {
+            const { filename } = info;
+            const id = generateFileId();
+            const ext = filename.split('.').pop() || '';
+            const savedName = id + '.' + ext;
+
+
+            file.on('data', (data) => {
+                if (data.length > (maxFileSize as number)) {
+                    return sendStatus('files:too-large', {
+                        name: filename,
+                        size: data
+                    });
+                }
+
+                files.push({
+                    id,
+                    name: savedName,
+                    ext,
+                    size: data?.length || 0,
+                });
+            });
+
+            file.on('end', () => {});
+
+            if (ext && (extensions as string[]).length && !(extensions as string[]).includes(ext)) {
+                return sendStatus('files:invalid-extension', {
+                    name: filename,
+                    ext
+                });
+            }
+
+            const filepath = path.resolve(__uploads, savedName);
+            const ws = fs.createWriteStream(filepath);
+
+            file.pipe(ws);
+        });
+
+        bb.on('close', () => {
+            sendStatus('files:uploaded', {});
+            req.files = files;
+            next();
+        });
+
+        req.req.pipe(bb);
     };
 };
 
