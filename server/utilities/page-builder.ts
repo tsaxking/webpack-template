@@ -65,9 +65,9 @@ export const homeBuilder = async (url: string) => {
     return attemptAsync(async () => {
         const [footerResult, navbarResult] = await Promise.all([
             getTemplate('components/footer', {
-                year: new Date().getFullYear(),
+                year: new Date().getFullYear()
             }),
-            navBuilder(url, false),
+            navBuilder(url, false)
         ]);
 
         if (footerResult.isErr()) throw new Error(footerResult.error);
@@ -77,7 +77,7 @@ export const homeBuilder = async (url: string) => {
             pageTitle: capitalize(fromSnakeCase(url, '-')).slice(1),
             content: builds[url] ? await builds[url]() : '',
             footer: footerResult.value,
-            navbar: navbarResult.value,
+            navbar: navbarResult.value
         });
 
         if (r.isErr()) throw new Error(r.error);
@@ -94,17 +94,17 @@ export const homeBuilder = async (url: string) => {
 export const navBuilder = async (url: string, offcanvas: boolean) => {
     return await getTemplate('components/navbar', {
         offcanvas: {
-            offcanvas,
+            offcanvas
         },
-        navbarRepeat: await getJSON<string[]>('pages/home').then((r) => {
+        navbarRepeat: await getJSON<string[]>('pages/home').then(r => {
             if (r.isErr()) throw new Error(r.error);
             return r.value.map((page: string) => {
                 return {
                     active: '/' + page === url,
                     name: capitalize(fromSnakeCase(page, '-')),
-                    link: '/' + page,
+                    link: '/' + page
                 };
             });
-        }),
+        })
     });
 };

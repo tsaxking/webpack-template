@@ -15,7 +15,7 @@ type TextOptions = {
 export class Icon extends Drawable<MaterialIcon> {
     constructor(
         public readonly icon: MaterialIcon,
-        public readonly options: Partial<TextOptions> = {},
+        public readonly options: Partial<TextOptions> = {}
     ) {
         super();
     }

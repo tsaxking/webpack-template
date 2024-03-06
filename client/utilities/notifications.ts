@@ -20,15 +20,13 @@ export const notify = <T extends 'toast' | 'alert'>(
         message: string;
         color: Color;
     },
-    type: T,
+    type: T
 ): Toast | Alert => {
     const status = capitalize(fromSnakeCase(fromCamelCase(data.title), '-'));
 
-    const title = `${status}: ${
-        capitalize(
-            fromSnakeCase(fromCamelCase(data.status), '-'),
-        )
-    }`;
+    const title = `${status}: ${capitalize(
+        fromSnakeCase(fromCamelCase(data.status), '-')
+    )}`;
     console.log(data);
 
     const setAnimation = async (target: Alert | Toast) => {
@@ -36,7 +34,7 @@ export const notify = <T extends 'toast' | 'alert'>(
             target.target.classList.add(
                 'animate__animated',
                 'animate__fadeOutUp',
-                'animate__faster',
+                'animate__faster'
             );
             const onEnd = () => {
                 target.target.removeEventListener('animationend', onEnd);
@@ -75,7 +73,7 @@ export const notify = <T extends 'toast' | 'alert'>(
  * @async
  */
 export const alert = async (message: string): Promise<void> => {
-    return new Promise<void>((res) => {
+    return new Promise<void>(res => {
         const m = new Modal();
         m.setTitle('Alert');
         const p = document.createElement('p');
@@ -97,7 +95,7 @@ export const alert = async (message: string): Promise<void> => {
  * @returns {Promise<boolean>}
  */
 export const confirm = async (message: string): Promise<boolean | null> => {
-    return new Promise<boolean | null>((res) => {
+    return new Promise<boolean | null>(res => {
         let resolved = false;
         const doRes = (val: boolean | null) => {
             if (resolved) return;
@@ -146,7 +144,7 @@ export const confirm = async (message: string): Promise<boolean | null> => {
  * @returns {Promise<string|null>}
  */
 export const prompt = async (question: string): Promise<string | null> => {
-    return new Promise<string | null>((res) => {
+    return new Promise<string | null>(res => {
         let resolved = false;
         const doRes = (val: string | null) => {
             if (resolved) return;
@@ -206,9 +204,9 @@ export const prompt = async (question: string): Promise<string | null> => {
 
 export const select = async (
     question: string,
-    options: string[],
+    options: string[]
 ): Promise<number> => {
-    return new Promise<number>((res) => {
+    return new Promise<number>(res => {
         let resolved = false;
         const doRes = (val: number) => {
             if (resolved) return;
@@ -277,9 +275,9 @@ export const select = async (
 export const choose = async <A extends string, B extends string>(
     question: string,
     option1: A,
-    option2: B,
+    option2: B
 ): Promise<null | A | B> => {
-    return new Promise<null | A | B>((res) => {
+    return new Promise<null | A | B>(res => {
         let resolved = false;
         const doRes = (val: null | A | B) => {
             if (resolved) return;

@@ -78,592 +78,592 @@ export const messages: {
         message: 'You are already logged in.',
         color: 'danger',
         code: 400,
-        instructions: 'Please log out.',
+        instructions: 'Please log out.'
     },
     'account:cannot-edit-other-account': {
         message: 'You cannot edit or view information about another account',
         color: 'danger',
         code: 400,
-        instructions: '',
+        instructions: ''
     },
     'account:cannot-edit-self': {
         message: 'You cannot edit this part of your account presently',
         color: 'danger',
         code: 403,
-        instructions: '',
+        instructions: ''
     },
     'account:cannot-reject-verified': {
         message: 'You cannot reject a verified account',
         color: 'danger',
         code: 403,
-        instructions: '',
+        instructions: ''
     },
     'account:check-email': {
         message:
             'An email was sent to the email address associated with this account',
         color: 'info',
         code: 200,
-        instructions: '',
+        instructions: ''
     },
     'account:created': {
         message: 'Your account has been created.',
         color: 'success',
         code: 200,
         instructions: 'You will be redirected to the login page',
-        redirect: '/account/sign-in',
+        redirect: '/account/sign-in'
     },
     'account:email-change-expired': {
         message: 'Your email change expired',
         color: 'danger',
         code: 400,
-        instructions: 'Please retry changing your email address',
+        instructions: 'Please retry changing your email address'
     },
     'account:email-taken': {
         message: 'That email is already taken.',
         color: 'danger',
         code: 400,
-        instructions: 'Please try another email.',
+        instructions: 'Please try another email.'
     },
     'account:has-role': {
         message: 'This account has this role already',
         color: 'danger',
         code: 400,
-        instructions: '',
+        instructions: ''
     },
     'account:incorrect-username-or-password': {
         message: 'Your username or password was incorrect, please try again',
         color: 'danger',
         code: 400,
-        instructions: 'Please try again.',
+        instructions: 'Please try again.'
     },
     'account:insufficient-permissions': {
         message: 'You do not have the permissions to send that request',
         color: 'danger',
         code: 403,
-        instructions: '',
+        instructions: ''
     },
     'account:invalid-email': {
         message: 'That email is invalid.',
         color: 'danger',
         code: 400,
-        instructions: 'Please try another email.',
+        instructions: 'Please try another email.'
     },
     'account:invalid-first-name': {
         message:
             'Your first name was invalid. It likely has characters that are not implemented yet.',
         color: 'danger',
         code: 400,
-        instructions: 'Please fix the first name',
+        instructions: 'Please fix the first name'
     },
     'account:invalid-last-name': {
         message:
             'Your last name was invalid. It likely has characters that are not implemented yet.',
         color: 'danger',
         code: 400,
-        instructions: 'Please fix the last name',
+        instructions: 'Please fix the last name'
     },
     'account:invalid-password': {
         message: 'That password is invalid.',
         color: 'danger',
         code: 400,
-        instructions: 'Please try another password.',
+        instructions: 'Please try another password.'
     },
     'account:invalid-password-reset-key': {
         message: 'Invalid password reset key.',
         color: 'danger',
         code: 400,
-        instructions: 'Please try again.',
+        instructions: 'Please try again.'
     },
     'account:invalid-settings': {
         message: 'Your settings were invalid, please try again',
         color: 'danger',
         code: 404,
-        instructions: '',
+        instructions: ''
     },
     'account:invalid-username': {
         message: 'That username is invalid.',
         color: 'danger',
         code: 400,
-        instructions: 'Please try another username.',
+        instructions: 'Please try another username.'
     },
     'account:invalid-verification-key': {
         message: 'Invalid verification key.',
         color: 'danger',
         code: 400,
-        instructions: 'Please try again.',
+        instructions: 'Please try again.'
     },
     'account:logged-in': {
         message: 'You have been logged in.',
         color: 'success',
         code: 200,
-        instructions: 'You will be redirected to the home page.',
+        instructions: 'You will be redirected to the home page.'
     },
     'account:logged-out': {
         message: 'You have been logged out.',
         color: 'success',
         code: 200,
         instructions: 'You will be redirected to the home page.',
-        redirect: '/home',
+        redirect: '/home'
     },
     'account:no-role': {
         message: 'This account does not have this role',
         color: 'danger',
         code: 400,
-        instructions: '',
+        instructions: ''
     },
     'account:not-found': {
         message: 'Account not found.',
         color: 'danger',
         code: 400,
-        instructions: 'Please try again.',
+        instructions: 'Please try again.'
     },
     'account:not-logged-in': {
         message: 'You are not logged in.',
         color: 'danger',
         code: 400,
-        instructions: 'Please log in.',
+        instructions: 'Please log in.'
     },
     'account:not-verified': {
         message: 'Account is not verified',
         color: 'danger',
         code: 403,
-        instructions: 'Please wait for your account to be verified',
+        instructions: 'Please wait for your account to be verified'
     },
     'account:password-mismatch': {
         message: 'Passwords do not match.',
         color: 'danger',
         code: 400,
-        instructions: 'Please try again.',
+        instructions: 'Please try again.'
     },
     'account:password-reset-request': {
         message: 'Password reset request has been sent to your email',
         color: 'success',
         code: 200,
         instructions:
-            'Please follow the instructions in the email to reset your password.',
+            'Please follow the instructions in the email to reset your password.'
     },
     'account:password-reset-success': {
         message: 'The password associated with this account has been updated',
         color: 'success',
         code: 200,
-        instructions: '',
+        instructions: ''
     },
     'account:picture-updated': {
         message: 'Added a picture to this account',
         color: 'success',
         code: 200,
-        instructions: '',
+        instructions: ''
     },
     'account:removed': {
         message: 'Account has been removed.',
         color: 'success',
         code: 200,
-        instructions: '',
+        instructions: ''
     },
     'account:role-added': {
         message: 'Added a role to this account',
         color: 'success',
         code: 200,
-        instructions: '',
+        instructions: ''
     },
     'account:role-removed': {
         message: 'Removed a role from this account',
         color: 'success',
         code: 200,
-        instructions: '',
+        instructions: ''
     },
     'account:server-error': {
         message: 'There was a server error.',
         color: 'danger',
         code: 500,
-        instructions: 'Please try again.',
+        instructions: 'Please try again.'
     },
     'account:settings-set': {
         message: 'Your settings have been saved',
         color: 'success',
         code: 200,
-        instructions: '',
+        instructions: ''
     },
     'account:unverified': {
         message: 'Account has been unverified',
         color: 'success',
         code: 200,
-        instructions: '',
+        instructions: ''
     },
     'account:updated': {
         message: 'Account has been updated.',
         color: 'success',
         code: 200,
-        instructions: '',
+        instructions: ''
     },
     'account:username-changed': {
         message: 'The username associated with this account has changed',
         color: 'success',
         code: 200,
-        instructions: '',
+        instructions: ''
     },
     'account:username-taken': {
         message: 'That username is already taken.',
         color: 'danger',
         code: 400,
-        instructions: 'Please try another username.',
+        instructions: 'Please try another username.'
     },
     'account:verified': {
         message: 'Account has been verified.',
         color: 'success',
         code: 200,
-        instructions: '',
+        instructions: ''
     },
     'admin:invalid-key': {
         message: 'Invalid key',
         color: 'danger',
         code: 400,
-        instructions: '',
+        instructions: ''
     },
     'files:invalid': {
         message: 'Invalid file',
         color: 'danger',
         code: 400,
-        instructions: 'Please try again.',
+        instructions: 'Please try again.'
     },
     'files:invalid-extension': {
         message: 'Invalid file extension',
         color: 'danger',
         code: 400,
-        instructions: 'Please try again.',
+        instructions: 'Please try again.'
     },
     'files:no-files': {
         message: 'Request was empty',
         color: 'danger',
         code: 400,
-        instructions: '',
+        instructions: ''
     },
     'files:too-large': {
         message: 'File too large',
         color: 'danger',
         code: 400,
-        instructions: 'Please try again.',
+        instructions: 'Please try again.'
     },
     'files:too-many-files': {
         message: 'Too many files were uploaded',
         color: 'danger',
         code: 413,
-        instructions: 'please upload fewer files',
+        instructions: 'please upload fewer files'
     },
     'files:unknown-error': {
         message: 'Unknown file uploading error',
         color: 'danger',
         code: 500,
-        instructions: '',
+        instructions: ''
     },
     'files:uploaded': {
         message: 'File uploaded',
         color: 'success',
         code: 200,
-        instructions: '',
+        instructions: ''
     },
     'member:accepted': {
         message: 'This member was accepted',
         color: 'success',
         code: 200,
-        instructions: '',
+        instructions: ''
     },
     'member:add-skill': {
         message: 'Skill added',
         color: 'success',
         code: 200,
-        instructions: '',
+        instructions: ''
     },
     'member:already-member': {
         message: 'This account is already a member',
         color: 'warning',
         code: 400,
-        instructions: '',
+        instructions: ''
     },
     'member:cannot-manage': {
         message: 'Cannot manage member',
         color: 'danger',
         code: 400,
-        instructions: '',
+        instructions: ''
     },
     'member:invalid-request': {
         message: 'Please send a valid request',
         color: 'danger',
         code: 400,
-        instructions: '',
+        instructions: ''
     },
     'member:membership-responded': {
         message: 'This membership request has already been responded to',
         color: 'danger',
         code: 400,
-        instructions: '',
+        instructions: ''
     },
     'member:not-found': {
         message: 'Member not found',
         color: 'danger',
         code: 400,
-        instructions: 'Please try again.',
+        instructions: 'Please try again.'
     },
     'member:not-member': {
         message: 'Not a member',
         color: 'danger',
         code: 400,
-        instructions: 'Please try again.',
+        instructions: 'Please try again.'
     },
     'member:rejected': {
         message: 'This member has been rejected',
         color: 'success',
         code: 200,
-        instructions: '',
+        instructions: ''
     },
     'member:remove-skill': {
         message: 'Skill removed',
         color: 'success',
         code: 200,
-        instructions: '',
+        instructions: ''
     },
     'member:request-sent': {
         message: 'Request sent',
         color: 'success',
         code: 200,
-        instructions: '',
+        instructions: ''
     },
     'member:revoked': {
         message: 'This membership has been revoked',
         color: 'success',
         code: 200,
-        instructions: '',
+        instructions: ''
     },
     'member:status-updated': {
         message: 'This member has been updated',
         color: 'success',
         code: 200,
-        instructions: '',
+        instructions: ''
     },
     'member:update-bio': {
         message: 'Bio updated',
         color: 'success',
         code: 200,
-        instructions: '',
+        instructions: ''
     },
     'member:update-resume': {
         message: 'Resume updated',
         color: 'success',
         code: 200,
-        instructions: '',
+        instructions: ''
     },
     'member:update-title': {
         message: 'Title updated',
         color: 'success',
         code: 200,
-        instructions: '',
+        instructions: ''
     },
     'page:not-found': {
         message: 'Page not found',
         color: 'danger',
         code: 404,
         instructions:
-            'This page was not found. Please check your link and try again.',
+            'This page was not found. Please check your link and try again.'
     },
     'permissions:added': {
         message: 'Added permission to role',
         color: 'success',
         code: 200,
-        instructions: '',
+        instructions: ''
     },
     'permissions:error': {
         message: 'Permissions error',
         color: 'danger',
         code: 401,
-        instructions: '',
+        instructions: ''
     },
     'permissions:forbidden': {
         message: 'Forbidden',
         color: 'danger',
         code: 403,
-        instructions: '',
+        instructions: ''
     },
     'permissions:invalid': {
         message: 'Invalid permissions',
         color: 'danger',
         code: 401,
-        instructions: '',
+        instructions: ''
     },
     'permissions:not-found': {
         message: 'Permission not found',
         color: 'danger',
         code: 404,
-        instructions: '',
+        instructions: ''
     },
     'permissions:removed': {
         message: 'Removed permissions from role',
         color: 'success',
         code: 200,
-        instructions: '',
+        instructions: ''
     },
     'permissions:unauthorized': {
         message: 'Unauthorized',
         color: 'danger',
         code: 401,
-        instructions: '',
+        instructions: ''
     },
     'profanity:detected': {
         message: 'Profanity detected',
         color: 'danger',
         code: 400,
-        instructions: 'Please try again.',
+        instructions: 'Please try again.'
     },
     'role:not-found': {
         message: 'Role was not found',
         color: 'danger',
         code: 404,
-        instructions: '',
+        instructions: ''
     },
     'roles:added': {
         message: 'Role added',
         color: 'success',
         code: 200,
-        instructions: '',
+        instructions: ''
     },
     'roles:added-permission': {
         message: 'Permission added to role',
         color: 'success',
         code: 200,
-        instructions: '',
+        instructions: ''
     },
     'roles:already-exists': {
         message: 'Role already exists',
         color: 'danger',
         code: 400,
-        instructions: '',
+        instructions: ''
     },
     'roles:cannot-edit-admin': {
         message: 'Cannot edit admin role',
         color: 'danger',
         code: 403,
-        instructions: '',
+        instructions: ''
     },
     'roles:deleted': {
         message: 'Role deleted',
         color: 'success',
         code: 200,
-        instructions: '',
+        instructions: ''
     },
     'roles:invalid-role': {
         message: 'Invalid role',
         color: 'danger',
         code: 400,
-        instructions: '',
+        instructions: ''
     },
     'roles:new': {
         message: 'Role created',
         color: 'success',
         code: 200,
-        instructions: '',
+        instructions: ''
     },
     'roles:not-found': {
         message: 'Role not found',
         color: 'danger',
         code: 400,
-        instructions: '',
+        instructions: ''
     },
     'roles:removed': {
         message: 'Role removed',
         color: 'success',
         code: 200,
-        instructions: '',
+        instructions: ''
     },
     'roles:removed-permission': {
         message: 'Permission removed from role',
         color: 'success',
         code: 200,
-        instructions: '',
+        instructions: ''
     },
     'roles:updated': {
         message: 'Role updated',
         color: 'success',
         code: 200,
-        instructions: '',
+        instructions: ''
     },
     'server:invalid-data': {
         message: 'Invalid data types received',
         color: 'danger',
         code: 400,
-        instructions: '',
+        instructions: ''
     },
     'server:not-implemented': {
         message: "This request's handler has not been implemented yet.",
         color: 'warning',
         code: 501,
-        instructions: '',
+        instructions: ''
     },
     'server:unknown-server-error': {
         message:
             'There was an unknown error. If this persists, please contact an administrator/developer.',
         color: 'danger',
         code: 500,
-        instructions: '',
+        instructions: ''
     },
     'session:rate-limited': {
         message: 'You are being rate limited',
         color: 'warning',
         code: 418,
-        instructions: '',
+        instructions: ''
     },
     'skills:added': {
         message: 'Skill added',
         color: 'success',
         code: 200,
-        instructions: '',
+        instructions: ''
     },
     'skills:has-skill': {
         message: 'User already has skill',
         color: 'danger',
         code: 400,
-        instructions: '',
+        instructions: ''
     },
     'skills:invalid-skill': {
         message: 'Invalid skill',
         color: 'danger',
         code: 400,
-        instructions: '',
+        instructions: ''
     },
     'skills:not-found': {
         message: 'Skill not found',
         color: 'danger',
         code: 400,
-        instructions: '',
+        instructions: ''
     },
     'skills:removed': {
         message: 'Skill removed',
         color: 'success',
         code: 200,
-        instructions: '',
+        instructions: ''
     },
     'spam:detected': {
         message: 'Spam detected',
         color: 'danger',
         code: 400,
-        instructions: 'Please try again.',
+        instructions: 'Please try again.'
     },
     'test:fail': {
         message: 'This test failed',
         color: 'danger',
         code: 400,
-        instructions: '',
+        instructions: ''
     },
     'test:success': {
         message: 'This test was successful',
         color: 'success',
         code: 200,
-        instructions: '',
+        instructions: ''
     },
     'unknown:error': {
         message: 'Unknown error',
         color: 'danger',
         code: 500,
-        instructions: 'Please try again.',
-    },
+        instructions: 'Please try again.'
+    }
 };
 
 export type StatusId =

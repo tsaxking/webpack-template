@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type Case<T = unknown, A = unknown> = [
     predicate: (value: T) => boolean,
-    fn: (value: T) => A,
+    fn: (value: T) => A
 ];
 
 export const match = <Type = unknown, ReturnType = unknown>(

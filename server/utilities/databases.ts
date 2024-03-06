@@ -10,7 +10,7 @@ import {
     fromSnakeCase,
     parseObject,
     toCamelCase,
-    toSnakeCase,
+    toSnakeCase
 } from '../../shared/text';
 import { bigIntDecode, bigIntEncode } from '../../shared/objects';
 import { daysTimeout } from '../../shared/sleep';
@@ -18,7 +18,6 @@ import { runTask } from './run-task';
 import { removeFile } from './files';
 import fs from 'fs';
 import path from 'path';
-
 
 /**
  * The name of the main database
@@ -31,7 +30,7 @@ const {
     DATABASE_PASSWORD,
     DATABASE_NAME,
     DATABASE_HOST,
-    DATABASE_PORT,
+    DATABASE_PORT
 } = env;
 
 {
@@ -79,8 +78,8 @@ type Parameter =
     | boolean
     | null
     | {
-        [key: string]: string | number | boolean | null;
-    };
+          [key: string]: string | number | boolean | null;
+      };
 
 type QParams<T extends keyof Queries> = Queries[T][0];
 
@@ -114,7 +113,7 @@ export class DB {
         database: DATABASE_NAME,
         host: DATABASE_HOST,
         password: DATABASE_PASSWORD,
-        port: Number(DATABASE_PORT),
+        port: Number(DATABASE_PORT)
     });
 
     private static connected = false;
@@ -141,7 +140,7 @@ export class DB {
     public static parseQuery(
         query: string,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        args: any[],
+        args: any[]
     ): [string, Parameter[]] {
         const copied = [...args]; // no dependencies
 
@@ -151,7 +150,7 @@ export class DB {
         const deCamelCase = (str: string) =>
             str.replace(
                 /[A-Z]*[a-z]+((\d)|([A-Z0-9][a-z0-9]+))*([A-Z])?/g,
-                (word) => {
+                word => {
                     // console.log(toSnakeCase(fromCamelCase(word)));
                     let w = toSnakeCase(fromCamelCase(word));
                     if (w.startsWith('_')) {
@@ -160,7 +159,7 @@ export class DB {
                         // w = w.charAt(0).toUpperCase() + w.slice(1);
                     }
                     return w;
-                },
+                }
             );
 
         const qMatches = query.match(/\?/g);
@@ -168,7 +167,7 @@ export class DB {
         if (qMatches) {
             if (qMatches.length !== args.length) {
                 throw new Error(
-                    `Number of parameters does not match number of ? in query. Query: ${query}, Parameters: ${copied}`,
+                    `Number of parameters does not match number of ? in query. Query: ${query}, Parameters: ${copied}`
                 );
             }
             // replace each ? with a $n
@@ -189,7 +188,7 @@ export class DB {
                 newArgs.push(
                     copied[0]
                         ? copied[0][matches[i].replace(/:/g, '')]
-                        : copied[i],
+                        : copied[i]
                 );
             }
             return [deCamelCase(query), newArgs];
@@ -199,7 +198,7 @@ export class DB {
     }
 
     private static parseObj<T extends object>(obj: T) {
-        return parseObject(obj, (str) => toCamelCase(fromSnakeCase(str)));
+        return parseObject(obj, str => toCamelCase(fromSnakeCase(str)));
     }
 
     static async getUsers(): Promise<Result<string[]>> {
@@ -211,11 +210,11 @@ export class DB {
                 FROM pg_roles
                 WHERE rolname != 'postgres'
                 ORDER BY rolname;
-            `,
+            `
             );
 
             if (res.isOk()) {
-                return res.value.map((r) => r.rolname);
+                return res.value.map(r => r.rolname);
             } else {
                 throw res.error;
             }
@@ -242,7 +241,7 @@ export class DB {
         const res = await DB.run('db/change-version', {
             major,
             minor,
-            patch,
+            patch
         });
 
         if (res.isErr()) console.log('Error setting version', res.error);
@@ -297,7 +296,7 @@ export class DB {
             const versions = await readDir('storage/db/queries/db/versions');
             if (versions.isOk()) {
                 return versions.value
-                    .map((v) => {
+                    .map(v => {
                         const [major, minor, patch] = v
                             .replace('.sql', '')
                             .split('-')
@@ -325,7 +324,7 @@ export class DB {
         return attemptAsync(async () => {
             console.log('Updating database to version', version.join('.'));
             const updateQuery = await readFile(
-                `storage/db/queries/db/versions/${version.join('-')}.sql`,
+                `storage/db/queries/db/versions/${version.join('-')}.sql`
             );
 
             if (updateQuery.isOk()) {
@@ -336,31 +335,28 @@ export class DB {
                 if (res.isOk()) {
                     console.log(
                         'Database updated to version',
-                        version.join('.'),
+                        version.join('.')
                     );
 
-                    const script = `storage/db/scripts/versions/${
-                        version.join(
-                            '-',
-                        )
-                    }`;
+                    const script = `storage/db/scripts/versions/${version.join(
+                        '-'
+                    )}`;
                     // see if update script exists
                     const scriptExists = await exists(script);
 
                     if (scriptExists) {
                         console.log('Running update script', version.join('.'));
-                        const scriptRes = await runTask(
-                            'run',
-                            ['--allow-all',
+                        const scriptRes = await runTask('run', [
+                            '--allow-all',
                             script,
                             '--update',
-                            version.join('.'),]
-                        );
+                            version.join('.')
+                        ]);
                         if (scriptRes.isErr()) {
                             console.log(
                                 'Error running update script',
                                 version.join('.'),
-                                scriptRes.error,
+                                scriptRes.error
                             );
                             await DB.restoreBackup(b.value);
                             throw scriptRes.error;
@@ -375,7 +371,7 @@ export class DB {
                     console.log(
                         'Error updating database to version',
                         version,
-                        res.error,
+                        res.error
                     );
                     await DB.restoreBackup(b.value);
                     throw res.error;
@@ -391,7 +387,7 @@ export class DB {
         return attemptAsync(async () => {
             const backups = await readDir('storage/db/backups');
             if (backups.isOk()) {
-                return backups.value.map((b) => b);
+                return backups.value.map(b => b);
             }
             return [];
         });
@@ -401,7 +397,7 @@ export class DB {
         return attemptAsync(async () => {
             const [tables, version] = await Promise.all([
                 DB.getTables(),
-                DB.getVersion(),
+                DB.getVersion()
             ]);
 
             // if (['0.0.0', '-1.-1.-1'].includes(version.join('.'))) {
@@ -416,11 +412,11 @@ export class DB {
 
             // pull all data from each table
             await Promise.all(
-                tables.value.map(async (table) => {
+                tables.value.map(async table => {
                     const data = await DB.unsafe.all(`SELECT * FROM ${table}`);
                     if (data.isOk()) backup[table] = data.value;
                     else throw data.error;
-                }),
+                })
             );
 
             const copy = bigIntEncode(backup);
@@ -452,12 +448,10 @@ export class DB {
             const tables = await DB.getTables();
             if (tables.isErr()) throw tables.error;
             const res = await Promise.all(
-                tables.value.map((table) =>
-                    DB.unsafe.run(`DROP TABLE ${table};`)
-                ),
+                tables.value.map(table => DB.unsafe.run(`DROP TABLE ${table};`))
             );
 
-            if (res.every((r) => r.isOk())) {
+            if (res.every(r => r.isOk())) {
                 console.log('Database reset');
                 return b.value;
             } else {
@@ -477,7 +471,7 @@ export class DB {
             if (resetRes.isErr()) {
                 console.log('Error resetting database', resetRes.error);
                 console.log(
-                    'Reinitializing database, and restoring its current version...',
+                    'Reinitializing database, and restoring its current version...'
                 );
 
                 const updateRes = await DB.updateToVersion(currentVersion);
@@ -490,7 +484,7 @@ export class DB {
             const version = backupName.split('_')[0].split('-').map(Number) as [
                 number,
                 number,
-                number,
+                number
             ];
             const updateRes = await DB.updateToVersion(version);
             if (updateRes.isErr()) throw updateRes.error;
@@ -514,19 +508,18 @@ export class DB {
 
             console.log('Inserting...', tables);
             const res = await Promise.all(
-                tables.map(async (table) => {
+                tables.map(async table => {
                     const res = await attemptAsync(async () => {
                         const rows = data[table];
                         const cols = Object.keys(rows[0] || {});
                         if (!cols.length) return; // no data to insert
 
                         const colNames = cols.join(', ');
-                        const colVals = cols.map((c) => `:${c}`).join(', ');
+                        const colVals = cols.map(c => `:${c}`).join(', ');
 
                         return Promise.all(
-                            rows.map(async (r) => {
-                                const q =
-                                    `INSERT INTO ${table} (${colNames}) VALUES (${colVals})`;
+                            rows.map(async r => {
+                                const q = `INSERT INTO ${table} (${colNames}) VALUES (${colVals})`;
                                 const res = await DB.unsafe.run(q, r);
 
                                 if (res.isErr()) {
@@ -535,25 +528,25 @@ export class DB {
                                         table,
                                         res.error,
                                         q,
-                                        r,
+                                        r
                                     );
                                 }
 
                                 return res;
-                            }),
+                            })
                         );
                     });
 
                     if (res.isErr()) throw res.error;
-                    if (res.value?.some((r) => r.isErr())) {
+                    if (res.value?.some(r => r.isErr())) {
                         console.error('Error inserting data');
                         throw new Error('Error inserting data');
                     }
                     return res;
-                }),
+                })
             );
 
-            if (res.every((r) => r.isOk())) {
+            if (res.every(r => r.isOk())) {
                 console.log('Database restored');
             } else {
                 // console.log('Error(s) restoring database', res);
@@ -566,7 +559,7 @@ export class DB {
         const { BACKUP_INTERVAL, BACKUP_DAYS } = env;
         if (!BACKUP_INTERVAL || !BACKUP_DAYS) {
             console.log(
-                'BACKUP_INTERVAL or BACKUP_DAYS not set, skipping backup intervals',
+                'BACKUP_INTERVAL or BACKUP_DAYS not set, skipping backup intervals'
             );
             return;
         }
@@ -577,7 +570,7 @@ export class DB {
             BACKUP_INTERVAL,
             'hours, and delete after',
             BACKUP_DAYS,
-            'days',
+            'days'
         );
 
         // backup each day, delete after 30 days
@@ -588,7 +581,7 @@ export class DB {
             console.log(
                 'Setting backup intervals to delete every',
                 BACKUP_DAYS,
-                'days',
+                'days'
             );
 
             const deleteAfter = (backup: string, days: number) => {
@@ -609,14 +602,14 @@ export class DB {
                         console.log('Error creating backup', res.error);
                     }
                 },
-                +BACKUP_INTERVAL * 60 * 60 * 1000,
+                +BACKUP_INTERVAL * 60 * 60 * 1000
             );
 
             for (const b of backups.value) {
                 const [, time] = b.split('_');
                 const date = new Date(+time.split('.')[0]);
                 const deleteDate = new Date(+time.split('.')[0]).setDate(
-                    date.getDate() + +BACKUP_DAYS,
+                    date.getDate() + +BACKUP_DAYS
                 );
 
                 if (deleteDate < now) {
@@ -662,13 +655,13 @@ export class DB {
                 if (await DB.hasVersion(version)) {
                     console.log(
                         'Database already has updated to or version',
-                        version.join('.'),
+                        version.join('.')
                     );
                 } else {
                     const res = await DB.runUpdate(version);
                     if (res.isErr()) {
                         console.log(
-                            'There was an error updating the database, it may be corrupted. Please restore from backup, edit the update file, then try again.',
+                            'There was an error updating the database, it may be corrupted. Please restore from backup, edit the update file, then try again.'
                         );
                         break;
                     }
@@ -688,11 +681,11 @@ export class DB {
                 FROM information_schema.tables
                 WHERE table_schema = 'public'
                 ORDER BY table_name;
-            `,
+            `
             );
 
             if (res.isOk()) {
-                return res.value.map((r) =>
+                return res.value.map(r =>
                     capitalize(toCamelCase(fromSnakeCase(r.tableName)))
                 );
             }
@@ -710,11 +703,11 @@ export class DB {
                 WHERE table_name = :table
                 ORDER BY column_name;
             `,
-                { table },
+                { table }
             );
 
             if (res.isOk()) {
-                return res.value.map((r) =>
+                return res.value.map(r =>
                     toCamelCase(fromSnakeCase(r.columnName))
                 );
             }
@@ -741,21 +734,18 @@ export class DB {
             const sql = fs.readFileSync(
                 path.resolve(
                     __dirname,
-                    '../../storage/db/queries/' + type + '.sql',
+                    '../../storage/db/queries/' + type + '.sql'
                 ),
                 'utf-8'
             );
-            const [parsedQuery, parsedArgs] = DB.parseQuery(
-                sql,
-                args,
-            );
+            const [parsedQuery, parsedArgs] = DB.parseQuery(sql, args);
             return [parsedQuery, parsedArgs] as [string, Parameter[]];
         });
     }
 
     private static async runQuery(
         query: string,
-        args: Parameter[],
+        args: Parameter[]
     ): Promise<Result<QueryResult<unknown>>> {
         await DB.connect();
         const run = () =>
@@ -768,7 +758,7 @@ export class DB {
                 return {
                     rows: bigIntDecode(DB.parseObj(result.rows) as unknown[]),
                     params: newArgs,
-                    query: sql,
+                    query: sql
                 };
             });
 
@@ -778,12 +768,12 @@ export class DB {
             'Connection terminated',
             'Connection lost',
             'Broken pipe',
-            'Connection closed',
+            'Connection closed'
         ];
 
         while (res.isErr() && maxRetries > 0) {
             const { error } = res;
-            if (disconnectedErrors.some((e) => error.message.includes(e))) {
+            if (disconnectedErrors.some(e => error.message.includes(e))) {
                 log('Database disconnected, reconnecting...');
                 await DB.connect();
             }
@@ -974,7 +964,7 @@ export class DB {
                     }
                     return r.value.rows as type[];
                 });
-            },
+            }
         };
     }
 }
@@ -991,7 +981,7 @@ DB.connect()
         console.log('Connected to the database');
         run();
     })
-    .catch((e) => {
+    .catch(e => {
         console.error('Error connecting to the database', e);
         process.exit(1);
     });

@@ -17,10 +17,8 @@ export class Req<T = unknown> {
     constructor(
         public readonly app: App,
         public readonly req: express.Request,
-        public readonly session: Session,
-    ) {
-
-    }
+        public readonly session: Session
+    ) {}
 
     public get params() {
         return this.req.params;

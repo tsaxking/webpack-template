@@ -5,7 +5,7 @@ import {
     StatusCode,
     StatusColor,
     StatusId,
-    StatusMessage,
+    StatusMessage
 } from '../../shared/status-messages';
 import { Next, ServerFunction } from '../structure/app/app';
 import { Req } from '../structure/app/req';
@@ -35,7 +35,7 @@ export class Status {
      */
     static middleware(
         id: StatusId,
-        test: (session: Session) => boolean,
+        test: (session: Session) => boolean
     ): ServerFunction {
         return (req: Req, res: Res, next: Next) => {
             if (test(req.session)) {
@@ -75,18 +75,18 @@ export class Status {
                     message: 'An unknown status message was requested.',
                     color: 'danger',
                     code: 500,
-                    instructions: 'Please contact an administrator.',
+                    instructions: 'Please contact an administrator.'
                 },
                 'Unknown Status Message',
                 'Unknown',
                 dataStr,
-                req,
+                req
             );
         }
 
         if (typeof id === 'number') {
             throw new Error(
-                'Status message requested by number. Please use a string instead.',
+                'Status message requested by number. Please use a string instead.'
             );
         }
 
@@ -166,7 +166,7 @@ export class Status {
         public readonly title: string,
         public readonly status: string,
         public readonly data: string,
-        req: Req,
+        req: Req
     ) {
         this.message = message.message;
         this.color = message.color;
@@ -187,7 +187,7 @@ export class Status {
                 data: data ? JSON.stringify(data) : 'No data provided.',
                 ip: req.session.ip,
                 username: a?.username,
-                sessionId: req.session.id,
+                sessionId: req.session.id
             });
         });
 
@@ -235,7 +235,7 @@ export class Status {
             data: this.data,
             redirect: this.redirect,
             color: this.color,
-            page: env.TITLE || 'My App',
+            page: env.TITLE || 'My App'
         });
     }
 
@@ -255,7 +255,7 @@ export class Status {
             instructions: this.instructions,
             data: JSON.parse(this.data || '{}'),
             redirect: this.redirect,
-            color: this.color,
+            color: this.color
         };
     }
 

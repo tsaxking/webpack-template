@@ -68,29 +68,29 @@ export type Options = {
  */
 export const emailValidation = (
     keys: string[],
-    options: Options = {},
+    options: Options = {}
 ): ServerFunction => {
     return (req, res, next) => {
         const arr = keys
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            .map((key) => (req.body ? (req.body as any)[key] : ''))
+            .map(key => (req.body ? (req.body as any)[key] : ''))
             .filter(Boolean);
 
         if (!arr.length) return next();
 
         Promise.all(
-            arr.map(async (value) => {
+            arr.map(async value => {
                 if (typeof value !== 'string') return { valid: false };
                 return validate({ email: value });
-            }),
+            })
         )
-            .then((results) => {
-                const valid = results.every((result) => result.valid);
+            .then(results => {
+                const valid = results.every(result => result.valid);
                 if (valid) return next();
                 if (options.onspam) return options.onspam(req, res, next);
                 if (options.goToNext) next();
             })
-            .catch((_err) => {
+            .catch(_err => {
                 if (options.onerror) return options.onerror(req, res, next);
                 // console.error(err);
                 next();

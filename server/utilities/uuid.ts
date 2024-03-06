@@ -8,10 +8,9 @@ import { getJSON, saveJSON } from './files';
 // limit 5 keys in cache at a time
 let cache: string[] = [];
 
-getJSON<string[]>('cached-ids')
-    .then((res) => {
-        if (res.isOk()) cache = res.value;
-    });
+getJSON<string[]>('cached-ids').then(res => {
+    if (res.isOk()) cache = res.value;
+});
 
 const retrieve = async (): Promise<Result<string[]>> => {
     return attemptAsync(async () => {
@@ -20,14 +19,14 @@ const retrieve = async (): Promise<Result<string[]>> => {
         }
         const data = await fetch(env.RANDOM_KEY_LINK + '/uuid', {
             headers: {
-                'x-auth-token': env.RANDOM_KEY_AUTH || '',
+                'x-auth-token': env.RANDOM_KEY_AUTH || ''
             },
-            method: 'POST',
+            method: 'POST'
         });
 
         if (data.ok) {
             // console.log('Retrieved keys!');
-            const json = await data.json() as string[];
+            const json = (await data.json()) as string[];
 
             if (!Array.isArray(json)) {
                 throw new Error('Failed to retrieve keys, invalid response');

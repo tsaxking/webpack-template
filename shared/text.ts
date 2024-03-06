@@ -8,7 +8,7 @@
 export const capitalize = (str: string): string =>
     str.replace(
         /\w\S*/g,
-        (txt) => txt.charAt(0).toUpperCase() + txt.substring(1),
+        txt => txt.charAt(0).toUpperCase() + txt.substring(1)
     );
 
 /**
@@ -19,7 +19,8 @@ export const capitalize = (str: string): string =>
 export const toCamelCase = (str: string): string =>
     str
         .replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) =>
-            index === 0 ? word.toLowerCase() : word.toUpperCase())
+            index === 0 ? word.toLowerCase() : word.toUpperCase()
+        )
         .replace(/\s+/g, '');
 
 /**
@@ -29,7 +30,7 @@ export const toCamelCase = (str: string): string =>
  */
 export const toSnakeCase = (str: string, del = '_'): string =>
     str
-        .replace(/([A-Z])/g, (g) => `${del}${g[0].toLowerCase()}`)
+        .replace(/([A-Z])/g, g => `${del}${g[0].toLowerCase()}`)
         .replace(/\s+/g, '_');
 
 /**
@@ -38,7 +39,7 @@ export const toSnakeCase = (str: string, del = '_'): string =>
  * @returns
  */
 export const fromCamelCase = (str: string): string =>
-    str.replace(/([A-Z])/g, (g) => ` ${g[0].toLowerCase()}`);
+    str.replace(/([A-Z])/g, g => ` ${g[0].toLowerCase()}`);
 
 /**
  * Converts a string from snake_case to "snake case"
@@ -47,7 +48,7 @@ export const fromCamelCase = (str: string): string =>
  */
 export const fromSnakeCase = (str: string, del = '_'): string =>
     str
-        .replace(/([A-Z])/g, (g) => ` ${g[0].toLowerCase()}`)
+        .replace(/([A-Z])/g, g => ` ${g[0].toLowerCase()}`)
         .replace(new RegExp(del, 'g'), ' ');
 
 /**
@@ -79,7 +80,7 @@ export const toByteString = (byte: number): string => {
         KB: 1024,
         MB: 1048576,
         GB: 1073741824,
-        TB: 1099511627776,
+        TB: 1099511627776
     };
 
     const i = Math.floor(Math.log(byte) / Math.log(1024));
@@ -94,10 +95,11 @@ export const toByteString = (byte: number): string => {
  */
 export const parseObject = (
     obj: object,
-    parser: (str: string) => string,
+    parser: (str: string) => string
 ): unknown => {
     if (typeof obj !== 'object') return obj;
-    if (Array.isArray(obj)) return obj.map((o) => parseObject(o as object, parser));
+    if (Array.isArray(obj))
+        return obj.map(o => parseObject(o as object, parser));
     const newObj: Record<string, unknown> = {};
     for (const key in obj) {
         if (Object.prototype.hasOwnProperty.call(obj, key)) {

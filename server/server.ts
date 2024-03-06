@@ -39,7 +39,7 @@ if (env.ENVIRONMENT === 'dev') {
 
 app.post('/env', (req, res) => {
     res.json({
-        ENVIRONMENT: env.ENVIRONMENT,
+        ENVIRONMENT: env.ENVIRONMENT
     });
 });
 
@@ -60,7 +60,7 @@ app.static('/uploads', path.resolve(__root, './storage/uploads'));
 
 app.post('/socket-url', (req, res) => {
     res.json({
-        url: env.SOCKET_DOMAIN,
+        url: env.SOCKET_DOMAIN
     });
 });
 
@@ -179,7 +179,7 @@ app.get('/*', (req, res, next) => {
             ![
                 '/account/sign-in',
                 '/account/sign-up',
-                '/account/forgot-password',
+                '/account/forgot-password'
             ].includes(req.url)
         ) {
             // only save the previous url if it's not a sign-in, sign-up, or forgot-password page

@@ -1,7 +1,7 @@
 import { Drawable } from './drawable';
 import {
     Point2D,
-    Point3D,
+    Point3D
 } from '../../../shared/submodules/calculations/src/linear-algebra/point';
 import { copy } from '../../../shared/copy';
 
@@ -16,7 +16,7 @@ export class Circle extends Drawable<Circle> {
      */
     constructor(
         public center: Point2D | Point3D,
-        public radius: number,
+        public radius: number
     ) {
         super();
     }
@@ -60,7 +60,7 @@ export class Circle extends Drawable<Circle> {
             y * context.canvas.height,
             this.radius * context.canvas.height,
             0,
-            2 * Math.PI,
+            2 * Math.PI
         );
         if (this.$properties?.fill) context.fill();
         if (this.$properties.line) context.stroke();

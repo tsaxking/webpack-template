@@ -16,8 +16,8 @@ const app = new App(
     'https://localhost:3000', // domain
     // VV this is optional VV
     {
-        ioPort: 3001, // socket
-    },
+        ioPort: 3001 // socket
+    }
 );
 
 // looks just like express.js!
@@ -208,7 +208,7 @@ Sending a stream of data to the client
 
 ```typescript runnable
 app.post('/some-stream', (req, res, next) => {
-    res.stream(data.map((d) => JSON.stringify(d))); // must be an array of strings
+    res.stream(data.map(d => JSON.stringify(d))); // must be an array of strings
 });
 ```
 
@@ -253,11 +253,11 @@ app.post(
         // each of these are optional
         maxFileSize: 1000000, // 1mb
         maxFiles: 1, // 1 file
-        allowedExtensions: ['png', 'jpg', 'jpeg', 'gif'], // allows only these extensions
+        allowedExtensions: ['png', 'jpg', 'jpeg', 'gif'] // allows only these extensions
     }),
     (req, res, next) => {
         const { files } = req;
         console.log(files); // ({ name: string, id: string, ext: string, size: number (in bytes) })[]
-    },
+    }
 );
 ```

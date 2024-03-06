@@ -29,14 +29,14 @@ export class Modal {
 
     public on<K extends keyof EventTypes>(
         event: K,
-        listener: (args: EventTypes[K]) => void,
+        listener: (args: EventTypes[K]) => void
     ) {
         this.$emitter.on(event, listener);
     }
 
     public off<K extends keyof EventTypes>(
         event: K,
-        listener: (args: EventTypes[K]) => void,
+        listener: (args: EventTypes[K]) => void
     ) {
         this.$emitter.off(event, listener);
     }
@@ -207,7 +207,7 @@ const container = (() => {
         'top-0',
         'end-0',
         'w-100',
-        'h-100',
+        'h-100'
     );
     parent.appendChild(child);
 
@@ -241,14 +241,14 @@ export class Toast {
 
     public on<K extends keyof EventTypes>(
         event: K,
-        listener: (args: EventTypes[K]) => void,
+        listener: (args: EventTypes[K]) => void
     ) {
         this.$emitter.on(event, listener);
     }
 
     public off<K extends keyof EventTypes>(
         event: K,
-        listener: (args: EventTypes[K]) => void,
+        listener: (args: EventTypes[K]) => void
     ) {
         this.$emitter.off(event, listener);
     }
@@ -343,7 +343,7 @@ export class Toast {
             'toast-header',
             'bg-dark',
             'border-0',
-            `text-${this.color}`,
+            `text-${this.color}`
         );
 
         const strong = document.createElement('strong');
@@ -383,7 +383,7 @@ export class Toast {
         body.classList.add(
             'toast-body',
             `bg-${this.$color}`,
-            `text-${this.textColor}`,
+            `text-${this.textColor}`
         );
         body.textContent = this.$body;
 
@@ -418,14 +418,14 @@ export class Alert {
 
     public on<K extends keyof EventTypes>(
         event: K,
-        listener: (args: EventTypes[K]) => void,
+        listener: (args: EventTypes[K]) => void
     ) {
         this.$emitter.on(event, listener);
     }
 
     public off<K extends keyof EventTypes>(
         event: K,
-        listener: (args: EventTypes[K]) => void,
+        listener: (args: EventTypes[K]) => void
     ) {
         this.$emitter.off(event, listener);
     }
@@ -457,7 +457,7 @@ export class Alert {
             'position-absolute',
             'animate__animated',
             'animate__fadeInDown',
-            'animate__faster',
+            'animate__faster'
         );
         this.target.style.top = '10px';
         this.target.style.left = '10px';
@@ -478,7 +478,7 @@ export class Alert {
             this.target.classList.remove(
                 'animate__fadeInDown',
                 'animate__faster',
-                'animate__animated',
+                'animate__animated'
             );
         };
 

@@ -72,7 +72,7 @@ export class Account extends Cache<AccountEvents> {
         email: '',
         verified: 0,
         created: Date.now(),
-        phoneNumber: '',
+        phoneNumber: ''
     });
 
     /**
@@ -88,7 +88,7 @@ export class Account extends Cache<AccountEvents> {
     public static async getAccount(): Promise<Account | undefined> {
         if (Account.current) return Account.current;
         const res = await ServerRequest.post<AccountSafe>(
-            '/account/get-account',
+            '/account/get-account'
         );
         if (res.isOk()) {
             if (!res.value.id) return;
@@ -122,7 +122,7 @@ export class Account extends Cache<AccountEvents> {
      */
     public static on<T extends keyof Events>(
         event: T,
-        listener: (data: Events[T]) => void,
+        listener: (data: Events[T]) => void
     ) {
         this.emitter.on(event, listener);
     }
@@ -140,7 +140,7 @@ export class Account extends Cache<AccountEvents> {
      */
     public static off<T extends keyof Events>(
         event: T,
-        listener: (data: Events[T]) => void,
+        listener: (data: Events[T]) => void
     ) {
         this.emitter.off(event, listener);
     }
@@ -172,7 +172,7 @@ export class Account extends Cache<AccountEvents> {
      */
     public static once<T extends keyof Events>(
         event: T,
-        listener: (data: Events[T]) => void,
+        listener: (data: Events[T]) => void
     ) {
         this.emitter.once(event, listener);
     }
@@ -196,7 +196,7 @@ export class Account extends Cache<AccountEvents> {
             const res = await ServerRequest.post<AccountSafe[]>('/account/all');
 
             if (res.isOk()) {
-                return res.value.map((account) => new Account(account));
+                return res.value.map(account => new Account(account));
             }
 
             throw res.error;
@@ -321,11 +321,11 @@ export class Account extends Cache<AccountEvents> {
             const res = await ServerRequest.post<
                 (R & { permissions: RolePermission[] })[]
             >('/account/get-roles', {
-                id: this.id,
+                id: this.id
             });
 
             if (res.isOk()) {
-                const roles = res.value.map((r) => new Role(r));
+                const roles = res.value.map(r => new Role(r));
                 this.$cache.set('roles', roles);
                 return roles;
             }
@@ -343,7 +343,7 @@ export class Account extends Cache<AccountEvents> {
      * @returns {Promise<Result<P[]>>}
      */
     public async getPermissions(
-        force = false,
+        force = false
     ): Promise<Result<RolePermission[]>> {
         return attemptAsync(async () => {
             if (this.$cache.has('permissions') && !force) {
@@ -353,8 +353,8 @@ export class Account extends Cache<AccountEvents> {
             const res = await ServerRequest.post<RolePermission[]>(
                 '/account/get-permissions',
                 {
-                    id: this.id,
-                },
+                    id: this.id
+                }
             );
 
             if (res.isOk()) {
@@ -380,7 +380,7 @@ export class Account extends Cache<AccountEvents> {
         return attemptAsync(async () => {
             const res = await ServerRequest.post<void>('/account/add-role', {
                 accountId: this.id,
-                roleId: role.id,
+                roleId: role.id
             });
 
             if (res.isOk()) {
@@ -404,7 +404,7 @@ export class Account extends Cache<AccountEvents> {
         return attemptAsync(async () => {
             const res = await ServerRequest.post<void>('/account/remove-role', {
                 accountId: this.id,
-                roleId: role.id,
+                roleId: role.id
             });
 
             if (res.isOk()) {
@@ -426,7 +426,7 @@ export class Account extends Cache<AccountEvents> {
     public async verify(): Promise<Result<void>> {
         return attemptAsync(async () => {
             const res = await ServerRequest.post<void>('/account/verify', {
-                id: this.id,
+                id: this.id
             });
 
             if (res.isOk()) {
@@ -449,7 +449,7 @@ export class Account extends Cache<AccountEvents> {
     public async unverify(): Promise<Result<void>> {
         return attemptAsync(async () => {
             const res = await ServerRequest.post<void>('/account/unverify', {
-                id: this.id,
+                id: this.id
             });
 
             if (res.isOk()) {
@@ -472,7 +472,7 @@ export class Account extends Cache<AccountEvents> {
     public async reject(): Promise<Result<void>> {
         return attemptAsync(async () => {
             const res = await ServerRequest.post<void>('/account/reject', {
-                id: this.id,
+                id: this.id
             });
 
             if (res.isOk()) {
@@ -496,7 +496,7 @@ export class Account extends Cache<AccountEvents> {
     public async delete(): Promise<Result<void>> {
         return attemptAsync(async () => {
             const res = await ServerRequest.post<void>('/account/delete', {
-                id: this.id,
+                id: this.id
             });
 
             if (res.isOk()) {
@@ -538,7 +538,7 @@ socket.on(
             account.emit('role-removed', roleId);
             Account.emit('update', account);
         }
-    },
+    }
 );
 
 socket.on(
@@ -553,7 +553,7 @@ socket.on(
             account.emit('role-added', roleId);
             Account.emit('update', account);
         }
-    },
+    }
 );
 
 socket.on('account:verified', (accountId: string) => {

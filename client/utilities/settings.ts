@@ -8,7 +8,7 @@ Settings.on('set', ([key, value]) => {
             if (typeof value !== 'string') break;
             document.documentElement.setAttribute(
                 'data-bs-theme',
-                String(value).toLowerCase(),
+                String(value).toLowerCase()
             );
             break;
     }

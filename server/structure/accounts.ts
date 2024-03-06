@@ -7,17 +7,14 @@ import Filter from 'bad-words';
 import { Member } from './member';
 import {
     Account as AccountObject,
-    AccountSettings,
+    AccountSettings
 } from '../../shared/db-types';
 import env from '../utilities/env';
 import { removeUpload } from '../utilities/files';
 import { Next, ServerFunction } from './app/app';
 import { Req } from './app/req';
 import { Res } from './app/res';
-import {
-    AccountStatusId,
-    RolesStatusId,
-} from '../../shared/status-messages';
+import { AccountStatusId, RolesStatusId } from '../../shared/status-messages';
 import { validate } from '../middleware/data-type';
 import { Role as RoleObj } from '../../shared/db-types';
 import { Permission } from '../../shared/permissions';
@@ -35,7 +32,7 @@ import Role from './roles';
 export enum AccountDynamicProperty {
     firstName = 'firstName',
     lastName = 'lastName',
-    picture = 'picture',
+    picture = 'picture'
 }
 
 /**
@@ -74,13 +71,13 @@ export default class Account {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 return validate<any>({
                     id: (v: unknown) =>
-                        typeof v === 'string' && !!Account.fromId(v),
+                        typeof v === 'string' && !!Account.fromId(v)
                 });
             case 'username':
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 return validate<any>({
                     username: (v: unknown) =>
-                        typeof v === 'string' && !!Account.fromUsername(v),
+                        typeof v === 'string' && !!Account.fromUsername(v)
                 });
         }
     }
@@ -148,7 +145,7 @@ export default class Account {
      */
     static async fromId(id: string): Promise<Account | undefined> {
         const res = await DB.get('account/from-id', {
-            id,
+            id
         });
         if (res.isOk()) {
             if (res.value) return new Account(res.value);
@@ -167,7 +164,7 @@ export default class Account {
      */
     static async fromUsername(username: string): Promise<Account | undefined> {
         const res = await DB.get('account/from-username', {
-            username,
+            username
         });
 
         if (res.isOk()) {
@@ -185,7 +182,7 @@ export default class Account {
      */
     static async fromEmail(email: string): Promise<Account | undefined> {
         const res = await DB.get('account/from-email', {
-            email,
+            email
         });
         if (res.isOk()) {
             if (res.value) return new Account(res.value);
@@ -201,10 +198,10 @@ export default class Account {
      * @returns {(Account|null)}
      */
     static async fromVerificationKey(
-        key: string,
+        key: string
     ): Promise<Account | undefined> {
         const res = await DB.get('account/from-verification-key', {
-            verification: key,
+            verification: key
         });
         if (res.isOk()) {
             if (res.value) return new Account(res.value);
@@ -220,10 +217,10 @@ export default class Account {
      * @returns {(Account|null)}
      */
     static async fromPasswordChangeKey(
-        key: string,
+        key: string
     ): Promise<Account | undefined> {
         const res = await DB.get('account/from-password-change', {
-            passwordChange: key,
+            passwordChange: key
         });
         if (res.isOk()) {
             if (res.value) return new Account(res.value);
@@ -252,7 +249,7 @@ export default class Account {
 
             if (
                 permission.every((p: string) =>
-                    permissions.find((_p) => _p.permission === p)
+                    permissions.find(_p => _p.permission === p)
                 )
             ) {
                 return next();
@@ -362,7 +359,7 @@ export default class Account {
      */
     static isValid(
         str: string,
-        chars: string[] = [],
+        chars: string[] = []
     ): { valid: boolean; chars: string[] } {
         const allowedCharacters = [
             'a',
@@ -431,7 +428,7 @@ export default class Account {
             ',',
             '.',
             '~',
-            '`',
+            '`'
         ];
 
         allowedCharacters.push(...chars);
@@ -441,7 +438,7 @@ export default class Account {
         let valid = str
             .toLowerCase()
             .split('')
-            .every((char) => {
+            .every(char => {
                 const validChar = allowedCharacters.includes(char);
                 if (!validChar) invalidChars.push(char);
                 return validChar;
@@ -457,7 +454,7 @@ export default class Account {
             invalidChars.push(
                 ...str
                     .split(' ')
-                    .filter((word, i) => word !== filtered.split(' ')[i]),
+                    .filter((word, i) => word !== filtered.split(' ')[i])
             );
         }
 
@@ -467,7 +464,7 @@ export default class Account {
 
         return {
             valid,
-            chars: invalidChars,
+            chars: invalidChars
         };
     }
 
@@ -489,19 +486,19 @@ export default class Account {
         password: string,
         email: string,
         firstName: string,
-        lastName: string,
+        lastName: string
     ): Promise<{
         status: AccountStatusId;
         data?: string[];
     }> {
         if (await Account.fromUsername(username)) {
             return {
-                status: 'username-taken',
+                status: 'username-taken'
             };
         }
         if (await Account.fromEmail(email)) {
             return {
-                status: 'email-taken',
+                status: 'email-taken'
             };
         }
 
@@ -516,7 +513,7 @@ export default class Account {
         if (!isValidUsername.valid) {
             return {
                 status: 'invalid-username',
-                data: isValidUsername.chars,
+                data: isValidUsername.chars
             };
         }
         if (!isValidPassword.valid) {
@@ -528,7 +525,7 @@ export default class Account {
         if (!isValidFirstName.valid) {
             return {
                 status: 'invalid-first-name',
-                data: isValidFirstName.chars,
+                data: isValidFirstName.chars
             };
         }
         if (!isValidLastName.valid) {
@@ -563,7 +560,7 @@ export default class Account {
             verified: 0,
             verification,
             created,
-            phoneNumber: '',
+            phoneNumber: ''
         });
 
         const a = new Account({
@@ -577,7 +574,7 @@ export default class Account {
             verified: 0,
             verification,
             created,
-            phoneNumber: '',
+            phoneNumber: ''
         });
 
         a.sendVerification();
@@ -598,7 +595,7 @@ export default class Account {
         if (!account) return 'not-found';
 
         DB.run('account/delete', {
-            id,
+            id
         });
 
         return 'removed';
@@ -748,7 +745,7 @@ export default class Account {
 
             DB.run('account/change-email', {
                 id: this.id,
-                email,
+                email
             });
             this.email = email;
             delete this.emailChange;
@@ -757,7 +754,7 @@ export default class Account {
         }
 
         DB.run('account/verify', {
-            id: this.id,
+            id: this.id
         });
         this.verified = 1;
         delete this.verification;
@@ -776,7 +773,7 @@ export default class Account {
 
         DB.run('account/set-verification', {
             verification: key,
-            id: this.id,
+            id: this.id
         });
 
         const email = new Email(
@@ -788,9 +785,9 @@ export default class Account {
                     link: `${env.DODB}/account/verify/${key}`,
                     linkText: 'Click here to verify your account',
                     title: 'Verify your account',
-                    message: 'Click the button below to verify your account',
-                },
-            },
+                    message: 'Click the button below to verify your account'
+                }
+            }
         );
 
         return email.send();
@@ -829,7 +826,7 @@ export default class Account {
                 ? await this.getPermissions()
                 : [],
             id: include?.id ? this.id : undefined,
-            verified: this.verified,
+            verified: this.verified
         };
     }
 
@@ -865,7 +862,7 @@ export default class Account {
      */
     async getRoles(): Promise<Role[]> {
         const data = await DB.all('account/roles', {
-            id: this.id,
+            id: this.id
         });
 
         if (data.isOk()) {
@@ -883,13 +880,13 @@ export default class Account {
      */
     async addRole(role: Role): Promise<AccountStatusId | RolesStatusId> {
         const roles = await this.getRoles();
-        if (roles.find((_r) => _r.name === role.name)) {
+        if (roles.find(_r => _r.name === role.name)) {
             return 'has-role';
         }
 
         await DB.run('account/add-role', {
             accountId: this.id,
-            roleId: role.id,
+            roleId: role.id
         });
 
         return 'role-added';
@@ -905,13 +902,13 @@ export default class Account {
     async removeRole(role: Role): Promise<AccountStatusId | RolesStatusId> {
         const roles = await this.getRoles();
 
-        if (!roles.find((_r) => _r.name === role.name)) {
+        if (!roles.find(_r => _r.name === role.name)) {
             return 'no-role';
         }
 
         DB.run('account/remove-role', {
             accountId: this.id,
-            roleId: role.id,
+            roleId: role.id
         });
 
         return 'role-removed';
@@ -931,7 +928,7 @@ export default class Account {
 
         DB.run('account/update-picture', {
             id: this.id,
-            picture: id,
+            picture: id
         });
         this.picture = id;
 
@@ -947,13 +944,13 @@ export default class Account {
     async getPermissions(): Promise<RolePermission[]> {
         const roles = await this.getRoles();
         return (
-            await Promise.all(roles.map((role) => role.getPermissions()))
+            await Promise.all(roles.map(role => role.getPermissions()))
         ).flat();
     }
 
     async hasPermission(permission: Permission) {
         const permissions = await this.getPermissions();
-        return permissions.some((p) => p.permission === permission);
+        return permissions.some(p => p.permission === permission);
     }
 
     /**
@@ -1004,7 +1001,7 @@ export default class Account {
 
         DB.run('account/change-username', {
             id: this.id,
-            username,
+            username
         });
 
         this.username = username;
@@ -1026,34 +1023,34 @@ export default class Account {
         // test in the other database because something is wrong with the new hashing algorithm
         const result = await attemptAsync<
             | {
-                success: true;
-                hash: string;
-                salt: string;
-            }
+                  success: true;
+                  hash: string;
+                  salt: string;
+              }
             | {
-                success: false;
-                error: string;
-            }
+                  success: false;
+                  error: string;
+              }
         >(async () => {
             const { HASH_SERVER_AUTH, HASH_SERVER } = env;
             if (!HASH_SERVER_AUTH) throw new Error('No hash server auth');
             if (!HASH_SERVER) throw new Error('No hash server');
             const data = await fetch(HASH_SERVER + '/api/login', {
                 headers: {
-                    'x-auth-key': HASH_SERVER_AUTH,
-                },
+                    'x-auth-key': HASH_SERVER_AUTH
+                }
             });
 
             const json = (await data.json()) as
                 | {
-                    success: true;
-                    hash: string;
-                    salt: string;
-                }
+                      success: true;
+                      hash: string;
+                      salt: string;
+                  }
                 | {
-                    success: false;
-                    error: string;
-                };
+                      success: false;
+                      error: string;
+                  };
 
             if (json.success) {
                 // update the database with the new account hash
@@ -1065,7 +1062,7 @@ export default class Account {
                 `,
                     json.hash,
                     json.salt,
-                    this.id,
+                    this.id
                 );
             }
 
@@ -1093,12 +1090,12 @@ export default class Account {
 
         this.emailChange = {
             email,
-            date: Date.now(),
+            date: Date.now()
         };
 
         DB.run('account/request-email-change', {
             id: this.id,
-            emailChange: JSON.stringify(this.emailChange),
+            emailChange: JSON.stringify(this.emailChange)
         });
 
         this.sendVerification();
@@ -1118,7 +1115,7 @@ export default class Account {
 
         DB.run('account/request-password-change', {
             id: this.id,
-            passwordChange: key,
+            passwordChange: key
         });
 
         this.sendEmail('Password change request', EmailType.link, {
@@ -1126,8 +1123,8 @@ export default class Account {
                 link: `${env.DOMAIN}/account/change-password/${key}`,
                 linkText: 'Click here to change your password',
                 title: 'Password change request',
-                message: 'Click the button below to change your password',
-            },
+                message: 'Click the button below to change your password'
+            }
         });
         return key;
     }
@@ -1148,7 +1145,7 @@ export default class Account {
             id: this.id,
             salt,
             key: newKey,
-            passwordChange: undefined,
+            passwordChange: undefined
         });
         this.key = newKey;
         this.salt = salt;
@@ -1166,7 +1163,7 @@ export default class Account {
      */
     async getRank(): Promise<number> {
         const roles = await this.getRoles();
-        return Math.min(...roles.map((r) => r.rank));
+        return Math.min(...roles.map(r => r.rank));
     }
 
     /**
@@ -1189,9 +1186,10 @@ export default class Account {
 
     async getSettings(): Promise<AccountSettings | undefined> {
         const res = await DB.get('account/get-settings', {
-            accountId: this.id,
+            accountId: this.id
         });
-        if (res.isOk() && res.value) return JSON.parse(res.value.settings) as AccountSettings;
+        if (res.isOk() && res.value)
+            return JSON.parse(res.value.settings) as AccountSettings;
         return undefined;
     }
 
@@ -1201,7 +1199,7 @@ export default class Account {
 
             DB.run('account/save-settings', {
                 accountId: this.id,
-                settings: str,
+                settings: str
             });
         });
     }

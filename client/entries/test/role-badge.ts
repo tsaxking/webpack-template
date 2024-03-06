@@ -15,14 +15,14 @@ const myApp = new App({
             verified: 1,
             created: Date.now(),
             phoneNumber: '',
-            picture: '',
+            picture: ''
         }),
         role: new Role({
             id: '1',
             name: 'Test',
             description: 'Test',
-            rank: 1,
+            rank: 1
         }),
-        deletable: true,
-    },
+        deletable: true
+    }
 });

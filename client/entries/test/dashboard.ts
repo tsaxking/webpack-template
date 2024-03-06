@@ -3,5 +3,5 @@ import '../../utilities/imports';
 import Dashboard from '../../views/dashboards/User.svelte';
 
 new Dashboard({
-    target: document.body,
+    target: document.body
 });

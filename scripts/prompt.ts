@@ -8,17 +8,17 @@ export const prompt = async (message: string): Promise<string> => {
     const res = await prompts({
         type: 'text',
         name: 'value',
-        message: message,
+        message: message
     });
 
     return res.value;
-}
+};
 
 export const repeatPrompt = async (
     message: string,
     original?: string,
     validate?: (data: string) => boolean,
-    allowBlank = false,
+    allowBlank = false
 ): Promise<string> => {
     if (!original) original = message;
     const i = await prompt(message + ':');
@@ -33,7 +33,7 @@ export const repeatPrompt = async (
             'Please enter value (' + original + ')',
             original,
             validate,
-            allowBlank,
+            allowBlank
         );
     }
     if (validate && !validate(i)) {
@@ -41,7 +41,7 @@ export const repeatPrompt = async (
             'Invalid value (' + original + ')',
             original,
             validate,
-            allowBlank,
+            allowBlank
         );
     }
     return i;
@@ -52,24 +52,31 @@ type Option<T = unknown> = {
     value: T;
 };
 
-export const _select = async <T>(message: string, options: {
-    name: string;
-    value: T;
-}[]): Promise<T> => {
-    const data = await new Promise<T>((res) => {
+export const _select = async <T>(
+    message: string,
+    options: {
+        name: string;
+        value: T;
+    }[]
+): Promise<T> => {
+    const data = await new Promise<T>(res => {
         const run = (selected: number) => {
             console.clear();
             console.log(Colors.FgBlue, '?', Colors.Reset, message, '\n');
             for (let i = 0; i < options.length; i++) {
                 const o = options[i];
-                console.log(Colors.FgGreen, i === selected ? '>' : ' ', Colors.Reset, o.name);
+                console.log(
+                    Colors.FgGreen,
+                    i === selected ? '>' : ' ',
+                    Colors.Reset,
+                    o.name
+                );
             }
 
             stdin.on('data', handleKey);
-        }
+        };
 
         let selected = 0;
-
 
         const stdin = process.stdin;
 
@@ -94,7 +101,7 @@ export const _select = async <T>(message: string, options: {
             }
 
             stdin.off('data', handleKey);
-        }
+        };
         run(selected);
     });
 
@@ -102,7 +109,7 @@ export const _select = async <T>(message: string, options: {
     process.stdin.setRawMode(false);
 
     return data;
-}
+};
 
 export const select = async <T = unknown>(
     message: string,
@@ -111,25 +118,27 @@ export const select = async <T = unknown>(
         exit?: boolean;
         return?: boolean;
     } = {
-        exit: false,
-    },
+        exit: false
+    }
 ): Promise<T> => {
     if (options.return) {
         data.push({
             name: 'Return',
-            value: '$$return$$' as unknown as T,
+            value: '$$return$$' as unknown as T
         });
     }
     if (options.exit) {
         data.push({
             name: 'Exit',
-            value: '$$exit$$' as unknown as T,
+            value: '$$exit$$' as unknown as T
         });
     }
 
     const res = await _select(
         message,
-        data.map(d => (typeof d === 'string' ? { name: d, value: d } as Option<T> : d)),
+        data.map(d =>
+            typeof d === 'string' ? ({ name: d, value: d } as Option<T>) : d
+        )
     );
 
     if (res === '$$exit$$') {
@@ -154,32 +163,36 @@ export const search = async <T extends string | Option>(
     message: string,
     options: (
         | {
-            name: string;
-            value: T;
-        }
+              name: string;
+              value: T;
+          }
         | T
-    )[],
+    )[]
 ): Promise<Result<string>> => {
     const s = new FuzzySearch(options, ['name', ''], {
-        caseSensitive: false,
+        caseSensitive: false
     });
 
     const run = async (): Promise<Result<string>> => {
         return attemptAsync(async () => {
-            const data = await prompt(`${Colors.FgCyan}? ${Colors.Reset} ${message}`);
+            const data = await prompt(
+                `${Colors.FgCyan}? ${Colors.Reset} ${message}`
+            );
 
             const values = s.search(data || '');
 
             const res = await select<string>('Select a value', [
                 {
                     name: '[Back to search]',
-                    value: '$$back$$',
+                    value: '$$back$$'
                 },
                 {
                     name: '[Exit search]',
-                    value: '$$exit$$',
+                    value: '$$exit$$'
                 },
-                ...values.map((v) => typeof v === 'string' ? v : v.name || v.toString()),
+                ...values.map(v =>
+                    typeof v === 'string' ? v : v.name || v.toString()
+                )
             ]);
 
             if (res === '$$back$$') {

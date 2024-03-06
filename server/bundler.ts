@@ -1,64 +1,68 @@
-import esbuild from "esbuild";
-import sveltePlugin from "esbuild-svelte";
+import esbuild from 'esbuild';
+import sveltePlugin from 'esbuild-svelte';
 import { typescript } from 'svelte-preprocess-esbuild';
 // import preprocess from 'svelte-preprocess';
 import fs from 'fs';
-import path from "path";
-import env, { __entries, __root, __templates } from "./utilities/env";
-import { getTemplate, getTemplateSync, saveTemplate, saveTemplateSync } from "./utilities/files";
-import { attemptAsync } from "../shared/check";
-import { EventEmitter } from "../shared/event-emitter";
+import path from 'path';
+import env, { __entries, __root, __templates } from './utilities/env';
+import {
+    getTemplate,
+    getTemplateSync,
+    saveTemplate,
+    saveTemplateSync
+} from './utilities/files';
+import { attemptAsync } from '../shared/check';
+import { EventEmitter } from '../shared/event-emitter';
 
 const readDir = async (dirPath: string): Promise<string[]> => {
     // console.log('Reading:', dirPath);
     const entries = await fs.promises.readdir(dirPath);
     // console.log('Entries:', entries);
 
-    return (await Promise.all(entries.map(async e => {
-        const fullpath = path.resolve(dirPath, e);
+    return (
+        await Promise.all(
+            entries.map(async e => {
+                const fullpath = path.resolve(dirPath, e);
 
-        if ((await fs.promises.stat(fullpath)).isFile()) {
-            const index = await getTemplate(
-                'index',
-                {
-                                    script: path.relative(
-                    path.resolve(__templates, fullpath),
-                    path.resolve(
-                        __root,
-                        'dist',
-                        dirPath.split('/').slice(3).join('/'),
-                        e.replace('.ts', '.js'),
-                    )
-                ),
-                style: path.relative(
-                    path.resolve(__templates, fullpath),
-                    path.resolve(
-                        __root,
-                        'dist',
-                        dirPath.split('/').slice(3).join('/'),
-                        e.replace('.ts', '.css'),
-                    )
-                ),
-                title: env.TITLE || 'Untitled'
+                if ((await fs.promises.stat(fullpath)).isFile()) {
+                    const index = await getTemplate('index', {
+                        script: path.relative(
+                            path.resolve(__templates, fullpath),
+                            path.resolve(
+                                __root,
+                                'dist',
+                                dirPath.split('/').slice(3).join('/'),
+                                e.replace('.ts', '.js')
+                            )
+                        ),
+                        style: path.relative(
+                            path.resolve(__templates, fullpath),
+                            path.resolve(
+                                __root,
+                                'dist',
+                                dirPath.split('/').slice(3).join('/'),
+                                e.replace('.ts', '.css')
+                            )
+                        ),
+                        title: env.TITLE || 'Untitled'
+                    });
+                    if (index.isOk()) {
+                        await saveTemplate(
+                            path.resolve(
+                                __templates,
+                                path.relative(__entries, fullpath)
+                            ),
+                            index.value
+                        );
+                    }
+                    return fullpath;
+                } else {
+                    return readDir(fullpath);
                 }
-            );
-            if (index.isOk()) {
-                await saveTemplate(
-                    path.resolve(
-                        __templates,
-                        path.relative(
-                            __entries, fullpath
-                        )
-                    ),
-                    index.value
-                );
-            }
-            return fullpath;
-        } else {
-            return readDir(fullpath);
-        }
-    }))).flat(Infinity) as string[];
-}
+            })
+        )
+    ).flat(Infinity) as string[];
+};
 
 export class Builder {
     private watchers = new Map<string, fs.FSWatcher>();
@@ -70,28 +74,26 @@ export class Builder {
         console.log('Watching:', dir);
         const watcher = fs.watch(
             path.resolve(__dirname, '../', dir),
-            (event, filename) => {
-                if(event === 'change' || event === 'rename') {
+            (event, _filename) => {
+                if (event === 'change' || event === 'rename') {
                     this.build();
                 }
             }
         );
         this.watchers.set(dir, watcher);
-    }
+    };
 
     close = () => {
         for (const watcher of this.watchers.values()) {
             watcher.close();
         }
-    }
+    };
 
     public build = () => {
-        return attemptAsync(async() => {
+        return attemptAsync(async () => {
             if (this.building) return;
             this.building = true;
-            const dirs = await readDir(
-                __entries
-            );
+            const dirs = await readDir(__entries);
             const b = await esbuild.build({
                 entryPoints: dirs,
                 bundle: true,
@@ -101,13 +103,13 @@ export class Builder {
                 conditions: ['svelte', 'browser'],
                 plugins: [
                     sveltePlugin({
-                        preprocess: [typescript({
-                            tsconfigRaw: {
-                                compilerOptions: {
-
+                        preprocess: [
+                            typescript({
+                                tsconfigRaw: {
+                                    compilerOptions: {}
                                 }
-                            }
-                        })]
+                            })
+                        ]
                     })
                 ],
                 logLevel: 'info',
@@ -117,7 +119,7 @@ export class Builder {
                     '.woff2': 'dataurl',
                     '.eot': 'dataurl',
                     '.ttf': 'dataurl',
-                    '.svg': 'dataurl',
+                    '.svg': 'dataurl'
                 },
                 tsconfig: path.resolve(__dirname, '../tsconfig.json')
             });
@@ -126,14 +128,15 @@ export class Builder {
             this.building = false;
             return b;
         });
-    }
+    };
 }
 
 // if this file is the main file, run the build
 if (require.main === module) {
     const builder = new Builder();
-    builder.build()
-        .then((res) => {
+    builder
+        .build()
+        .then(res => {
             if (res.isOk()) process.exit(0);
             console.error(res.error);
             process.exit(1);

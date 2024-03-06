@@ -66,7 +66,7 @@ export type FileType =
 export enum ResponseStatus {
     fileNotFound,
     success,
-    error,
+    error
 }
 
 /**
@@ -96,7 +96,7 @@ enum RequestMethod {
     POST = 'post',
     PUT = 'put',
     DELETE = 'delete',
-    USE = 'use',
+    USE = 'use'
 }
 
 /**
@@ -118,7 +118,7 @@ export type Next = () => void;
 export type ServerFunction<T = unknown> = (
     req: Req<T>,
     res: Res,
-    next: Next,
+    next: Next
 ) => any | Promise<any>;
 /**
  * Final function that is called at the end of a request
@@ -129,7 +129,7 @@ export type ServerFunction<T = unknown> = (
  */
 export type FinalFunction<T> = (req: Req<T>, res: Res) => any;
 
-declare module "express-serve-static-core" {
+declare module 'express-serve-static-core' {
     interface Request {
         request: Req;
         response: Res;
@@ -146,12 +146,12 @@ export class Route {
     ) {
         this.router[method](path, async (req: express.Request, _res, next) => {
             const { request, response } = req;
-            
+
             try {
                 const run = async (i: number) => {
                     if (i >= fn.length) return next();
                     await fn[i](request as Req<T>, response, () => run(i + 1));
-                }
+                };
 
                 await run(0);
             } catch (e) {
@@ -159,7 +159,7 @@ export class Route {
             }
         });
     }
-    
+
     public get<T>(path: string, ...fn: ServerFunction<T>[]) {
         this.addListener(RequestMethod.GET, path, ...fn);
     }
@@ -180,12 +180,12 @@ export class Route {
 export class App {
     public static headerAuth(key: string, value: string): ServerFunction {
         return (req, res, next) => {
-            if (req.headers.get(key) === value){
+            if (req.headers.get(key) === value) {
                 next();
             } else {
                 res.sendStatus('permissions:unauthorized');
             }
-        }
+        };
     }
 
     public readonly io: SocketWrapper;
@@ -193,7 +193,7 @@ export class App {
 
     constructor(
         public readonly port: number,
-        public readonly domain: string,
+        public readonly domain: string
     ) {
         this.server = express();
         const s = http.createServer(this.server);
@@ -205,18 +205,20 @@ export class App {
 
         this.server.use(express.json());
         this.server.use(express.urlencoded({ extended: true }));
-        this.server.use(session({
-            secret: 'hello darkness my old friend',
-            resave: false,
-            saveUninitialized: true,
-            cookie: {
-                secure: true,
-                maxAge: 1000 * 60 * 60 * 24 * 365
-            }
-        }));
+        this.server.use(
+            session({
+                secret: 'hello darkness my old friend',
+                resave: false,
+                saveUninitialized: true,
+                cookie: {
+                    secure: true,
+                    maxAge: 1000 * 60 * 60 * 24 * 365
+                }
+            })
+        );
         this.server.use(async (req, res, next) => {
             const id = req.sessionID;
-            
+
             const s = await Session.from(this, req, res);
             const request = new Req(this, req, s);
             req.request = request;
@@ -234,8 +236,10 @@ export class App {
             try {
                 const run = async (i: number) => {
                     if (i >= fn.length) return next();
-                    await fn[i](req.request as Req<T>, req.response, () => run(i + 1));
-                }
+                    await fn[i](req.request as Req<T>, req.response, () =>
+                        run(i + 1)
+                    );
+                };
 
                 await run(0);
             } catch (e) {
@@ -268,16 +272,11 @@ export class App {
         this.server.use(path, route.router);
     }
 
-    public static(
-        path: string,
-        dirPath: string,
-    ) {
+    public static(path: string, dirPath: string) {
         this.server.use(path, express.static(dirPath));
     }
 
-    public final(
-        fn: FinalFunction<unknown>
-    ) {
+    public final(fn: FinalFunction<unknown>) {
         // this.server.use(async (req: express.Request, res: express.Response) => {
         //     try {
         //         await fn(req.request, req.response);

@@ -85,13 +85,13 @@ export const loadFileContents = (): Promise<
             const files = Array.from(res.value);
 
             const contents = await Promise.all(
-                files.map(async (file) => {
+                files.map(async file => {
                     const text = await file.text();
                     if (!text) {
                         throw new Error(`File ${file.name} is empty`);
                     }
                     return { name: file.name, text };
-                }),
+                })
             );
 
             return contents;

@@ -1,13 +1,13 @@
 import {
     Point2D,
-    Point3D,
+    Point3D
 } from '../../../shared/submodules/calculations/src/linear-algebra/point';
 import { EventEmitter } from '../../../shared/event-emitter';
 import {
     FillProperties,
     LineProperties,
     ShapeProperties,
-    TextProperties,
+    TextProperties
 } from './properties';
 import { Canvas } from './canvas';
 
@@ -32,7 +32,7 @@ export class DrawableEvent<e = unknown> {
         public readonly event: e,
         public readonly points: Point2D[],
         public readonly canvas: Canvas,
-        public readonly drawable: Drawable,
+        public readonly drawable: Drawable
     ) {}
 }
 
@@ -149,8 +149,8 @@ export class Drawable<T = any> {
         doDraw: () => true,
         mirror: {
             x: false,
-            y: false,
-        },
+            y: false
+        }
     };
 
     private $warned = false;
@@ -158,7 +158,7 @@ export class Drawable<T = any> {
     get $properties() {
         if (!this.$warned) {
             console.warn(
-                'Drawable.$properties will be deprecated in the future, use Drawable.properties instead',
+                'Drawable.$properties will be deprecated in the future, use Drawable.properties instead'
             );
         }
         this.$warned = true;
@@ -176,7 +176,7 @@ export class Drawable<T = any> {
      */
     on<K extends keyof DrawableEvents>(
         event: K,
-        listener: (data: DrawableEvents[K]) => void,
+        listener: (data: DrawableEvents[K]) => void
     ) {
         this.$emitter.on(event, listener);
     }
@@ -192,7 +192,7 @@ export class Drawable<T = any> {
      */
     off<K extends keyof DrawableEvents>(
         event: K,
-        listener: (data: DrawableEvents[K]) => void,
+        listener: (data: DrawableEvents[K]) => void
     ) {
         this.$emitter.off(event, listener);
     }
@@ -208,7 +208,7 @@ export class Drawable<T = any> {
      */
     once<K extends keyof DrawableEvents>(
         event: K,
-        listener: (data: DrawableEvents[K]) => void,
+        listener: (data: DrawableEvents[K]) => void
     ) {
         this.$emitter.once(event, listener);
     }

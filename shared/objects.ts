@@ -49,17 +49,17 @@ export const bigIntDecode = (obj: unknown): any => {
 export const toTable = (
     data: {
         [key: string]: string | number | boolean | undefined;
-    }[],
+    }[]
 ) => {
     const headers: string[] = [];
-    const rows = data.map((row) => {
+    const rows = data.map(row => {
         const moreHeaders = Object.keys(row).filter(
-            (key) => !headers.includes(key),
+            key => !headers.includes(key)
         );
         if (moreHeaders.length > 0) {
             headers.push(...moreHeaders);
         }
-        return headers.map((header) => row[header]);
+        return headers.map(header => row[header]);
     });
 
     rows.unshift(headers);

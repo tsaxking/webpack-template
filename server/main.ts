@@ -1,11 +1,11 @@
-import { Builder } from "./bundler";
-import { Colors } from "./utilities/colors";
-import { deleteDeps, pullDeps } from "../scripts/pull-deps";
+import { Builder } from './bundler';
+import { Colors } from './utilities/colors';
+import { deleteDeps, pullDeps } from '../scripts/pull-deps';
 // import { Worker } from "worker_threads";
 // import env from "./utilities/env";
-import { ChildProcess, spawn } from "child_process";
-import { stdin } from "./utilities/stdin";
-import path from "path";
+import { ChildProcess, spawn } from 'child_process';
+import { stdin } from './utilities/stdin';
+import path from 'path';
 
 // TODO: Multithreading
 // class Server {
@@ -28,7 +28,6 @@ import path from "path";
 //         Server.start();
 //     }
 
-
 //     private worker: Worker;
 
 //     constructor(public readonly id: number) {
@@ -47,8 +46,14 @@ import path from "path";
 //     }
 // }
 
-const log = (...args: unknown[]) => 
-    console.log(Colors.FgBlue, '[Main]', Colors.Reset, new Date().toISOString(), ...args);
+const log = (...args: unknown[]) =>
+    console.log(
+        Colors.FgBlue,
+        '[Main]',
+        Colors.Reset,
+        new Date().toISOString(),
+        ...args
+    );
 
 const main = async () => {
     // const res = await pullDeps();
@@ -57,7 +62,6 @@ const main = async () => {
     // const servers = Number(env.NUM_SERVERS) || 1;
 
     // for (let i = 0; i < servers; i++) new Server(i);
-
 
     // temporary
     const start = (): ChildProcess => {
@@ -80,18 +84,18 @@ const main = async () => {
         if (!child) return start();
         kill(child);
         return start();
-    }
+    };
 
     const builder = new Builder();
     let child: ChildProcess | undefined = undefined;
 
     // if (args.includes('--stdin')) {
-        stdin.on('rs', () => {
-            child = restart(child);
-        });
-        stdin.on('rb', async () => {
-            await builder.build();
-        });
+    stdin.on('rs', () => {
+        child = restart(child);
+    });
+    stdin.on('rb', async () => {
+        await builder.build();
+    });
     // }
 
     builder.em.on('build', () => {
@@ -104,9 +108,9 @@ const main = async () => {
     // child = start();
 
     // if (args.includes('--watch')) {
-        builder.watch('./client');
-        builder.watch('./shared');
-        builder.watch('./server');
+    builder.watch('./client');
+    builder.watch('./shared');
+    builder.watch('./server');
     // }
 
     const close = () => {
@@ -123,25 +127,24 @@ const main = async () => {
         //         process.exit(1);
         //     });
         process.exit(0);
-    }
+    };
 
     process.on('SIGINT', close);
     process.on('SIGTERM', close);
     process.on('exit', close);
-    process.on('uncaughtException', (e) => {
+    process.on('uncaughtException', e => {
         log('Uncaught exception:', e);
         close();
     });
-    process.on('unhandledRejection', (e) => {
+    process.on('unhandledRejection', e => {
         log('Unhandled rejection:', e);
         close();
     });
-}
+};
 
 if (require.main === module) {
-    main()
-        .catch((e) => {
-            console.error(e);
-            process.exit(1);
-        });
+    main().catch(e => {
+        console.error(e);
+        process.exit(1);
+    });
 }

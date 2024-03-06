@@ -22,7 +22,7 @@ import { fromCamelCase, toSnakeCase } from '../shared/text';
         // return str;
         return str.replace(
             /[A-Z]*[a-z]+((\d)|([A-Z0-9][a-z0-9]+))*([A-Z])?/g,
-            (word) => {
+            word => {
                 // console.log(toSnakeCase(fromCamelCase(word)));
                 let w = toSnakeCase(fromCamelCase(word));
                 if (w.startsWith('_')) {
@@ -31,12 +31,12 @@ import { fromCamelCase, toSnakeCase } from '../shared/text';
                     // w = w.charAt(0).toUpperCase() + w.slice(1);
                 }
                 return w;
-            },
+            }
         );
     };
-    
+
     const initSql = await readFile('storage/db/queries/db/init.sql');
-    
+
     if (initSql.isOk()) {
         const data = ` SELECT column_name
         FROM information_schema.columns
@@ -47,5 +47,4 @@ import { fromCamelCase, toSnakeCase } from '../shared/text';
     } else {
         throw initSql.error;
     }
-    
 })();

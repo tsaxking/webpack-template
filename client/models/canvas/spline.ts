@@ -8,7 +8,7 @@ type SplineOptions = {
 export class Spline extends Drawable<Spline> {
     constructor(
         public readonly spline: S,
-        public readonly options: Partial<SplineOptions> = {},
+        public readonly options: Partial<SplineOptions> = {}
     ) {
         super();
     }

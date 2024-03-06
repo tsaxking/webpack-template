@@ -5,11 +5,11 @@ export const env: {
 } = {};
 
 setTimeout(() =>
-    ServerRequest.post('/env').then((res) => {
+    ServerRequest.post('/env').then(res => {
         if (res.isOk()) {
             Object.assign(env, res.value);
             Object.assign(window, {
-                __env: env,
+                __env: env
             });
         }
     })

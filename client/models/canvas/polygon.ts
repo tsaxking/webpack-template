@@ -1,7 +1,7 @@
 import { Drawable } from './drawable';
 import {
     Point2D,
-    Point3D,
+    Point3D
 } from '../../../shared/submodules/calculations/src/linear-algebra/point';
 import { copy } from '../../../shared/copy';
 
@@ -36,7 +36,7 @@ export class Polygon extends Drawable<Polygon> {
      */
     draw(ctx: CanvasRenderingContext2D) {
         ctx.beginPath();
-        const points = this.points.map((p) => this.reflect(p));
+        const points = this.points.map(p => this.reflect(p));
         if (!points[0]) return;
 
         const x0 = points[0][0] * ctx.canvas.width;
@@ -46,7 +46,7 @@ export class Polygon extends Drawable<Polygon> {
         for (let i = 1; i < points.length; i++) {
             ctx.lineTo(
                 points[i][0] * ctx.canvas.width,
-                points[i][1] * ctx.canvas.height,
+                points[i][1] * ctx.canvas.height
             );
         }
         ctx.closePath();
@@ -77,7 +77,7 @@ export class Polygon extends Drawable<Polygon> {
         const [x, y] = point;
         let inside = false;
 
-        const points = this.points.map((p) => this.reflect(p));
+        const points = this.points.map(p => this.reflect(p));
 
         for (let i = 0, j = points.length - 1; i < points.length; j = i++) {
             const xi = points[i][0],
@@ -85,7 +85,8 @@ export class Polygon extends Drawable<Polygon> {
             const xj = points[j][0],
                 yj = points[j][1];
 
-            const intersect = yi > y !== yj > y &&
+            const intersect =
+                yi > y !== yj > y &&
                 x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
             if (intersect) inside = !inside;
         }
@@ -94,7 +95,7 @@ export class Polygon extends Drawable<Polygon> {
     }
 
     clone(): Polygon {
-        const p = new Polygon(this.points.map((p) => [...p]));
+        const p = new Polygon(this.points.map(p => [...p]));
         copy(this, p);
         return p;
     }

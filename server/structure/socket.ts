@@ -1,7 +1,7 @@
-import { App } from "./app/app";
-import { EventEmitter } from "../../shared/event-emitter";
-import { Server } from "socket.io";
-import { parseCookie } from "../../shared/cookie";
+import { App } from './app/app';
+import { EventEmitter } from '../../shared/event-emitter';
+import { Server } from 'socket.io';
+import { parseCookie } from '../../shared/cookie';
 
 export class SocketWrapper {
     public static readonly sockets = new Map<string, SocketWrapper>();
@@ -9,15 +9,15 @@ export class SocketWrapper {
     private readonly em = new EventEmitter();
     constructor(
         private readonly app: App,
-        private readonly io: Server,
+        private readonly io: Server
     ) {
-        io.on('connection', (socket) => {
+        io.on('connection', socket => {
             console.log('connected');
 
             const cookie = socket.handshake.headers.cookie;
             if (cookie) {
                 const { ssid } = parseCookie(cookie);
-                
+
                 if (ssid) {
                     socket.join(ssid);
                     SocketWrapper.sockets.set(ssid, this);

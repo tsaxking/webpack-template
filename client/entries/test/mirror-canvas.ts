@@ -13,7 +13,7 @@ const ctx = c.getContext('2d');
 if (!ctx) throw new Error('Could not get canvas context');
 
 const canvas = new Canvas(ctx, {
-    events: ['click'],
+    events: ['click']
 });
 canvas.adaptable = true;
 canvas.ratio = 2;

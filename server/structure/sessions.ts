@@ -5,7 +5,6 @@ import { error, log } from '../utilities/terminal-logging';
 import { App, CookieOptions } from './app/app';
 import Account from './accounts';
 
-
 /**
  * Session object from the database
  * @date 10/12/2023 - 3:13:58 PM
@@ -35,7 +34,11 @@ export type SessionObj = {
  * @typedef {Session}
  */
 export class Session {
-    public static async from(app: App, req: express.Request, res: express.Response): Promise<Session> {
+    public static async from(
+        app: App,
+        req: express.Request,
+        res: express.Response
+    ): Promise<Session> {
         const id = req.cookies?.[Session.sessionName];
         if (id) {
             const s = await Session.get(app, id);
@@ -69,7 +72,7 @@ export class Session {
         per: number;
     } = {
         max: 500,
-        per: 60 * 1000,
+        per: 60 * 1000
     };
 
     /**
@@ -82,7 +85,7 @@ export class Session {
     static cookieOptions: CookieOptions = {
         maxAge: 60 * 60 * 24 * 7,
         httpOnly: true,
-        sameSite: 'Strict',
+        sameSite: 'Strict'
     };
     /**
      * The cookie identifier for the session
@@ -151,12 +154,16 @@ export class Session {
      * @param {Res} res
      * @returns {(Session|undefined)}
      */
-    static newSession(app: App, req: express.Request, res: express.Response): Session {
+    static newSession(
+        app: App,
+        req: express.Request,
+        res: express.Response
+    ): Session {
         const s = new Session(app, req);
         res.cookie(Session.sessionName, s.id, {
             maxAge: Session.cookieOptions.maxAge,
             httpOnly: Session.cookieOptions.httpOnly,
-            path: '/',
+            path: '/'
         });
         // req.cookies[Session.sessionName] = s.id;
 
@@ -168,7 +175,7 @@ export class Session {
             userAgent: s.userAgent || '',
             prevUrl: s.prevUrl || '',
             requests: s.requests,
-            created: s.created,
+            created: s.created
         });
 
         return s;
@@ -238,7 +245,10 @@ export class Session {
      * @constructor
      * @param {?Req} [req]
      */
-    constructor(private readonly app: App, req?: express.Request) {
+    constructor(
+        private readonly app: App,
+        req?: express.Request
+    ) {
         this.id = Session.newId();
 
         if (req) {
@@ -278,7 +288,7 @@ export class Session {
                 this.save();
                 // Session.cache.delete(this.id);
             },
-            1000 * 60 * 5,
+            1000 * 60 * 5
         );
     }
 
@@ -313,7 +323,7 @@ export class Session {
 
         if (this.accountId) {
             const res = await DB.get('blacklist/from-account', {
-                accountId: this.accountId,
+                accountId: this.accountId
             });
             if (res.isOk() && res.value) return true;
         }
@@ -329,7 +339,7 @@ export class Session {
             ip: this.ip || '',
             reason,
             accountId: this.accountId,
-            created: Date.now(),
+            created: Date.now()
         });
     }
 
@@ -398,7 +408,7 @@ export class Session {
                 accountId: this.accountId || '',
                 userAgent: this.userAgent || '',
                 prevUrl: this.prevUrl || '',
-                requests: this.requests,
+                requests: this.requests
             });
         } else {
             return DB.run('sessions/new', {
@@ -409,7 +419,7 @@ export class Session {
                 userAgent: this.userAgent || '',
                 prevUrl: this.prevUrl || '',
                 requests: this.requests,
-                created: this.created,
+                created: this.created
             });
         }
     }

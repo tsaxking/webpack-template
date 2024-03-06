@@ -8,17 +8,17 @@ import test from 'test';
 import assert from 'assert';
 
 const assertEquals = (a: unknown, b: unknown) => {
-    assert.strictEqual(a, b);
-}
+    assert.deepEqual(a, b);
+};
 
 export const runTests = async () => {
     test('Run async task functionality', async () => {
         const asyncTest = await runFile<string[]>(
-            '/scripts/tests/run-task-test.ts',
+            './scripts/tests/run-task-test.ts',
             'asyncFn',
             'a',
             'b',
-            'c',
+            'c'
         );
         log('Async test result:', asyncTest);
         if (asyncTest.isErr()) throw asyncTest.error;
@@ -27,11 +27,11 @@ export const runTests = async () => {
 
     test('Run sync task functionality', async () => {
         const syncTest = await runFile<string[]>(
-            '/scripts/tests/run-task-test.ts',
+            './scripts/tests/run-task-test.ts',
             'syncFn',
             'a',
             'b',
-            'c',
+            'c'
         );
         log('Sync test result:', syncTest);
         if (syncTest.isErr()) throw syncTest.error;
@@ -41,8 +41,8 @@ export const runTests = async () => {
     test('Run command', async () => {
         const result = await runTask('echo', ['"test"']);
         log('Command result:', result);
-        if (result.isOk()) assertEquals(true, true);
-        else throw result.error;
+        if (result.isOk()) return assertEquals(true, true);
+        throw result.error;
     });
 
     test('Data validation', async () => {
@@ -75,17 +75,17 @@ export const runTests = async () => {
                 passFunction: () => true,
                 failFunction: () => false,
 
-                missing: 'string',
+                missing: 'string'
             },
             {
-                log: true,
+                // log: true,
                 onInvalid: (key, value) => {
                     invalid.push([key, value]);
                 },
-                onMissing: (key) => {
+                onMissing: key => {
                     missing.push(key);
-                },
-            },
+                }
+            }
         )(
             {
                 body: {
@@ -100,9 +100,9 @@ export const runTests = async () => {
                     passCustomArray: 'a',
                     failCustomArray: 'd',
                     passFunction: true,
-                    failFunction: false,
+                    failFunction: false
                 },
-                url: new URL('http://localhost:1234'),
+                url: new URL('http://localhost:1234')
             } as unknown as Req,
             {
                 sendStatus: () => {
@@ -113,12 +113,12 @@ export const runTests = async () => {
                             'failNumber',
                             'failPrimitiveArray',
                             'failCustomArray',
-                            'failFunction',
+                            'failFunction'
                         ].includes(key);
                     });
 
                     const passedMissings = missing.every(
-                        (key) => key === 'missing',
+                        key => key === 'missing'
                     );
 
                     if (passedInvalids && passedMissings) {
@@ -130,9 +130,9 @@ export const runTests = async () => {
 
                         assertEquals(true, false);
                     }
-                },
+                }
             } as unknown as Res,
-            fail,
+            fail
         );
     });
 };

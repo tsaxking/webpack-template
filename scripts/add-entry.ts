@@ -1,8 +1,5 @@
 import { Colors } from '../server/utilities/colors';
-import {
-    __root,
-    unify
-} from '../server/utilities/env';
+import { __root, unify } from '../server/utilities/env';
 import { attempt } from '../shared/check';
 import fs from 'fs';
 import path from 'path';
@@ -10,7 +7,7 @@ import { prompt } from './prompt';
 
 const { dirname, relative, resolve } = path;
 
-const [,, ...args] = process.argv;
+const [, , ...args] = process.argv;
 
 export const runEntryPrompt = async () => {
     if (args.length) {
@@ -35,22 +32,20 @@ export const addEntry = (name: string, importFile?: string) => {
 
     const importsRelative = relative(
         dir,
-        resolve(__root, 'client', 'utilities', 'imports'),
+        resolve(__root, 'client', 'utilities', 'imports')
     );
 
     const imports = `import '${unify(importsRelative)}';
 ${
-        importFile
-            ? `import App from '${
-                unify(
-                    relative(dir, resolve(__root, importFile)),
-                )
-            }';
+    importFile
+        ? `import App from '${unify(
+              relative(dir, resolve(__root, importFile))
+          )}';
 
 const myApp = new App({ target: document.body });
 `
-            : ''
-    }
+        : ''
+}
 `;
 
     // Deno.writeFileSync(filepath, new TextEncoder().encode(imports));
@@ -66,7 +61,7 @@ const myApp = new App({ target: document.body });
 
 if (require.main) {
     console.warn(
-        `⚠️ ${Colors.FgYellow}Running this script will be deprecated soon, please use "deno task manager" and select [General] -> Create Entry instead.${Colors.Reset} ⚠️`,
+        `⚠️ ${Colors.FgYellow}Running this script will be deprecated soon, please use "deno task manager" and select [General] -> Create Entry instead.${Colors.Reset} ⚠️`
     );
     runEntryPrompt();
 }

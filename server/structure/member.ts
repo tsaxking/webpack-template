@@ -8,7 +8,7 @@ import { removeUpload } from '../utilities/files';
 import {
     Member as MemberObj,
     MemberSafe,
-    MembershipStatus,
+    MembershipStatus
 } from '../../shared/db-types';
 import { Next } from './app/app';
 import { Req } from './app/req';
@@ -23,7 +23,7 @@ export enum MemberReturnStatus {
     hasSkill = 'hasSkill',
     noSkill = 'noSkill',
     skillAdded = 'skillAdded',
-    skillRemoved = 'skillRemoved',
+    skillRemoved = 'skillRemoved'
 }
 
 export class Member {
@@ -32,7 +32,7 @@ export class Member {
             username: string;
         }>,
         res: Res,
-        next: Next,
+        next: Next
     ) {
         const { username } = req.body;
         const self = await req.session.getAccount();
@@ -73,8 +73,8 @@ export class Member {
             account.sendEmail('sfzMusic Membership Request', EmailType.text, {
                 constructor: {
                     message,
-                    title: 'sfzMusic Membership Request',
-                },
+                    title: 'sfzMusic Membership Request'
+                }
             });
         };
 
@@ -84,11 +84,11 @@ export class Member {
             if (isMember.status === 'rejected') {
                 await DB.run('member/update-status', {
                     status: 'twicePending',
-                    id: account.id,
+                    id: account.id
                 });
 
                 sendEmail(
-                    'You have re-requested to join sfzMusic. After this request, you cannot request again. You will receive another email when your request has been approved.',
+                    'You have re-requested to join sfzMusic. After this request, you cannot request again. You will receive another email when your request has been approved.'
                 );
                 return 'pending';
             } else {
@@ -100,11 +100,11 @@ export class Member {
 
         await DB.run('member/new', {
             id: account.id,
-            status: 'pending',
+            status: 'pending'
         });
 
         sendEmail(
-            'You have requested to join sfzMusic. You will receive another email when your request has been approved.',
+            'You have requested to join sfzMusic. You will receive another email when your request has been approved.'
         );
 
         new Member({
@@ -112,7 +112,7 @@ export class Member {
             bio: '',
             title: '',
             resume: '',
-            status: 'pending',
+            status: 'pending'
         });
 
         return 'pending';
@@ -120,7 +120,7 @@ export class Member {
 
     static async get(username: string): Promise<Member | undefined> {
         const data = await DB.get('member/from-username', {
-            username,
+            username
         });
         if (data.isOk() && data.value) return new Member(data.value);
         return undefined;
@@ -149,7 +149,7 @@ export class Member {
     async accept() {
         DB.run('member/update-status', {
             status: 'accepted',
-            id: this.id,
+            id: this.id
         });
 
         this.status = 'accepted';
@@ -164,9 +164,9 @@ export class Member {
                 constructor: {
                     message:
                         'Your request to join sfzMusic has been accepted. You can now log in to your account and access the member portal.',
-                    title: 'sfzMusic Membership Request Accepted',
-                },
-            },
+                    title: 'sfzMusic Membership Request Accepted'
+                }
+            }
         );
     }
 
@@ -174,7 +174,7 @@ export class Member {
         if (this.status === 'twicePending') {
             DB.run('member/update-status', {
                 status: 'notAllowed',
-                id: this.id,
+                id: this.id
             });
 
             this.status = 'notAllowed';
@@ -182,7 +182,7 @@ export class Member {
         }
         DB.run('member/update-status', {
             status: 'rejected',
-            id: this.id,
+            id: this.id
         });
 
         this.status = 'rejected';
@@ -190,7 +190,7 @@ export class Member {
 
     async revoke() {
         DB.run('member/delete', {
-            id: this.id,
+            id: this.id
         });
         const account = await Account.fromId(this.id);
         if (!account) return;
@@ -198,8 +198,8 @@ export class Member {
             constructor: {
                 message:
                     'Your membership to sfzMusic has been revoked. You can no longer access the member portal.',
-                title: 'sfzMusic Membership Revoked',
-            },
+                title: 'sfzMusic Membership Revoked'
+            }
         });
     }
 
@@ -209,7 +209,7 @@ export class Member {
             bio: this.bio,
             title: this.title,
             resume: this.resume,
-            status: this.status as MembershipStatus,
+            status: this.status as MembershipStatus
             // skills: this.getSkills()
         } as MemberSafe;
     }
@@ -219,7 +219,7 @@ export class Member {
 
         DB.run('member/update-bio', {
             bio: bio,
-            id: this.id,
+            id: this.id
         });
 
         this.bio = bio;
@@ -234,7 +234,7 @@ export class Member {
 
         DB.run('member/update-title', {
             title,
-            id: this.id,
+            id: this.id
         });
 
         this.title = title;
@@ -292,19 +292,19 @@ export class Member {
 
         DB.run('member/update-resume', {
             resume: id,
-            id: this.id,
+            id: this.id
         });
     }
 
     addToBoard() {
         return DB.run('member/add-to-board', {
-            id: this.id,
+            id: this.id
         });
     }
 
     removeFromBoard() {
         return DB.run('member/remove-from-board', {
-            id: this.id,
+            id: this.id
         });
     }
 }

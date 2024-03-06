@@ -56,7 +56,7 @@ export const emitter = (() => {
             public readonly data: Updates[T],
             public readonly url: string,
             public readonly method: string,
-            public readonly reason: Reason,
+            public readonly reason: Reason
         ) {}
     }
 
@@ -65,14 +65,14 @@ export const emitter = (() => {
 
         on<K extends keyof Updates>(
             event: K,
-            callback: (data: DataValidationFaliure<K>) => void,
+            callback: (data: DataValidationFaliure<K>) => void
         ): void {
             this.emitter.on(event, callback);
         }
 
         off<K extends keyof Updates>(
             event: K,
-            callback?: (data: DataValidationFaliure<K>) => void,
+            callback?: (data: DataValidationFaliure<K>) => void
         ): void {
             this.emitter.off(event, callback);
         }
@@ -81,14 +81,14 @@ export const emitter = (() => {
             event: K,
             data: Updates[K],
             req: Req,
-            reason: Reason,
+            reason: Reason
         ): void {
             const e = new DataValidationFaliure(
                 event,
                 data,
                 req.url,
                 req.method,
-                reason,
+                reason
             );
             this.emitter.emit(event, e);
         }
@@ -106,7 +106,7 @@ export const validate = <type = unknown>(
         // each key is a key in the type generic
         [key in keyof type]: IsValid;
     },
-    options?: ValidateOptions,
+    options?: ValidateOptions
 ): ServerFunction<type> => {
     return (req, res, next) => {
         let { body } = req;
@@ -132,7 +132,7 @@ export const validate = <type = unknown>(
                     'fail',
                     [key, (body as any)[key], isValid as IsValid],
                     req,
-                    'missing-key',
+                    'missing-key'
                 );
                 continue;
             }
@@ -141,9 +141,9 @@ export const validate = <type = unknown>(
             if (Array.isArray(isValid)) {
                 log('is array');
                 // is it a primitive array?
-                const isPrimitive = isValid.every((value) =>
+                const isPrimitive = isValid.every(value =>
                     ['string', 'number', 'boolean'].includes(
-                        value as AllowedPrimitive,
+                        value as AllowedPrimitive
                     )
                 );
                 // if not, it's just a normal array
@@ -152,7 +152,7 @@ export const validate = <type = unknown>(
                     log('is primitive array');
                     if (
                         !(isValid as AllowedPrimitive[]).includes(
-                            typeof (body as any)[key] as AllowedPrimitive,
+                            typeof (body as any)[key] as AllowedPrimitive
                         )
                     ) {
                         log('invalid primitive array');
@@ -163,7 +163,7 @@ export const validate = <type = unknown>(
                             'fail',
                             [key, (body as any)[key], isValid as IsValid],
                             req,
-                            'invalid-primitive-array',
+                            'invalid-primitive-array'
                         );
                         continue;
                     }
@@ -182,7 +182,7 @@ export const validate = <type = unknown>(
                             'fail',
                             [key, (body as any)[key], isValid as IsValid],
                             req,
-                            'invalid-normal-array',
+                            'invalid-normal-array'
                         );
                         continue;
                     }
@@ -191,7 +191,7 @@ export const validate = <type = unknown>(
                 log('is not array');
                 // is it a primitive?
                 const isPrimitive = ['string', 'number', 'boolean'].includes(
-                    isValid as unknown as AllowedPrimitive,
+                    isValid as unknown as AllowedPrimitive
                 );
 
                 if (isPrimitive) {
@@ -205,13 +205,15 @@ export const validate = <type = unknown>(
                             'fail',
                             [key, (body as any)[key], isValid as IsValid],
                             req,
-                            'invalid-primitive',
+                            'invalid-primitive'
                         );
                         continue;
                     }
                 } else {
                     log('is not primitive');
-                    if ((isValid as (data: any) => boolean)((body as any)[key])) {
+                    if (
+                        (isValid as (data: any) => boolean)((body as any)[key])
+                    ) {
                         log('valid non-primitive');
                         // valid
                         continue;
@@ -223,7 +225,7 @@ export const validate = <type = unknown>(
                             'fail',
                             [key, (body as any)[key], isValid as IsValid],
                             req,
-                            'invalid-non-primitive',
+                            'invalid-non-primitive'
                         );
                         continue;
                     }
@@ -266,5 +268,5 @@ export const trimBody = bodyPipe(
             body[key] = body[key].trim();
         }
         return body;
-    },
+    }
 );

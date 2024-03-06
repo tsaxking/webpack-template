@@ -25,7 +25,7 @@ export default class Role {
     static allowRoles(..._role: never[]): ServerFunction {
         return async (_req, _res, _next) => {
             throw new Error(
-                'This method is deprecated, use Account.allowPermissions() instead',
+                'This method is deprecated, use Account.allowPermissions() instead'
             );
         };
     }
@@ -42,7 +42,7 @@ export default class Role {
     static preventRoles(..._role: never[]): ServerFunction {
         return async (_req, _res, _next) => {
             throw new Error(
-                'This method is deprecated, use Account.allowPermissions() instead',
+                'This method is deprecated, use Account.allowPermissions() instead'
             );
         };
     }
@@ -65,7 +65,7 @@ export default class Role {
      */
     static async fromId(id: string): Promise<Role | undefined> {
         const r = await DB.get('roles/from-id', {
-            id,
+            id
         });
         if (r.isOk() && r.value) return new Role(r.value);
         return;
@@ -81,7 +81,7 @@ export default class Role {
      */
     static async fromName(name: string): Promise<Role | undefined> {
         const r = await DB.get('roles/from-name', {
-            name,
+            name
         });
         if (r.isOk() && r.value) return new Role(r.value);
         return;
@@ -111,13 +111,13 @@ export default class Role {
             name,
             description,
             id,
-            rank,
+            rank
         });
         return new Role({
             name,
             description,
             id,
-            rank,
+            rank
         });
     }
 
@@ -172,12 +172,11 @@ export default class Role {
      */
     async getPermissions(): Promise<RolePermission[]> {
         const data = await DB.all('permissions/from-role', {
-            roleId: this.id,
+            roleId: this.id
         });
         if (data.isOk()) {
             return data.value.filter((p, i, a) => {
-                return a.findIndex((pp) => pp.permission === p.permission) ===
-                    i;
+                return a.findIndex(pp => pp.permission === p.permission) === i;
             });
         }
         return [];
@@ -186,14 +185,14 @@ export default class Role {
     addPermission(permission: string) {
         return DB.run('permissions/add-to-role', {
             permission,
-            roleId: this.id,
+            roleId: this.id
         });
     }
 
     removePermission(permission: string) {
         return DB.run('permissions/remove-from-role', {
             roleId: this.id,
-            permission,
+            permission
         });
     }
 
@@ -205,7 +204,7 @@ export default class Role {
         }
 
         DB.run('roles/delete', {
-            id: this.id,
+            id: this.id
         });
     }
 
@@ -214,7 +213,7 @@ export default class Role {
             id: this.id,
             name: this.name,
             description: this.description,
-            rank: this.rank,
+            rank: this.rank
         });
     }
 }

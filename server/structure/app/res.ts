@@ -23,16 +23,12 @@ type StreamEventData<T> = {
     chunk: T;
 };
 
-
-
 export class Res {
     constructor(
         public readonly app: App,
         public readonly res: express.Response,
         public readonly req: Req
-    ) {
-
-    }
+    ) {}
 
     json(data: unknown) {
         return attempt(() => this.res.json(data));
@@ -43,8 +39,7 @@ export class Res {
     }
 
     sendFile(path: string) {
-        return attempt(() => this.res
-            .sendFile(path));
+        return attempt(() => this.res.sendFile(path));
     }
 
     status(code: StatusCode) {
@@ -59,14 +54,13 @@ export class Res {
         return attempt(() => this.res.cookie(name, value, options));
     }
 
-    sendStatus(
-        id: StatusId,
-        data?: unknown,
-        redirect?: string
-    ) {
+    sendStatus(id: StatusId, data?: unknown, redirect?: string) {
         return attempt(() => {
-            const s = Status.from(id,
-                this.req, JSON.stringify(bigIntEncode(data)));
+            const s = Status.from(
+                id,
+                this.req,
+                JSON.stringify(bigIntEncode(data))
+            );
 
             s.redirect = redirect || s.redirect || '';
             s.send(this);
@@ -87,15 +81,12 @@ export class Res {
         const em = new EventEmitter<keyof StreamEventData<T>>();
 
         const stream = new ReadableStream({
-            start: (controller) => {
+            start: controller => {
                 const send = (i: number) => {
                     if (i < content.length) {
-                        const buffer = new TextEncoder()
-                            .encode(
-                                JSON.stringify(
-                                    bigIntEncode(content[i])
-                                )
-                            );
+                        const buffer = new TextEncoder().encode(
+                            JSON.stringify(bigIntEncode(content[i]))
+                        );
                         controller.enqueue(buffer);
                         setTimeout(() => send(i + 1), 100);
                         em.emit('chunk', content[i]);
@@ -103,7 +94,7 @@ export class Res {
                         controller.close();
                         em.emit('end');
                     }
-                }
+                };
 
                 send(0);
             },

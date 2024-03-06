@@ -71,7 +71,7 @@ export type Queries = {
     'permissions/from-role': [[{ roleId: string }], Permissions];
     'permissions/remove-from-role': [
         [Delete_permissions_remove_from_role],
-        unknown,
+        unknown
     ];
     'permissions/add-to-role': [[Insert_permissions_add_to_role], unknown];
     'roles/from-name': [[Select_roles_from_name], Roles];
@@ -109,7 +109,7 @@ export type Queries = {
     'account/update-picture': [[Update_account_update_picture], unknown];
     'account/from-verification-key': [
         [Select_account_from_verification_key],
-        Accounts,
+        Accounts
     ];
     'account/verified': [[Select_account_verified], Accounts];
     'account/verify': [[Update_account_verify], unknown];
@@ -121,17 +121,17 @@ export type Queries = {
     'account/new': [[Insert_account_new], unknown];
     'account/request-password-change': [
         [Update_account_request_password_change],
-        unknown,
+        unknown
     ];
     'account/from-password-change': [
         [Select_account_from_password_change],
-        Accounts,
+        Accounts
     ];
     'account/from-id': [[Select_account_from_id], Accounts];
     'account/all': [[Select_account_all], Accounts];
     'account/request-email-change': [
         [Update_account_request_email_change],
-        unknown,
+        unknown
     ];
     'account/change-username': [[Update_account_change_username], unknown];
     'account/roles': [[{ id: string }], Roles];
@@ -148,46 +148,46 @@ export type Queries = {
                 created: number;
                 accountId: string | undefined;
                 reason: string;
-            },
+            }
         ],
-        unknown,
+        unknown
     ];
     'blacklist/delete': [
         [
             {
                 id: string;
-            },
+            }
         ],
-        unknown,
+        unknown
     ];
     'blacklist/from-account': [
         [
             {
                 accountId: string;
-            },
+            }
         ],
-        Blacklist,
+        Blacklist
     ];
     'blacklist/from-ip': [
         [
             {
                 ip: string;
-            },
+            }
         ],
-        Blacklist,
+        Blacklist
     ];
     'blacklist/delete-by-ip': [
         [
             {
                 ip: string;
-            },
-        ],
+            }
+        ]
     ];
     'blacklist/delete-by-account': [
         [
             {
                 accountId: string;
-            },
-        ],
+            }
+        ]
     ];
 };

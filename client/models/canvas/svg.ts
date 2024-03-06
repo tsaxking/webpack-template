@@ -7,7 +7,7 @@ export class SVG extends Drawable<SVG> {
     private $ready = false;
     constructor(
         public readonly src: string,
-        public center: Point2D,
+        public center: Point2D
     ) {
         super();
 
@@ -65,7 +65,7 @@ export class SVG extends Drawable<SVG> {
             center[0] * ctx.canvas.width,
             center[1] * ctx.canvas.height,
             this.$img.width,
-            this.$img.height,
+            this.$img.height
         );
     }
 

@@ -66,7 +66,7 @@ export class Role extends Cache<RoleEvents> {
      */
     static on<E extends keyof Events>(
         event: E,
-        listener: (data: Events[E]) => void,
+        listener: (data: Events[E]) => void
     ) {
         Role.$emitter.on(event, listener);
     }
@@ -83,7 +83,7 @@ export class Role extends Cache<RoleEvents> {
      */
     static off<E extends keyof Events>(
         event: E,
-        listener: (data: Events[E]) => void,
+        listener: (data: Events[E]) => void
     ) {
         Role.$emitter.off(event, listener);
     }
@@ -113,7 +113,7 @@ export class Role extends Cache<RoleEvents> {
      */
     static once<E extends keyof Events>(
         event: E,
-        listener: (data: Events[E]) => void,
+        listener: (data: Events[E]) => void
     ) {
         Role.$emitter.once(event, listener);
     }
@@ -135,11 +135,11 @@ export class Role extends Cache<RoleEvents> {
             return (await ServerRequest.post<
                 (R & { permissions: RolePermission[] })[]
             >('/roles/all', null, {
-                cached: true,
-            }).then((res) => {
+                cached: true
+            }).then(res => {
                 if (res.isOk()) {
                     console.log(res.value);
-                    return res.value.map((r) => new Role(r));
+                    return res.value.map(r => new Role(r));
                 }
                 throw res.error;
             })) as Role[];
@@ -154,8 +154,8 @@ export class Role extends Cache<RoleEvents> {
                 '/roles/all-permissions',
                 null,
                 {
-                    cached: true,
-                },
+                    cached: true
+                }
             );
 
             if (res.isOk()) {
@@ -189,7 +189,7 @@ export class Role extends Cache<RoleEvents> {
                 R & { permissions: RolePermission[] }
             >('/roles/new', {
                 name,
-                description,
+                description
             });
 
             if (role.isOk()) {
@@ -256,7 +256,7 @@ export class Role extends Cache<RoleEvents> {
     constructor(
         data: R & {
             permissions: RolePermission[];
-        },
+        }
     ) {
         super();
         this.id = data.id;
@@ -279,7 +279,7 @@ export class Role extends Cache<RoleEvents> {
     async addPermission(permission: RolePermission): Promise<Result<void>> {
         return await ServerRequest.post<void>('/roles/add-permission', {
             id: this.id,
-            permission: permission.permission,
+            permission: permission.permission
         });
     }
 
@@ -294,13 +294,13 @@ export class Role extends Cache<RoleEvents> {
     async removePermission(permission: RolePermission): Promise<Result<void>> {
         return await ServerRequest.post<void>('/roles/remove-permission', {
             id: this.id,
-            permission: permission.permission,
+            permission: permission.permission
         });
     }
 
     async delete(): Promise<Result<void>> {
         return await ServerRequest.post<void>('/roles/delete', {
-            id: this.id,
+            id: this.id
         });
     }
 }
@@ -317,7 +317,7 @@ socket.on(
         r.emit('change-permissions', permissions);
 
         Role.emit('update', r);
-    },
+    }
 );
 
 socket.on(
@@ -331,5 +331,5 @@ socket.on(
 
         r.emit('change-permissions', permissions);
         Role.emit('update', r);
-    },
+    }
 );

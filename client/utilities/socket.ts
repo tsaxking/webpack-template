@@ -23,7 +23,7 @@ class SocketWrapper {
             id: string;
         }>('/socket', {
             cache: this.cache,
-            id: this.id,
+            id: this.id
         });
 
         if (res.isOk()) {

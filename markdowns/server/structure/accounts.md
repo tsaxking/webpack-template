@@ -12,7 +12,7 @@ const a = Account.create(
     'password',
     'email',
     'firstName',
-    'lastName',
+    'lastName'
 );
 if (a === 'created') {
     // account was created

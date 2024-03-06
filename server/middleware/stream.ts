@@ -1,6 +1,4 @@
-import {
-    createUploadsFolder,
-} from '../utilities/files';
+import { createUploadsFolder } from '../utilities/files';
 import { __uploads } from '../utilities/env';
 import { ServerFunction } from '../structure/app/app';
 import { Req } from '../structure/app/req';
@@ -46,8 +44,8 @@ export const fileStream = (opts?: FileStreamOptions): ServerFunction => {
         dest: __uploads,
         limits: {
             fileSize: opts?.maxFileSize,
-            files: opts?.maxFiles,
-        },
+            files: opts?.maxFiles
+        }
     });
 
     return async (req, res, next) => {
@@ -68,12 +66,8 @@ export const fileStream = (opts?: FileStreamOptions): ServerFunction => {
             }
         }
 
-        upload.array('files', opts?.maxFiles ?? 1)(
-            req.req,
-            res.res,
-            next
-        )
-    }
+        upload.array('files', opts?.maxFiles ?? 1)(req.req, res.res, next);
+    };
 };
 
 /**
@@ -117,21 +111,21 @@ type StreamOptions = {
  * @date 1/9/2024 - 1:21:53 PM
  */
 export const retrieveStream = (
-    options: Partial<StreamOptions>,
+    options: Partial<StreamOptions>
 ): ServerFunction<
     | {
-        type: 'data';
-        index: number;
-        data: string;
-        size: number;
-    }
+          type: 'data';
+          index: number;
+          data: string;
+          size: number;
+      }
     | {
-        type: 'end';
-    }
+          type: 'end';
+      }
     | {
-        type: 'error';
-        error: Error;
-    }
+          type: 'error';
+          error: Error;
+      }
 > => {
     const cached = new Map<number, string>();
 
@@ -149,20 +143,20 @@ export const retrieveStream = (
     return (
         req: Req<
             | {
-                type: 'data';
-                index: number;
-                data: string;
-                size: number;
-            }
+                  type: 'data';
+                  index: number;
+                  data: string;
+                  size: number;
+              }
             | {
-                type: 'end';
-            }
+                  type: 'end';
+              }
             | {
-                type: 'error';
-                error: Error;
-            }
+                  type: 'error';
+                  error: Error;
+              }
         >,
-        res: Res,
+        res: Res
     ) => {
         try {
             const { type } = req.body;
@@ -178,7 +172,7 @@ export const retrieveStream = (
 
                         res.json({
                             index: sentIndex,
-                            status: 'received',
+                            status: 'received'
                         });
                     })();
                     break;
@@ -186,21 +180,21 @@ export const retrieveStream = (
                     options.onEnd?.();
                     res.json({
                         index: sentIndex,
-                        status: 'ended',
+                        status: 'ended'
                     });
                     break;
                 case 'error':
                     options.onError?.(req.body.error);
                     res.json({
                         index: sentIndex,
-                        status: 'error',
+                        status: 'error'
                     });
                     break;
             }
         } catch (error) {
             res.json({
                 index: sentIndex,
-                status: 'error',
+                status: 'error'
             });
         }
     };

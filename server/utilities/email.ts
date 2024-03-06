@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import {sgTransport} from '@neoxia-js/nodemailer-sendgrid-transport';
+import { sgTransport } from '@neoxia-js/nodemailer-sendgrid-transport';
 import { Constructor, FileError, getTemplateSync } from './files';
 import env from './env';
 import { error } from './terminal-logging';
@@ -14,9 +14,9 @@ import { Result } from '../../shared/check';
 const transporter = nodemailer.createTransport(
     sgTransport({
         auth: {
-            apiKey: env.SENDGRID_API_KEY || '',
-        },
-    }),
+            apiKey: env.SENDGRID_API_KEY || ''
+        }
+    })
 );
 
 /**
@@ -49,7 +49,7 @@ export type EmailOptions = {
 export enum EmailType {
     link,
     text,
-    error,
+    error
 }
 
 /**
@@ -75,7 +75,7 @@ export class Email {
         public to: string | string[],
         public subject: string,
         public type: EmailType,
-        public options: EmailOptions,
+        public options: EmailOptions
     ) {}
 
     /**
@@ -94,7 +94,7 @@ export class Email {
                 ...(constructor || {}),
                 logo: (env.DOMAIN || '') + (env.LOGO || ''),
                 homeLink: (env.DOMAIN || '') + (env.HOME_LINK || ''),
-                footer: env.FOOTER || '',
+                footer: env.FOOTER || ''
             };
 
             let r: Result<string, FileError> | undefined;
@@ -124,12 +124,12 @@ export class Email {
                     to,
                     subject,
                     html,
-                    attachments,
+                    attachments
                 };
 
-                return new Promise((resolve) => {
+                return new Promise(resolve => {
                     transporter.sendMail(
-                        mailOptions,
+                        mailOptions
                         // (err: Error, info: { response: string }) => {
                         //     if (err) {
                         //         console.error(err);
