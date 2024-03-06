@@ -46,8 +46,8 @@ jobs:
               run: |
                   echo "Rename package.json and package-lock.json to .package.json and .package-lock.json so that they are not picked up by npm install"
 
-                  mv package.json .package.json
-                  mv package-lock.json .package-lock.json
+                  cp package.json .package.json
+                  cp package-lock.json .package-lock.json
 
             - name: Install all dependencies
               run: |
