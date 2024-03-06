@@ -79,23 +79,23 @@ export const socket = new SocketWrapper();
 Object.assign(window, { socket });
 
 // {
-    // let timeout: NodeJS.Timeout;
-    // const setActivity = () => {
-    //     SocketWrapper.isActive = true;
-    //     clearTimeout(timeout);
+// let timeout: NodeJS.Timeout;
+// const setActivity = () => {
+//     SocketWrapper.isActive = true;
+//     clearTimeout(timeout);
 
-    //     // stop after 1 minute of inactivity
-    //     timeout = setTimeout(() => {
-    //         SocketWrapper.isActive = false;
-    //     }, 1000 * 60);
-    // };
-    // window.addEventListener('focus', setActivity);
-    // document.addEventListener('click', setActivity);
-    // document.addEventListener('mousemove', setActivity);
-    // document.addEventListener('keydown', setActivity);
-    // document.addEventListener('scroll', setActivity);
-    // document.addEventListener('touchstart', setActivity);
-    // document.addEventListener('touchmove', setActivity);
-    // document.addEventListener('touchend', setActivity);
-    // document.addEventListener('touchcancel', setActivity);
+//     // stop after 1 minute of inactivity
+//     timeout = setTimeout(() => {
+//         SocketWrapper.isActive = false;
+//     }, 1000 * 60);
+// };
+// window.addEventListener('focus', setActivity);
+// document.addEventListener('click', setActivity);
+// document.addEventListener('mousemove', setActivity);
+// document.addEventListener('keydown', setActivity);
+// document.addEventListener('scroll', setActivity);
+// document.addEventListener('touchstart', setActivity);
+// document.addEventListener('touchmove', setActivity);
+// document.addEventListener('touchend', setActivity);
+// document.addEventListener('touchcancel', setActivity);
 // }

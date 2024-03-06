@@ -238,8 +238,8 @@ export class App {
                 // if (!req.response.fulfilled) return console.log('Not fulfilled');
                 for (const fn of this.finalFunctions) {
                     await fn(req.request as Req<unknown>, req.response);
-                } 
-            }
+                }
+            };
             try {
                 const run = async (i: number) => {
                     // console.log('Running:', i);

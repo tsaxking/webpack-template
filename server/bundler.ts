@@ -16,7 +16,7 @@ import { EventEmitter } from '../shared/event-emitter';
 
 (async () => {
     // clear the dist folder
-    
+
     fs.rmdirSync(path.resolve(__root, 'dist'), { recursive: true });
     fs.mkdirSync(path.resolve(__root, 'dist'));
 
@@ -36,36 +36,39 @@ const readDir = async (dirPath: string): Promise<string[]> => {
                 const fullpath = path.resolve(dirPath, e);
 
                 if ((await fs.promises.stat(fullpath)).isFile()) {
-                    const templateFilePath = path.resolve(
-                        __templates,
-                        'entries',
-                        path.relative(__entries, fullpath)
-                    ).replace('.ts','.html')
+                    const templateFilePath = path
+                        .resolve(
+                            __templates,
+                            'entries',
+                            path.relative(__entries, fullpath)
+                        )
+                        .replace('.ts', '.html');
 
                     const index = await getTemplate('index', {
-                        script: path.relative(
+                        script: path
+                            .relative(
+                                templateFilePath,
+                                path.resolve(
+                                    __root,
+                                    'dist',
+                                    path.relative(__entries, fullpath)
+                                )
+                            )
+                            .replace('.ts', '.js'),
+                        style: path.relative(
                             templateFilePath,
-                            path.resolve(
-                            __root,
-                            'dist',
-                            path.relative(__entries, fullpath)
-                        )).replace('.ts','.js'),
-                        style: 
-                        path.relative(
-                            templateFilePath,
-                            path.resolve(
-                                __root,
-                                'dist',
-                                path.relative(__entries, fullpath)
-                            ).replace('.ts','.css')
+                            path
+                                .resolve(
+                                    __root,
+                                    'dist',
+                                    path.relative(__entries, fullpath)
+                                )
+                                .replace('.ts', '.css')
                         ),
                         title: env.TITLE || 'Untitled'
                     });
                     if (index.isOk()) {
-                        await saveTemplate(
-                            templateFilePath,
-                            index.value
-                        );
+                        await saveTemplate(templateFilePath, index.value);
                     }
                     return fullpath;
                 } else {

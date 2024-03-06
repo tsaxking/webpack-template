@@ -210,7 +210,7 @@ app.get('/*', (req, res) => {
     if (!res.fulfilled) {
         res.sendStatus('page:not-found', { page: req.pathname });
     }
-})
+});
 
 app.final<{
     $$files?: FileUpload;
@@ -229,24 +229,25 @@ app.final<{
             status: res._status,
             userAgent: req.headers.get('user-agent') || '',
             // body: '',
-            body: req.method == 'post' && req.body
-                ? JSON.stringify(
-                    (() => {
-                        let { body } = req;
-                        body = JSON.parse(JSON.stringify(body)) as {
-                            $$files?: FileUpload;
-                            password?: string;
-                            confirmPassword?: string;
-                        };
-                        delete body?.password;
-                        delete body?.confirmPassword;
-                        delete body?.$$files;
-                        return body;
-                    })(),
-                )
-                : '',
+            body:
+                req.method == 'post' && req.body
+                    ? JSON.stringify(
+                          (() => {
+                              let { body } = req;
+                              body = JSON.parse(JSON.stringify(body)) as {
+                                  $$files?: FileUpload;
+                                  password?: string;
+                                  confirmPassword?: string;
+                              };
+                              delete body?.password;
+                              delete body?.confirmPassword;
+                              delete body?.$$files;
+                              return body;
+                          })()
+                      )
+                    : '',
             params: JSON.stringify(req.params),
-            query: JSON.stringify(req.query),
+            query: JSON.stringify(req.query)
         });
     }
 });
