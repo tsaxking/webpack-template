@@ -58,7 +58,7 @@ export const runTests = async () => {
         const invalid: [string, any][] = [];
         const missing: string[] = [];
 
-        JSON.parse
+        JSON.parse;
 
         // simulate a request
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

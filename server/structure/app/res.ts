@@ -43,15 +43,20 @@ export class Res {
 
     json(data: unknown) {
         return attempt(() => {
-            if (!this.isFulfilled()) this.res.json(data)});
+            if (!this.isFulfilled()) this.res.json(data);
+        });
     }
 
     send(data: string) {
-        return attempt(() => {if (!this.isFulfilled())this.res.send(data)});
+        return attempt(() => {
+            if (!this.isFulfilled()) this.res.send(data);
+        });
     }
 
     sendFile(path: string) {
-        return attempt(() => {if (!this.isFulfilled()) this.res.sendFile(path)});
+        return attempt(() => {
+            if (!this.isFulfilled()) this.res.sendFile(path);
+        });
     }
 
     status(code: StatusCode) {
@@ -60,7 +65,9 @@ export class Res {
     }
 
     redirect(path: string) {
-        return attempt(() => {if (!this.isFulfilled())this.res.redirect(path)});
+        return attempt(() => {
+            if (!this.isFulfilled()) this.res.redirect(path);
+        });
     }
 
     cookie(name: string, value: string, options: express.CookieOptions) {
@@ -90,7 +97,9 @@ export class Res {
         });
     }
 
-    stream<T = unknown>(content: T[]): Result<EventEmitter<keyof StreamEventData<T>>> {
+    stream<T = unknown>(
+        content: T[]
+    ): Result<EventEmitter<keyof StreamEventData<T>>> {
         return attempt(() => {
             this.isFulfilled();
             const em = new EventEmitter<keyof StreamEventData<T>>();

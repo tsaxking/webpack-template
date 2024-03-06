@@ -100,7 +100,7 @@ const _select = async <T = unknown>(
             }
 
             stdin.off('data', handleKey);
-        }
+        };
 
         run(selected);
     });
