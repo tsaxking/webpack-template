@@ -2,6 +2,7 @@ import { __root } from './env';
 import { Colors } from './colors';
 import { dateTime } from '../../shared/clock';
 import stack from 'callsite';
+import path from 'path';
 
 const getSite = () => {
     const s = stack()[3];
@@ -34,9 +35,11 @@ const runLog = (type: 'log' | 'error' | 'warn', ...args: unknown[]) => {
 
     console[type](
         color,
-        `[${filePath}:${lineNumber}]`,
+        `[${path.relative(__root, filePath)}:${lineNumber}]`,
         Colors.FgCyan,
         `[${fn}]`,
+        Colors.FgMagenta,
+        `[${d}]`,
         Colors.Reset,
         ...args
     );

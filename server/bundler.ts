@@ -14,6 +14,17 @@ import {
 import { attemptAsync } from '../shared/check';
 import { EventEmitter } from '../shared/event-emitter';
 
+(async () => {
+    // clear the dist folder
+    
+    fs.rmdirSync(path.resolve(__root, 'dist'), { recursive: true });
+    fs.mkdirSync(path.resolve(__root, 'dist'));
+
+    // remove the /public/templates/entries folder
+    fs.rmdirSync(path.resolve(__templates, 'entries'), { recursive: true });
+    fs.mkdirSync(path.resolve(__templates, 'entries'));
+})();
+
 const readDir = async (dirPath: string): Promise<string[]> => {
     // console.log('Reading:', dirPath);
     const entries = await fs.promises.readdir(dirPath);

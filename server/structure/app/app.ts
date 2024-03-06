@@ -205,18 +205,18 @@ export class App {
 
         this.server.use(express.json());
         this.server.use(express.urlencoded({ extended: true }));
-        this.server.use(
-            session({
-                secret: 'hello darkness my old friend',
-                resave: false,
-                saveUninitialized: true,
-                cookie: {
-                    secure: true,
-                    maxAge: 1000 * 60 * 60 * 24 * 365
-                },
-                name: Session.sessionName
-            })
-        );
+        // this.server.use(
+        //     session({
+        //         secret: 'hello darkness my old friend',
+        //         resave: false,
+        //         saveUninitialized: true,
+        //         cookie: {
+        //             secure: true,
+        //             maxAge: 1000 * 60 * 60 * 24 * 365
+        //         },
+        //         name: Session.sessionName
+        //     })
+        // );
         this.server.use(async (req, res, next) => {
             const s = await Session.from(this, req, res);
             const request = new Req(this, req, s);

@@ -99,7 +99,7 @@ const main = async () => {
     // }
 
     builder.em.on('build', () => {
-        console.log('Rebuilding...');
+        log('Rebuilding...');
         child = restart(child);
     });
 

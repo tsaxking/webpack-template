@@ -167,6 +167,11 @@ export class Session {
         //     path: '/'
         // });
         // req.cookies[Session.sessionName] = s.id;
+        res.cookie(Session.sessionName, s.id, {
+            maxAge: Session.cookieOptions.maxAge,
+            httpOnly: Session.cookieOptions.httpOnly,
+            path: '/'
+        });
 
         DB.run('sessions/new', {
             id: s.id,
