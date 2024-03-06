@@ -1,6 +1,6 @@
 import { ServerRequest } from '../utilities/requests';
 import { Role as R, RolePermission } from '../../shared/db-types';
-import { attemptAsync, Result } from '../../shared/attempt';
+import { attemptAsync, Result } from '../../shared/check';
 import { Cache } from './cache';
 import { EventEmitter } from '../../shared/event-emitter';
 import { socket } from '../utilities/socket';

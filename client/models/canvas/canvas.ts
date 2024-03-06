@@ -1,6 +1,6 @@
 import { Drawable, DrawableEvent } from './drawable';
 import { EventEmitter } from '../../../shared/event-emitter';
-import { attempt } from '../../../shared/attempt';
+import { attempt } from '../../../shared/check';
 import { Point2D } from '../../../shared/submodules/calculations/src/linear-algebra/point';
 import { Color } from '../../submodules/colors/color';
 import { Background } from './background';

@@ -1,74 +1,82 @@
 import esbuild from "esbuild";
 import sveltePlugin from "esbuild-svelte";
+import { typescript } from 'svelte-preprocess-esbuild';
+// import preprocess from 'svelte-preprocess';
 import fs from 'fs';
 import path from "path";
-import env, { __root, __templates } from "./utilities/env";
-import { getTemplateSync, saveTemplateSync } from "./utilities/files";
+import env, { __entries, __root, __templates } from "./utilities/env";
+import { getTemplate, getTemplateSync, saveTemplate, saveTemplateSync } from "./utilities/files";
 import { attemptAsync } from "../shared/check";
+import { EventEmitter } from "../shared/event-emitter";
 
+const readDir = async (dirPath: string): Promise<string[]> => {
+    // console.log('Reading:', dirPath);
+    const entries = await fs.promises.readdir(dirPath);
+    // console.log('Entries:', entries);
 
-const readDir = (dirPath: string): string[] => {
-    const entries = Array.from(fs.readdirSync(dirPath));
+    return (await Promise.all(entries.map(async e => {
+        const fullpath = path.resolve(dirPath, e);
 
-    return entries.flatMap(e => {
-        if (fs.statSync(path.resolve(dirPath, e)).isDirectory()) {
-            return readDir(path.resolve(dirPath, e));
-        }
-
-        const file = dirPath.split('/').slice(2).join('/') + '/' + e.replace('.ts', '.html');
-
-        const result = getTemplateSync('index', {
-            script: path.relative(
-                path.resolve(__templates, file),
-                path.resolve(
-                    __root,
-                    'dist',
-                    dirPath.split('/').slice(3).join('/'),
-                    e.replace('.ts', '.js'),
-                )
-            ),
-            style: path.relative(
-                path.resolve(__templates, file),
-                path.resolve(
-                    __root,
-                    'dist',
-                    dirPath.split('/').slice(3).join('/'),
-                    e.replace('.ts', '.css'),
-                )
-            ),
-            title: env.TITLE || 'Untitled'
-        });
-
-        if (result.isOk()) {
-            saveTemplateSync(
-                '/' + file,
-                result.value
+        if ((await fs.promises.stat(fullpath)).isFile()) {
+            const index = await getTemplate(
+                'index',
+                {
+                                    script: path.relative(
+                    path.resolve(__templates, fullpath),
+                    path.resolve(
+                        __root,
+                        'dist',
+                        dirPath.split('/').slice(3).join('/'),
+                        e.replace('.ts', '.js'),
+                    )
+                ),
+                style: path.relative(
+                    path.resolve(__templates, fullpath),
+                    path.resolve(
+                        __root,
+                        'dist',
+                        dirPath.split('/').slice(3).join('/'),
+                        e.replace('.ts', '.css'),
+                    )
+                ),
+                title: env.TITLE || 'Untitled'
+                }
             );
+            if (index.isOk()) {
+                await saveTemplate(
+                    path.resolve(
+                        __templates,
+                        path.relative(
+                            __entries, fullpath
+                        )
+                    ),
+                    index.value
+                );
+            }
+            return fullpath;
+        } else {
+            return readDir(fullpath);
         }
-
-        return `${dirPath}/${e}`;
-    });
+    }))).flat(Infinity) as string[];
 }
 
 export class Builder {
     private watchers = new Map<string, fs.FSWatcher>();
+    private building = false;
+
+    public readonly em = new EventEmitter();
 
     public watch = (dir: string) => {
+        console.log('Watching:', dir);
         const watcher = fs.watch(
-            path.resolve(__dirname, '../', dir)
+            path.resolve(__dirname, '../', dir),
+            (event, filename) => {
+                if(event === 'change' || event === 'rename') {
+                    this.build();
+                }
+            }
         );
         this.watchers.set(dir, watcher);
-
-        watcher.on('change', (type, filename) => {
-            switch (type) {
-                case 'change':
-                case 'rename':
-                case 'remove':
-                case 'add':
-                    this.build();
-                    break;
-            }
-        });
     }
 
     close = () => {
@@ -79,15 +87,28 @@ export class Builder {
 
     public build = () => {
         return attemptAsync(async() => {
-            return esbuild.build({
-                entryPoints: readDir('/client/entries'),
+            if (this.building) return;
+            this.building = true;
+            const dirs = await readDir(
+                __entries
+            );
+            const b = await esbuild.build({
+                entryPoints: dirs,
                 bundle: true,
                 minify: env.MINIFY === 'y',
                 outdir: './dist',
                 mainFields: ['svelte', 'browser', 'module', 'main'],
                 conditions: ['svelte', 'browser'],
                 plugins: [
-                    sveltePlugin()
+                    sveltePlugin({
+                        preprocess: [typescript({
+                            tsconfigRaw: {
+                                compilerOptions: {
+
+                                }
+                            }
+                        })]
+                    })
                 ],
                 logLevel: 'info',
                 loader: {
@@ -97,8 +118,13 @@ export class Builder {
                     '.eot': 'dataurl',
                     '.ttf': 'dataurl',
                     '.svg': 'dataurl',
-                }
-            })
+                },
+                tsconfig: path.resolve(__dirname, '../tsconfig.json')
+            });
+            console.log('Build complete');
+            this.em.emit('build');
+            this.building = false;
+            return b;
         });
     }
 }
@@ -107,6 +133,10 @@ export class Builder {
 if (require.main === module) {
     const builder = new Builder();
     builder.build()
-        .then(() => process.exit(0))
+        .then((res) => {
+            if (res.isOk()) process.exit(0);
+            console.error(res.error);
+            process.exit(1);
+        })
         .catch(() => process.exit(1));
 }

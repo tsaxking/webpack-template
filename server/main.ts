@@ -51,8 +51,6 @@ const log = (...args: unknown[]) =>
     console.log(Colors.FgBlue, '[Main]', Colors.Reset, new Date().toISOString(), ...args);
 
 const main = async () => {
-    const args = process.argv.slice(2);
-
     // const res = await pullDeps();
     // if (res.isErr()) throw res.error;
 
@@ -74,31 +72,42 @@ const main = async () => {
 
         return child;
     };
-    const kill = (child: ChildProcess) => {
+    const kill = (child: ChildProcess | undefined) => {
+        if (!child) return;
         child.kill();
     };
-    const restart = (child: ChildProcess): ChildProcess => {
+    const restart = (child: ChildProcess | undefined): ChildProcess => {
+        if (!child) return start();
         kill(child);
         return start();
     }
 
     const builder = new Builder();
-    let child = start();
+    let child: ChildProcess | undefined = undefined;
 
-    if (args.includes('--stdin')) {
+    // if (args.includes('--stdin')) {
         stdin.on('rs', () => {
             child = restart(child);
         });
         stdin.on('rb', async () => {
             await builder.build();
-            child = restart(child);
         });
-    }
+    // }
 
-    if (args.includes('--watch')) {
+    builder.em.on('build', () => {
+        console.log('Rebuilding...');
+        child = restart(child);
+    });
+
+    builder.build();
+
+    // child = start();
+
+    // if (args.includes('--watch')) {
         builder.watch('./client');
         builder.watch('./shared');
-    }
+        builder.watch('./server');
+    // }
 
     const close = () => {
         builder.close();
@@ -115,6 +124,18 @@ const main = async () => {
         //     });
         process.exit(0);
     }
+
+    process.on('SIGINT', close);
+    process.on('SIGTERM', close);
+    process.on('exit', close);
+    process.on('uncaughtException', (e) => {
+        log('Uncaught exception:', e);
+        close();
+    });
+    process.on('unhandledRejection', (e) => {
+        log('Unhandled rejection:', e);
+        close();
+    });
 }
 
 if (require.main === module) {

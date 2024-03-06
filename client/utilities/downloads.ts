@@ -1,4 +1,4 @@
-import { attempt, attemptAsync, Result } from '../../shared/attempt';
+import { attempt, attemptAsync, Result } from '../../shared/check';
 
 /**
  * Download a file from a URL
