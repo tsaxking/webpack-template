@@ -144,4 +144,10 @@ export class Res {
             this.send(t.value);
         });
     }
+
+    header(key: string, value: string) {
+        return attempt(() => {
+            this.res.setHeader(key, value);
+        });
+    }
 }

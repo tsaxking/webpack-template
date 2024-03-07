@@ -1,50 +1,92 @@
 import { Builder } from './bundler';
 import { Colors } from './utilities/colors';
 import { deleteDeps, pullDeps } from '../scripts/pull-deps';
-// import { Worker } from "worker_threads";
-// import env from "./utilities/env";
-import { ChildProcess, spawn } from 'child_process';
+import { Worker } from "worker_threads";
+import env from "./utilities/env";
 import { stdin } from './utilities/stdin';
-import path from 'path';
+import { SocketWrapper } from './structure/socket';
+import { App } from './structure/app/app';
+import { request } from './utilities/request';
+import { StatusCode } from '../shared/status-messages';
 
-// TODO: Multithreading
-// class Server {
-//     static readonly workers = new Map<number, Server>();
+class Server {
+    static readonly workers: Server[] = [];
+    static current: number = 0;
 
-//     static start() {
-//         const workers = Server.workers.values();
-//         for (const worker of workers) {
-//             worker.start();
-//         }
-//     }
-//     static kill() {
-//         const workers = Server.workers.values();
-//         for (const worker of workers) {
-//             worker.kill();
-//         }
-//     }
-//     static restart() {
-//         Server.kill();
-//         Server.start();
-//     }
+    static get(): Server {
+        Server.current++;
+        if (Server.current >= Server.workers.length) {
+            Server.current = 0;
+        }
+        return Server.workers[Server.current];
+    }
 
-//     private worker: Worker;
+    static start() {
+        const workers = Server.workers.values();
+        for (const worker of workers) {
+            worker.start();
+        }
+    }
+    static kill() {
+        const workers = Server.workers.values();
+        for (const worker of workers) {
+            worker.kill();
+        }
+    }
+    static restart() {
+        Server.kill();
+        Server.start();
+    }
 
-//     constructor(public readonly id: number) {
-//         Server.workers.set(id, this);
-//     }
+    private worker?: Worker;
 
-//     start() {
-//         this.worker = new Worker('./server.ts', {
-//             workerData: {
-//                 port: this.id
-//             }
-//         });
-//     }
-//     kill() {
-//         this.worker.terminate();
-//     }
-// }
+    constructor(public readonly port: number, public readonly io: SocketWrapper) {
+        Server.workers.push(this);
+    }
+
+    start() {
+        log('Starting server on port', this.port);
+        this.worker = new Worker(
+            './server/worker.js', 
+            {
+            workerData: {
+                path: './server.ts',
+                port: this.port
+            },
+            // stdin: true,
+            // stdout: true,
+            // stderr: true,
+        });
+
+        this.worker.on('exit', (code) => {
+            log('Server exited with code', code);
+        });
+
+        type M = {
+            socket: boolean;
+            event: string;
+            data: unknown;
+            to?: string;
+        };
+
+        this.worker.on('message', (msg: M) => {
+            if (msg.socket) {
+                if (msg.to) {
+                    this.io.to(msg.to).emit(msg.event, msg.data);
+                } else {
+                    this.io.emit(msg.event, msg.data);
+                }
+            }
+        });
+    }
+
+    kill() {
+        if (this.worker) {
+            log('Killing server on port', this.port);
+            this.worker.terminate();
+        }
+    }
+}
 
 const log = (...args: unknown[]) =>
     console.log(
@@ -57,45 +99,62 @@ const log = (...args: unknown[]) =>
     );
 
 const main = async () => {
-    // const res = await pullDeps();
-    // if (res.isErr()) throw res.error;
+    const res = await pullDeps();
+    if (res.isErr()) throw res.error;
 
-    // const servers = Number(env.NUM_SERVERS) || 1;
+    const app = new App(
+        Number(env.PORT) || 3000,
+        env.DOMAIN || 'http://localhost:3000',
+    );
+    const io = new SocketWrapper(app);
 
-    // for (let i = 0; i < servers; i++) new Server(i);
+    // force the app to have the io, even though it's 
+    Object.assign(app, { io });
+
+    if (!env.NUM_SERVERS) console.warn('NUM_SERVERS not set, defaulting to 1');
+    const servers = Number(env.NUM_SERVERS) || 1;
+    for (let i = 0; i < servers; i++) new Server(Number(env.PORT) + i + 1, io);
+
+    app.use('/*', async (req, res) => {
+        const server = Server.get();
+        log('Request:', req.originalUrl, req.method, 'to', server.port);
+        const result = await request(
+            'http://localhost:' + server.port + req.originalUrl,
+            {
+                method: req.method,
+                headers: req.req.headers,
+                data: req.body,
+                timeout: 1000
+            }
+        );
+
+        // console.log('Result:', result);
+        if (result.isOk()) {
+            const { status, headers, data } = result.value;
+
+            res.status(status as StatusCode);
+
+            for (const key in headers) {
+                res.header(key, headers[key]);
+            }
+
+            return res.send(data);
+        }
+        if (result.isErr()) {
+            return res.sendStatus('unknown:error');
+        }
+    });
+
+    app.start();
 
     const args = process.argv.slice(2);
     log('Args:', args);
 
-    // temporary
-    const start = (): ChildProcess => {
-        log('Starting server...');
-        const child = spawn('ts-node', [
-            path.resolve(__dirname, './server.ts')
-        ]);
-
-        child.stdout.pipe(process.stdout);
-        child.stderr.pipe(process.stderr);
-        child.stdin.pipe(process.stdin);
-
-        return child;
-    };
-    const kill = (child: ChildProcess | undefined) => {
-        if (!child) return;
-        child.kill();
-    };
-    const restart = (child: ChildProcess | undefined): ChildProcess => {
-        if (!child) return start();
-        kill(child);
-        return start();
-    };
-
     const builder = new Builder();
-    let child: ChildProcess | undefined = undefined;
 
     if (args.includes('stdin')) {
         stdin.on('rs', () => {
-            child = restart(child);
+            Server.restart();
         });
         stdin.on('rb', async () => {
             await builder.build();
@@ -104,12 +163,11 @@ const main = async () => {
 
     builder.em.on('build', () => {
         log('Rebuilding...');
-        child = restart(child);
+        Server.restart();
     });
 
     builder.build();
-
-    // child = start();
+    // Server.start();
 
     if (args.includes('watch')) {
         builder.watch('./client');
@@ -119,17 +177,17 @@ const main = async () => {
 
     const close = () => {
         builder.close();
-        kill(child);
-        // Server.kill();
-        // deleteDeps()
-        //     .then(() => {
-        //         log('Goodbye! 👋')
-        //         process.exit(0);
-        //     })
-        //     .catch((e) => {
-        //         log('Failed to delete deps', e);
-        //         process.exit(1);
-        //     });
+        // kill(child);
+        Server.kill();
+        deleteDeps()
+            .then(() => {
+                log('Goodbye! 👋')
+                process.exit(0);
+            })
+            .catch((e) => {
+                log('Failed to delete deps', e);
+                process.exit(1);
+            });
         process.exit(0);
     };
 
