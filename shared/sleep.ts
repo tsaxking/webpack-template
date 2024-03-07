@@ -21,3 +21,10 @@ export const daysTimeout = (cb: () => void, days: number) => {
         }
     }, day);
 };
+
+export const sleepUntil = (cb: () => void, date: Date) => {
+    const now = new Date().getTime();
+    const then = date.getTime();
+    const days = Math.floor((then - now) / (1000 * 60 * 60 * 24));
+    daysTimeout(cb, days);
+}

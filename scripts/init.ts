@@ -224,6 +224,21 @@ const createEnv = async () => {
         true
     );
 
+    await setKey(
+        'BACKUP_DAYS',
+        'Backup Days: (default: 7)',
+        '7',
+        i => +i > 0,
+        true
+    );
+    await setKey(
+        'BACKUP_INTERVAL',
+        'Backup Interval: (in hours) (default: 24)',
+        '24',
+        i => +i > 0,
+        true
+    );
+
     const e = Object.keys(values)
         .map(key => `${key} = '${values[key]}'`)
         .join('\n');
