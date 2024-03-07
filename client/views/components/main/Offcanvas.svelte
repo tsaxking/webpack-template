@@ -2,8 +2,6 @@
     import { createEventDispatcher } from 'svelte';
     import { capitalize, fromSnakeCase } from '../../../../shared/text';
     
-    export let isOpen = false;
-    
     type PageGroup = {
         name: string;
         pages: PageObj[];

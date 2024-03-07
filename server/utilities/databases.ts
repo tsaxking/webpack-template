@@ -92,8 +92,6 @@ type QueryResult<T> = {
 
 export type Version = [number, number, number];
 
-
-
 /**
  * Database class
  * @date 10/12/2023 - 3:24:19 PM
@@ -139,19 +137,18 @@ export class DB {
         return attemptAsync(async () => {
             // a little optimization
             // return new Promise((res, rej) => {
-                // log('Connecting to the database...');
-                return DB.db
-                    .connect()
-                    // .then(() => {
-                    //     // DB.setTimeout();
-                    //     // close the connection every 10 minutes to prevent memory leaks
-                    //     // log('Connected to the database');
-                    //     res('Connected to the database');
-                    // })
-                    // .catch(e => {
-                    //     // error('Database connection error', e);
-                    //     rej('Error connecting to the database');
-                    // });
+            // log('Connecting to the database...');
+            return DB.db.connect();
+            // .then(() => {
+            //     // DB.setTimeout();
+            //     // close the connection every 10 minutes to prevent memory leaks
+            //     // log('Connected to the database');
+            //     res('Connected to the database');
+            // })
+            // .catch(e => {
+            //     // error('Database connection error', e);
+            //     rej('Error connecting to the database');
+            // });
             // });
         });
     }
@@ -705,7 +702,9 @@ export class DB {
                 [time] = time.split('.');
 
                 const date = new Date(Number(time));
-                const deleteDate = date.setDate(date.getDate() + Number(env.BACKUP_DAYS));
+                const deleteDate = date.setDate(
+                    date.getDate() + Number(env.BACKUP_DAYS)
+                );
 
                 if (deleteDate < Date.now()) {
                     console.log('Deleting backup:', b);
@@ -805,7 +804,6 @@ export class DB {
                 const [sql, newArgs] = q;
 
                 const result = await DB.db.query(sql, newArgs);
-
 
                 return {
                     rows: bigIntDecode(DB.parseObj(result.rows) as unknown[]),

@@ -24,8 +24,7 @@ const fns = {
         new Settings({
             target: body,
             props: {
-                settings: [
-                ]
+                settings: []
             }
         });
 
