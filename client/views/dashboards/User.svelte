@@ -4,18 +4,21 @@ import Page from '../components/main/Page.svelte';
 import { getOpenPage } from '../../utilities/page';
 import Dashboard from '../pages/Dashboard.svelte';
 import Account from '../pages/account.svelte';
+import type { PageGroup } from '../../utilities/general-types';
 
-const groups = [
+const groups: PageGroup[] = [
     {
         name: 'Home',
         pages: [
             {
                 name: 'dashboard',
-                icon: 'home'
+                icon: 'home',
+                iconType: 'material'
             },
             {
                 name: 'account',
-                icon: 'person'
+                icon: 'person',
+                iconType: 'material'
             }
         ]
     }

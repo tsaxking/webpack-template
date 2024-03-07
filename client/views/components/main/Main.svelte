@@ -4,12 +4,13 @@ import Navbar from './Navbar.svelte';
 import { createEventDispatcher } from 'svelte';
 import { capitalize, fromSnakeCase } from '../../../../shared/text';
 import { Account } from '../../../models/account';
+import type { PageGroup } from '../../../utilities/general-types';
 
 export let title: string;
 export let navItems: string[] = [];
 export let accountLinks: (string | null)[] = [];
 
-export let groups = [];
+export let groups: PageGroup[] = [];
 export let active: string;
 
 const openPage = ({ detail }) => {

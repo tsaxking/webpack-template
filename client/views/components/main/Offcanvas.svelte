@@ -1,18 +1,10 @@
 <script lang="ts">
 import { createEventDispatcher } from 'svelte';
 import { capitalize, fromSnakeCase } from '../../../../shared/text';
-
+import type { PageGroup, PageObj } from '../../../utilities/general-types';
 export let isOpen = false;
 
-type PageGroup = {
-    name: string;
-    pages: PageObj[];
-};
 
-type PageObj = {
-    name: string;
-    icon: string;
-};
 
 export let groups: PageGroup[] = [];
 
@@ -47,7 +39,13 @@ export let active: string;
                                 on:click|preventDefault="{() =>
                                     dispatch('openPage', page.name)}"
                             >
-                                <i class="material-icons">{page.icon}</i>
+                                {#if page.iconType === 'material'}
+                                    <i class="material-icons">{page.icon}</i>
+                                {:else if page.iconType === 'fontawesome'}
+                                    <i class="fa fa-{page.icon}"></i>
+                                {:else if page.iconType === 'bootstrap'}
+                                    <i class="bi bi-{page.icon}"></i>
+                                {/if}
                                 <span class="ms-2"
                                     >{capitalize(
                                         fromSnakeCase(page.name, '-')
