@@ -4,8 +4,6 @@ import { capitalize, fromSnakeCase } from '../../../../shared/text';
 import type { PageGroup, PageObj } from '../../../utilities/general-types';
 export let isOpen = false;
 
-
-
 export let groups: PageGroup[] = [];
 
 const dispatch = createEventDispatcher();
@@ -16,7 +14,7 @@ const openPage = (page: string) => {
     jQuery('#sidebar-nav').offcanvas('hide');
 
     dispatch('openPage', page);
-}
+};
 </script>
 
 <div

@@ -27,4 +27,4 @@ export const sleepUntil = (cb: () => void, date: Date) => {
     const then = date.getTime();
     const days = Math.floor((then - now) / (1000 * 60 * 60 * 24));
     daysTimeout(cb, days);
-}
+};
