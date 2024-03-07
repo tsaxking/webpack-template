@@ -9,9 +9,9 @@ body {
 
 #sidebar-nav {
     position: fixed;
-    top: var(--topNavbarHeight);
+    /* top: var(--topNavbarHeight); */
     width: var(--offCanvas-width) !important;
-    z-index: 1041;
+    z-index: 1500;
 }
 
 #top-navbar {
@@ -26,10 +26,6 @@ body {
     border-radius: 5px;
 } */
 
-#loading-page {
-    z-index: 100;
-}
-
 #navbarSupportedContent {
     padding-top: 1em;
 }
@@ -42,15 +38,16 @@ body {
         display: none !important;
     }
     main.dashboard {
-        margin-left: var(--offCanvas-width) !important;
-        width: calc(100vw - var(--offCanvas-width) - 24px) !important;
+        /* margin-left: var(--offCanvas-width) !important; */
+        /* width: calc(100vw - var(--offCanvas-width) - 24px) !important; */
+        width: calc(100vw - 24px) !important;
     }
-    .sidebar-nav {
+    /* .sidebar-nav {
         transform: none !important;
         visibility: visible !important;
         top: var(--topNavbarHeight) !important;
         height: calc(100% - var(--topNavbarHeight)) !important;
-    }
+    } */
     #navbarSupportedContent {
         padding-top: 0 !important;
     }
@@ -92,43 +89,6 @@ main {
     transition: all ease 0.25s;
 }
 
-.fs-black {
-    z-index: 999999999999999;
-    position: fixed;
-    width: 100vw;
-    height: 100vh;
-    top: 0;
-    left: 0;
-    overflow: hidden;
-}
-
-.fs-bg {
-    width: 100vw;
-    height: 100vh;
-    position: relative;
-    background-color: hsla(0, 0%, 0%, 99%);
-    overflow: hidden;
-}
-
-.fs-fg {
-    position: absolute;
-    top: 50%;
-    display: flex;
-    width: 100%;
-    align-items: center;
-    justify-content: center;
-    height: min-content;
-    overflow: hidden;
-}
-
-.fs-fg p {
-    margin-top: 10px;
-}
-
-#scheduling td[data-active='true'] {
-    background-color: var(--lime-dark);
-}
-
 .border.border-dashed {
     border-style: dashed !important;
 }
@@ -143,61 +103,15 @@ main {
 
 ::-webkit-scrollbar-track {
     background: var(--gray);
-    border-radius: 5px;
+    border-radius: 7px;
 }
 
 ::-webkit-scrollbar-thumb {
     background: var(--navy);
-    border-radius: 5px;
+    border-radius: 7px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
     background: var(--navy-dark);
     /* color: rgb(0, 0, 102); */
-}
-
-#new-curriculum-button,
-#new-student-log-button {
-    height: 100px;
-    width: 100%;
-}
-
-#contextmenu-container {
-    width: 300px;
-    z-index: 999999999999999999999;
-}
-
-.text-right {
-    text-align: right !important;
-}
-
-#account-profile {
-    width: 300px;
-}
-
-.profile-pic {
-    height: 24px !important;
-    width: 24px !important;
-    border-radius: 50% !important;
-}
-
-#chatbox {
-    position: fixed;
-    bottom: 0;
-    right: 0;
-    z-index: 99;
-}
-
-#chatbox #chat-messages {
-    height: 300px;
-    overflow-y: scroll;
-}
-
-#chatbox #chat-messages .message {
-    height: min-content;
-    width: 100px;
-}
-
-.field-canvas {
-    z-index: 20;
 }
