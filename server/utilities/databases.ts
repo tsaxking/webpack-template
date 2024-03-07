@@ -2,7 +2,7 @@ import env, { __root } from './env';
 import { error, log } from './terminal-logging';
 import { Client } from 'pg';
 import { Queries } from './queries';
-import { exists, readDir, readFile, readFileSync, saveFile } from './files';
+import { exists, readDir, readFile, saveFile } from './files';
 import { attemptAsync, Result } from '../../shared/check';
 import {
     capitalize,

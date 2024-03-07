@@ -1,6 +1,6 @@
 import env, { __root } from './utilities/env';
 import { log } from './utilities/terminal-logging';
-import { App, ResponseStatus } from './structure/app/app';
+import { App } from './structure/app/app';
 import { getJSON, log as serverLog } from './utilities/files';
 import { homeBuilder } from './utilities/page-builder';
 import Account from './structure/accounts';
@@ -12,9 +12,9 @@ import { FileUpload } from './middleware/stream';
 import { ReqBody } from './structure/app/req';
 import { parseCookie } from '../shared/cookie';
 import { stdin } from './utilities/stdin';
-import { getJSONSync } from './utilities/files';
 import path from 'path';
 import { DB } from './utilities/databases';
+import { workerData } from 'worker_threads';
 
 if (process.argv.includes('--stats')) {
     const measure = () => {
@@ -27,7 +27,7 @@ if (process.argv.includes('--stats')) {
     setInterval(measure, 1000);
 }
 
-const port = +(env.PORT || 3000);
+const port = workerData.port;
 
 export const app = new App(port, env.DOMAIN || `http://localhost:${port}`);
 
@@ -253,4 +253,4 @@ app.final<{
     }
 });
 
-DB.em.on('connect', app.listen());
+DB.em.on('connect', () => app.start());

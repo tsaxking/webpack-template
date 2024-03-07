@@ -5,9 +5,8 @@ import { Req } from './req';
 import { Res } from './res';
 import { SocketWrapper } from '../socket';
 import http from 'http';
-import { Server } from 'socket.io';
 import { Session } from '../sessions';
-import session from 'express-session';
+import { isMainThread, workerData } from 'worker_threads';
 
 /**
  * All file types that can be sent (can be expanded)
@@ -196,7 +195,8 @@ export class App {
         };
     }
 
-    public readonly io: SocketWrapper;
+    // yes, this is a hack, but this is important for the socket to be consistent across all workers
+    public readonly io!: SocketWrapper;
     public readonly server: express.Application;
     public readonly finalFunctions: FinalFunction<unknown>[] = [];
     public readonly httpServer: http.Server;
@@ -207,11 +207,11 @@ export class App {
     ) {
         this.server = express();
         this.httpServer = http.createServer(this.server);
-        this.io = new SocketWrapper(this, new Server(this.httpServer));
 
-        // s.listen(port, () => {
-        //     log(`Server is listening on port ${port}`);
-        // });
+        if (!isMainThread) {
+            this.io = workerData.io;
+        }
+
 
         this.server.use(express.json());
         this.server.use(express.urlencoded({ extended: true }));
@@ -299,7 +299,7 @@ export class App {
         this.finalFunctions.push(fn as FinalFunction<unknown>);
     }
 
-    public listen() {
+    public start() {
         this.httpServer.listen(this.port, () => {
             log(`Server is listening on port ${this.port}`);
         });
