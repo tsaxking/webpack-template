@@ -693,6 +693,10 @@ export class DB {
 
     static async setClearBackups() {
         return attemptAsync(async () => {
+            if (!env.BACKUP_DAYS) {
+                console.log('No backup days set, skipping backup clearing');
+                return;
+            }
             const backups = await DB.getBackups();
             if (backups.isErr()) throw backups.error;
 
