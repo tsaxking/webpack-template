@@ -62,7 +62,7 @@ const {
 //     );
 //     if (!confirmed) {
 //         console.log('Exiting...');
-//         Deno.exit(0);
+//         process.exit(0);
 //     }
 // }
 
@@ -113,27 +113,41 @@ export class DB {
         database: DATABASE_NAME,
         host: DATABASE_HOST,
         password: DATABASE_PASSWORD,
-        port: Number(DATABASE_PORT)
+        port: Number(DATABASE_PORT),
+        keepAlive: true
     });
 
-    private static connected = false;
+    private static timeout: NodeJS.Timeout;
+
+    private static async setTimeout() {
+        if (DB.timeout) clearTimeout(DB.timeout);
+        DB.timeout = setTimeout(
+            () => {
+                // console.log('Database connection timed out');
+                // DB.db.end();
+            },
+            1000 * 60 * 1
+        );
+    }
 
     static async connect() {
         return attemptAsync(async () => {
-            return new Promise((res, rej) => {
-                setTimeout(() => {
-                    rej('Database connection timed out');
-                }, 20 * 1000);
-                DB.db
+            // a little optimization
+            // return new Promise((res, rej) => {
+                // log('Connecting to the database...');
+                return DB.db
                     .connect()
-                    .then(() => {
-                        DB.connected = true;
-                        res('Connected to the database');
-                    })
-                    .catch(() => {
-                        rej('Error connecting to the database');
-                    });
-            });
+                    // .then(() => {
+                    //     // DB.setTimeout();
+                    //     // close the connection every 10 minutes to prevent memory leaks
+                    //     // log('Connected to the database');
+                    //     res('Connected to the database');
+                    // })
+                    // .catch(e => {
+                    //     // error('Database connection error', e);
+                    //     rej('Error connecting to the database');
+                    // });
+            // });
         });
     }
 
@@ -715,6 +729,8 @@ export class DB {
         });
     }
 
+    static stack: Promise<unknown>[] = [];
+
     // queries
     /**
      * Prepares a query
@@ -755,6 +771,7 @@ export class DB {
 
                 const result = await DB.db.query(sql, newArgs);
 
+
                 return {
                     rows: bigIntDecode(DB.parseObj(result.rows) as unknown[]),
                     params: newArgs,
@@ -762,24 +779,11 @@ export class DB {
                 };
             });
 
-        let res = await run();
-        let maxRetries = 5;
-        const disconnectedErrors = [
-            'Connection terminated',
-            'Connection lost',
-            'Broken pipe',
-            'Connection closed'
-        ];
-
-        while (res.isErr() && maxRetries > 0) {
-            const { error } = res;
-            if (disconnectedErrors.some(e => error.message.includes(e))) {
-                log('Database disconnected, reconnecting...');
-                await DB.connect();
-            }
-            res = await run();
-            maxRetries--;
-        }
+        const promise = run();
+        DB.stack.push(promise);
+        const res = await run();
+        // TODO: figure out this optimization
+        // DB.stack.splice(DB.stack.indexOf(promise), 1);
 
         if (res.isErr()) {
             error('Error running query:', res.error);
@@ -840,6 +844,8 @@ export class DB {
     }
 
     public static async disconnect() {
+        await Promise.all(DB.stack); // wait for all queries to end
+        DB.stack = [];
         log('Closing database...');
         return DB.db.end();
     }

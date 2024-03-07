@@ -1,6 +1,6 @@
 {
     "scripts": {
-        "start": "ts-node ./server/main.ts",
+        "start": "ts-node ./server/main.ts watch stdin",
         "manager": "ts-node -P tsconfig.json ./scripts/manager.ts",
         "build": "ts-node ./server/bundler.ts",
         "test": "ts-node ./scripts/tests/all-tests.ts"

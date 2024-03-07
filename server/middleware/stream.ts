@@ -44,12 +44,11 @@ export type FileUpload = {
 export const fileStream = (opts?: FileStreamOptions): ServerFunction => {
     createUploadsFolder();
 
-
     return async (req, res, next) => {
-        const bb = busboy({ headers: req.req.headers });        
-        
+        const bb = busboy({ headers: req.req.headers });
+
         let { maxFileSize, extensions } = opts || {};
-        extensions = extensions?.map((e) => e.toLowerCase()) || [];
+        extensions = extensions?.map(e => e.toLowerCase()) || [];
         maxFileSize = maxFileSize ? maxFileSize : 1024 * 1024 * 10;
         let sent = false;
 
@@ -72,8 +71,7 @@ export const fileStream = (opts?: FileStreamOptions): ServerFunction => {
             const ext = filename.split('.').pop() || '';
             const savedName = id + '.' + ext;
 
-
-            file.on('data', (data) => {
+            file.on('data', data => {
                 if (data.length > (maxFileSize as number)) {
                     return sendStatus('files:too-large', {
                         name: filename,
@@ -85,13 +83,17 @@ export const fileStream = (opts?: FileStreamOptions): ServerFunction => {
                     id,
                     name: savedName,
                     ext,
-                    size: data?.length || 0,
+                    size: data?.length || 0
                 });
             });
 
             file.on('end', () => {});
 
-            if (ext && (extensions as string[]).length && !(extensions as string[]).includes(ext)) {
+            if (
+                ext &&
+                (extensions as string[]).length &&
+                !(extensions as string[]).includes(ext)
+            ) {
                 return sendStatus('files:invalid-extension', {
                     name: filename,
                     ext
@@ -105,8 +107,9 @@ export const fileStream = (opts?: FileStreamOptions): ServerFunction => {
         });
 
         bb.on('close', () => {
-            sendStatus('files:uploaded', {});
+            // sendStatus('files:uploaded', {});
             req.files = files;
+            req.body = JSON.parse(req.headers.get('x-body') || '{}');
             next();
         });
 

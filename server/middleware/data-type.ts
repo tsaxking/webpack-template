@@ -113,7 +113,7 @@ export const validate = <type = unknown>(
 
         // body can be stored here because it could be a file stream
         if (!Object.entries(body as any).length) {
-            body = JSON.parse(req.headers.get('X-Body') || '{}') as type;
+            body = JSON.parse(req.headers.get('x-body') || '{}') as type;
         }
 
         let passed = true;

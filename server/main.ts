@@ -50,8 +50,9 @@ const log = (...args: unknown[]) =>
     console.log(
         Colors.FgBlue,
         '[Main]',
-        Colors.Reset,
+        Colors.FgMagenta,
         new Date().toISOString(),
+        Colors.Reset,
         ...args
     );
 
@@ -62,6 +63,9 @@ const main = async () => {
     // const servers = Number(env.NUM_SERVERS) || 1;
 
     // for (let i = 0; i < servers; i++) new Server(i);
+
+    const args = process.argv.slice(2);
+    log('Args:', args);
 
     // temporary
     const start = (): ChildProcess => {
@@ -89,14 +93,14 @@ const main = async () => {
     const builder = new Builder();
     let child: ChildProcess | undefined = undefined;
 
-    // if (args.includes('--stdin')) {
+    if (args.includes('stdin')) {
     stdin.on('rs', () => {
         child = restart(child);
     });
     stdin.on('rb', async () => {
         await builder.build();
     });
-    // }
+    }
 
     builder.em.on('build', () => {
         log('Rebuilding...');
@@ -107,11 +111,11 @@ const main = async () => {
 
     // child = start();
 
-    // if (args.includes('--watch')) {
+    if (args.includes('watch')) {
     builder.watch('./client');
     builder.watch('./shared');
     builder.watch('./server');
-    // }
+    }
 
     const close = () => {
         builder.close();
