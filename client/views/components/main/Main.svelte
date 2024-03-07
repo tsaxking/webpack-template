@@ -3,7 +3,6 @@ import Offcanvas from './Offcanvas.svelte';
 import Navbar from './Navbar.svelte';
 import { createEventDispatcher } from 'svelte';
 import { capitalize, fromSnakeCase } from '../../../../shared/text';
-import { Account } from '../../../models/account';
 import type { PageGroup } from '../../../utilities/general-types';
 
 export let title: string;
@@ -16,7 +15,12 @@ export let active: string;
 const openPage = ({ detail }) => {
     document.title =
         capitalize(title) + ': ' + capitalize(fromSnakeCase(detail, '-'));
-    // history.pushState({}, '', location.pathname.split('/').slice(0, -1).join('/') + '/' + detail);
+    const [parent, page] = location.href.replace('http://', '').replace('https://', '').split('/');
+    if (parent === 'dashboard') {
+        history.pushState({}, '', `/${parent}/${page}/${detail}`);
+    } else {
+        history.pushState({}, '', `/${parent}/${detail}`);
+    }
 };
 
 const dispatch = createEventDispatcher();
