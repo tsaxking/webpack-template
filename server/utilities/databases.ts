@@ -134,19 +134,18 @@ export class DB {
         return attemptAsync(async () => {
             // a little optimization
             // return new Promise((res, rej) => {
-                // log('Connecting to the database...');
-                return DB.db
-                    .connect()
-                    // .then(() => {
-                    //     // DB.setTimeout();
-                    //     // close the connection every 10 minutes to prevent memory leaks
-                    //     // log('Connected to the database');
-                    //     res('Connected to the database');
-                    // })
-                    // .catch(e => {
-                    //     // error('Database connection error', e);
-                    //     rej('Error connecting to the database');
-                    // });
+            // log('Connecting to the database...');
+            return DB.db.connect();
+            // .then(() => {
+            //     // DB.setTimeout();
+            //     // close the connection every 10 minutes to prevent memory leaks
+            //     // log('Connected to the database');
+            //     res('Connected to the database');
+            // })
+            // .catch(e => {
+            //     // error('Database connection error', e);
+            //     rej('Error connecting to the database');
+            // });
             // });
         });
     }
@@ -770,7 +769,6 @@ export class DB {
                 const [sql, newArgs] = q;
 
                 const result = await DB.db.query(sql, newArgs);
-
 
                 return {
                     rows: bigIntDecode(DB.parseObj(result.rows) as unknown[]),
