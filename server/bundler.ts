@@ -17,11 +17,11 @@ import { EventEmitter } from '../shared/event-emitter';
 (async () => {
     // clear the dist folder
 
-    fs.rmdirSync(path.resolve(__root, 'dist'), { recursive: true });
+    fs.rmSync(path.resolve(__root, 'dist'), { recursive: true });
     fs.mkdirSync(path.resolve(__root, 'dist'));
 
     // remove the /public/templates/entries folder
-    fs.rmdirSync(path.resolve(__templates, 'entries'), { recursive: true });
+    fs.rmSync(path.resolve(__templates, 'entries'), { recursive: true });
     fs.mkdirSync(path.resolve(__templates, 'entries'));
 })();
 
