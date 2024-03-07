@@ -25,13 +25,6 @@ const fns = {
             target: body,
             props: {
                 settings: [
-                    {
-                        name: 'Theme',
-                        type: 'select',
-                        options: ['Light', 'Dark'],
-                        bindTo: 'theme',
-                        value: 'Dark'
-                    }
                 ]
             }
         });
@@ -81,7 +74,6 @@ const fns = {
                 {/each}
             </ul>
             <div class="form-inline my-2 my-lg-0">
-                <ThemeSwitch />
                 <slot name="form" />
             </div>
         </div>

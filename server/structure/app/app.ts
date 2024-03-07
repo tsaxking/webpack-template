@@ -199,18 +199,19 @@ export class App {
     public readonly io: SocketWrapper;
     public readonly server: express.Application;
     public readonly finalFunctions: FinalFunction<unknown>[] = [];
+    public readonly httpServer: http.Server;
 
     constructor(
         public readonly port: number,
         public readonly domain: string
     ) {
         this.server = express();
-        const s = http.createServer(this.server);
-        this.io = new SocketWrapper(this, new Server(s));
+        this.httpServer = http.createServer(this.server);
+        this.io = new SocketWrapper(this, new Server(this.httpServer));
 
-        s.listen(port, () => {
-            log(`Server is listening on port ${port}`);
-        });
+        // s.listen(port, () => {
+        //     log(`Server is listening on port ${port}`);
+        // });
 
         this.server.use(express.json());
         this.server.use(express.urlencoded({ extended: true }));
@@ -296,5 +297,11 @@ export class App {
 
     public final<T>(fn: FinalFunction<T>) {
         this.finalFunctions.push(fn as FinalFunction<unknown>);
+    }
+
+    public listen() {
+        this.httpServer.listen(this.port, () => {
+            log(`Server is listening on port ${this.port}`);
+        });
     }
 }

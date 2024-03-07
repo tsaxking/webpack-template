@@ -13,6 +13,7 @@ import { general } from './manager/general';
 import { serverController } from './manager/server-controller';
 import fs from 'fs';
 import path from 'path';
+import { DB } from '../server/utilities/databases';
 
 const { resolve, relative } = path;
 
@@ -255,7 +256,7 @@ export const main = async () => {
     title('Welcome to the Task Manager!');
     const exit = () => {
         console.log('Goodbye!');
-        // Deno.exit(0);
+        // process.exit(0);
         process.exit(0);
     };
 
@@ -379,4 +380,4 @@ export const main = async () => {
     await fn();
 };
 
-main();
+DB.em.on('connect', main);

@@ -11,19 +11,19 @@ import {
     saveTemplate,
     saveTemplateSync
 } from './utilities/files';
-import { attemptAsync } from '../shared/check';
+import { attempt, attemptAsync } from '../shared/check';
 import { EventEmitter } from '../shared/event-emitter';
 
-(async () => {
+{
     // clear the dist folder
 
-    fs.rmSync(path.resolve(__root, 'dist'), { recursive: true });
-    fs.mkdirSync(path.resolve(__root, 'dist'));
+    attempt(() => (fs.rmSync(path.resolve(__root, 'dist'), { recursive: true })))
+    attempt(() => fs.mkdirSync(path.resolve(__root, 'dist')));
 
     // remove the /public/templates/entries folder
-    fs.rmSync(path.resolve(__templates, 'entries'), { recursive: true });
-    fs.mkdirSync(path.resolve(__templates, 'entries'));
-})();
+    attempt(() => fs.rmSync(path.resolve(__templates, 'entries'), { recursive: true }));
+    attempt(() => fs.mkdirSync(path.resolve(__templates, 'entries')));
+}
 
 const readDir = async (dirPath: string): Promise<string[]> => {
     // console.log('Reading:', dirPath);
