@@ -94,12 +94,12 @@ const main = async () => {
     let child: ChildProcess | undefined = undefined;
 
     if (args.includes('stdin')) {
-    stdin.on('rs', () => {
-        child = restart(child);
-    });
-    stdin.on('rb', async () => {
-        await builder.build();
-    });
+        stdin.on('rs', () => {
+            child = restart(child);
+        });
+        stdin.on('rb', async () => {
+            await builder.build();
+        });
     }
 
     builder.em.on('build', () => {
@@ -112,9 +112,9 @@ const main = async () => {
     // child = start();
 
     if (args.includes('watch')) {
-    builder.watch('./client');
-    builder.watch('./shared');
-    builder.watch('./server');
+        builder.watch('./client');
+        builder.watch('./shared');
+        builder.watch('./server');
     }
 
     const close = () => {
