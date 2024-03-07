@@ -299,7 +299,7 @@ export class App {
         this.finalFunctions.push(fn as FinalFunction<unknown>);
     }
 
-    public listen() {
+    public start() {
         this.httpServer.listen(this.port, () => {
             log(`Server is listening on port ${this.port}`);
         });

@@ -253,4 +253,4 @@ app.final<{
     }
 });
 
-DB.em.on('connect', app.listen());
+DB.em.on('connect', () => app.start());
