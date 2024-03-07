@@ -14,6 +14,15 @@ body {
     z-index: 1500;
 }
 
+.notification {
+    position: fixed;
+    top: var(--topNavbarHeight);
+    right: 0;
+    z-index: 1000;
+    margin-top: 1em;
+    margin-right: 1em;
+}
+
 #top-navbar {
     z-index: 100;
     /* height: var(--topNavbarHeight) !important; */
@@ -98,20 +107,17 @@ main {
 }
 
 ::-webkit-scrollbar {
-    width: 10px;
+    width: 1em;
 }
 
-::-webkit-scrollbar-track {
-    background: var(--gray);
-    border-radius: 7px;
-}
+/* ::-webkit-scrollbar-track {
+    background: var(--bs-card-cap-color);
+} */
 
 ::-webkit-scrollbar-thumb {
-    background: var(--navy);
-    border-radius: 7px;
+    background: rgba(93, 93, 93, 0.5);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--navy-dark);
-    /* color: rgb(0, 0, 102); */
+    background: rgba(93, 93, 93, 0.8);
 }

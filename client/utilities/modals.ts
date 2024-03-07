@@ -266,6 +266,8 @@ export class Toast {
             $(this.target).toast('show');
         });
 
+        this.target.classList.add('notification');
+
         container.appendChild(this.target);
         this.$title = title;
         this.$body = body;
@@ -333,7 +335,10 @@ export class Toast {
     }
 
     private render() {
-        this.target.classList.add('toast', 'position-absolute');
+        this.target.classList.add(
+            'toast', 
+            // 'position-absolute'
+        );
         this.target.setAttribute('role', 'alert');
         this.target.setAttribute('aria-live', 'assertive');
         this.target.setAttribute('aria-atomic', 'true');
@@ -442,6 +447,7 @@ export class Alert {
         this.on('show', () => {
             $(this.target).alert();
         });
+        this.target.classList.add('notification');
         container.appendChild(this.target);
         this.title = title;
         this.color = color;
@@ -454,7 +460,7 @@ export class Alert {
             'alert',
             `alert-${this.color}`,
             'alert-dismissible',
-            'position-absolute',
+            // 'position-absolute',
             'animate__animated',
             'animate__fadeInDown',
             'animate__faster'

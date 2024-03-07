@@ -328,3 +328,14 @@ export const choose = async <A extends string, B extends string>(
         });
     });
 };
+
+Object.assign(window, { 
+    notifs: {
+        alert,
+        confirm,
+        prompt,
+        select,
+        choose,
+        notify
+    }
+});
