@@ -29,7 +29,7 @@ export const months: string[] = [
     'September',
     'October',
     'November',
-    'December'
+    'December',
 ];
 
 export const monthsShort: string[] = [
@@ -44,7 +44,7 @@ export const monthsShort: string[] = [
     'Sept',
     'Oct',
     'Nov',
-    'Dec'
+    'Dec',
 ];
 
 /**
@@ -60,7 +60,7 @@ export const days: string[] = [
     'Wednesday',
     'Thursday',
     'Friday',
-    'Saturday'
+    'Saturday',
 ];
 
 export const daysShort: string[] = [
@@ -70,7 +70,7 @@ export const daysShort: string[] = [
     'Wed',
     'Thu',
     'Fri',
-    'Sat'
+    'Sat',
 ];
 
 /**
@@ -104,46 +104,46 @@ export const dateString = (format: string) => {
         return (
             format
                 // year
-                .replace(/YYYY/g, DATE.getFullYear().toString())
-                .replace(/YY/g, DATE.getFullYear().toString().slice(-2))
+                .replace(/YYYY/g, DATE.getFullYear()?.toString())
+                .replace(/YY/g, DATE.getFullYear()?.toString().slice(-2))
                 // month
-                .replace(/MMM/g, monthsShort[DATE.getMonth()].toString())
+                .replace(/MMM/g, monthsShort[DATE.getMonth()]?.toString())
                 .replace(
                     /MM/g,
-                    (DATE.getMonth() + 1).toString().padStart(2, '0')
+                    (DATE.getMonth() + 1)?.toString().padStart(2, '0'),
                 )
-                .replace(/month/gi, months[DATE.getMonth()].toString())
+                .replace(/month/gi, months[DATE.getMonth()]?.toString())
                 // day
-                .replace(/DDD/g, daysShort[DATE.getDay()].toString())
-                .replace(/DD/g, DATE.getDate().toString().padStart(2, '0'))
-                .replace(/day/gi, days[DATE.getDay()].toString())
+                .replace(/DDD/g, daysShort[DATE.getDay()]?.toString())
+                .replace(/DD/g, DATE.getDate()?.toString().padStart(2, '0'))
+                .replace(/day/gi, days[DATE.getDay()]?.toString())
                 // time
                 .replace(/hh/g, () => {
                     const hours = DATE.getHours();
                     if (format.includes('AM') || format.includes('PM')) {
                         if (hours === 0) return '12';
                         if (hours > 12) {
-                            return (hours - 12).toString().padStart(2, '0');
+                            return (hours - 12)?.toString().padStart(2, '0');
                         }
                     }
-                    return hours.toString().padStart(2, '0');
+                    return hours?.toString().padStart(2, '0');
                 }) // 24 hour
-                .replace(/mm/g, DATE.getMinutes().toString().padStart(2, '0'))
-                .replace(/ss/g, DATE.getSeconds().toString().padStart(2, '0'))
+                .replace(/mm/g, DATE.getMinutes()?.toString().padStart(2, '0'))
+                .replace(/ss/g, DATE.getSeconds()?.toString().padStart(2, '0'))
                 .replace(
                     /ms/g,
-                    DATE.getMilliseconds().toString().padStart(3, '0')
+                    DATE.getMilliseconds()?.toString().padStart(3, '0'),
                 )
                 // time no padding
                 .replace(
                     /h/g,
                     DATE.getHours() > 12
-                        ? (DATE.getHours() - 12).toString()
-                        : DATE.getHours().toString()
+                        ? (DATE.getHours() - 12)?.toString()
+                        : DATE.getHours()?.toString(),
                 ) // 12 hour
-                .replace(/m/g, DATE.getMinutes().toString())
-                .replace(/s/g, DATE.getSeconds().toString())
-                .replace(/ms/g, DATE.getMilliseconds().toString())
+                .replace(/m/g, DATE.getMinutes()?.toString())
+                .replace(/s/g, DATE.getSeconds()?.toString())
+                .replace(/ms/g, DATE.getMilliseconds()?.toString())
                 // am/pm
                 .replace(/am/g, DATE.getHours() >= 12 ? 'pm' : 'am')
                 .replace(/AM/g, DATE.getHours() >= 12 ? 'PM' : 'AM')
@@ -184,7 +184,7 @@ const timezoneOffsets = {
     SST: -11, // Samoa Standard Time
     SDT: -10, // Samoa Daylight Time
     CHST: 10, // Chamorro Standard Time
-    UTC: 0 // Coordinated Universal Time
+    UTC: 0, // Coordinated Universal Time
 };
 
 type Timezone = keyof typeof timezoneOffsets;
