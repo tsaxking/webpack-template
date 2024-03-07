@@ -58,17 +58,23 @@ export class Surface extends Drawable<Surface> {
 
             if (p1 && p2 && p4) {
                 const triangle = new Polygon([p, p1, p2]);
-                triangle.properties.fill.color = color;
+                triangle.properties.fill = {
+                    color
+                };
                 this.triangles.push(triangle);
             }
             if (p1 && p4 && p3) {
                 const triangle = new Polygon([p, p1, p4]);
-                triangle.properties.fill.color = color;
+                triangle.properties.fill = {
+                    color
+                };
                 this.triangles.push(triangle);
             }
             if (p1 && p3 && p2) {
                 const triangle = new Polygon([p, p1, p3]);
-                triangle.properties.fill.color = color;
+                triangle.properties.fill = {
+                    color
+                };
                 this.triangles.push(triangle);
             }
         }

@@ -329,7 +329,7 @@ export const choose = async <A extends string, B extends string>(
     });
 };
 
-Object.assign(window, { 
+Object.assign(window, {
     notifs: {
         alert,
         confirm,

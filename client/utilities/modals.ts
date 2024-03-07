@@ -336,7 +336,7 @@ export class Toast {
 
     private render() {
         this.target.classList.add(
-            'toast', 
+            'toast'
             // 'position-absolute'
         );
         this.target.setAttribute('role', 'alert');
