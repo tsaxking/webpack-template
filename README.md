@@ -13,6 +13,8 @@ This includes a GitHub action to deploy documentation to GitHub Pages, and a Git
 - [Front End](#front-end)
 - [Contributing](#contributing)
 - [License](#license)
+- [Contact](#contact)
+- [Documentation](/docs)
 
 ## Installation
 
