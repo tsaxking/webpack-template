@@ -4,6 +4,12 @@ import { dateTime } from '../../shared/clock';
 import stack from 'callsite';
 import path from 'path';
 
+/**
+ * Returns the file path, line number, and function name of the current site
+ * @date 3/8/2024 - 5:58:55 AM
+ *
+ * @returns {{ filePath: any; lineNumber: any; fn: any; }}
+ */
 const getSite = () => {
     const s = stack()[3];
     return {
@@ -13,6 +19,13 @@ const getSite = () => {
     };
 };
 
+/**
+ * Runs a log, error, or warn message
+ * @date 3/8/2024 - 5:58:55 AM
+ *
+ * @param {('log' | 'error' | 'warn')} type
+ * @param {...unknown[]} args
+ */
 const runLog = (type: 'log' | 'error' | 'warn', ...args: unknown[]) => {
     let color = Colors.FgGreen;
     switch (type) {
@@ -45,6 +58,24 @@ const runLog = (type: 'log' | 'error' | 'warn', ...args: unknown[]) => {
     );
 };
 
+/**
+ * Logs a message
+ * @date 3/8/2024 - 5:58:55 AM
+ *
+ * @param {...unknown[]} args
+ */
 export const log = (...args: unknown[]) => runLog('log', ...args);
+/**
+ * Logs an error message
+ * @date 3/8/2024 - 5:58:55 AM
+ *
+ * @param {...unknown[]} args
+ */
 export const error = (...args: unknown[]) => runLog('error', ...args);
+/**
+ * Logs a warning message
+ * @date 3/8/2024 - 5:58:55 AM
+ *
+ * @param {...unknown[]} args
+ */
 export const warn = (...args: unknown[]) => runLog('warn', ...args);

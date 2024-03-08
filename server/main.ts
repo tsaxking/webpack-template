@@ -1,3 +1,7 @@
+// Purpose: Main entry point for the server.
+// This file is responsible for starting the server, watching, handling the build process, and handling the process lifecycle.
+// Eventually, this file will be responsible for starting multiple servers and managing them, cycling through them for load balancing.
+
 import { Builder } from './bundler';
 import { Colors } from './utilities/colors';
 import { deleteDeps, pullDeps } from '../scripts/pull-deps';
@@ -46,6 +50,13 @@ import path from 'path';
 //     }
 // }
 
+/**
+ * Logs a message to the console
+ * @date 3/8/2024 - 6:03:56 AM
+ *
+ * @param {...unknown[]} args
+ * @returns {*}
+ */
 const log = (...args: unknown[]) =>
     console.log(
         Colors.FgBlue,
@@ -56,6 +67,13 @@ const log = (...args: unknown[]) =>
         ...args
     );
 
+/**
+ * Main function
+ * @date 3/8/2024 - 6:03:56 AM
+ *
+ * @async
+ * @returns {*}
+ */
 const main = async () => {
     // const res = await pullDeps();
     // if (res.isErr()) throw res.error;

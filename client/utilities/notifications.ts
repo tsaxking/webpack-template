@@ -202,6 +202,15 @@ export const prompt = async (question: string): Promise<string | null> => {
     });
 };
 
+/**
+ * Returns a promise that resolves when the user closes the modal with a number value or -1 if the user cancels
+ * @date 3/8/2024 - 7:17:03 AM
+ *
+ * @async
+ * @param {string} question
+ * @param {string[]} options
+ * @returns {Promise<number>}
+ */
 export const select = async (
     question: string,
     options: string[]
@@ -272,6 +281,18 @@ export const select = async (
     });
 };
 
+/**
+ * Creates a modal with two buttons and returns a promise that resolves when the user closes the modal with the value of the button pressed
+ * @date 3/8/2024 - 7:17:03 AM
+ *
+ * @async
+ * @template {string} A
+ * @template {string} B
+ * @param {string} question
+ * @param {A} option1
+ * @param {B} option2
+ * @returns {Promise<null | A | B>}
+ */
 export const choose = async <A extends string, B extends string>(
     question: string,
     option1: A,

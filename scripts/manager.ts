@@ -1,3 +1,6 @@
+// Purpose: This file is the main entry point for the manager script
+// This is a cli tool for managing the server
+
 import { select } from './prompt';
 import { Colors } from '../server/utilities/colors';
 import { attemptAsync, Result } from '../shared/check';
@@ -14,9 +17,14 @@ import { serverController } from './manager/server-controller';
 import fs from 'fs';
 import path from 'path';
 import { DB } from '../server/utilities/databases';
-
 const { resolve, relative } = path;
 
+/**
+ * A list of some icons for the cli
+ * @date 3/8/2024 - 6:49:57 AM
+ *
+ * @type {{ success: string; error: string; warning: string; info: string; account: string; role: string; status: string; permission: string; database: string; entry: string; exit: string; verify: string; remove: string; create: string; restore: string; back: string; controller: string; }}
+ */
 export const icons = {
     success: '✅',
     error: '❌',
@@ -37,8 +45,22 @@ export const icons = {
     controller: '🎮'
 };
 
+/**
+ * Colorizes the title of a section
+ * @date 3/8/2024 - 6:49:57 AM
+ *
+ * @param {string} str
+ * @returns {string}
+ */
 const colorTitle = (str: string) => name(str, Colors.FgBlue);
 
+/**
+ * Filters a string for bad words
+ * @date 3/8/2024 - 6:49:57 AM
+ *
+ * @param {string} str
+ * @returns {boolean}
+ */
 export const filter = (str: string): boolean => {
     if (str.length < 3) return false;
     const filter = new Filter();
@@ -50,18 +72,39 @@ export const filter = (str: string): boolean => {
     return true;
 };
 
+/**
+ * Returns back to main
+ * @date 3/8/2024 - 6:49:57 AM
+ *
+ * @async
+ * @param {string} message
+ * @returns {*}
+ */
 export const backToMain = async (message: string) => {
-    console.log(message);
-    await select('', ['[Ok]']);
+    await select(message, ['[Ok]']);
     main();
 };
 
+/**
+ * Clears the console and logs a title
+ * @date 3/8/2024 - 6:49:57 AM
+ *
+ * @param {string} t
+ */
 export const title = (t: string) => {
     console.clear();
     console.log(Colors.FgGreen, t, Colors.Reset);
     console.log(' ' + '-'.repeat(t.length));
 };
 
+/**
+ * Prompt for bootstrap colors
+ * @date 3/8/2024 - 6:49:57 AM
+ *
+ * @async
+ * @param {string} [message='Select a color']
+ * @returns {Promise<string>}
+ */
 export const selectBootstrapColor = async (
     message = 'Select a color'
 ): Promise<string> => {
@@ -92,6 +135,16 @@ export const selectBootstrapColor = async (
     return runSelect();
 };
 
+/**
+ * Selects a file or directory
+ * @date 3/8/2024 - 6:49:57 AM
+ *
+ * @async
+ * @param {string} dir
+ * @param {string} [message='Select a file or directory']
+ * @param {?(file: string) => boolean} [test]
+ * @returns {Promise<Result<string>>}
+ */
 export const selectFile = async (
     dir: string,
     message = 'Select a file or directory',
@@ -167,6 +220,15 @@ export const selectFile = async (
     return data;
 };
 
+/**
+ * Selects a directory
+ * @date 3/8/2024 - 6:49:57 AM
+ *
+ * @async
+ * @param {string} dir
+ * @param {string} [message='Select a directory']
+ * @returns {Promise<Result<string>>}
+ */
 export const selectDir = async (
     dir: string,
     message = 'Select a directory'
@@ -249,9 +311,24 @@ export const selectDir = async (
     return data;
 };
 
+/**
+ * Returns a colorized string
+ * @date 3/8/2024 - 6:49:57 AM
+ *
+ * @param {string} str
+ * @param {Colors} color
+ * @returns {string}
+ */
 const name = (str: string, color: Colors) =>
     `${color}[${capitalize(fromCamelCase(str))}]${Colors.Reset}`;
 
+/**
+ * Main function
+ * @date 3/8/2024 - 6:49:57 AM
+ *
+ * @async
+ * @returns {*}
+ */
 export const main = async () => {
     title('Welcome to the Task Manager!');
     const exit = () => {

@@ -30,14 +30,32 @@ type ValidateOptions = {
     log?: true;
 };
 
+/**
+ * Allowed primitive types
+ * @date 3/8/2024 - 6:21:58 AM
+ *
+ * @typedef {AllowedPrimitive}
+ */
 type AllowedPrimitive = 'string' | 'number' | 'boolean' | 'undefined';
 
+/**
+ * A check to see if a value is valid
+ * @date 3/8/2024 - 6:21:58 AM
+ *
+ * @typedef {IsValid}
+ */
 type IsValid =
     | AllowedPrimitive
     | AllowedPrimitive[]
     | (string | number | boolean)[]
     | ((data: any) => boolean);
 
+/**
+ * Event emitter for data validation
+ * @date 3/8/2024 - 6:21:58 AM
+ *
+ * @type {EM}
+ */
 export const emitter = (() => {
     type Updates = {
         fail: [string, unknown, IsValid]; // key, value, desired
@@ -251,6 +269,14 @@ export const validate = <type = unknown>(
     };
 };
 
+/**
+ * Pipes the body through a function
+ * @date 3/8/2024 - 6:21:58 AM
+ *
+ * @template T
+ * @param {(value: T) => T} pipe
+ * @returns {T) => (req: Req<T>, res: any, next: any) => void}
+ */
 export const bodyPipe = <T>(pipe: (value: T) => T) => {
     return (req: Req<T>, res: any, next: any) => {
         req.body = pipe(req.body);
@@ -258,6 +284,12 @@ export const bodyPipe = <T>(pipe: (value: T) => T) => {
     };
 };
 
+/**
+ * Trims the body
+ * @date 3/8/2024 - 6:21:58 AM
+ *
+ * @type {(req: Req<{ [key: string]: string; }>, res: any, next: any) => void}
+ */
 export const trimBody = bodyPipe(
     (body: {
         [key: string]: string;

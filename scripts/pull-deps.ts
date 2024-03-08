@@ -1,8 +1,16 @@
-import { getJSON, removeFile, saveFile } from '../server/utilities/files';
+// Purpose: pull dependencies and cache them in the client/deps folder
+
+import { getJSON, saveFile } from '../server/utilities/files';
 import { attemptAsync } from '../shared/check';
 import fs from 'fs';
-import path from 'path';
 
+/**
+ * Pulls dependencies from the server and caches them in the client/deps folder
+ * @date 3/8/2024 - 6:54:47 AM
+ *
+ * @async
+ * @returns {unknown}
+ */
 export const pullDeps = async () => {
     return attemptAsync(async () => {
         // delete everything in the deps folder
@@ -74,6 +82,13 @@ export const pullDeps = async () => {
     });
 };
 
+/**
+ * Deletes the client/deps folder and resets the client/utilities/deps.ts file
+ * @date 3/8/2024 - 6:54:47 AM
+ *
+ * @async
+ * @returns {unknown}
+ */
 export const deleteDeps = async () => {
     return attemptAsync(async () => {
         console.log('Deleting dependencies');

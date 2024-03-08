@@ -1,5 +1,11 @@
 import { EventEmitter } from '../../shared/event-emitter';
 
+/**
+ * Emits data from the stdin (on enter)
+ * @date 3/8/2024 - 5:58:40 AM
+ *
+ * @type {*}
+ */
 export const stdin = new EventEmitter();
 
 // {

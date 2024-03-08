@@ -126,6 +126,14 @@ export default class Account {
         return [];
     }
 
+    /**
+     * Retrieves all verified accounts
+     * @date 3/8/2024 - 6:12:28 AM
+     *
+     * @static
+     * @async
+     * @returns {unknown}
+     */
     static async getVerifiedAccounts() {
         const res = await DB.all('account/verified');
 
@@ -948,6 +956,14 @@ export default class Account {
         ).flat();
     }
 
+    /**
+     * Checks if the account has a specific permission
+     * @date 3/8/2024 - 6:12:28 AM
+     *
+     * @async
+     * @param {Permission} permission
+     * @returns {unknown}
+     */
     async hasPermission(permission: Permission) {
         const permissions = await this.getPermissions();
         return permissions.some(p => p.permission === permission);
@@ -1184,6 +1200,13 @@ export default class Account {
      */
     save() {}
 
+    /**
+     * Retrieves the settings of the account
+     * @date 3/8/2024 - 6:12:28 AM
+     *
+     * @async
+     * @returns {Promise<AccountSettings | undefined>}
+     */
     async getSettings(): Promise<AccountSettings | undefined> {
         const res = await DB.get('account/get-settings', {
             accountId: this.id
@@ -1193,6 +1216,14 @@ export default class Account {
         return undefined;
     }
 
+    /**
+     * Sets the settings of the account
+     * @date 3/8/2024 - 6:12:28 AM
+     *
+     * @async
+     * @param {unknown} settings
+     * @returns {unknown}
+     */
     async setSettings(settings: unknown) {
         return attemptAsync(async () => {
             const str = JSON.stringify(settings);

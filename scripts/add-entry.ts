@@ -9,6 +9,13 @@ const { dirname, relative, resolve } = path;
 
 const [, , ...args] = process.argv;
 
+/**
+ * Creates a new entry file in the client/entries directory
+ * @date 3/8/2024 - 6:46:08 AM
+ *
+ * @async
+ * @returns {unknown}
+ */
 export const runEntryPrompt = async () => {
     if (args.length) {
         return addEntry(args[0]);
@@ -23,6 +30,13 @@ export const runEntryPrompt = async () => {
     addEntry(input);
 };
 
+/**
+ * Adds a new entry file to the client/entries directory
+ * @date 3/8/2024 - 6:46:08 AM
+ *
+ * @param {string} name
+ * @param {?string} [importFile]
+ */
 export const addEntry = (name: string, importFile?: string) => {
     const filepath = resolve(__root, 'client', 'entries', name + '.ts');
     const dir = dirname(filepath);
@@ -48,20 +62,14 @@ const myApp = new App({ target: document.body });
 }
 `;
 
-    // Deno.writeFileSync(filepath, new TextEncoder().encode(imports));
     fs.writeFileSync(filepath, imports);
 };
 
-// if (import.meta.main) {
-//     console.warn(
-//         `⚠️ ${Colors.FgYellow}Running this script will be deprecated soon, please use "deno task manager" and select [General] -> Create Entry instead.${Colors.Reset} ⚠️`,
-//     );
-//     runEntryPrompt();
-// }
 
-// if (require.main) {
-//     console.warn(
-//         `⚠️ ${Colors.FgYellow}Running this script will be deprecated soon, please use "deno task manager" and select [General] -> Create Entry instead.${Colors.Reset} ⚠️`
-//     );
-//     runEntryPrompt();
-// }
+
+if (require.main === module) {
+    console.warn(
+        `⚠️ ${Colors.FgYellow}Running this script will be deprecated soon, please use "deno task manager" and select [General] -> Create Entry instead.${Colors.Reset} ⚠️`
+    );
+    runEntryPrompt();
+}

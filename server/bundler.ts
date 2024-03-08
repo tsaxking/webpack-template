@@ -1,3 +1,5 @@
+// This file is responsible for building the client
+
 import esbuild from 'esbuild';
 import sveltePlugin from 'esbuild-svelte';
 import { typescript } from 'svelte-preprocess-esbuild';
@@ -27,6 +29,14 @@ import { EventEmitter } from '../shared/event-emitter';
     attempt(() => fs.mkdirSync(path.resolve(__templates, 'entries')));
 }
 
+/**
+ * Reads the directory and returns a shallow array of all the files
+ * @date 3/8/2024 - 6:01:24 AM
+ *
+ * @async
+ * @param {string} dirPath
+ * @returns {Promise<string[]>}
+ */
 const readDir = async (dirPath: string): Promise<string[]> => {
     // console.log('Reading:', dirPath);
     const entries = await fs.promises.readdir(dirPath);
@@ -37,6 +47,7 @@ const readDir = async (dirPath: string): Promise<string[]> => {
             entries.map(async e => {
                 const fullpath = path.resolve(dirPath, e);
 
+                // if it's a file, save the template then return the path
                 if ((await fs.promises.stat(fullpath)).isFile()) {
                     const templateFilePath = path
                         .resolve(
@@ -74,6 +85,7 @@ const readDir = async (dirPath: string): Promise<string[]> => {
                     }
                     return fullpath;
                 } else {
+                    // if it's a directory, recursively read it
                     return readDir(fullpath);
                 }
             })
@@ -81,12 +93,48 @@ const readDir = async (dirPath: string): Promise<string[]> => {
     ).flat(Infinity) as string[];
 };
 
+/**
+ * Class for building the client
+ * @date 3/8/2024 - 6:01:24 AM
+ *
+ * @export
+ * @class Builder
+ * @typedef {Builder}
+ */
 export class Builder {
-    private watchers = new Map<string, fs.FSWatcher>();
+    /**
+     * A map of all the watchers
+     * @date 3/8/2024 - 6:01:24 AM
+     *
+     * @private
+     * @type {*}
+     */
+    private readonly watchers = new Map<string, fs.FSWatcher>();
+    /**
+     * If the builder is currently building
+     * @date 3/8/2024 - 6:01:24 AM
+     *
+     * @private
+     * @type {boolean}
+     */
     private building = false;
 
+    /**
+     * Event emitter for the builder
+     * @date 3/8/2024 - 6:01:24 AM
+     *
+     * @public
+     * @readonly
+     * @type {*}
+     */
     public readonly em = new EventEmitter();
 
+    /**
+     * Watches a directory for changes
+     * @date 3/8/2024 - 6:01:24 AM
+     *
+     * @param {string} dir
+     */
     public watch = (dir: string) => {
         console.log('Watching:', dir);
         const watcher = fs.watch(
@@ -103,12 +151,22 @@ export class Builder {
         this.watchers.set(dir, watcher);
     };
 
+    /**
+     * Closes all the watchers
+     * @date 3/8/2024 - 6:01:24 AM
+     */
     close = () => {
         for (const watcher of this.watchers.values()) {
             watcher.close();
         }
     };
 
+    /**
+     * Builds the client
+     * @date 3/8/2024 - 6:01:24 AM
+     *
+     * @returns {*}
+     */
     public build = () => {
         return attemptAsync(async () => {
             if (this.building) return;

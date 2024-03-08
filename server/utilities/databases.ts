@@ -82,14 +82,35 @@ type Parameter =
           [key: string]: string | number | boolean | null;
       };
 
+/**
+ * All of the parameters that can be used in a query
+ * @date 3/8/2024 - 5:37:17 AM
+ *
+ * @typedef {QParams}
+ * @template {keyof Queries} T
+ */
 type QParams<T extends keyof Queries> = Queries[T][0];
 
+/**
+ * The result of a query
+ * @date 3/8/2024 - 5:37:17 AM
+ *
+ * @typedef {QueryResult}
+ * @template T
+ */
 type QueryResult<T> = {
     rows: T[];
     query: string;
     params: unknown[];
 };
 
+/**
+ * Database version [major, minor, patch]
+ * @date 3/8/2024 - 5:37:17 AM
+ *
+ * @export
+ * @typedef {Version}
+ */
 export type Version = [number, number, number];
 
 /**
@@ -118,10 +139,36 @@ export class DB {
         keepAlive: true
     });
 
+    /**
+     * Database event emitter, used for connecting and disconnecting
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @static
+     * @readonly
+     * @type {*}
+     */
     static readonly em = new EventEmitter<'connect' | 'disconnect'>();
 
+    /**
+     * Timeout for the database connection
+     * Currently not used since the database connection is kept alive
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @private
+     * @static
+     * @type {NodeJS.Timeout}
+     */
     private static timeout: NodeJS.Timeout;
 
+    /**
+     * Resets the timeout for the database connection
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @private
+     * @static
+     * @async
+     * @returns {*}
+     */
     private static async setTimeout() {
         if (DB.timeout) clearTimeout(DB.timeout);
         DB.timeout = setTimeout(
@@ -133,6 +180,14 @@ export class DB {
         );
     }
 
+    /**
+     * Connects to the database
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @static
+     * @async
+     * @returns {unknown}
+     */
     static async connect() {
         return attemptAsync(async () => {
             // a little optimization
@@ -153,6 +208,18 @@ export class DB {
         });
     }
 
+    /**
+     * Parses a query and converts it to a format that the database can understand
+     * All :variables are replaced with $n, and all ? are replaced with $n
+     * With this, it's easy to switch between different database hosts
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @public
+     * @static
+     * @param {string} query
+     * @param {any[]} args
+     * @returns {[string, Parameter[]]}
+     */
     public static parseQuery(
         query: string,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -213,10 +280,29 @@ export class DB {
         return [deCamelCase(query), copied];
     }
 
+    /**
+     * Postgres doesn't like capitalized table names, so we convert them to snake case.
+     * But this entire codebase uses camel case, so we convert them back to camel case
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @private
+     * @static
+     * @template {object} T
+     * @param {T} obj
+     * @returns {*}
+     */
     private static parseObj<T extends object>(obj: T) {
         return parseObject(obj, str => toCamelCase(fromSnakeCase(str)));
     }
 
+    /**
+     * Retrieves all postgres owners from the database
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @static
+     * @async
+     * @returns {Promise<Result<string[]>>}
+     */
     static async getUsers(): Promise<Result<string[]>> {
         return attemptAsync(async () => {
             // get all users for the postgres database
@@ -237,6 +323,14 @@ export class DB {
         });
     }
 
+    /**
+     * Retrieves the version of the database
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @static
+     * @async
+     * @returns {Promise<Version>}
+     */
     static async getVersion(): Promise<Version> {
         const v = await DB.get('db/get-version');
         if (v.isOk() && v.value) {
@@ -244,9 +338,18 @@ export class DB {
             return [major, minor, patch];
         }
         // database is not initialized
-        return [-1, -1, -1];
+        return [0, 0, 0];
     }
 
+    /**
+     * Sets the version of the database
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @static
+     * @async
+     * @param {Version} v
+     * @returns {Promise<Result<unknown>>}
+     */
     static async setVersion(v: Version): Promise<Result<unknown>> {
         console.log('Setting version to', v.join('.'));
         const [major, minor, patch] = v;
@@ -264,6 +367,14 @@ export class DB {
         return res;
     }
 
+    /**
+     * Retrieves the version of the database (based on the latest update file)
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @static
+     * @async
+     * @returns {Promise<Version>}
+     */
     static async latestVersion(): Promise<Version> {
         const versions = await DB.getUpdates();
         if (versions.isOk()) {
@@ -272,6 +383,15 @@ export class DB {
         return [0, 0, 0];
     }
 
+    /**
+     * Checks if the database is at least the version provided
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @static
+     * @async
+     * @param {Version} v
+     * @returns {Promise<boolean>}
+     */
     static async hasVersion(v: Version): Promise<boolean> {
         // checks if the database is at least the version provided
         const [major, minor, patch] = v;
@@ -283,6 +403,14 @@ export class DB {
         );
     }
 
+    /**
+     * Initializes the database with the init.sql file
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @static
+     * @async
+     * @returns {Promise<Result<void>>}
+     */
     static async init(): Promise<Result<void>> {
         return attemptAsync(async () => {
             if (await DB.hasVersion([0, 0, 0])) {
@@ -307,6 +435,14 @@ export class DB {
         });
     }
 
+    /**
+     * Retrieves all available updates for the database, including those that have already been run
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @static
+     * @async
+     * @returns {Promise<Result<Version[]>>}
+     */
     static async getUpdates(): Promise<Result<Version[]>> {
         return attemptAsync(async () => {
             const versions = await readDir('storage/db/queries/db/versions');
@@ -336,6 +472,16 @@ export class DB {
         });
     }
 
+    /**
+     * Runs a version update on the database
+     * If the version doesn't exist or there is an error, the database is restored from a backup
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @static
+     * @async
+     * @param {Version} version
+     * @returns {Promise<Result<boolean>>}
+     */
     static async runUpdate(version: Version): Promise<Result<boolean>> {
         return attemptAsync(async () => {
             console.log('Updating database to version', version.join('.'));
@@ -399,6 +545,14 @@ export class DB {
         });
     }
 
+    /**
+     * Retrieves all backups available for the database
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @static
+     * @async
+     * @returns {Promise<Result<string[]>>}
+     */
     static async getBackups(): Promise<Result<string[]>> {
         return attemptAsync(async () => {
             const backups = await readDir('storage/db/backups');
@@ -409,6 +563,14 @@ export class DB {
         });
     }
 
+    /**
+     * Creates a full backup of the database
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @static
+     * @async
+     * @returns {Promise<Result<string>>}
+     */
     static async makeBackup(): Promise<Result<string>> {
         return attemptAsync(async () => {
             const [tables, version] = await Promise.all([
@@ -450,6 +612,14 @@ export class DB {
         });
     }
 
+    /**
+     * Resets the database to a blank state
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @static
+     * @async
+     * @returns {Promise<Result<string>>}
+     */
     static async reset(): Promise<Result<string>> {
         return attemptAsync(async () => {
             let b = await DB.makeBackup();
@@ -477,6 +647,16 @@ export class DB {
         });
     }
 
+    /**
+     * Restores the database from a backup
+     * This will reset the database, update it to the version of the backup, then insert the data from the backup
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @static
+     * @async
+     * @param {string} backupName
+     * @returns {Promise<Result<void>>}
+     */
     static async restoreBackup(backupName: string): Promise<Result<void>> {
         return attemptAsync(async () => {
             const currentVersion = await DB.getVersion();
@@ -571,6 +751,14 @@ export class DB {
         });
     }
 
+    /**
+     * Backs up the database periodically
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @static
+     * @async
+     * @returns {unknown}
+     */
     static async setIntervals() {
         const { BACKUP_INTERVAL, BACKUP_DAYS } = env;
         if (!BACKUP_INTERVAL || !BACKUP_DAYS) {
@@ -638,6 +826,15 @@ export class DB {
         });
     }
 
+    /**
+     * Updates the database to a specific version
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @static
+     * @async
+     * @param {Version} version
+     * @returns {Promise<Result<void>>}
+     */
     static async updateToVersion(version: Version): Promise<Result<void>> {
         return attemptAsync(async () => {
             const versions = await DB.getUpdates();
@@ -659,6 +856,14 @@ export class DB {
             }
         });
     }
+    /**
+     * Runs all updates for the database
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @static
+     * @async
+     * @returns {*}
+     */
     static async runAllUpdates() {
         const res = await DB.init();
         if (res.isErr()) {
@@ -688,6 +893,14 @@ export class DB {
         }
     }
 
+    /**
+     * Set up database cleanup intervals
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @static
+     * @async
+     * @returns {unknown}
+     */
     static async setClearBackups() {
         return attemptAsync(async () => {
             if (!env.BACKUP_DAYS) {
@@ -720,6 +933,14 @@ export class DB {
         });
     }
 
+    /**
+     * Returns all tables available in the database
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @static
+     * @async
+     * @returns {Promise<Result<string[]>>}
+     */
     static async getTables(): Promise<Result<string[]>> {
         return attemptAsync(async () => {
             const res = await DB.unsafe.all<{ tableName: string }>(
@@ -741,6 +962,15 @@ export class DB {
         });
     }
 
+    /**
+     * Returns all columns in a given table
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @static
+     * @async
+     * @param {string} table
+     * @returns {Promise<Result<string[]>>}
+     */
     static async getTableCols(table: string): Promise<Result<string[]>> {
         return attemptAsync(async () => {
             const res = await DB.unsafe.all<{ columnName: string }>(
@@ -763,11 +993,20 @@ export class DB {
         });
     }
 
+    /**
+     * All currently running queries
+     * Currently not in use, but could be useful for ensuring that all queries are finished before disconnecting or exiting
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @static
+     * @type {Promise<unknown>[]}
+     */
     static stack: Promise<unknown>[] = [];
 
     // queries
     /**
-     * Prepares a query
+     * Prepares a static query
+     * This will read the query from the file system and prepare it for running
      *
      * @date 10/12/2023 - 3:24:19 PM
      *
@@ -793,6 +1032,17 @@ export class DB {
         });
     }
 
+    /**
+     * Runs a query
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @private
+     * @static
+     * @async
+     * @param {string} query
+     * @param {Parameter[]} args
+     * @returns {Promise<Result<QueryResult<unknown>>>}
+     */
     private static async runQuery(
         query: string,
         args: Parameter[]
@@ -822,7 +1072,7 @@ export class DB {
     }
 
     /**
-     * Runs a query
+     * Pipes a query through the prepare and runQuery functions
      * @date 1/9/2024 - 12:08:08 PM
      *
      * @private
@@ -855,6 +1105,17 @@ export class DB {
         });
     }
 
+    /**
+     * Pipes a query through the prepare and runQuery functions (for unsafe queries)
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @static
+     * @async
+     * @template [T=unknown]
+     * @param {string} query
+     * @param {...Parameter[]} args
+     * @returns {Promise<Result<QueryResult<T>>>}
+     */
     static async pipeUnsafe<T = unknown>(
         query: string,
         ...args: Parameter[]
@@ -872,6 +1133,15 @@ export class DB {
         });
     }
 
+    /**
+     * Disconnects from the database
+     * @date 3/8/2024 - 5:37:17 AM
+     *
+     * @public
+     * @static
+     * @async
+     * @returns {unknown}
+     */
     public static async disconnect() {
         await Promise.all(DB.stack); // wait for all queries to end
         DB.stack = [];
@@ -1004,6 +1274,12 @@ export class DB {
     }
 }
 
+/**
+ * Runs all updates for the database
+ * @date 3/8/2024 - 5:37:17 AM
+ *
+ * @returns {*}
+ */
 export const run = () => {
     return attemptAsync(async () => {
         await DB.runAllUpdates();
@@ -1016,6 +1292,15 @@ DB.connect()
         console.log('Connected to the database');
         await run();
         DB.em.emit('connect');
+
+        const close = async () => {
+            await Promise.all(DB.stack);
+            await DB.disconnect();
+            process.exit(0);
+        }
+
+        process.on('SIGINT', close);
+        process.on('SIGTERM', close);
     })
     .catch(e => {
         console.error('Error connecting to the database', e);

@@ -34,6 +34,18 @@ export type SessionObj = {
  * @typedef {Session}
  */
 export class Session {
+    /**
+     * Returns a session from the request
+     * @date 3/8/2024 - 6:05:08 AM
+     *
+     * @public
+     * @static
+     * @async
+     * @param {App} app
+     * @param {express.Request} req
+     * @param {express.Response} res
+     * @returns {Promise<Session>}
+     */
     public static async from(
         app: App,
         req: express.Request,
@@ -54,8 +66,24 @@ export class Session {
         }
     }
 
+    /**
+     * Session cache, currently not in use
+     * @date 3/8/2024 - 6:05:08 AM
+     *
+     * @private
+     * @static
+     * @readonly
+     * @type {*}
+     */
     private static readonly cache = new Map<string, Session>();
 
+    /**
+     * Returns a new UUID for the session
+     * @date 3/8/2024 - 6:05:08 AM
+     *
+     * @static
+     * @returns {*}
+     */
     static newId() {
         return (uuid() + uuid() + uuid() + uuid()).replace(/-/g, '');
     }
@@ -280,12 +308,34 @@ export class Session {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private timeout?: any;
+    /**
+     * The timeout for the session
+     * Not in use as the cookie lifetime is longer setTimeout will allow
+     * @date 3/8/2024 - 6:05:08 AM
+     *
+     * @private
+     * @type {?*}
+     */
+    private timeout?: NodeJS.Timeout;
 
+    /**
+     * The time of the latest request
+     * @date 3/8/2024 - 6:05:08 AM
+     *
+     * @public
+     * @type {(number | undefined)}
+     */
     public get latestActivity(): number | undefined {
         return this.$latestActivity;
     }
 
+    /**
+     * The time of the latest request
+     * @date 3/8/2024 - 6:05:08 AM
+     *
+     * @public
+     * @type {number}
+     */
     public set latestActivity(time: number | undefined) {
         this.$latestActivity = time;
         // this.save();
@@ -301,6 +351,13 @@ export class Session {
         );
     }
 
+    /**
+     * Runs when a new request is made, used for rate limiting
+     * @date 3/8/2024 - 6:05:08 AM
+     *
+     * @async
+     * @returns {*}
+     */
     async newRequest() {
         this.requests = this.requests + 1;
         // await this.save();
@@ -312,18 +369,44 @@ export class Session {
         }
     }
 
+    /**
+     * The previous url (used for redirects)
+     * @date 3/8/2024 - 6:05:08 AM
+     *
+     * @type {(string | undefined)}
+     */
     get prevUrl(): string | undefined {
         return this.$prevUrl;
     }
 
+    /**
+     * The previous url (used for redirects)
+     * @date 3/8/2024 - 6:05:08 AM
+     *
+     * @type {string}
+     */
     set prevUrl(url: string | undefined) {
         this.$prevUrl = url;
         this.save();
     }
 
     // for caching
+    /**
+     * The account object, if the user is signed in (cached)
+     * @date 3/8/2024 - 6:05:08 AM
+     *
+     * @private
+     * @type {?Account}
+     */
     private $account?: Account;
 
+    /**
+     * Checks if the session is blacklisted
+     * @date 3/8/2024 - 6:05:08 AM
+     *
+     * @async
+     * @returns {Promise<boolean>}
+     */
     async isBlacklisted(): Promise<boolean> {
         if (this.ip) {
             const res = await DB.get('blacklist/from-ip', { ip: this.ip });
@@ -340,6 +423,14 @@ export class Session {
         return false;
     }
 
+    /**
+     * Blacklists the session
+     * @date 3/8/2024 - 6:05:07 AM
+     *
+     * @async
+     * @param {string} reason
+     * @returns {*}
+     */
     async blacklist(reason: string) {
         this.requests = 0; // for when/if the blacklist is removed
         await this.save();

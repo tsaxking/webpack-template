@@ -1,3 +1,6 @@
+// Purpose: find all <{generic}> then create a validate function for each
+// this is currently in the process of being implemented, don't use it yet pls
+
 {
     const parse = (ts: string) => {
         // console.log(ts);

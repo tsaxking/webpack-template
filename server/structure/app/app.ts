@@ -119,6 +119,7 @@ export type ServerFunction<T = unknown> = (
     req: Req<T>,
     res: Res,
     next: Next
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 ) => any | Promise<any>;
 /**
  * Final function that is called at the end of a request
@@ -136,9 +137,34 @@ declare module 'express-serve-static-core' {
     }
 }
 
+/**
+ * Route class that is used to create sub-routes
+ * @date 3/8/2024 - 6:13:51 AM
+ *
+ * @export
+ * @class Route
+ * @typedef {Route}
+ */
 export class Route {
+    /**
+     * Express router
+     * @date 3/8/2024 - 6:13:51 AM
+     *
+     * @readonly
+     * @type {*}
+     */
     readonly router = express.Router();
 
+    /**
+     * Adds a listener to the router
+     * @date 3/8/2024 - 6:13:51 AM
+     *
+     * @private
+     * @template T
+     * @param {RequestMethod} method
+     * @param {string} path
+     * @param {...ServerFunction<T>[]} fn
+     */
     private addListener<T>(
         method: RequestMethod,
         path: string,
@@ -160,32 +186,103 @@ export class Route {
         });
     }
 
+    /**
+     * Listens for a GET request
+     * @date 3/8/2024 - 6:13:51 AM
+     *
+     * @public
+     * @template T
+     * @param {string} path
+     * @param {...ServerFunction<T>[]} fn
+     */
     public get<T>(path: string, ...fn: ServerFunction<T>[]) {
         this.addListener(RequestMethod.GET, path, ...fn);
     }
 
+    /**
+     * Listens for a POST request
+     * @date 3/8/2024 - 6:13:51 AM
+     *
+     * @public
+     * @template T
+     * @param {string} path
+     * @param {...ServerFunction<T>[]} fn
+     */
     public post<T>(path: string, ...fn: ServerFunction<T>[]) {
         this.addListener(RequestMethod.POST, path, ...fn);
     }
 
+    /**
+     * Listens for a PUT request
+     * @date 3/8/2024 - 6:13:51 AM
+     *
+     * @public
+     * @template T
+     * @param {string} path
+     * @param {...ServerFunction<T>[]} fn
+     */
     public put<T>(path: string, ...fn: ServerFunction<T>[]) {
         this.addListener(RequestMethod.PUT, path, ...fn);
     }
 
+    /**
+     * Listens for a DELETE request
+     * @date 3/8/2024 - 6:13:51 AM
+     *
+     * @public
+     * @template T
+     * @param {string} path
+     * @param {...ServerFunction<T>[]} fn
+     */
     public delete<T>(path: string, ...fn: ServerFunction<T>[]) {
         this.addListener(RequestMethod.DELETE, path, ...fn);
     }
 
+    /**
+     * Listens for all requests that match the path
+     * @date 3/8/2024 - 6:13:51 AM
+     *
+     * @public
+     * @template T
+     * @param {string} path
+     * @param {...ServerFunction<T>[]} fn
+     */
     public use<T>(path: string, ...fn: ServerFunction<T>[]) {
         this.addListener(RequestMethod.USE, path, ...fn);
     }
 
+    /**
+     * Adds a route to the router
+     * @date 3/8/2024 - 6:13:51 AM
+     *
+     * @public
+     * @param {string} path
+     * @param {Route} route
+     */
     public route(path: string, route: Route) {
         this.router.use(path, route.router);
     }
 }
 
+/**
+ * App class that is used to create a server
+ * @date 3/8/2024 - 6:13:51 AM
+ *
+ * @export
+ * @class App
+ * @typedef {App}
+ */
 export class App {
+    /**
+     * Creates a header authorization function
+     * @date 3/8/2024 - 6:13:51 AM
+     *
+     * @public
+     * @static
+     * @param {string} key
+     * @param {string} value
+     * @returns {ServerFunction}
+     */
     public static headerAuth(key: string, value: string): ServerFunction {
         return (req, res, next) => {
             if (req.headers.get(key) === value) {
@@ -196,11 +293,51 @@ export class App {
         };
     }
 
+    /**
+     * Socket.io server
+     * @date 3/8/2024 - 6:13:51 AM
+     *
+     * @public
+     * @readonly
+     * @type {SocketWrapper}
+     */
     public readonly io: SocketWrapper;
+    /**
+     * Express server
+     * @date 3/8/2024 - 6:13:51 AM
+     *
+     * @public
+     * @readonly
+     * @type {express.Application}
+     */
     public readonly server: express.Application;
+    /**
+     * Final functions that are called at the end of a request
+     * @date 3/8/2024 - 6:13:51 AM
+     *
+     * @public
+     * @readonly
+     * @type {FinalFunction<unknown>[]}
+     */
     public readonly finalFunctions: FinalFunction<unknown>[] = [];
+    /**
+     * HTTP server
+     * @date 3/8/2024 - 6:13:50 AM
+     *
+     * @public
+     * @readonly
+     * @type {http.Server}
+     */
     public readonly httpServer: http.Server;
 
+    /**
+     * Creates an instance of App.
+     * @date 3/8/2024 - 6:13:50 AM
+     *
+     * @constructor
+     * @param {number} port
+     * @param {string} domain
+     */
     constructor(
         public readonly port: number,
         public readonly domain: string
@@ -236,6 +373,16 @@ export class App {
         });
     }
 
+    /**
+     * Adds a listener to the server
+     * @date 3/8/2024 - 6:13:50 AM
+     *
+     * @private
+     * @template T
+     * @param {RequestMethod} method
+     * @param {string} path
+     * @param {...ServerFunction<T>[]} fn
+     */
     private addListener<T>(
         method: RequestMethod,
         path: string,
@@ -267,38 +414,113 @@ export class App {
         });
     }
 
+    /**
+     * Listens for a GET request
+     * @date 3/8/2024 - 6:13:50 AM
+     *
+     * @public
+     * @template T
+     * @param {string} path
+     * @param {...ServerFunction<T>[]} fn
+     */
     public get<T>(path: string, ...fn: ServerFunction<T>[]) {
         this.addListener<T>(RequestMethod.GET, path, ...fn);
     }
 
+    /**
+     * Listens for a POST request
+     * @date 3/8/2024 - 6:13:50 AM
+     *
+     * @public
+     * @template T
+     * @param {string} path
+     * @param {...ServerFunction<T>[]} fn
+     */
     public post<T>(path: string, ...fn: ServerFunction<T>[]) {
         this.addListener<T>(RequestMethod.POST, path, ...fn);
     }
 
+    /**
+     * Listens for a PUT request
+     * @date 3/8/2024 - 6:13:50 AM
+     *
+     * @public
+     * @template T
+     * @param {string} path
+     * @param {...ServerFunction<T>[]} fn
+     */
     public put<T>(path: string, ...fn: ServerFunction<T>[]) {
         this.addListener<T>(RequestMethod.PUT, path, ...fn);
     }
 
+    /**
+     * Listens for a DELETE request
+     * @date 3/8/2024 - 6:13:50 AM
+     *
+     * @public
+     * @template T
+     * @param {string} path
+     * @param {...ServerFunction<T>[]} fn
+     */
     public delete<T>(path: string, ...fn: ServerFunction<T>[]) {
         this.addListener<T>(RequestMethod.DELETE, path, ...fn);
     }
 
+    /**
+     * Listens for all requests that match the path
+     * @date 3/8/2024 - 6:13:50 AM
+     *
+     * @public
+     * @template T
+     * @param {string} path
+     * @param {...ServerFunction<T>[]} fn
+     */
     public use<T>(path: string, ...fn: ServerFunction<T>[]) {
         this.addListener<T>(RequestMethod.USE, path, ...fn);
     }
 
+    /**
+     * Adds a route to the server
+     * @date 3/8/2024 - 6:13:50 AM
+     *
+     * @public
+     * @param {string} path
+     * @param {Route} route
+     */
     public route(path: string, route: Route) {
         this.server.use(path, route.router);
     }
 
+    /**
+     * Adds a static path to the server, used for serving js, css, and other files to the client
+     * @date 3/8/2024 - 6:13:50 AM
+     *
+     * @public
+     * @param {string} path
+     * @param {string} dirPath
+     */
     public static(path: string, dirPath: string) {
         this.server.use(path, express.static(dirPath));
     }
 
+    /**
+     * Adds a final function to the server
+     * @date 3/8/2024 - 6:13:50 AM
+     *
+     * @public
+     * @template T
+     * @param {FinalFunction<T>} fn
+     */
     public final<T>(fn: FinalFunction<T>) {
         this.finalFunctions.push(fn as FinalFunction<unknown>);
     }
 
+    /**
+     * Starts the server
+     * @date 3/8/2024 - 6:13:50 AM
+     *
+     * @public
+     */
     public start() {
         this.httpServer.listen(this.port, () => {
             log(`Server is listening on port ${this.port}`);
