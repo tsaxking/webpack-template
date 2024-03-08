@@ -14,7 +14,7 @@ This includes a GitHub action to deploy documentation to GitHub Pages, and a Git
 - [Contributing](#contributing)
 - [License](#license)
 - [Contact](#contact)
-- [Documentation](/docs)
+- [Documentation](https://tsaxking.github.io/webpack-template/docs)
 
 ## Installation
 
