@@ -65,8 +65,6 @@ const myApp = new App({ target: document.body });
     fs.writeFileSync(filepath, imports);
 };
 
-
-
 if (require.main === module) {
     console.warn(
         `⚠️ ${Colors.FgYellow}Running this script will be deprecated soon, please use "deno task manager" and select [General] -> Create Entry instead.${Colors.Reset} ⚠️`

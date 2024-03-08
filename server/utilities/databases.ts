@@ -1297,7 +1297,7 @@ DB.connect()
             await Promise.all(DB.stack);
             await DB.disconnect();
             process.exit(0);
-        }
+        };
 
         process.on('SIGINT', close);
         process.on('SIGTERM', close);
