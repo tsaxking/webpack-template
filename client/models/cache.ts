@@ -35,6 +35,30 @@ export type CacheUpdates =
  * @typedef {Cache}
  */
 export class Cache<data = unknown> {
+    public static store<T = Cache>(
+        data: T[],
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        constructor: new (data: any) => T
+    ) {
+        const jsons = JSON.stringify(data);
+        localStorage.setItem('cache:' + constructor.name, jsons);
+    }
+
+    public static retrieve<T = Cache>(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        constructor: new (data: any) => T
+    ) {
+        const jsons = localStorage.getItem('cache:' + constructor.name);
+        if (jsons) {
+            const parsed = JSON.parse(jsons) as T[];
+            for (const item of parsed) {
+                Object.setPrototypeOf(item, constructor.prototype);
+            }
+            return parsed;
+        }
+        return [];
+    }
+
     /**
      * Cache for storing data (any)
      * @date 10/12/2023 - 1:04:42 PM
@@ -42,7 +66,8 @@ export class Cache<data = unknown> {
      * @readonly
      * @type {Map<string, any>}
      */
-    readonly $cache = new Map<string, unknown>();
+    readonly cache = new Map<string, unknown>();
+
     /**
      * Event emitter for cache object updates (passed in as a generic)
      * @date 10/12/2023 - 1:04:42 PM
@@ -50,7 +75,7 @@ export class Cache<data = unknown> {
      * @readonly
      * @type {EventEmitter<keyof data>}
      */
-    readonly $emitter: EventEmitter<keyof data> = new EventEmitter<
+    readonly emitter: EventEmitter<keyof data> = new EventEmitter<
         keyof data
     >();
 
@@ -67,7 +92,7 @@ export class Cache<data = unknown> {
         event: K,
         callback: (data: data[K]) => void
     ): void {
-        this.$emitter.on(event, callback);
+        this.emitter.on(event, callback);
     }
     /**
      * Remove a listener for cache object updates
@@ -82,7 +107,7 @@ export class Cache<data = unknown> {
         event: K,
         callback?: (data: data[K]) => void
     ): void {
-        this.$emitter.off(event, callback);
+        this.emitter.off(event, callback);
     }
 
     /**
@@ -95,7 +120,7 @@ export class Cache<data = unknown> {
      * @param {data[K]} data
      */
     public emit<K extends keyof data>(event: K, data: data[K]): void {
-        this.$emitter.emit(event, data);
+        this.emitter.emit(event, data);
     }
 
     /**
@@ -111,7 +136,7 @@ export class Cache<data = unknown> {
         event: K,
         callback: (data: data[K]) => void
     ): void {
-        this.$emitter.once(event, callback);
+        this.emitter.once(event, callback);
     }
 
     /**
@@ -121,7 +146,7 @@ export class Cache<data = unknown> {
      * @public
      */
     public destroy(): void {
-        this.$emitter.destroy();
-        this.$cache.clear();
+        this.emitter.destroy();
+        this.cache.clear();
     }
 }
