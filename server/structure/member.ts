@@ -15,6 +15,13 @@ import { Req } from './app/req';
 import { Res } from './app/res';
 import env from '../utilities/env';
 
+/**
+ * A member's status
+ * @date 3/8/2024 - 6:09:32 AM
+ *
+ * @export
+ * @enum {number}
+ */
 export enum MemberReturnStatus {
     invalidBio = 'invalidBio',
     invalidTitle = 'invalidTitle',
@@ -26,7 +33,28 @@ export enum MemberReturnStatus {
     skillRemoved = 'skillRemoved'
 }
 
+/**
+ * Member class
+ * @date 3/8/2024 - 6:09:32 AM
+ *
+ * @export
+ * @class Member
+ * @typedef {Member}
+ */
 export class Member {
+    /**
+     * Checks if the user can manage the member
+     * @date 3/8/2024 - 6:09:32 AM
+     *
+     * @static
+     * @async
+     * @param {Req<{
+     *             username: string;
+     *         }>} req
+     * @param {Res} res
+     * @param {Next} next
+     * @returns {unknown}
+     */
     static async canManage(
         req: Req<{
             username: string;
@@ -50,6 +78,17 @@ export class Member {
         res.sendStatus('member:cannot-manage');
     }
 
+    /**
+     * Checks if the user is a member
+     * @date 3/8/2024 - 6:09:32 AM
+     *
+     * @static
+     * @async
+     * @param {Req} req
+     * @param {Res} res
+     * @param {Next} next
+     * @returns {unknown}
+     */
     static async isMember(req: Req, res: Res, next: Next) {
         const account = await req.session.getAccount();
 
@@ -66,6 +105,15 @@ export class Member {
         next();
     }
 
+    /**
+     * Creates a new member from an account
+     * @date 3/8/2024 - 6:09:32 AM
+     *
+     * @static
+     * @async
+     * @param {Account} account
+     * @returns {Promise<MembershipStatus>}
+     */
     static async newMember(account: Account): Promise<MembershipStatus> {
         // if the account was rejected, they can request again.
 
@@ -118,6 +166,15 @@ export class Member {
         return 'pending';
     }
 
+    /**
+     * Gets a member from their username
+     * @date 3/8/2024 - 6:09:32 AM
+     *
+     * @static
+     * @async
+     * @param {string} username
+     * @returns {Promise<Member | undefined>}
+     */
     static async get(username: string): Promise<Member | undefined> {
         const data = await DB.get('member/from-username', {
             username
@@ -126,18 +183,69 @@ export class Member {
         return undefined;
     }
 
+    /**
+     * Gets all members
+     * @date 3/8/2024 - 6:09:32 AM
+     *
+     * @static
+     * @async
+     * @returns {Promise<Member[]>}
+     */
     static async getMembers(): Promise<Member[]> {
         const res = await DB.all('member/all');
         if (res.isOk()) return res.value.map((m: MemberObj) => new Member(m));
         return [];
     }
 
+    /**
+     * The member's id
+     * @date 3/8/2024 - 6:09:32 AM
+     *
+     * @public
+     * @readonly
+     * @type {string}
+     */
     public readonly id: string;
+    /**
+     * A short bio of the member
+     * @date 3/8/2024 - 6:09:32 AM
+     *
+     * @public
+     * @type {?string}
+     */
     public bio?: string;
+    /**
+     * The member's title
+     * @date 3/8/2024 - 6:09:32 AM
+     *
+     * @public
+     * @type {?string}
+     */
     public title?: string;
+    /**
+     * The member's resume
+     * @date 3/8/2024 - 6:09:32 AM
+     *
+     * @public
+     * @type {?string}
+     */
     public resume?: string;
+    /**
+     * Current status of the member
+     * @date 3/8/2024 - 6:09:32 AM
+     *
+     * @public
+     * @type {MembershipStatus}
+     */
     public status: MembershipStatus;
 
+    /**
+     * Creates an instance of Member.
+     * @date 3/8/2024 - 6:09:32 AM
+     *
+     * @constructor
+     * @param {MemberObj} memberInfo
+     */
     constructor(memberInfo: MemberObj) {
         this.id = memberInfo.id;
         this.bio = memberInfo.bio;
@@ -146,6 +254,13 @@ export class Member {
         this.status = memberInfo.status as MembershipStatus;
     }
 
+    /**
+     * Accepts a member's request
+     * @date 3/8/2024 - 6:09:32 AM
+     *
+     * @async
+     * @returns {*}
+     */
     async accept() {
         DB.run('member/update-status', {
             status: 'accepted',
@@ -170,6 +285,10 @@ export class Member {
         );
     }
 
+    /**
+     * Rejects a member's request
+     * @date 3/8/2024 - 6:09:32 AM
+     */
     reject() {
         if (this.status === 'twicePending') {
             DB.run('member/update-status', {
@@ -188,6 +307,13 @@ export class Member {
         this.status = 'rejected';
     }
 
+    /**
+     * Revokes a member's membership
+     * @date 3/8/2024 - 6:09:32 AM
+     *
+     * @async
+     * @returns {*}
+     */
     async revoke() {
         DB.run('member/delete', {
             id: this.id
@@ -203,6 +329,13 @@ export class Member {
         });
     }
 
+    /**
+     * Builds a safe object of the member for public use
+     * @date 3/8/2024 - 6:09:32 AM
+     *
+     * @async
+     * @returns {Promise<MemberSafe>}
+     */
     async safe(): Promise<MemberSafe> {
         return {
             id: this.id,
@@ -214,6 +347,13 @@ export class Member {
         } as MemberSafe;
     }
 
+    /**
+     * Changes the member's bio
+     * @date 3/8/2024 - 6:09:32 AM
+     *
+     * @param {string} bio
+     * @returns {(MemberReturnStatus.invalidBio | MemberReturnStatus.success)}
+     */
     changeBio(bio: string) {
         if (!Account.isValid(bio, [' '])) return MemberReturnStatus.invalidBio;
 
@@ -227,6 +367,13 @@ export class Member {
         return MemberReturnStatus.success;
     }
 
+    /**
+     * Changes the member's title
+     * @date 3/8/2024 - 6:09:32 AM
+     *
+     * @param {string} title
+     * @returns {(MemberReturnStatus.invalidTitle | MemberReturnStatus.success)}
+     */
     changeTitle(title: string) {
         if (!Account.isValid(title, [' '])) {
             return MemberReturnStatus.invalidTitle;
@@ -282,6 +429,12 @@ export class Member {
     //     });
     // }
 
+    /**
+     * Changes the member's resume
+     * @date 3/8/2024 - 6:09:32 AM
+     *
+     * @param {string} id
+     */
     changeResume(id: string) {
         const { resume } = this;
         if (resume) {
@@ -296,12 +449,24 @@ export class Member {
         });
     }
 
+    /**
+     * Adds the member to the board
+     * @date 3/8/2024 - 6:09:32 AM
+     *
+     * @returns {Promise<Result<Queries>>}
+     */
     addToBoard() {
         return DB.run('member/add-to-board', {
             id: this.id
         });
     }
 
+    /**
+     * Removes the member from the board
+     * @date 3/8/2024 - 6:09:32 AM
+     *
+     * @returns {Promise<Result<Queries>>}
+     */
     removeFromBoard() {
         return DB.run('member/remove-from-board', {
             id: this.id

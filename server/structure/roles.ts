@@ -47,6 +47,14 @@ export default class Role {
         };
     }
 
+    /**
+     * Retrieves all permissions from the database
+     * @date 3/8/2024 - 6:07:41 AM
+     *
+     * @static
+     * @async
+     * @returns {Promise<RolePermission[]>}
+     */
     static async getAllPermissions(): Promise<RolePermission[]> {
         const res = await DB.all('permissions/all');
         if (res.isOk()) {
@@ -105,6 +113,16 @@ export default class Role {
         return [];
     }
 
+    /**
+     * Creates a new role and adds it to the database
+     * @date 3/8/2024 - 6:07:41 AM
+     *
+     * @static
+     * @param {string} name
+     * @param {string} description
+     * @param {number} rank
+     * @returns {Role}
+     */
     static new(name: string, description: string, rank: number): Role {
         const id = uuid();
         DB.run('roles/new', {
@@ -182,6 +200,13 @@ export default class Role {
         return [];
     }
 
+    /**
+     * Adds a permission to the role
+     * @date 3/8/2024 - 6:07:40 AM
+     *
+     * @param {string} permission
+     * @returns {Promise<Result<Queries>>}
+     */
     addPermission(permission: string) {
         return DB.run('permissions/add-to-role', {
             permission,
@@ -189,6 +214,13 @@ export default class Role {
         });
     }
 
+    /**
+     * Removes a permission from the role
+     * @date 3/8/2024 - 6:07:40 AM
+     *
+     * @param {string} permission
+     * @returns {Promise<Result<Queries>>}
+     */
     removePermission(permission: string) {
         return DB.run('permissions/remove-from-role', {
             roleId: this.id,
@@ -196,6 +228,13 @@ export default class Role {
         });
     }
 
+    /**
+     * Deletes the role from the database
+     * @date 3/8/2024 - 6:07:40 AM
+     *
+     * @async
+     * @returns {*}
+     */
     async delete() {
         // Remove all permissions
         const permissions = await this.getPermissions();
@@ -208,6 +247,13 @@ export default class Role {
         });
     }
 
+    /**
+     * Saves the role to the database
+     * @date 3/8/2024 - 6:07:40 AM
+     *
+     * @async
+     * @returns {unknown}
+     */
     async save() {
         return DB.run('roles/update', {
             id: this.id,

@@ -2,15 +2,36 @@ import render from 'node-html-constructor/versions/v4';
 import ObjectsToCsv from 'objects-to-csv';
 import { __logs, __root, __templates, __uploads } from './env';
 import { attempt, attemptAsync, Result } from '../../shared/check';
-import { match, matchInstance } from '../../shared/match';
+import { matchInstance } from '../../shared/match';
 import { error } from './terminal-logging';
 import fs from 'fs';
 import path from 'path';
 import callsite from 'callsite';
 
+/**
+ * Error types for json operations
+ * @date 3/8/2024 - 5:50:09 AM
+ *
+ * @export
+ * @typedef {JSONError}
+ */
 export type JSONError = 'InvalidJSON' | 'Unknown';
+/**
+ * Error types for file operations
+ * @date 3/8/2024 - 5:50:09 AM
+ *
+ * @export
+ * @typedef {FileError}
+ */
 export type FileError = 'NoFile' | 'FileExists' | 'NoAccess' | 'Unknown';
 
+/**
+ * Matches an error to a JSONError
+ * @date 3/8/2024 - 5:50:09 AM
+ *
+ * @param {Error} e
+ * @returns {JSONError}
+ */
 const matchJSONError = (e: Error): JSONError =>
     matchInstance<Error, JSONError>(
         e,
@@ -18,6 +39,13 @@ const matchJSONError = (e: Error): JSONError =>
         [Error, () => 'Unknown']
     ) ?? 'Unknown';
 
+/**
+ * Matches an error to a FileError
+ * @date 3/8/2024 - 5:50:09 AM
+ *
+ * @param {Error} e
+ * @returns {FileError}
+ */
 const matchFileError = (e: Error): FileError =>
     matchInstance<Error, FileError>(
         e,
@@ -27,14 +55,27 @@ const matchFileError = (e: Error): FileError =>
         [Error, () => 'NoAccess']
     ) ?? 'Unknown';
 
+/**
+ * Makes a folder
+ * @date 3/8/2024 - 5:50:09 AM
+ *
+ * @param {string} folder
+ */
 const makeFolder = (folder: string) => {
-    try {
-        fs.mkdirSync(folder, { recursive: true });
-    } catch {
-        error('Dir exists');
-    }
+    return attempt(() => {
+        return fs.mkdirSync(folder, { recursive: true });
+    });
 };
 
+/**
+ * Builds a file path based on the file, extension, and directory
+ * @date 3/8/2024 - 5:50:09 AM
+ *
+ * @param {string} file
+ * @param {string} ext
+ * @param {string} dir
+ * @returns {string}
+ */
 const filePathBuilder = (file: string, ext: string, dir: string) => {
     let output: string;
     // console.log(file, ext, dir);
@@ -55,6 +96,13 @@ const filePathBuilder = (file: string, ext: string, dir: string) => {
     return output;
 };
 
+/**
+ * Removes comments from a string (js, css, html)
+ * @date 3/8/2024 - 5:50:09 AM
+ *
+ * @param {string} content
+ * @returns {*}
+ */
 const removeComments = (content: string) => {
     return content
         .replace(/\/\*[\s\S]*?\*\//g, '') // multi line comments (js & css)
@@ -62,6 +110,14 @@ const removeComments = (content: string) => {
         .replace(/<!--[\s\S]*?-->/g, ''); // html comments (html)
 };
 
+/**
+ * Returns the content of a json file as an object, if there is an error it returns a Err<JSONError>
+ * @date 3/8/2024 - 5:50:09 AM
+ *
+ * @template [T=unknown]
+ * @param {string} file
+ * @returns {Result<T, JSONError>}
+ */
 export const getJSONSync = <T = unknown>(
     file: string
 ): Result<T, JSONError> => {
@@ -72,6 +128,14 @@ export const getJSONSync = <T = unknown>(
     }, matchJSONError);
 };
 
+/**
+ * Returns the content of a json file as an object, if there is an error it returns a Promise<Err<JSONError>>
+ * @date 3/8/2024 - 5:50:09 AM
+ *
+ * @template [T=unknown]
+ * @param {string} file
+ * @returns {Promise<Result<T, JSONError>>}
+ */
 export const getJSON = <T = unknown>(
     file: string
 ): Promise<Result<T, JSONError>> => {
@@ -82,6 +146,15 @@ export const getJSON = <T = unknown>(
     }, matchJSONError);
 };
 
+/**
+ * Saves data to a json file, if there is an error it returns a Err<JSONError>
+ * @date 3/8/2024 - 5:50:09 AM
+ *
+ * @template [T=unknown]
+ * @param {string} file
+ * @param {T} data
+ * @returns {Result<void, JSONError>}
+ */
 export const saveJSONSync = <T = unknown>(
     file: string,
     data: T
@@ -93,6 +166,15 @@ export const saveJSONSync = <T = unknown>(
     }, matchJSONError);
 };
 
+/**
+ * Saves data to a json file, if there is an error it returns a Promise<Err<JSONError>>
+ * @date 3/8/2024 - 5:50:09 AM
+ *
+ * @template [T=unknown]
+ * @param {string} file
+ * @param {T} data
+ * @returns {Promise<Result<void, JSONError>>}
+ */
 export const saveJSON = <T = unknown>(
     file: string,
     data: T
@@ -104,6 +186,13 @@ export const saveJSON = <T = unknown>(
     }, matchJSONError);
 };
 
+/**
+ * Removes a json file, if there is an error it returns a Err<JSONError>
+ * @date 3/8/2024 - 5:50:09 AM
+ *
+ * @param {string} file
+ * @returns {Result<void, JSONError>}
+ */
 export const removeJSONSync = (file: string): Result<void, JSONError> => {
     return attempt(() => {
         const filePath = filePathBuilder(file, '.json', './storage/jsons');
@@ -111,6 +200,13 @@ export const removeJSONSync = (file: string): Result<void, JSONError> => {
     }, matchJSONError);
 };
 
+/**
+ * Removes a json file, if there is an error it returns a Promise<Err<JSONError>>
+ * @date 3/8/2024 - 5:50:09 AM
+ *
+ * @param {string} file
+ * @returns {Promise<Result<void, JSONError>>}
+ */
 export const removeJSON = (file: string): Promise<Result<void, JSONError>> => {
     return attemptAsync(async () => {
         const filePath = filePathBuilder(file, '.json', './storage/jsons');
@@ -118,6 +214,13 @@ export const removeJSON = (file: string): Promise<Result<void, JSONError>> => {
     }, matchJSONError);
 };
 
+/**
+ * Constructor type for rendering templates
+ * @date 3/8/2024 - 5:50:09 AM
+ *
+ * @export
+ * @typedef {Constructor}
+ */
 export type Constructor = {
     [key: string]:
         | string
@@ -128,6 +231,14 @@ export type Constructor = {
         | Constructor;
 };
 
+/**
+ * Returns the content of an html file as a string, applying node-html-constructor to it, if there is an error it returns a Err<FileError>
+ * @date 3/8/2024 - 5:50:09 AM
+ *
+ * @param {string} file
+ * @param {?Constructor} [options]
+ * @returns {Result<string, FileError>}
+ */
 export const getTemplateSync = (
     file: string,
     options?: Constructor
@@ -140,6 +251,14 @@ export const getTemplateSync = (
     }, matchFileError);
 };
 
+/**
+ * Returns the content of an html file as a string, applying node-html-constructor to it, if there is an error it returns a Promise<Err<FileError>>
+ * @date 3/8/2024 - 5:50:09 AM
+ *
+ * @param {string} file
+ * @param {?Constructor} [options]
+ * @returns {Promise<Result<string, FileError>>}
+ */
 export const getTemplate = (
     file: string,
     options?: Constructor
@@ -152,6 +271,14 @@ export const getTemplate = (
     }, matchFileError);
 };
 
+/**
+ * Saves data to a html file, if there is an error it returns a Err<FileError>
+ * @date 3/8/2024 - 5:50:09 AM
+ *
+ * @param {string} file
+ * @param {string} data
+ * @returns {Result<void, FileError>}
+ */
 export const saveTemplateSync = (
     file: string,
     data: string
@@ -163,6 +290,14 @@ export const saveTemplateSync = (
     }, matchFileError);
 };
 
+/**
+ * Saves data to a html file, if there is an error it returns a Promise<Err<FileError>>
+ * @date 3/8/2024 - 5:50:09 AM
+ *
+ * @param {string} file
+ * @param {string} data
+ * @returns {Promise<Result<void, FileError>>}
+ */
 export const saveTemplate = (
     file: string,
     data: string
@@ -174,6 +309,13 @@ export const saveTemplate = (
     }, matchFileError);
 };
 
+/**
+ * Removes a html file, if there is an error it returns a Err<FileError>
+ * @date 3/8/2024 - 5:50:08 AM
+ *
+ * @param {string} file
+ * @returns {Result<void, FileError>}
+ */
 export const removeTemplateSync = (file: string): Result<void, FileError> => {
     return attempt(() => {
         const p = filePathBuilder(file, '.html', './public/templates');
@@ -181,6 +323,13 @@ export const removeTemplateSync = (file: string): Result<void, FileError> => {
     }, matchFileError);
 };
 
+/**
+ * Removes a html file, if there is an error it returns a Promise<Err<FileError>>
+ * @date 3/8/2024 - 5:50:08 AM
+ *
+ * @param {string} file
+ * @returns {Promise<Result<void, FileError>>}
+ */
 export const removeTemplate = (
     file: string
 ): Promise<Result<void, FileError>> => {
@@ -190,9 +339,25 @@ export const removeTemplate = (
     }, matchFileError);
 };
 
+/**
+ *  Creates the uploads folder
+ * @date 3/8/2024 - 5:50:08 AM
+ */
 export const createUploadsFolder = () => makeFolder(__uploads);
+/**
+ * Creates the logs folder
+ * @date 3/8/2024 - 5:50:08 AM
+ */
 export const createLogsFolder = () => makeFolder(__logs);
 
+/**
+ * Saves uploaded files to the uploads folder
+ * @date 3/8/2024 - 5:50:08 AM
+ *
+ * @param {string} filename
+ * @param {Uint8Array} data
+ * @returns {Promise<Result<void, FileError>>}
+ */
 export const saveUpload = (
     filename: string,
     data: Uint8Array
@@ -204,6 +369,14 @@ export const saveUpload = (
     }, matchFileError);
 };
 
+/**
+ * Saves uploaded files to the uploads folder
+ * @date 3/8/2024 - 5:50:08 AM
+ *
+ * @param {string} filename
+ * @param {Uint8Array} data
+ * @returns {Result<void, FileError>}
+ */
 export const saveUploadSync = (
     filename: string,
     data: Uint8Array
@@ -215,6 +388,13 @@ export const saveUploadSync = (
     }, matchFileError);
 };
 
+/**
+ * Removes an uploaded file from the uploads folder
+ * @date 3/8/2024 - 5:50:08 AM
+ *
+ * @param {string} filename
+ * @returns {Promise<Result<void, FileError>>}
+ */
 export const removeUpload = (
     filename: string
 ): Promise<Result<void, FileError>> => {
@@ -224,6 +404,13 @@ export const removeUpload = (
     }, matchFileError);
 };
 
+/**
+ * Removes an uploaded file from the uploads folder
+ * @date 3/8/2024 - 5:50:08 AM
+ *
+ * @param {string} filename
+ * @returns {Result<void, FileError>}
+ */
 export const removeUploadSync = (filename: string): Result<void, FileError> => {
     return attempt(() => {
         const p = path.resolve(__uploads, filename);
@@ -231,6 +418,13 @@ export const removeUploadSync = (filename: string): Result<void, FileError> => {
     }, matchFileError);
 };
 
+/**
+ * Returns the content of an uploaded file as a Uint8Array, if there is an error it returns a Err<FileError>
+ * @date 3/8/2024 - 5:50:08 AM
+ *
+ * @param {string} filename
+ * @returns {Promise<Result<Uint8Array, FileError>>}
+ */
 export const getUpload = (
     filename: string
 ): Promise<Result<Uint8Array, FileError>> => {
@@ -240,6 +434,13 @@ export const getUpload = (
     }, matchFileError);
 };
 
+/**
+ * Returns the content of an uploaded file as a Uint8Array, if there is an error it returns a Err<FileError>
+ * @date 3/8/2024 - 5:50:08 AM
+ *
+ * @param {string} filename
+ * @returns {Result<Uint8Array, FileError>}
+ */
 export const getUploadSync = (
     filename: string
 ): Result<Uint8Array, FileError> => {
@@ -249,6 +450,13 @@ export const getUploadSync = (
     }, matchFileError);
 };
 
+/**
+ * Returns the content of a file as a string, if there is an error it returns a Err<FileError>
+ * @date 3/8/2024 - 5:50:08 AM
+ *
+ * @param {string} file
+ * @returns {Result<string, FileError>}
+ */
 export const readFileSync = (file: string): Result<string, FileError> => {
     return attempt(() => {
         const p = path.resolve(__root, file);
@@ -256,6 +464,13 @@ export const readFileSync = (file: string): Result<string, FileError> => {
     }, matchFileError);
 };
 
+/**
+ * Returns the content of a file as a string, if there is an error it returns a Promise<Err<FileError>>
+ * @date 3/8/2024 - 5:50:08 AM
+ *
+ * @param {string} file
+ * @returns {Promise<Result<string, FileError>>}
+ */
 export const readFile = (file: string): Promise<Result<string, FileError>> => {
     return attemptAsync(async () => {
         const p = path.resolve(__root, file);
@@ -263,6 +478,14 @@ export const readFile = (file: string): Promise<Result<string, FileError>> => {
     }, matchFileError);
 };
 
+/**
+ * Saves data to a file, if there is an error it returns a Err<FileError>
+ * @date 3/8/2024 - 5:50:08 AM
+ *
+ * @param {string} file
+ * @param {(string | ArrayBuffer)} data
+ * @returns {Promise<Result<void, FileError>>}
+ */
 export const saveFile = (
     file: string,
     data: string | ArrayBuffer
@@ -277,6 +500,14 @@ export const saveFile = (
     }, matchFileError);
 };
 
+/**
+ * Saves data to a file, if there is an error it returns a Err<FileError>
+ * @date 3/8/2024 - 5:50:08 AM
+ *
+ * @param {string} file
+ * @param {string} data
+ * @returns {Result<void, FileError>}
+ */
 export const saveFileSync = (
     file: string,
     data: string
@@ -288,6 +519,13 @@ export const saveFileSync = (
     }, matchFileError);
 };
 
+/**
+ * Removes a file, if there is an error it returns a Err<FileError>
+ * @date 3/8/2024 - 5:50:08 AM
+ *
+ * @param {string} file
+ * @returns {Promise<Result<void, FileError>>}
+ */
 export const removeFile = (file: string): Promise<Result<void, FileError>> => {
     return attemptAsync(async () => {
         const p = path.resolve(__root, file);
@@ -295,6 +533,13 @@ export const removeFile = (file: string): Promise<Result<void, FileError>> => {
     }, matchFileError);
 };
 
+/**
+ * Removes a file, if there is an error it returns a Err<FileError>
+ * @date 3/8/2024 - 5:50:08 AM
+ *
+ * @param {string} file
+ * @returns {Result<void, FileError>}
+ */
 export const removeFileSync = (file: string): Result<void, FileError> => {
     return attempt(() => {
         const p = path.resolve(__root, file);
@@ -302,18 +547,39 @@ export const removeFileSync = (file: string): Result<void, FileError> => {
     }, matchFileError);
 };
 
+/**
+ * Reads the contents of a directory, if there is an error it returns a Err<FileError>
+ * @date 3/8/2024 - 5:50:08 AM
+ *
+ * @param {string} dir
+ * @returns {Promise<Result<string[], FileError>>}
+ */
 export const readDir = (dir: string): Promise<Result<string[], FileError>> => {
     return attemptAsync(() => {
         return fs.promises.readdir(path.resolve(__root, dir));
     }, matchFileError);
 };
 
+/**
+ * Reads the contents of a directory, if there is an error it returns a Err<FileError>
+ * @date 3/8/2024 - 5:50:08 AM
+ *
+ * @param {string} dir
+ * @returns {Result<string[], FileError>}
+ */
 export const readDirSync = (dir: string): Result<string[], FileError> => {
     return attempt(() => {
         return fs.readdirSync(path.resolve(__root, dir));
     }, matchFileError);
 };
 
+/**
+ * Checks if a file exists
+ * @date 3/8/2024 - 5:50:08 AM
+ *
+ * @param {string} file
+ * @returns {boolean}
+ */
 export const exists = (file: string): boolean => {
     return fs.existsSync(path.resolve(__root, file));
 };

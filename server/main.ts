@@ -46,6 +46,13 @@ import path from 'path';
 //     }
 // }
 
+/**
+ * Logs a message to the console
+ * @date 3/8/2024 - 6:03:56 AM
+ *
+ * @param {...unknown[]} args
+ * @returns {*}
+ */
 const log = (...args: unknown[]) =>
     console.log(
         Colors.FgBlue,
@@ -56,6 +63,13 @@ const log = (...args: unknown[]) =>
         ...args
     );
 
+/**
+ * Main function
+ * @date 3/8/2024 - 6:03:56 AM
+ *
+ * @async
+ * @returns {*}
+ */
 const main = async () => {
     // const res = await pullDeps();
     // if (res.isErr()) throw res.error;

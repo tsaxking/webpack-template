@@ -4,6 +4,16 @@ import path from 'path';
 import * as tsNode from 'ts-node';
 import { __root } from './env';
 
+/**
+ * Runs a task in the terminal and returns the output
+ * This task will die after 5 seconds
+ * @date 3/8/2024 - 5:57:30 AM
+ *
+ * @async
+ * @param {string} command
+ * @param {string[]} args
+ * @returns {unknown}
+ */
 export const runTask = async (command: string, args: string[]) => {
     return attemptAsync(() => {
         return new Promise<void>((res, rej) => {
@@ -31,6 +41,17 @@ export const runTask = async (command: string, args: string[]) => {
     });
 };
 
+/**
+ * Runs a function from a file and returns the output
+ * @date 3/8/2024 - 5:57:30 AM
+ *
+ * @async
+ * @template T
+ * @param {string} file
+ * @param {string} fn
+ * @param {...string[]} params
+ * @returns {unknown}
+ */
 export const runFile = async <T>(
     file: string,
     fn: string,
