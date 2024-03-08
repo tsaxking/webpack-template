@@ -54,7 +54,7 @@ export class Account extends Cache<AccountEvents> {
      * @readonly
      * @type {*}
      */
-    public static readonly $cache = new Map<string, Account>();
+    public static readonly cache = new Map<string, Account>();
     /**
      * Guest account
      * @date 2/8/2024 - 4:22:42 PM
@@ -188,9 +188,9 @@ export class Account extends Cache<AccountEvents> {
      */
     public static async all(): Promise<Result<Account[]>> {
         return attemptAsync(async () => {
-            if (Account.$cache.size > 1) {
+            if (Account.cache.size > 1) {
                 // guest account is included
-                return Array.from(Account.$cache.values());
+                return Array.from(Account.cache.values());
             }
 
             const res = await ServerRequest.post<AccountSafe[]>('/account/all');
@@ -296,11 +296,12 @@ export class Account extends Cache<AccountEvents> {
         this.phoneNumber = data.phoneNumber;
         this.picture = data.picture;
 
-        if (Account.$cache.has(this.id)) {
-            Account.$cache.delete(this.id);
+        if (Account.cache.has(this.id)) {
+            Account.cache.delete(this.id);
         }
 
-        Account.$cache.set(this.id, this);
+        Account.cache.set(this.id, this);
+        Account.store(Array.from(Account.cache.values()), Account);
     }
 
     /**
@@ -313,8 +314,8 @@ export class Account extends Cache<AccountEvents> {
      */
     public async getRoles(force = false): Promise<Result<Role[]>> {
         return attemptAsync(async () => {
-            if (this.$cache.has('roles') && !force) {
-                const roles = this.$cache.get('roles') as Role[];
+            if (this.cache.has('roles') && !force) {
+                const roles = this.cache.get('roles') as Role[];
                 if (roles.length) return roles;
             }
 
@@ -326,7 +327,7 @@ export class Account extends Cache<AccountEvents> {
 
             if (res.isOk()) {
                 const roles = res.value.map(r => new Role(r));
-                this.$cache.set('roles', roles);
+                this.cache.set('roles', roles);
                 return roles;
             }
 
@@ -346,8 +347,8 @@ export class Account extends Cache<AccountEvents> {
         force = false
     ): Promise<Result<RolePermission[]>> {
         return attemptAsync(async () => {
-            if (this.$cache.has('permissions') && !force) {
-                return this.$cache.get('permissions') as RolePermission[];
+            if (this.cache.has('permissions') && !force) {
+                return this.cache.get('permissions') as RolePermission[];
             }
 
             const res = await ServerRequest.post<RolePermission[]>(
@@ -359,7 +360,7 @@ export class Account extends Cache<AccountEvents> {
 
             if (res.isOk()) {
                 const permissions = res.value;
-                this.$cache.set('permissions', permissions);
+                this.cache.set('permissions', permissions);
                 return permissions;
             }
 
@@ -476,7 +477,7 @@ export class Account extends Cache<AccountEvents> {
             });
 
             if (res.isOk()) {
-                Account.$cache.delete(this.id);
+                Account.cache.delete(this.id);
                 this.destroy();
                 return;
             }
@@ -500,7 +501,7 @@ export class Account extends Cache<AccountEvents> {
             });
 
             if (res.isOk()) {
-                Account.$cache.delete(this.id);
+                Account.cache.delete(this.id);
                 return;
             }
 
@@ -509,13 +510,19 @@ export class Account extends Cache<AccountEvents> {
     }
 }
 
+// Don't use this unless sockets will update all aspects of the cache
+{
+    const accounts = Cache.retrieve(Account);
+    for (const a of accounts) Account.cache.set(a.id, a);
+}
+
 socket.on('account:removed', (accountId: string) => {
-    const account = Account.$cache.get(accountId);
-    Account.$cache.delete(accountId);
+    const account = Account.cache.get(accountId);
+    Account.cache.delete(accountId);
     if (account) {
         console.log('account removed', account);
         Account.emit('delete', account);
-        Account.$cache.delete(accountId);
+        Account.cache.delete(accountId);
         account.emit('delete', undefined);
         account.destroy();
     }
@@ -530,7 +537,7 @@ socket.on(
     'account:role-removed',
     async (data: { accountId: string; roleId: string }) => {
         const { accountId, roleId } = data;
-        const account = Account.$cache.get(accountId);
+        const account = Account.cache.get(accountId);
         if (account) {
             await account.getRoles(true); // force update
 
@@ -545,7 +552,7 @@ socket.on(
     'account:role-added',
     async (data: { accountId: string; roleId: string }) => {
         const { accountId, roleId } = data;
-        const account = Account.$cache.get(accountId);
+        const account = Account.cache.get(accountId);
         if (account) {
             await account.getRoles(true); // force update
 
@@ -557,7 +564,7 @@ socket.on(
 );
 
 socket.on('account:verified', (accountId: string) => {
-    const account = Account.$cache.get(accountId);
+    const account = Account.cache.get(accountId);
     if (account) {
         account.verified = 1;
         account.emit('verified', account);
@@ -567,7 +574,7 @@ socket.on('account:verified', (accountId: string) => {
 });
 
 socket.on('account:unverified', (accountId: string) => {
-    const account = Account.$cache.get(accountId);
+    const account = Account.cache.get(accountId);
     if (account) {
         account.verified = 0;
         account.emit('unverified', account);
