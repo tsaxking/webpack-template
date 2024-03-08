@@ -1,3 +1,7 @@
+// Purpose: Main entry point for the server.
+// This file is responsible for starting the server, watching, handling the build process, and handling the process lifecycle.
+// Eventually, this file will be responsible for starting multiple servers and managing them, cycling through them for load balancing.
+
 import { Builder } from './bundler';
 import { Colors } from './utilities/colors';
 import { deleteDeps, pullDeps } from '../scripts/pull-deps';

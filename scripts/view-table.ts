@@ -1,3 +1,5 @@
+// this is really just used to test some queries and see the results
+
 // import { DB } from '../server/utilities/databases';
 import { readFile } from '../server/utilities/files';
 import { fromCamelCase, toSnakeCase } from '../shared/text';

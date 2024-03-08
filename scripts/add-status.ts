@@ -12,6 +12,12 @@ import { repeatPrompt, prompt } from './prompt';
 import fs from 'fs';
 import path from 'path';
 
+/**
+ * Adds a new socket event to the shared/socket.ts file
+ * @date 3/8/2024 - 6:46:42 AM
+ *
+ * @param {string} name
+ */
 export const addSocket = (name: string) => {
     // const file = Deno.readFileSync('./shared/socket.ts');
     const file = fs.readFileSync('./shared/socket.ts');
@@ -48,6 +54,20 @@ export const addSocket = (name: string) => {
     fs.writeFileSync('./shared/socket.ts', newFile);
 };
 
+/**
+ * Adds a new status to the shared/status-messages.ts file
+ * @date 3/8/2024 - 6:46:42 AM
+ *
+ * @param {{
+ *     group: string;
+ *     name: string;
+ *     message: string;
+ *     color: string;
+ *     code: StatusCode;
+ *     instructions: string;
+ *     redirect?: string;
+ * }} data
+ */
 export const addStatus = (data: {
     group: string;
     name: string;
@@ -176,6 +196,13 @@ ${Object.keys(groups)
     }
 };
 
+/**
+ * Prompts the user for status information and adds a new status to the shared/status-messages.ts file
+ * @date 3/8/2024 - 6:46:42 AM
+ *
+ * @async
+ * @returns {*}
+ */
 export const addStatusPrompt = async () => {
     const allowedCharacters =
         'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_';
@@ -219,32 +246,6 @@ export const addStatusPrompt = async () => {
     });
 };
 
-// if (import.meta.main) {
-//     console.warn(
-//         `⚠️ ${Colors.FgYellow}Running this script will be deprecated soon, please use "deno task manager" and select [Status] -> Create Status instead.${Colors.Reset} ⚠️`,
-//     );
-//     addStatusPrompt();
-// }
-// if (Deno.args.includes('socket')) {
-//     console.warn(
-//         `⚠️ ${Colors.FgYellow}Running this script will be deprecated soon, please use "deno task manager" and select [Status] -> Create Socket Event instead.${Colors.Reset} ⚠️`,
-//     );
-
-//     const name = repeatPrompt('Socket event name');
-//     addSocket(name);
-// }
-// if (require.main) {
-//     console.warn(
-//         `⚠️ ${Colors.FgYellow}Running this script will be deprecated soon, please use "deno task manager" and select [Status] -> Create Status instead.${Colors.Reset} ⚠️`,
-//     );
-//     addStatusPrompt();
-// }
-// if (require.main && process.argv.includes('socket')) {
-//     console.warn(
-//         `⚠️ ${Colors.FgYellow}Running this script will be deprecated soon, please use "deno task manager" and select [Status] -> Create Socket Event instead.${Colors.Reset} ⚠️`,
-//     );
-
-//     repeatPrompt('Socket event name').then(
-//         (name) => addSocket(name),
-//     );
-// }
+if (require.main === module) {
+    addStatusPrompt();
+}

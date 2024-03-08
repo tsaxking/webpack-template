@@ -1,3 +1,5 @@
+// This file is responsible for building the client
+
 import esbuild from 'esbuild';
 import sveltePlugin from 'esbuild-svelte';
 import { typescript } from 'svelte-preprocess-esbuild';

@@ -1,3 +1,5 @@
+// Purpose: Errors as types
+
 /**
  * Ok Result
  * @date 1/22/2024 - 2:56:57 AM

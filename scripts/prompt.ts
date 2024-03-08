@@ -4,6 +4,14 @@ import { attemptAsync, Result } from '../shared/check';
 import prompts from 'prompts';
 // import {choose} from '@putout/cli-choose';
 
+/**
+ * Prompts the user for input
+ * @date 3/8/2024 - 6:52:57 AM
+ *
+ * @async
+ * @param {string} message
+ * @returns {Promise<string>}
+ */
 export const prompt = async (message: string): Promise<string> => {
     const res = await prompts({
         type: 'text',
@@ -14,6 +22,17 @@ export const prompt = async (message: string): Promise<string> => {
     return res.value;
 };
 
+/**
+ * Prompts the user for input, repeating until the input is valid
+ * @date 3/8/2024 - 6:52:57 AM
+ *
+ * @async
+ * @param {string} message
+ * @param {?string} [original]
+ * @param {?(data: string) => boolean} [validate]
+ * @param {boolean} [allowBlank=false]
+ * @returns {Promise<string>}
+ */
 export const repeatPrompt = async (
     message: string,
     original?: string,
@@ -47,11 +66,28 @@ export const repeatPrompt = async (
     return i;
 };
 
+/**
+ * Option for selection
+ * @date 3/8/2024 - 6:52:57 AM
+ *
+ * @typedef {Option}
+ * @template [T=unknown]
+ */
 type Option<T = unknown> = {
     name: string;
     value: T;
 };
 
+/**
+ * Selects an option from a list (wrapper function since I'm still working on the select function in the cli-choose package)
+ * @date 3/8/2024 - 6:52:57 AM
+ *
+ * @async
+ * @template [T=unknown]
+ * @param {string} message
+ * @param {Option<T>[]} options
+ * @returns {Promise<T>}
+ */
 const _select = async <T = unknown>(
     message: string,
     options: Option<T>[]
@@ -108,6 +144,22 @@ const _select = async <T = unknown>(
     return res;
 };
 
+/**
+ * Selects an option from a list
+ * @date 3/8/2024 - 6:52:57 AM
+ *
+ * @async
+ * @template [T=unknown]
+ * @param {string} message
+ * @param {(Option<T> | string)[]} data
+ * @param {{
+ *         exit?: boolean;
+ *         return?: boolean;
+ *     }} [options={
+ *         exit: false
+ *     }]
+ * @returns {Promise<T>}
+ */
 export const select = async <T = unknown>(
     message: string,
     data: (Option<T> | string)[],
@@ -152,10 +204,34 @@ export const select = async <T = unknown>(
     return res as T;
 };
 
+/**
+ * Confirms a message
+ * @date 3/8/2024 - 6:52:57 AM
+ *
+ * @async
+ * @param {string} [message='Confirm']
+ * @returns {Promise<boolean>}
+ */
 export const confirm = async (message = 'Confirm'): Promise<boolean> => {
     return (await select(message, ['Yes', 'No'])) === 'Yes';
 };
 
+/**
+ * Searches for a value in a list (fuzzy search)
+ * @date 3/8/2024 - 6:52:57 AM
+ *
+ * @async
+ * @template {string | Option} T
+ * @param {string} message
+ * @param {(
+ *         | {
+ *               name: string;
+ *               value: T;
+ *           }
+ *         | T
+ *     )[]} options
+ * @returns {Promise<Result<string>>}
+ */
 export const search = async <T extends string | Option>(
     message: string,
     options: (

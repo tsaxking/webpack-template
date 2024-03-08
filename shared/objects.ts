@@ -1,4 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/**
+ * Encodes bigints to strings so they can be used in JSONs
+ * @date 3/8/2024 - 6:41:49 AM
+ *
+ * @param {unknown} obj
+ * @returns {*}
+ */
 export const bigIntEncode = (obj: unknown): any => {
     if (!obj) return obj;
     if (typeof obj === 'object') {
@@ -15,6 +22,13 @@ export const bigIntEncode = (obj: unknown): any => {
     return obj;
 };
 
+/**
+ * Decodes object with custom bigint strings to bigints
+ * @date 3/8/2024 - 6:41:49 AM
+ *
+ * @param {unknown} obj
+ * @returns {*}
+ */
 export const bigIntDecode = (obj: unknown): any => {
     if (!obj) return obj;
     if (typeof obj === 'object') {
@@ -46,6 +60,15 @@ export const bigIntDecode = (obj: unknown): any => {
     return obj;
 };
 
+/**
+ * Description placeholder
+ * @date 3/8/2024 - 6:41:49 AM
+ *
+ * @param {{
+ *         [key: string]: string | number | boolean | undefined;
+ *     }[]} data
+ * @returns {*}
+ */
 export const toTable = (
     data: {
         [key: string]: string | number | boolean | undefined;

@@ -1,3 +1,5 @@
+// Purpose: Unit tests for the server, used in github actions
+
 import { __root } from '../../server/utilities/env';
 import { runTask, runFile } from '../../server/utilities/run-task';
 import { log } from '../../server/utilities/terminal-logging';

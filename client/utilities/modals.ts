@@ -18,38 +18,117 @@ export const closeModal = (modalId: string) => $(`#${modalId}`).modal('hide');
  */
 export const closeAllModals = () => $('.modal').modal('hide');
 
+/**
+ * All notification event types
+ * @date 3/8/2024 - 7:09:49 AM
+ *
+ * @typedef {EventTypes}
+ */
 type EventTypes = {
     show: void;
     hide: void;
     destroy: void;
 };
 
+/**
+ * Modal class
+ * @date 3/8/2024 - 7:09:49 AM
+ *
+ * @export
+ * @class Modal
+ * @typedef {Modal}
+ */
 export class Modal {
-    private readonly $emitter = new EventEmitter<keyof EventTypes>();
+    /**
+     * Event emitter
+     * @date 3/8/2024 - 7:09:49 AM
+     *
+     * @private
+     * @readonly
+     * @type {*}
+     */
+    private readonly em = new EventEmitter<keyof EventTypes>();
 
+    /**
+     * Adds an event listener to the modal
+     * @date 3/8/2024 - 7:09:49 AM
+     *
+     * @public
+     * @template {keyof EventTypes} K
+     * @param {K} event
+     * @param {(args: EventTypes[K]) => void} listener
+     * @returns {void) => void}
+     */
     public on<K extends keyof EventTypes>(
         event: K,
         listener: (args: EventTypes[K]) => void
     ) {
-        this.$emitter.on(event, listener);
+        this.em.on(event, listener);
     }
 
+    /**
+     * Removes an event listener from the modal
+     * @date 3/8/2024 - 7:09:49 AM
+     *
+     * @public
+     * @template {keyof EventTypes} K
+     * @param {K} event
+     * @param {(args: EventTypes[K]) => void} listener
+     * @returns {void) => void}
+     */
     public off<K extends keyof EventTypes>(
         event: K,
         listener: (args: EventTypes[K]) => void
     ) {
-        this.$emitter.off(event, listener);
+        this.em.off(event, listener);
     }
 
+    /**
+     * Emits an event from the modal
+     * @date 3/8/2024 - 7:09:49 AM
+     *
+     * @public
+     * @template {keyof EventTypes} K
+     * @param {K} event
+     * @param {?EventTypes[K]} [args]
+     */
     public emit<K extends keyof EventTypes>(event: K, args?: EventTypes[K]) {
-        this.$emitter.emit(event, args);
+        this.em.emit(event, args);
     }
 
+    /**
+     * Target element
+     * @date 3/8/2024 - 7:09:49 AM
+     *
+     * @readonly
+     * @type {*}
+     */
     readonly target = document.createElement('div');
+    /**
+     * Modal id
+     * @date 3/8/2024 - 7:09:49 AM
+     *
+     * @readonly
+     * @type {string}
+     */
     readonly id: string;
 
+    /**
+     * Modal size
+     * @date 3/8/2024 - 7:09:49 AM
+     *
+     * @private
+     * @type {('sm' | 'lg' | 'xl' | 'xxl' | 'auto')}
+     */
     private $size: 'sm' | 'lg' | 'xl' | 'xxl' | 'auto' = 'auto';
 
+    /**
+     * Creates an instance of Modal.
+     * @date 3/8/2024 - 7:09:49 AM
+     *
+     * @constructor
+     * @param {?string} [id]
+     */
     constructor(id?: string) {
         this.id = id || `modal-${Math.random().toString(36).substr(2, 9)}`;
         this.render();
@@ -63,6 +142,12 @@ export class Modal {
         });
     }
 
+    /**
+     * Sets the size of the modal
+     * @date 3/8/2024 - 7:09:49 AM
+     *
+     * @type {("sm" | "lg" | "xl" | "xxl" | "auto")}
+     */
     set size(size: 'sm' | 'lg' | 'xl' | 'xxl' | 'auto') {
         this.target
             .querySelector('.modal-dialog')
@@ -73,10 +158,22 @@ export class Modal {
             ?.classList.add(`modal-${size}`);
     }
 
+    /**
+     * Gets the size of the modal
+     * @date 3/8/2024 - 7:09:49 AM
+     *
+     * @type {("sm" | "lg" | "xl" | "xxl" | "auto")}
+     */
     get size() {
         return this.$size;
     }
 
+    /**
+     * Renders the modal
+     * @date 3/8/2024 - 7:09:49 AM
+     *
+     * @private
+     */
     private render() {
         const modal = this.target;
         modal.id = this.id;
@@ -128,12 +225,24 @@ export class Modal {
         this.size = 'auto';
     }
 
+    /**
+     * Adds a button to the modal
+     * @date 3/8/2024 - 7:09:49 AM
+     *
+     * @param {HTMLButtonElement} button
+     */
     addButton(button: HTMLButtonElement) {
         const footer = this.target.querySelector('.modal-footer');
         if (!footer) return; // should never happen
         footer.appendChild(button);
     }
 
+    /**
+     * Sets the title of the modal
+     * @date 3/8/2024 - 7:09:49 AM
+     *
+     * @param {(string | HTMLElement)} title
+     */
     setTitle(title: string | HTMLElement) {
         const header = this.target.querySelector('.modal-header');
         if (!header) return;
@@ -147,6 +256,12 @@ export class Modal {
         }
     }
 
+    /**
+     * Sets the body of the modal
+     * @date 3/8/2024 - 7:09:49 AM
+     *
+     * @param {(string | HTMLElement)} body
+     */
     setBody(body: string | HTMLElement) {
         const content = this.target.querySelector('.modal-content');
         if (!content) return;
@@ -160,6 +275,12 @@ export class Modal {
         }
     }
 
+    /**
+     * Sets the footer of the modal
+     * @date 3/8/2024 - 7:09:49 AM
+     *
+     * @param {(string | HTMLElement)} footer
+     */
     setFooter(footer: string | HTMLElement) {
         const content = this.target.querySelector('.modal-content');
         if (!content) return;
@@ -173,14 +294,32 @@ export class Modal {
         }
     }
 
+    /**
+     * Shows the modal
+     * @date 3/8/2024 - 7:09:49 AM
+     *
+     * @public
+     */
     public show() {
         this.emit('show');
     }
 
+    /**
+     * Hides the modal
+     * @date 3/8/2024 - 7:09:49 AM
+     *
+     * @public
+     */
     public hide() {
         this.emit('hide');
     }
 
+    /**
+     * Destroys the modal
+     * @date 3/8/2024 - 7:09:49 AM
+     *
+     * @public
+     */
     public destroy() {
         this.emit('destroy');
         $(`#${this.id}`).remove();
@@ -224,6 +363,13 @@ const container = (() => {
     return parent;
 })();
 
+/**
+ * Bootstrap toast colors
+ * @date 3/8/2024 - 7:09:49 AM
+ *
+ * @export
+ * @typedef {Color}
+ */
 export type Color =
     | 'primary'
     | 'secondary'
@@ -234,33 +380,115 @@ export type Color =
     | 'light'
     | 'dark';
 
+/**
+ * Toast class
+ * @date 3/8/2024 - 7:09:49 AM
+ *
+ * @export
+ * @class Toast
+ * @typedef {Toast}
+ */
 export class Toast {
+    /**
+     * Target element
+     * @date 3/8/2024 - 7:09:49 AM
+     *
+     * @readonly
+     * @type {*}
+     */
     readonly target = document.createElement('div');
 
-    private readonly $emitter = new EventEmitter<keyof EventTypes>();
+    /**
+     * Event emitter
+     * @date 3/8/2024 - 7:09:49 AM
+     *
+     * @private
+     * @readonly
+     * @type {*}
+     */
+    private readonly em = new EventEmitter<keyof EventTypes>();
 
+    /**
+     * Adds an event listener to the toast
+     * @date 3/8/2024 - 7:09:49 AM
+     *
+     * @public
+     * @template {keyof EventTypes} K
+     * @param {K} event
+     * @param {(args: EventTypes[K]) => void} listener
+     * @returns {void) => void}
+     */
     public on<K extends keyof EventTypes>(
         event: K,
         listener: (args: EventTypes[K]) => void
     ) {
-        this.$emitter.on(event, listener);
+        this.em.on(event, listener);
     }
 
+    /**
+     * Removes an event listener from the toast
+     * @date 3/8/2024 - 7:09:49 AM
+     *
+     * @public
+     * @template {keyof EventTypes} K
+     * @param {K} event
+     * @param {(args: EventTypes[K]) => void} listener
+     * @returns {void) => void}
+     */
     public off<K extends keyof EventTypes>(
         event: K,
         listener: (args: EventTypes[K]) => void
     ) {
-        this.$emitter.off(event, listener);
+        this.em.off(event, listener);
     }
 
+    /**
+     * Emits an event from the toast
+     * @date 3/8/2024 - 7:09:49 AM
+     *
+     * @public
+     * @template {keyof EventTypes} K
+     * @param {K} event
+     * @param {?EventTypes[K]} [args]
+     */
     public emit<K extends keyof EventTypes>(event: K, args?: EventTypes[K]) {
-        this.$emitter.emit(event, args);
+        this.em.emit(event, args);
     }
 
+    /**
+     * Toast title
+     * @date 3/8/2024 - 7:09:49 AM
+     *
+     * @private
+     * @type {string}
+     */
     private $title: string;
+    /**
+     * Toast body
+     * @date 3/8/2024 - 7:09:49 AM
+     *
+     * @private
+     * @type {string}
+     */
     private $body: string;
+    /**
+     * Toast color
+     * @date 3/8/2024 - 7:09:49 AM
+     *
+     * @private
+     * @type {Color}
+     */
     private $color: Color;
 
+    /**
+     * Creates an instance of Toast.
+     * @date 3/8/2024 - 7:09:49 AM
+     *
+     * @constructor
+     * @param {string} title
+     * @param {string} body
+     * @param {Color} [color='success']
+     */
     constructor(title: string, body: string, color: Color = 'success') {
         this.on('show', () => {
             $(this.target).toast('show');
@@ -275,24 +503,54 @@ export class Toast {
         this.render();
     }
 
+    /**
+     * Sets the title of the toast
+     * @date 3/8/2024 - 7:09:49 AM
+     *
+     * @type {string}
+     */
     set title(title: string) {
         this.$title = title;
         this.target.querySelector('strong')!.textContent = title;
     }
 
+    /**
+     * Gets the title of the toast
+     * @date 3/8/2024 - 7:09:49 AM
+     *
+     * @type {string}
+     */
     get title() {
         return this.$title;
     }
 
+    /**
+     * Sets the body of the toast
+     * @date 3/8/2024 - 7:09:49 AM
+     *
+     * @type {string}
+     */
     set body(body: string) {
         this.$body = body;
         this.target.querySelector('toast-body')!.textContent = body;
     }
 
+    /**
+     * Gets the body of the toast
+     * @date 3/8/2024 - 7:09:49 AM
+     *
+     * @type {string}
+     */
     get body() {
         return this.$body;
     }
 
+    /**
+     * Sets the color of the toast
+     * @date 3/8/2024 - 7:09:49 AM
+     *
+     * @type {Color}
+     */
     set color(color: Color) {
         this.target
             .querySelector('toast-header')
@@ -313,10 +571,23 @@ export class Toast {
             ?.classList.add(`text-${this.textColor}`);
     }
 
+    /**
+     * Returns the color of the toast
+     * @date 3/8/2024 - 7:09:49 AM
+     *
+     * @type {Color}
+     */
     get color() {
         return this.$color;
     }
 
+    /**
+     * The text color of the toast
+     * @date 3/8/2024 - 7:09:49 AM
+     *
+     * @readonly
+     * @type {('light' | 'dark')}
+     */
     get textColor(): 'light' | 'dark' {
         switch (this.$color) {
             case 'danger':
@@ -334,6 +605,12 @@ export class Toast {
         }
     }
 
+    /**
+     * Renders the toast
+     * @date 3/8/2024 - 7:09:49 AM
+     *
+     * @private
+     */
     private render() {
         this.target.classList.add(
             'toast'
@@ -403,46 +680,140 @@ export class Toast {
         this.show();
     }
 
+    /**
+     * Shows the toast
+     * @date 3/8/2024 - 7:09:49 AM
+     */
     show() {
         this.emit('show');
     }
 
+    /**
+     * Hides the toast
+     * @date 3/8/2024 - 7:09:49 AM
+     */
     hide() {
         this.emit('hide');
     }
 
+    /**
+     * Destroys the toast
+     * @date 3/8/2024 - 7:09:49 AM
+     */
     destroy() {
         this.emit('destroy');
     }
 }
 
+/**
+ * Alert class
+ * @date 3/8/2024 - 7:09:48 AM
+ *
+ * @export
+ * @class Alert
+ * @typedef {Alert}
+ */
 export class Alert {
+    /**
+     * Target element
+     * @date 3/8/2024 - 7:09:48 AM
+     *
+     * @readonly
+     * @type {*}
+     */
     readonly target = document.createElement('div');
 
-    private readonly $emitter = new EventEmitter<keyof EventTypes>();
+    /**
+     * Event emitter
+     * @date 3/8/2024 - 7:09:48 AM
+     *
+     * @private
+     * @readonly
+     * @type {*}
+     */
+    private readonly em = new EventEmitter<keyof EventTypes>();
 
+    /**
+     * Adds an event listener to the alert
+     * @date 3/8/2024 - 7:09:48 AM
+     *
+     * @public
+     * @template {keyof EventTypes} K
+     * @param {K} event
+     * @param {(args: EventTypes[K]) => void} listener
+     * @returns {void) => void}
+     */
     public on<K extends keyof EventTypes>(
         event: K,
         listener: (args: EventTypes[K]) => void
     ) {
-        this.$emitter.on(event, listener);
+        this.em.on(event, listener);
     }
 
+    /**
+     * Removes an event listener from the alert
+     * @date 3/8/2024 - 7:09:48 AM
+     *
+     * @public
+     * @template {keyof EventTypes} K
+     * @param {K} event
+     * @param {(args: EventTypes[K]) => void} listener
+     * @returns {void) => void}
+     */
     public off<K extends keyof EventTypes>(
         event: K,
         listener: (args: EventTypes[K]) => void
     ) {
-        this.$emitter.off(event, listener);
+        this.em.off(event, listener);
     }
 
+    /**
+     * Emits an event from the alert
+     * @date 3/8/2024 - 7:09:48 AM
+     *
+     * @public
+     * @template {keyof EventTypes} K
+     * @param {K} event
+     * @param {?EventTypes[K]} [args]
+     */
     public emit<K extends keyof EventTypes>(event: K, args?: EventTypes[K]) {
-        this.$emitter.emit(event, args);
+        this.em.emit(event, args);
     }
 
+    /**
+     * Alert title
+     * @date 3/8/2024 - 7:09:48 AM
+     *
+     * @private
+     * @type {string}
+     */
     private title: string;
+    /**
+     * Alert color
+     * @date 3/8/2024 - 7:09:48 AM
+     *
+     * @private
+     * @type {Color}
+     */
     private color: Color;
+    /**
+     * Alert message
+     * @date 3/8/2024 - 7:09:48 AM
+     *
+     * @private
+     * @type {string}
+     */
     private message: string;
 
+    /**
+     * Creates an instance of Alert.
+     * @date 3/8/2024 - 7:09:48 AM
+     *
+     * @constructor
+     * @param {string} title
+     * @param {string} message
+     * @param {Color} [color='success']
+     */
     constructor(title: string, message: string, color: Color = 'success') {
         this.on('show', () => {
             $(this.target).alert();
@@ -455,6 +826,12 @@ export class Alert {
         this.render();
     }
 
+    /**
+     * Renders the alert
+     * @date 3/8/2024 - 7:09:48 AM
+     *
+     * @private
+     */
     private render() {
         this.target.classList.add(
             'alert',
@@ -491,10 +868,18 @@ export class Alert {
         this.target.addEventListener('animationend', removeAnimation);
     }
 
+    /**
+     * Shows the alert
+     * @date 3/8/2024 - 7:09:48 AM
+     */
     show() {
         this.emit('show');
     }
 
+    /**
+     * Hides the alert
+     * @date 3/8/2024 - 7:09:48 AM
+     */
     hide() {
         this.emit('hide');
     }

@@ -1,11 +1,20 @@
+// Purpose: convert all SQL files to snake_case
+
 import { __root } from '../server/utilities/env';
 import { saveFile } from '../server/utilities/files';
-import { readDir, readFile } from '../server/utilities/files';
+import { readFile } from '../server/utilities/files';
 import fs from 'fs';
 import path from 'path';
 
 const { resolve, relative } = path;
 
+/**
+ * Converts a string to snake_case
+ * @date 3/8/2024 - 6:55:22 AM
+ *
+ * @param {string} str
+ * @returns {string}
+ */
 const convert = (str: string) => {
     // find everything that's camelCase and convert it to snake_case
     // find everything that's PascalCase and convert it to snake_case
@@ -15,6 +24,14 @@ const convert = (str: string) => {
     return str;
 };
 
+/**
+ * Converts a file to snake_case
+ * @date 3/8/2024 - 6:55:22 AM
+ *
+ * @async
+ * @param {string} file
+ * @returns {*}
+ */
 const convertFile = async (file: string) => {
     const contents = await readFile(file);
     if (contents.isOk()) {
@@ -27,6 +44,14 @@ const convertFile = async (file: string) => {
     }
 };
 
+/**
+ * Converts a directory to snake_case
+ * @date 3/8/2024 - 6:55:22 AM
+ *
+ * @async
+ * @param {string} dir
+ * @returns {*}
+ */
 const convertDir = async (dir: string) => {
     console.log(dir);
     const contents = await fs.promises.readdir(dir, { withFileTypes: true });

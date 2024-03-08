@@ -12,7 +12,7 @@ const runPrompt = async (
     validation?: (data: string) => boolean,
     allowBlank?: boolean
 ): Promise<string> => {
-    if (process.argv.includes('--default')) return defaultValue || '';
+    if (process.argv.includes('default')) return defaultValue || '';
     if (validation) {
         const r = await repeatPrompt(
             message,

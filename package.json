@@ -3,7 +3,8 @@
         "start": "ts-node ./server/main.ts watch stdin",
         "manager": "ts-node -P tsconfig.json ./scripts/manager.ts",
         "build": "ts-node ./server/bundler.ts",
-        "test": "ts-node ./scripts/tests/all-tests.ts"
+        "test": "ts-node ./scripts/tests/all-tests.ts",
+        "init": "ts-node ./scripts/init.ts"
     },
     "devDependencies": {
         "@popperjs/core": "^2.11.8",
