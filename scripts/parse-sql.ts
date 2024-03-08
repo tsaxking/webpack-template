@@ -1,6 +1,5 @@
 // This file is to typesafe the SQL queries and tables. It's a bit spaghetti and could be made much more efficient and readable functions
 
-
 import { attemptAsync, Result } from '../shared/check';
 import fs from 'fs';
 import path from 'path';

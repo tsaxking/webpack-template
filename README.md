@@ -8,11 +8,11 @@ This includes a GitHub action to deploy documentation to GitHub Pages, and a Git
 
 ## Table of Contents
 
-- [Installation](#installation)
-- [Back End](#back-end)
-- [Front End](#front-end)
-- [Contributing](#contributing)
-- [License](#license)
+-   [Installation](#installation)
+-   [Back End](#back-end)
+-   [Front End](#front-end)
+-   [Contributing](#contributing)
+-   [License](#license)
 
 ## Installation
 

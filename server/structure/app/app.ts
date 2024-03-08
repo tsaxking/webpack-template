@@ -119,7 +119,7 @@ export type ServerFunction<T = unknown> = (
     req: Req<T>,
     res: Res,
     next: Next
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ) => any | Promise<any>;
 /**
  * Final function that is called at the end of a request
