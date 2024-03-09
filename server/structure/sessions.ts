@@ -35,6 +35,14 @@ export type SessionObj = {
  * @typedef {Session}
  */
 export class Session {
+    /**
+     * Delete all unused sessions (not signed in)
+     *
+     * @public
+     * @static
+     * @async
+     * @returns {unknown}
+     */
     public static async deleteUnused() {
         return attemptAsync(async () => {
             const sessions = await DB.all('sessions/all');
@@ -50,13 +58,38 @@ export class Session {
         });
     }
 
+    /**
+     * Interval of deletion
+     *
+     * @private
+     * @static
+     * @type {?NodeJS.Timeout}
+     */
     private static deleteInterval?: NodeJS.Timeout;
 
+    /**
+     * Sets the delete interval to a specified number of milliseconds
+     *
+     * @public
+     * @static
+     * @param {number} ms
+     */
     public static setDeleteInterval(ms: number) {
         if (Session.deleteInterval) clearInterval(Session.deleteInterval);
         Session.deleteInterval = setInterval(Session.deleteUnused, ms);
     }
 
+    /**
+     * 
+     *
+     * @public
+     * @static
+     * @async
+     * @param {App} app
+     * @param {express.Request} req
+     * @param {express.Response} res
+     * @returns {Promise<Session>}
+     */
     public static async from(
         app: App,
         req: express.Request,
