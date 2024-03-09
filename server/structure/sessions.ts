@@ -48,11 +48,15 @@ export class Session {
             const sessions = await DB.all('sessions/all');
             if (sessions.isErr()) throw sessions.error;
             const notUsed = sessions.value.filter(s => !s.accountId);
-            const res = resolveAll(await Promise.all(notUsed.map(async (s) => (
-                DB.run('sessions/delete', {
-                    id: s.id
-                })
-            ))));
+            const res = resolveAll(
+                await Promise.all(
+                    notUsed.map(async s =>
+                        DB.run('sessions/delete', {
+                            id: s.id
+                        })
+                    )
+                )
+            );
             if (res.isErr()) throw res.error;
             return res.value;
         });
@@ -80,7 +84,7 @@ export class Session {
     }
 
     /**
-     * 
+     *
      *
      * @public
      * @static
