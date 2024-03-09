@@ -14,6 +14,7 @@ import { parseCookie } from '../shared/cookie';
 import { stdin } from './utilities/stdin';
 import path from 'path';
 import { DB } from './utilities/databases';
+import { Session } from './structure/sessions';
 
 if (process.argv.includes('--stats')) {
     const measure = () => {
@@ -29,6 +30,8 @@ if (process.argv.includes('--stats')) {
 const port = +(env.PORT || 3000);
 
 export const app = new App(port, env.DOMAIN || `http://localhost:${port}`);
+
+Session.setDeleteInterval(1000 * 60 * 10); // delete unused sessions every 10 minutes
 
 if (env.ENVIRONMENT === 'dev') {
     stdin.on('rb', () => {

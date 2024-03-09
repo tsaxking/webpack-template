@@ -4,6 +4,7 @@ import { uuid } from '../utilities/uuid';
 import { error, log } from '../utilities/terminal-logging';
 import { App, CookieOptions } from './app/app';
 import Account from './accounts';
+import { attemptAsync, resolveAll } from '../../shared/check';
 
 /**
  * Session object from the database
@@ -34,18 +35,28 @@ export type SessionObj = {
  * @typedef {Session}
  */
 export class Session {
-    /**
-     * Returns a session from the request
-     * @date 3/8/2024 - 6:05:08 AM
-     *
-     * @public
-     * @static
-     * @async
-     * @param {App} app
-     * @param {express.Request} req
-     * @param {express.Response} res
-     * @returns {Promise<Session>}
-     */
+    public static async deleteUnused() {
+        return attemptAsync(async () => {
+            const sessions = await DB.all('sessions/all');
+            if (sessions.isErr()) throw sessions.error;
+            const notUsed = sessions.value.filter(s => !s.accountId);
+            const res = resolveAll(await Promise.all(notUsed.map(async (s) => (
+                DB.run('sessions/delete', {
+                    id: s.id
+                })
+            ))));
+            if (res.isErr()) throw res.error;
+            return res.value;
+        });
+    }
+
+    private static deleteInterval?: NodeJS.Timeout;
+
+    public static setDeleteInterval(ms: number) {
+        if (Session.deleteInterval) clearInterval(Session.deleteInterval);
+        Session.deleteInterval = setInterval(Session.deleteUnused, ms);
+    }
+
     public static async from(
         app: App,
         req: express.Request,
