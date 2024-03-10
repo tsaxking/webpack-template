@@ -272,7 +272,7 @@ export class Route {
  * @class App
  * @typedef {App}
  */
-export class App {
+export class App<sessionInfo = unknown> {
     /**
      * Creates a header authorization function
      * @date 3/8/2024 - 6:13:51 AM
@@ -365,7 +365,7 @@ export class App {
         //     })
         // );
         this.server.use(async (req, res, next) => {
-            const s = await Session.from(this, req, res);
+            const s = await Session.from<sessionInfo>(this, req, res);
             const request = new Req(this, req, s);
             req.request = request;
             req.response = new Res(this, res, request);

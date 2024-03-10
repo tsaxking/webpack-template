@@ -130,6 +130,7 @@ export type Insert_sessions_new = {
     created: number;
     ip: string | undefined;
     prevUrl: string | undefined;
+    customData: string;
 };
 
 export type Select_sessions_get = {

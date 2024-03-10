@@ -23,6 +23,7 @@ export type SessionObj = {
     created: number;
     limitTime?: number;
     requests: number;
+    customData?: string;
 };
 
 /**
@@ -34,7 +35,7 @@ export type SessionObj = {
  * @class Session
  * @typedef {Session}
  */
-export class Session {
+export class Session<T = unknown> {
     /**
      * Delete all unused sessions (not signed in)
      *
@@ -94,7 +95,7 @@ export class Session {
      * @param {express.Response} res
      * @returns {Promise<Session>}
      */
-    public static async from(
+    public static async from<sessionInfo = unknown>(
         app: App,
         req: express.Request,
         res: express.Response
@@ -105,12 +106,12 @@ export class Session {
             ?.split('=')[1];
         // console.log(id);
         if (id) {
-            const s = await Session.get(app, id);
+            const s = await Session.get<sessionInfo>(app, id);
             if (s) return s;
 
-            return Session.newSession(app, req, res);
+            return Session.newSession<sessionInfo>(app, req, res);
         } else {
-            return Session.newSession(app, req, res);
+            return Session.newSession<sessionInfo>(app, req, res);
         }
     }
 
@@ -184,13 +185,13 @@ export class Session {
      * @param {string} id
      * @returns {(Session | undefined)}
      */
-    static async get(app: App, id: string): Promise<Session | undefined> {
+    static async get<sessionInfo = unknown>(app: App, id: string): Promise<Session | undefined> {
         // if (Session.cache.has(id)) {
         //     return Session.cache.get(id);
         // }
         const res = await DB.get('sessions/get', { id });
         if (res.isOk() && res.value) {
-            return Session.fromSessObj(app, res.value);
+            return Session.fromSessObj<sessionInfo>(app, res.value);
         }
 
         if (res.isErr()) {
@@ -208,10 +209,10 @@ export class Session {
      * @param {SessionObj} s
      * @returns {Session}
      */
-    static fromSessObj(app: App, s: SessionObj): Session {
+    static fromSessObj<sessionInfo = unknown>(app: App, s: SessionObj): Session {
         // log('Building from:', s);
 
-        const session = new Session(app);
+        const session = new Session<sessionInfo>(app);
         session.ip = s.ip;
         session.id = s.id;
         session.latestActivity = s.latestActivity;
@@ -220,6 +221,7 @@ export class Session {
         session.accountId = s.accountId;
         session.created = s.created;
         session.requests = s.requests;
+        session.customData = JSON.parse(s.customData || '{}') as sessionInfo;
 
         // log('Built:', session);
         return session;
@@ -234,12 +236,12 @@ export class Session {
      * @param {Res} res
      * @returns {(Session|undefined)}
      */
-    static newSession(
+    static newSession<sessionInfo = unknown>(
         app: App,
         req: express.Request,
         res: express.Response
     ): Session {
-        const s = new Session(app, req);
+        const s = new Session<sessionInfo>(app, req);
         // res.cookie(Session.sessionName, s.id, {
         //     maxAge: Session.cookieOptions.maxAge,
         //     httpOnly: Session.cookieOptions.httpOnly,
@@ -260,7 +262,8 @@ export class Session {
             userAgent: s.userAgent || '',
             prevUrl: s.prevUrl || '',
             requests: s.requests,
-            created: s.created
+            created: s.created,
+            customData: JSON.stringify(s.customData)
         });
 
         return s;
@@ -322,6 +325,7 @@ export class Session {
      * @type {?string}
      */
     public userAgent?: string;
+    public customData: T = {} as T;
 
     /**
      * Creates an instance of Session.
@@ -567,7 +571,8 @@ export class Session {
                 userAgent: this.userAgent || '',
                 prevUrl: this.prevUrl || '',
                 requests: this.requests,
-                created: this.created
+                created: this.created,
+                customData: JSON.stringify(this.customData || {})
             });
         }
     }
