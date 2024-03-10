@@ -1,41 +1,41 @@
 <script lang="ts">
 import Main from '../components/main/Main.svelte';
 import Page from '../components/main/Page.svelte';
-import { getOpenPage } from '../../utilities/page';
 import Dashboard from '../pages/Dashboard.svelte';
 import Accounts from '../pages/Accounts.svelte';
 import Roles from '../pages/Roles.svelte';
+import type { PageGroup } from '../../utilities/general-types';
+import { getOpenPage } from '../../utilities/page';
 
-const groups = [
+const groups: PageGroup[] = [
     {
         name: 'Home',
         pages: [
             {
                 name: 'dashboard',
-                icon: 'home'
+                icon: 'home',
+                iconType: 'material'
             },
             {
                 name: 'accounts',
-                icon: 'person'
+                icon: 'person',
+                iconType: 'material'
             },
             {
                 name: 'roles',
-                icon: 'admin_panel_settings'
+                icon: 'admin_panel_settings',
+                iconType: 'material'
             }
         ]
     }
 ];
 
-let active: string = 'dashboard';
+let active: string = getOpenPage() || 'dashboard';
 const domain = '';
 
-const openPage = ({ detail }) => {
-    active = detail;
-};
+const navItems: string[] = [];
 
-const navItems = ['dashboard', 'accounts', 'roles'];
-
-const accountLinks = [
+const accountLinks: string[] = [
     // 'account',
     // 'contact',
     // null
@@ -45,8 +45,8 @@ const accountLinks = [
 <Main
     title="Team Tators"
     {groups}
-    on:openPage="{openPage}"
-    {active}
+    bind:active={active}
+    on:openPage={(e) => active = e.detail}
     {navItems}
     {accountLinks}
 >

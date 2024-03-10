@@ -1,3 +1,5 @@
 export const getOpenPage = () => {
-    return location.pathname.split('/')[2];
+    const url = new URL(window.location.href);
+    const page = url.searchParams.get('page');
+    return page || '';
 };

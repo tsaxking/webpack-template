@@ -5,6 +5,7 @@ import { createEventDispatcher } from 'svelte';
 import { capitalize, fromSnakeCase } from '../../../../shared/text';
 import { Account } from '../../../models/account';
 import type { PageGroup } from '../../../utilities/general-types';
+import { getOpenPage } from '../../../utilities/page';
 
 export let title: string;
 export let navItems: string[] = [];
@@ -13,17 +14,21 @@ export let accountLinks: (string | null)[] = [];
 export let groups: PageGroup[] = [];
 export let active: string;
 
-const openPage = ({ detail }) => {
+const openPage = (page: string) => {
+    if (!page) return console.error('No page provided!');
+
     document.title =
-        capitalize(title) + ': ' + capitalize(fromSnakeCase(detail, '-'));
-    // history.pushState({}, '', location.pathname.split('/').slice(0, -1).join('/') + '/' + detail);
+        capitalize(title) + ': ' + capitalize(fromSnakeCase(page, '-'));
+
+    const url = new URL(window.location.href);
+    url.searchParams.set('page', page);
+    window.history.pushState({}, '', url.href);
+    d('openPage', page);
 };
 
-const dispatch = createEventDispatcher();
+const d = createEventDispatcher();
 
-if (active) {
-    openPage({ detail: active });
-}
+$: openPage(active);
 </script>
 
 <main class="dashboard">
@@ -34,10 +39,10 @@ if (active) {
     <Offcanvas
         {groups}
         on:openPage="{e => {
-            openPage(e);
-            dispatch('openPage', e.detail);
+            
+            active = e.detail;
         }}"
-        {active}
+        active={active}
     ></Offcanvas>
 
     <slot />
