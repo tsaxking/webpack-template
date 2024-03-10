@@ -185,7 +185,10 @@ export class Session<T = unknown> {
      * @param {string} id
      * @returns {(Session | undefined)}
      */
-    static async get<sessionInfo = unknown>(app: App, id: string): Promise<Session<sessionInfo> | undefined> {
+    static async get<sessionInfo = unknown>(
+        app: App,
+        id: string
+    ): Promise<Session<sessionInfo> | undefined> {
         // if (Session.cache.has(id)) {
         //     return Session.cache.get(id);
         // }
@@ -209,7 +212,10 @@ export class Session<T = unknown> {
      * @param {SessionObj} s
      * @returns {Session}
      */
-    static fromSessObj<sessionInfo = unknown>(app: App, s: SessionObj): Session<sessionInfo> {
+    static fromSessObj<sessionInfo = unknown>(
+        app: App,
+        s: SessionObj
+    ): Session<sessionInfo> {
         // log('Building from:', s);
 
         const session = new Session<sessionInfo>(app);
