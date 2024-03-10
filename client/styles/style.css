@@ -19,7 +19,6 @@ body {
     top: var(--topNavbarHeight);
     right: 0;
     z-index: 1000;
-    margin-top: 1em;
     margin-right: 1em;
 }
 

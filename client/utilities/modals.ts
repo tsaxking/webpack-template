@@ -842,10 +842,10 @@ export class Alert {
             'animate__fadeInDown',
             'animate__faster'
         );
-        this.target.style.top = '10px';
-        this.target.style.left = '10px';
-        this.target.style.width = 'calc(100% - 20px)';
-        this.target.style.zIndex = '100';
+        // this.target.style.top = '10px';
+        // this.target.style.left = '10px';
+        // this.target.style.width = 'calc(100% - 20px)';
+        // this.target.style.zIndex = '100';
         this.target.setAttribute('role', 'alert');
 
         this.target.innerHTML = `
