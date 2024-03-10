@@ -45,8 +45,8 @@ const accountLinks: string[] = [
 <Main
     title="Team Tators"
     {groups}
-    bind:active={active}
-    on:openPage={(e) => active = e.detail}
+    bind:active
+    on:openPage="{e => (active = e.detail)}"
     {navItems}
     {accountLinks}
 >
