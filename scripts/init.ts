@@ -242,6 +242,7 @@ const createEnv = async () => {
         .map(key => `${key} = '${values[key]}'`)
         .join('\n');
     // Deno.writeTextFileSync(resolve(__root, './.env'), e);
+    fs.writeFileSync(resolve(__root, './.env'), e);
 
     return values;
 };
