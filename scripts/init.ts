@@ -1,4 +1,4 @@
-import { repeatPrompt } from './prompt';
+import { repeatPrompt, prompt } from './prompt';
 import { __root } from '../server/utilities/env';
 import { runFile } from '../server/utilities/run-task';
 import path from 'path';
@@ -23,8 +23,7 @@ const runPrompt = async (
         if (r) return r;
         else return defaultValue || '';
     }
-    const r = prompt(message + ':') || defaultValue || '';
-    return r;
+    return prompt(message + ':') || defaultValue || '';
 };
 
 const createEnv = async () => {
