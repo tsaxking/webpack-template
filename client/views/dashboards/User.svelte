@@ -27,7 +27,6 @@ const groups: PageGroup[] = [
 let active: string = getOpenPage() || 'dashboard';
 const domain = 'tatorscout.org';
 
-
 const navItems: string[] = [];
 
 const accountLinks: string[] = [
@@ -40,7 +39,7 @@ const accountLinks: string[] = [
 <Main
     title="Team Tators"
     {groups}
-    on:openPage={(e) => active = e.detail}
+    on:openPage="{e => (active = e.detail)}"
     {active}
     {navItems}
     {accountLinks}

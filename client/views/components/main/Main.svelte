@@ -39,10 +39,9 @@ $: openPage(active);
     <Offcanvas
         {groups}
         on:openPage="{e => {
-            
             active = e.detail;
         }}"
-        active={active}
+        {active}
     ></Offcanvas>
 
     <slot />
