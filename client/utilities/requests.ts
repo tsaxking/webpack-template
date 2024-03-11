@@ -782,7 +782,7 @@ export class ServerRequest<T = unknown> {
             })
                 .then(async r => ({
                     status: r.status,
-                    data: await r.json() as T
+                    data: (await r.json()) as T
                 }))
                 .then(async ({ status, data }) => {
                     data = bigIntDecode(data);
@@ -815,7 +815,10 @@ export class ServerRequest<T = unknown> {
                         location.href = (data as StatusJson).redirect as string;
                     }
 
-                    if (status.toString().startsWith('4') || status.toString().startsWith('5')) {
+                    if (
+                        status.toString().startsWith('4') ||
+                        status.toString().startsWith('5')
+                    ) {
                         throw new Error('Invalid request');
                     }
 
