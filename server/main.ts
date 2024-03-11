@@ -141,10 +141,10 @@ const main = async () => {
         // Server.kill();
         deleteDeps()
             .then(() => {
-                log('Goodbye! 👋')
+                log('Goodbye! 👋');
                 process.exit(0);
             })
-            .catch((e) => {
+            .catch(e => {
                 log('Failed to delete deps', e);
                 process.exit(1);
             });
