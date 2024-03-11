@@ -176,7 +176,9 @@ export class Route<sessionInfo = unknown> {
             try {
                 const run = async (i: number) => {
                     if (i >= fn.length) return next();
-                    await fn[i](request as Req<T, sessionInfo>, response, () => run(i + 1));
+                    await fn[i](request as Req<T, sessionInfo>, response, () =>
+                        run(i + 1)
+                    );
                 };
 
                 await run(0);
@@ -344,7 +346,10 @@ export class App<sessionInfo = unknown> {
     ) {
         this.server = express();
         this.httpServer = http.createServer(this.server);
-        this.io = new SocketWrapper(this as App<unknown>, new Server(this.httpServer));
+        this.io = new SocketWrapper(
+            this as App<unknown>,
+            new Server(this.httpServer)
+        );
 
         // s.listen(port, () => {
         //     log(`Server is listening on port ${port}`);
@@ -365,8 +370,16 @@ export class App<sessionInfo = unknown> {
         //     })
         // );
         this.server.use(async (req, res, next) => {
-            const s = await Session.from<sessionInfo>(this as App<unknown>, req, res);
-            const request = new Req<unknown, sessionInfo>(this as App<unknown>, req, s);
+            const s = await Session.from<sessionInfo>(
+                this as App<unknown>,
+                req,
+                res
+            );
+            const request = new Req<unknown, sessionInfo>(
+                this as App<unknown>,
+                req,
+                s
+            );
             req.request = request;
             req.response = new Res(this as App<unknown>, res, request);
             next();
@@ -393,15 +406,20 @@ export class App<sessionInfo = unknown> {
                 // console.log('Final');
                 // if (!req.response.fulfilled) return console.log('Not fulfilled');
                 for (const fn of this.finalFunctions) {
-                    await fn(req.request as Req<unknown, sessionInfo>, req.response);
+                    await fn(
+                        req.request as Req<unknown, sessionInfo>,
+                        req.response
+                    );
                 }
             };
             try {
                 const run = async (i: number) => {
                     // console.log('Running:', i);
                     if (i >= fn.length) return next();
-                    await fn[i](req.request as Req<T, sessionInfo>, req.response, () =>
-                        run(i + 1)
+                    await fn[i](
+                        req.request as Req<T, sessionInfo>,
+                        req.response,
+                        () => run(i + 1)
                     );
                     // console.log('Ran:', i, 'of', fn.length, 'for', path);
                 };
