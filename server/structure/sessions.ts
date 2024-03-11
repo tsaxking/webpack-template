@@ -560,7 +560,8 @@ export class Session<T = unknown> {
                 accountId: this.accountId || '',
                 userAgent: this.userAgent || '',
                 prevUrl: this.prevUrl || '',
-                requests: this.requests
+                requests: this.requests,
+                customData: JSON.stringify(this.customData || {})
             });
         } else {
             return DB.run('sessions/new', {
