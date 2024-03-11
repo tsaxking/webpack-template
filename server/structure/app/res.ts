@@ -267,4 +267,8 @@ export class Res {
             this.send(t.value);
         });
     }
+
+    setHeader(name: string, value: string) {
+        return attempt(() => this.res.setHeader(name, value));
+    }
 }
