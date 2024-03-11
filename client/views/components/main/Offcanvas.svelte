@@ -1,16 +1,7 @@
 <script lang="ts">
 import { createEventDispatcher } from 'svelte';
 import { capitalize, fromSnakeCase } from '../../../../shared/text';
-
-type PageGroup = {
-    name: string;
-    pages: PageObj[];
-};
-
-type PageObj = {
-    name: string;
-    icon: string;
-};
+import type { PageGroup } from '../../../utilities/general-types';
 
 export let groups: PageGroup[] = [];
 
@@ -19,8 +10,8 @@ const dispatch = createEventDispatcher();
 export let active: string;
 
 const openPage = (page: string) => {
-    dispatch('openPage', page);
     jQuery('#sidebar-nav').offcanvas('hide');
+    dispatch('openPage', page);
 };
 </script>
 
