@@ -55,4 +55,17 @@ export const __entries = path.resolve(__root, './client/entries/');
  */
 export const unify = (str: string) => str.replace(/\\/g, '/');
 
-export default process.env;
+const env: {
+    [key: string]: string | boolean;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+} = process.env as any;
+
+for (const key in env) {
+    if (env[key] === 'true' || env[key] === 'y' || env[key] === 'yes') {
+        env[key] = true;
+    } else if (env[key] === 'false' || env[key] === 'n' || env[key] === 'no') {
+        env[key] = false;
+    }
+}
+
+export default env;

@@ -506,7 +506,7 @@ export class ServerRequest<T = unknown> {
 
         const xhr = new XMLHttpRequest();
         xhr.open('POST', url, true);
-        // xhr.setRequestHeader('Content-Type', undefined);
+        xhr.setRequestHeader('Content-Type', 'multipart/form-data');
         xhr.setRequestHeader('X-File-Count', files.length.toString());
 
         if (options?.headers) {
@@ -620,7 +620,7 @@ export class ServerRequest<T = unknown> {
                         last = split.pop();
 
                         for (let s of split) {
-                            s = bigIntDecode(JSON.parse(decodeURI(s)));
+                            s = decodeURI(s);
                             if (s) {
                                 i++;
                                 if (parser) {
@@ -780,8 +780,11 @@ export class ServerRequest<T = unknown> {
                 },
                 body: JSON.stringify(this.body)
             })
-                .then(r => r.json() as Promise<T>)
-                .then(async data => {
+                .then(async r => ({
+                    status: r.status,
+                    data: await r.json() as T
+                }))
+                .then(async ({ status, data }) => {
                     data = bigIntDecode(data);
 
                     if (!this.url.includes('socket')) {
@@ -811,6 +814,11 @@ export class ServerRequest<T = unknown> {
                         await sleep((data as StatusJson).sleep as number);
                         location.href = (data as StatusJson).redirect as string;
                     }
+
+                    if (status.toString().startsWith('4') || status.toString().startsWith('5')) {
+                        throw new Error('Invalid request');
+                    }
+
                     res(data as T);
                 })
                 .catch(e => {
