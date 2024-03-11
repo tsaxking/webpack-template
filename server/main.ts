@@ -75,8 +75,8 @@ const log = (...args: unknown[]) =>
  * @returns {*}
  */
 const main = async () => {
-    // const res = await pullDeps();
-    // if (res.isErr()) throw res.error;
+    const res = await pullDeps();
+    if (res.isErr()) throw res.error;
 
     // const servers = Number(env.NUM_SERVERS) || 1;
 
@@ -139,16 +139,16 @@ const main = async () => {
         builder.close();
         kill(child);
         // Server.kill();
-        // deleteDeps()
-        //     .then(() => {
-        //         log('Goodbye! 👋')
-        //         process.exit(0);
-        //     })
-        //     .catch((e) => {
-        //         log('Failed to delete deps', e);
-        //         process.exit(1);
-        //     });
-        process.exit(0);
+        deleteDeps()
+            .then(() => {
+                log('Goodbye! 👋')
+                process.exit(0);
+            })
+            .catch((e) => {
+                log('Failed to delete deps', e);
+                process.exit(1);
+            });
+        // process.exit(0);
     };
 
     process.on('SIGINT', close);
