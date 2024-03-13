@@ -1,16 +1,19 @@
 import { ServerRequest } from './requests';
 
-export const env: {
+type Env = {
     [key: string]: string;
-} = {};
+};
 
-setTimeout(() =>
-    ServerRequest.post('/env').then(res => {
-        if (res.isOk()) {
-            Object.assign(env, res.value);
-            Object.assign(window, {
-                __env: env
-            });
-        }
-    })
-);
+export const env: Promise<{
+    [key: string]: string;
+}> = new Promise<Env>(resolve => {
+    setTimeout(() =>
+        ServerRequest.post<Env>('/env').then(res => {
+            if (res.isOk()) {
+                resolve(res.value);
+            } else {
+                resolve({});
+            }
+        })
+    );
+});

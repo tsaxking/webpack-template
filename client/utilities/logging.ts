@@ -5,17 +5,17 @@ import { ServerRequest } from './requests';
 const runLog = (type: 'log' | 'error' | 'warn', ...args: unknown[]) => {
     const d = dateTime();
 
-    if (env.ENVIRONMENT === 'dev') {
-        console[type](`[${d}]`, ...args);
+    // if (env.ENVIRONMENT === 'dev') {
+    console[type](`[${d}]`, ...args);
 
-        if (type === 'error') {
-            ServerRequest.post('/error', {
-                type,
-                date: d,
-                args: args ? JSON.stringify(args) : ''
-            });
-        }
+    if (type === 'error') {
+        ServerRequest.post('/error', {
+            type,
+            date: d,
+            args: args ? JSON.stringify(args) : ''
+        });
     }
+    // }
 };
 
 /**
