@@ -338,7 +338,7 @@ export class DB {
             return [major, minor, patch];
         }
         // database is not initialized
-        return [0, 0, 0];
+        return [-1, -1, -1];
     }
 
     /**
@@ -380,7 +380,7 @@ export class DB {
         if (versions.isOk()) {
             return versions.value[versions.value.length - 1];
         }
-        return [0, 0, 0];
+        return [-1,-1,-1];
     }
 
     /**
@@ -578,10 +578,9 @@ export class DB {
                 DB.getVersion()
             ]);
 
-            // if (['0.0.0', '-1.-1.-1'].includes(version.join('.'))) {
-            //     console.log('Database not initialized');
-            //     throw new Error('Database not initialized');
-            // }
+            if (['0.0.0', '-1.-1.-1'].includes(version.join('.'))) {
+                throw new Error('Database not initialized, no backup created');
+            }
 
             if (tables.isErr()) throw tables.error;
             const backup: {
