@@ -172,7 +172,7 @@ export default class Account {
      */
     static async fromUsername(username: string): Promise<Account | undefined> {
         const res = await DB.get('account/from-username', {
-            username
+            username: username.toLowerCase()
         });
 
         if (res.isOk()) {
@@ -190,7 +190,7 @@ export default class Account {
      */
     static async fromEmail(email: string): Promise<Account | undefined> {
         const res = await DB.get('account/from-email', {
-            email
+            email: email.toLowerCase()
         });
         if (res.isOk()) {
             if (res.value) return new Account(res.value);
@@ -559,12 +559,12 @@ export default class Account {
 
         DB.run('account/new', {
             id,
-            username,
+            username: username.toLowerCase(),
             key,
             salt,
             firstName,
             lastName,
-            email,
+            email: email.toLowerCase(),
             verified: 0,
             verification,
             created,

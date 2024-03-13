@@ -53,8 +53,13 @@ app.post('/socket-init', (req, res) => {
     res.json(parseCookie(cookie || ''));
 });
 
-app.get('/*', (req, res, next) => {
+app.use('/*', (req, res, next) => {
     log(`[${req.method}] ${req.pathname}`);
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    // res.setHeader('Access-Control-Allow-Credentials', 'true');
+    // res.setHeader('Access-Control-Allow-Headers', '*');
+    // res.setHeader('Access-Control-Allow-Methods', '*');
+    // res.setHeader('Access-Control-Expose-Headers', '*');
     next();
 });
 
@@ -120,7 +125,6 @@ function stripHtml(body: ReqBody) {
 app.post('/*', (req, res, next) => {
     req.body = stripHtml(req.body as ReqBody);
 
-    log('[POST]', req.url);
     try {
         const b = JSON.parse(JSON.stringify(req.body)) as {
             $$files?: FileUpload[];
