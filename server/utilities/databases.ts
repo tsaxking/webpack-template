@@ -380,7 +380,7 @@ export class DB {
         if (versions.isOk()) {
             return versions.value[versions.value.length - 1];
         }
-        return [-1,-1,-1];
+        return [-1, -1, -1];
     }
 
     /**
