@@ -32,12 +32,13 @@ export type FileError = 'NoFile' | 'FileExists' | 'NoAccess' | 'Unknown';
  * @param {Error} e
  * @returns {JSONError}
  */
-const matchJSONError = (e: Error): JSONError =>
-    matchInstance<Error, JSONError>(
+const matchJSONError = (e: Error): JSONError =>{
+    console.log(e);
+    return matchInstance<Error, JSONError>(
         e,
         [SyntaxError, () => 'InvalidJSON'],
         [Error, () => 'Unknown']
-    ) ?? 'Unknown';
+    ) ?? 'Unknown';}
 
 /**
  * Matches an error to a FileError
@@ -46,14 +47,15 @@ const matchJSONError = (e: Error): JSONError =>
  * @param {Error} e
  * @returns {FileError}
  */
-const matchFileError = (e: Error): FileError =>
-    matchInstance<Error, FileError>(
+const matchFileError = (e: Error): FileError =>{
+    console.log(e);
+    return matchInstance<Error, FileError>(
         e,
         [Error, () => 'Unknown'],
         [TypeError, () => 'NoFile'],
         [Error, () => 'FileExists'],
         [Error, () => 'NoAccess']
-    ) ?? 'Unknown';
+    ) ?? 'Unknown';}
 
 /**
  * Makes a folder
