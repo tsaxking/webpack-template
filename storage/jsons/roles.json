@@ -1,0 +1,23 @@
+{
+    "roles": [
+        {
+            "role": {
+                "name": "admin",
+                "description": "Administrative permissions",
+                "rank": 0,
+                "id": "147659b2-b7b9-440a-b5a0-6164889c2bdc"
+            },
+            "permissions": [
+                { "permission": "admin", "description": "admin" },
+                { "permission": "verify", "description": "verify" },
+                { "permission": "editUsers", "description": "edit users" }
+            ]
+        }
+    ],
+    "permissions": [
+        { "permission": "admin", "description": "admin" },
+        { "permission": "editRoles", "description": "Edit roles" },
+        { "permission": "verify", "description": "verify" },
+        { "permission": "editUsers", "description": "edit users" }
+    ]
+}

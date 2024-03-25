@@ -1,0 +1,88 @@
+name: 'Merge Template'
+
+on:
+    push:
+        branches:
+            - deliver
+
+jobs:
+    merge-template:
+        runs-on: ubuntu-latest
+
+        strategy:
+            fail-fast: false
+            matrix:
+                templates:
+                    [
+                        tsaxking/template-budgeting,
+                        tsaxking/template-sfz,
+                        tsaxking/template-minecraft,
+                        tsaxking/template-scouting-app,
+                        tsaxking/template-tators-dashboard,
+                        tsaxking/template-personal-website,
+                        tsaxking/template-cadre,
+                        tsaxking/template-audio-part-picker,
+                        tsaxking/template-scouting-webcam,
+                        tsaxking/template-random
+                    ]
+
+        steps:
+            - name: Retrieve git dependencies
+              uses: actions/checkout@v2
+              with:
+                  fetch-depth: 0 # Checkout everything to get access to the tags
+                  ref: ${{github.event.pull_request.head.ref}}
+                  repository: ${{github.event.pull_request.head.repo.full_name}}
+                  token: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: 'Setup ssh-agent'
+              uses: 'webfactory/ssh-agent@v0.5.0'
+              with:
+                  ssh-private-key: ${{ secrets.SSH_PRIVATE }}
+
+            - name: Send pull-request
+              run: |
+                  echo "Creating variables"
+                  LATEST_TAG=$(git describe --tags --always --abbrev=0)
+                  LAST_COMMIT_MESSAGE=$(git log -1 --pretty=%B)
+                  REPOSITORY="${{ matrix.templates }}"
+                  BRANCH_NAME="chore-update-scripts-to-$LATEST_TAG"
+                  echo " latest tag: $LATEST_TAG"
+                  echo " repository: $REPSOITORY"
+                  echo "     folder: $FOLDER"
+                  echo "branch name: $BRANCH_NAME"
+
+                  echo "deleting workflow files we don't need in the other repositories"
+                  rm -rf .github/workflows/merge-template.yaml
+
+                  # Clone the remote repository and change working directory to the
+                  # folder it was cloned to.
+                  # echo "Cloning repository"
+                  # cd ../
+                  # git clone \
+                  #   --depth=1 \
+                  #   --branch=main \
+                  #   git@github.com:${{ matrix.templates }}.git
+                  # ls -la
+
+                  # cd template-${{ matrix.templates }}
+
+                  echo "Setting up identity"
+                  # Setup the committers identity.
+                  git config --global user.email "taylorking206@u.boisestate.edu"
+                  git config --global user.name "Webpack Bot"
+
+                  echo "Changing remote"
+                  # Change the remote to the repository we want to push to.
+                  git remote rm origin
+                  git remote add origin git@github.com:${{ matrix.templates }}.git
+
+                  echo "Checking out Branch: $BRANCH_NAME"
+                  # Create a new feature branch for the changes.
+                  git checkout -b $BRANCH_NAME
+
+                  echo "Committing"
+                  # Commit the changes and push the feature branch to origin
+                  git add .
+                  git commit -m "chore: update scripts to $LATEST_TAG"
+                  git push origin --set-upstream $BRANCH_NAME

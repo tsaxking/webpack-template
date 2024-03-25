@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{{ title }}: Documentation</title>
+        <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/icon?family=Material+Icons"
+        />
+        <link rel="icon" href="../static/pictures/website/logo-square.png" />
+        <link rel="stylesheet" href="../static/css/prism.css" />
+    </head>
+
+    <body>
+        <!-- <cstr cstr-type="repeat" id="topScriptsRepeat">
+        <script src="{path}"></script>
+    </cstr> -->
+        <h1 class="text-center">{{ title }}: Documentation</h1>
+        <h2>Table of Contents</h2>
+        <ul>
+            <cstr cstr-type="repeat" id="contents">
+                <li><a href="#{id}">#{{ header }}</a></li>
+            </cstr>
+        </ul>
+        <main>
+            <div class="container-fluid">
+                <cstr cstr-type="repeat" id="sections">
+                    <h2 id="#{id}" class="text-center">{{ header }}</h2>
+                    <div class="container">{{ content }}</div>
+                </cstr>
+            </div>
+        </main>
+        <script>
+            document.querySelectorAll('pre').forEach(el => {
+                el.innerHTML = `<code class="language-javascript">${el.innerHTML}</code>`;
+            });
+        </script>
+        <script src="../static/js/prism.js"></script>
+    </body>
+</html>

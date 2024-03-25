@@ -1,0 +1,1 @@
+rm -rf node_modules && documentation build ./** -f html --github -o docs
