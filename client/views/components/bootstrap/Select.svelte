@@ -19,11 +19,10 @@ const handleChange = (event: Event) => {
         <option value="" disabled selected="{!value}">{defaultValue}</option>
     {/if}
 
-    {#each options as option}
+    {#each options as option, i}
         <option
-            value="{values[options.indexOf(option)] || option}"
-            selected="{value == (values[options.indexOf(option)] || option)}"
-            >{option}</option
+            value="{values[i] || option}"
+            selected="{value == (values[i] || option)}">{option}</option
         >
     {/each}
 </select>

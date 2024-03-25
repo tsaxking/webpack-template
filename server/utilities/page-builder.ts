@@ -8,6 +8,7 @@ import { Req } from '../structure/app/req';
 import { Res } from '../structure/app/res';
 import { Next } from '../structure/app/app';
 import { attemptAsync } from '../../shared/check';
+import env from './env';
 
 /**
  * Object containing all the pages that can be built
@@ -63,9 +64,11 @@ export const builder = async (req: Req, res: Res, next: Next) => {
  */
 export const homeBuilder = async (url: string) => {
     return attemptAsync(async () => {
+        if (!builds[url]) throw new Error('Page not found');
         const [footerResult, navbarResult] = await Promise.all([
             getTemplate('components/footer', {
-                year: new Date().getFullYear()
+                year: new Date().getFullYear(),
+                title: env.TITLE
             }),
             navBuilder(url, false)
         ]);
@@ -73,9 +76,9 @@ export const homeBuilder = async (url: string) => {
         if (footerResult.isErr()) throw new Error(footerResult.error);
         if (navbarResult.isErr()) throw new Error(navbarResult.error);
 
-        const r = await getTemplate('home/index', {
+        const r = await getTemplate('page-builder', {
             pageTitle: capitalize(fromSnakeCase(url, '-')).slice(1),
-            content: builds[url] ? await builds[url]() : '',
+            content: await builds[url](),
             footer: footerResult.value,
             navbar: navbarResult.value
         });
@@ -102,7 +105,8 @@ export const navBuilder = async (url: string, offcanvas: boolean) => {
                 return {
                     active: '/' + page === url,
                     name: capitalize(fromSnakeCase(page, '-')),
-                    link: '/' + page
+                    href: '/' + page,
+                    disabled: false
                 };
             });
         })

@@ -752,6 +752,24 @@ export class ServerRequest<T = unknown> {
      * @returns {Promise<T>}
      */
     async send(): Promise<T> {
+        const isRequesting = ServerRequest.all.filter(
+            r =>
+                r.url === this.url &&
+                r.sent &&
+                JSON.stringify(r.body) === JSON.stringify(this.body) &&
+                r.method === this.method
+        );
+
+        // console.log({ isRequesting });
+
+        // greater than 1 because "this" is one of them
+        if (isRequesting.length > 1) {
+            const [r] = isRequesting;
+            // warn('Currently requesting...');
+            const d = await r.promise;
+            return JSON.parse(JSON.stringify(d));
+        }
+
         this.promise = new Promise<T>((res, rej) => {
             try {
                 JSON.stringify(this.body);

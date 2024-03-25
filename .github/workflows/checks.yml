@@ -40,7 +40,7 @@ jobs:
             - name: Setup Node.js
               uses: actions/setup-node@v4
               with:
-                  node-version: 20
+                  node-version: v20.4
 
             - name: Stash current dependencies
               run: |
