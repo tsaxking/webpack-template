@@ -790,6 +790,10 @@ export class ServerRequest<T = unknown> {
                 }
             }
 
+            const t = setTimeout(() => {
+                rej(new Error('Request timed out'));
+            }, 1000 * 10);
+
             fetch(this.url, {
                 method: this.method.toUpperCase(),
                 headers: {
@@ -803,6 +807,7 @@ export class ServerRequest<T = unknown> {
                     data: (await r.json()) as T
                 }))
                 .then(async ({ status, data }) => {
+                    clearTimeout(t);
                     data = bigIntDecode(data);
 
                     if (!this.url.includes('socket')) {

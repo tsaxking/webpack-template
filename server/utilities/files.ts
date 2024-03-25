@@ -1,6 +1,6 @@
 import render from 'node-html-constructor/versions/v4';
 import ObjectsToCsv from 'objects-to-csv';
-import { __logs, __root, __templates, __uploads } from './env';
+import env, { __logs, __root, __templates, __uploads } from './env';
 import { attempt, attemptAsync, Result } from '../../shared/check';
 import { matchInstance } from '../../shared/match';
 import { error } from './terminal-logging';
@@ -635,4 +635,31 @@ export function log(type: LogType, dataObj: LogObj): Promise<Result<void>> {
             { append: true }
         );
     });
+}
+
+{
+    setInterval(() => {
+        fs.readdir(__logs, (err, files) => {
+            if (err) {
+                error(err);
+                return;
+            }
+            files.forEach((file) => {
+                fs.stat(path.resolve(__logs, file), (err, stats) => {
+                    if (err) {
+                        error(err);
+                        return;
+                    }
+                    if (Date.now() - stats.mtimeMs > Number(env.LOG_CLEAR_TIMEOUT)) {
+                        fs.rm(path.resolve(__logs, file), (err) => {
+                            if (err) {
+                                error(err);
+                                return;
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    }, Number(env.LOG_CLEAR_TIMEOUT)||1000 * 60 * 60 * 24);
 }
