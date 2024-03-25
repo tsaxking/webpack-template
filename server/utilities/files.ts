@@ -591,7 +591,13 @@ export const exists = (file: string): boolean => {
  * @export
  * @typedef {LogType}
  */
-export type LogType = 'request' | 'error' | 'debugger' | 'status' | 'console';
+export type LogType =
+    | 'request'
+    | 'error'
+    | 'debugger'
+    | 'status'
+    | 'console'
+    | 'queries';
 
 /**
  * The allowed types of data in a log (prevents deep objects)

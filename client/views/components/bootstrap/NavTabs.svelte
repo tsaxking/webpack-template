@@ -17,4 +17,5 @@ export let active: string = '';
             >
         </li>
     {/each}
+    <slot />
 </ul>

@@ -218,17 +218,44 @@ const getDependencies = async () => {
     return backToMain('Failed to pull dependencies: ' + res.error.message);
 };
 
+const clearLogs = async () => {
+    const logToClear = await selectFile(
+        resolve(__root, './storage/logs'),
+        'Select a log to clear',
+        file => file.endsWith('.csv')
+    );
+
+    if (logToClear.isOk()) {
+        const confirmed = await confirm(
+            `Are you sure you want to clear ${logToClear.value}?`
+        );
+        if (!confirmed) return backToMain('Clear cancelled');
+        fs.writeFileSync(logToClear.value, '');
+        return backToMain('Log cleared');
+    } else {
+        return backToMain('No log selected');
+    }
+};
+
 export const general = [
     {
         icon: '📄',
-        value: createEntry
+        value: createEntry,
+        description: 'Create a new front end entry file'
     },
     {
         icon: '🚫',
-        value: blacklist
+        value: blacklist,
+        description: 'Blacklist an account or IP'
     },
     {
         icon: '📦',
-        value: getDependencies
+        value: getDependencies,
+        description: 'Pull dependencies'
+    },
+    {
+        icon: '🧹',
+        value: clearLogs,
+        description: 'Clear logs'
     }
 ];

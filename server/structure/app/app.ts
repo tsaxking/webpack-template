@@ -183,6 +183,7 @@ export class Route<sessionInfo = unknown> {
 
                 await run(0);
             } catch (e) {
+                console.error(e);
                 response.sendStatus('unknown:error');
             }
         });
@@ -406,10 +407,14 @@ export class App<sessionInfo = unknown> {
                 // console.log('Final');
                 // if (!req.response.fulfilled) return console.log('Not fulfilled');
                 for (const fn of this.finalFunctions) {
-                    await fn(
-                        req.request as Req<unknown, sessionInfo>,
-                        req.response
-                    );
+                    try {
+                        await fn(
+                            req.request as Req<unknown, sessionInfo>,
+                            req.response
+                        );
+                    } catch (error) {
+                        console.error(error);
+                    }
                 }
             };
             try {
@@ -427,6 +432,7 @@ export class App<sessionInfo = unknown> {
                 await run(0);
                 await final();
             } catch (e) {
+                console.error(e);
                 req.response.sendStatus('unknown:error');
             }
         });

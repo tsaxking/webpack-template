@@ -162,12 +162,15 @@ export const selectFile = async (
 
     const run = async (dir: string): Promise<string | null> => {
         // const entries = Array.from(Deno.readDirSync(dir));
-        const entries = Array.from(fs.readdirSync(dir)).map(e => ({
-            name: e,
-            isDirectory: fs.statSync(e).isDirectory(),
-            isFile: fs.statSync(e).isFile(),
-            isSymlink: fs.lstatSync(e).isSymbolicLink()
-        }));
+        const entries = Array.from(fs.readdirSync(dir)).map(e => {
+            const stat = fs.statSync(path.resolve(dir, e));
+            return {
+                name: e,
+                isDirectory: stat.isDirectory(),
+                isFile: stat.isFile(),
+                isSymlink: stat.isSymbolicLink()
+            };
+        });
         entries.push({
             name: '..',
             isDirectory: true,

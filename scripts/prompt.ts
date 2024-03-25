@@ -241,12 +241,12 @@ export const search = async <T extends string | Option>(
           }
         | T
     )[]
-): Promise<Result<string>> => {
+): Promise<Result<T>> => {
     const s = new FuzzySearch(options, ['name', ''], {
         caseSensitive: false
     });
 
-    const run = async (): Promise<Result<string>> => {
+    const run = async (): Promise<Result<T>> => {
         return attemptAsync(async () => {
             const data = await prompt(
                 `${Colors.FgCyan}? ${Colors.Reset} ${message}`
@@ -254,18 +254,19 @@ export const search = async <T extends string | Option>(
 
             const values = s.search(data || '');
 
-            const res = await select<string>('Select a value', [
+            const res = await select<T>('Select a value', [
                 {
                     name: '[Back to search]',
-                    value: '$$back$$'
+                    value: '$$back$$' as T
                 },
                 {
                     name: '[Exit search]',
-                    value: '$$exit$$'
+                    value: '$$exit$$' as T
                 },
-                ...values.map(v =>
-                    typeof v === 'string' ? v : v.name || v.toString()
-                )
+                ...values.map(v => ({
+                    name: typeof v === 'string' ? v : v.name || v.toString(),
+                    value: typeof v === 'string' ? v : (v.value as T)
+                }))
             ]);
 
             if (res === '$$back$$') {
