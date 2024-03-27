@@ -1067,7 +1067,7 @@ export class DB {
                 const q = DB.parseQuery(query, args);
                 const [sql, newArgs] = q;
 
-                const result = await DB.db.query(sql, newArgs);
+                const result = await DB.db.query(sql, newArgs as unknown[]);
 
                 return {
                     rows: bigIntDecode(DB.parseObj(result.rows) as unknown[]),
