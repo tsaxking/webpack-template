@@ -49,10 +49,10 @@ let expanded = false;
 .dashboard-card.expanded {
     position: fixed;
     z-index: 2000;
-    top: 50%;
+    top: calc(50% + 10vh);
     left: 50%;
     width: 100vw !important;
-    height: 100vh !important;
+    height: 90vh !important;
     transform: translate(-50%, -50%);
     /* animate */
 }
