@@ -103,9 +103,10 @@ export const mergeQueries = async () => {
     const allFiles = await readDir(resolve(__root, './server/utilities'));
     if (allFiles.isOk()) {
         const files = allFiles.value.filter(
-            f => fs.statSync(
-                resolve(__root, './server/utilities', f)
-            ).isFile() && f.match(/\w+-[0-9]+.ts/)?.length
+            f =>
+                fs
+                    .statSync(resolve(__root, './server/utilities', f))
+                    .isFile() && f.match(/\w+-[0-9]+.ts/)?.length
         );
         if (!files.length) return backToMain('No files to merge');
         const mergables = files.reduce((acc, f) => {
