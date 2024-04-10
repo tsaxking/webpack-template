@@ -116,17 +116,6 @@ export class Session<T = unknown> {
     }
 
     /**
-     * Session cache, currently not in use
-     * @date 3/8/2024 - 6:05:08 AM
-     *
-     * @private
-     * @static
-     * @readonly
-     * @type {*}
-     */
-    private static readonly cache = new Map<string, Session>();
-
-    /**
      * Returns a new UUID for the session
      * @date 3/8/2024 - 6:05:08 AM
      *
@@ -175,7 +164,7 @@ export class Session<T = unknown> {
      * @static
      * @type {string}
      */
-    static sessionName = 'ssid';
+    static readonly sessionName = 'ssid';
 
     /**
      * Retrieves a session from the database
@@ -353,16 +342,16 @@ export class Session<T = unknown> {
 
         // Session.cache.set(this.id, this);
 
-        setTimeout(() => this.destroy(), Session.cookieOptions.maxAge);
+        // setTimeout(() => this.destroy(), Session.cookieOptions.maxAge);
 
-        if (Session.requestsInfo.max < Infinity) {
-            // log(Session.requestsInfo.max, Session.requestsInfo.per);
-            setInterval(() => {
-                // console.log('Resetting requests');
-                this.requests = 0;
-                this.save();
-            }, Session.requestsInfo.per);
-        }
+        // if (Session.requestsInfo.max < Infinity) {
+        //     // log(Session.requestsInfo.max, Session.requestsInfo.per);
+        //     setInterval(() => {
+        //         // console.log('Resetting requests');
+        //         this.requests = 0;
+        //         this.save();
+        //     }, Session.requestsInfo.per);
+        // }
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -417,14 +406,14 @@ export class Session<T = unknown> {
      * @returns {*}
      */
     async newRequest() {
-        this.requests = this.requests + 1;
-        // await this.save();
-        // console.log('Requests:', this.requests);
-        this.latestActivity = Date.now();
+        // this.requests = this.requests + 1;
+        // // await this.save();
+        // // console.log('Requests:', this.requests);
+        // this.latestActivity = Date.now();
 
-        if (this.requests > Session.requestsInfo.max) {
-            this.blacklist('Rate limited');
-        }
+        // if (this.requests > Session.requestsInfo.max) {
+        //     this.blacklist('Rate limited');
+        // }
     }
 
     /**

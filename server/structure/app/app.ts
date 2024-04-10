@@ -405,7 +405,7 @@ export class App<sessionInfo = unknown> {
         this.server[method](path, async (req: express.Request, _res, next) => {
             const final = async () => {
                 // console.log('Final');
-                // if (!req.response.fulfilled) return console.log('Not fulfilled');
+                if (!req.response.fulfilled) return console.log('Not fulfilled');
                 for (const fn of this.finalFunctions) {
                     try {
                         await fn(
