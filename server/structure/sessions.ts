@@ -410,7 +410,6 @@ export class Session<T = unknown> {
         // // await this.save();
         // // console.log('Requests:', this.requests);
         // this.latestActivity = Date.now();
-
         // if (this.requests > Session.requestsInfo.max) {
         //     this.blacklist('Rate limited');
         // }
