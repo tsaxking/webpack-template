@@ -9,9 +9,9 @@ import { attemptAsync } from '../../shared/check';
  * @param {AxiosRequestConfig} [options={}]
  * @returns {*}
  */
-export const request = (url: string, options: AxiosRequestConfig = {}) => {
+export const request = <T = unknown>(url: string, options: AxiosRequestConfig = {}) => {
     return attemptAsync(async () => {
         const response = await axios(url, options);
-        return response.data;
+        return response.data as T;
     });
 };

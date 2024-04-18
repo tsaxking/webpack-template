@@ -28,111 +28,49 @@ jobs:
                   submodules: 'true'
                   token: ${{ secrets.GH_TOKEN }}
 
-            - name: Ignore if changes were automated
-              run: |
-
-            # - name: Setup Deno
-            #   # uses: denoland/setup-deno@v1
-            #   uses: denoland/setup-deno@61fe2df320078202e33d7d5ad347e7dcfa0e8f31 # v1.1.2
-            #   with:
-            #       deno-version: v1.x
-
             - name: Setup Node.js
               uses: actions/setup-node@v4
               with:
                   node-version: v20.4
 
-            - name: Stash current dependencies
+            - name: Run
               run: |
+                  if git log -1 --pretty=%B | grep -q "AUTOMATED"; then
+                    echo "Changes were automated, exiting"
+                    exit 0
+                  fi
+                  if git log -1 --pretty=%B | grep -q "Chore"; then
+                    echo "Changes were automated, exiting"
+                    exit 0
+                  fi
                   echo "Rename package.json and package-lock.json to .package.json and .package-lock.json so that they are not picked up by npm install"
 
                   cp package.json .package.json
                   cp package-lock.json .package-lock.json
 
-            - name: Install all dependencies
-              run: |
                   echo "Installing all dependencies"
                   npm i
-
-            - name: Install local dependencies
-              run: |
-                  if git log -1 --pretty=%B | grep -q "AUTOMATED"; then
-                    echo "Changes were automated, exiting"
-                    exit 0
-                  fi
-                  if git log -1 --pretty=%B | grep -q "Chore"; then
-                    echo "Changes were automated, exiting"
-                    exit 0
-                  fi
                   npm i --save-dev --force prettier-plugin-svelte prettier @typescript-eslint/parser @typescript-eslint/eslint-plugin@5.33.0 eslint typescript prettier-plugin-svelte svelte
 
-            - name: Install global dependencies
-              run: |
-                  if git log -1 --pretty=%B | grep -q "AUTOMATED"; then
-                    echo "Changes were automated, exiting"
-                    exit 0
-                  fi
-                  if git log -1 --pretty=%B | grep -q "Chore"; then
-                    echo "Changes were automated, exiting"
-                    exit 0
-                  fi
+                  echo "Installing all local dependencies"
                   npm i -g eslint prettier svelte
 
-            - name: Import submodules
-              run: |
-                  if git log -1 --pretty=%B | grep -q "AUTOMATED"; then
-                    echo "Changes were automated, exiting"
-                    exit 0
-                  fi
-                  if git log -1 --pretty=%B | grep -q "Chore"; then
-                    echo "Changes were automated, exiting"
-                    exit 0
-                  fi
+                  echo "Importing all submodules"
                   git submodule update --init --recursive --remote
 
-            - name: Run Formatter, Linter, then Checks
-              run: |
-                  if git log -1 --pretty=%B | grep -q "AUTOMATED"; then
-                    echo "Changes were automated, exiting"
-                    exit 0
-                  fi
-                  if git log -1 --pretty=%B | grep -q "Chore"; then
-                    echo "Changes were automated, exiting"
-                    exit 0
-                  fi
+                  echo "Running tests"
                   sh ./scripts/fmt-lint-check.sh
 
-            - name: Restore dependencies
-              run: |
-                  if git log -1 --pretty=%B | grep -q "AUTOMATED"; then
-                    echo "Changes were automated, exiting"
-                    exit 0
-                  fi
-                  if git log -1 --pretty=%B | grep -q "Chore"; then
-                    echo "Changes were automated, exiting"
-                    exit 0
-                  fi
+                  echo "Restoring dependencies"
                   echo "Restore package.json and package-lock.json to their original names"
                   rm package.json package-lock.json
 
                   mv .package.json package.json
                   mv .package-lock.json package-lock.json
 
-            - name: Git Config
-              run: |
+                  echo "Committing changes"
                   git config --global user.name "github-actions[bot]"
                   git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-            - name: Push results
-              run: |
-                  if git log -1 --pretty=%B | grep -q "AUTOMATED"; then
-                    echo "Changes were automated, exiting"
-                    exit 0
-                  fi
-                  if git log -1 --pretty=%B | grep -q "Chore"; then
-                    echo "Changes were automated, exiting"
-                    exit 0
-                  fi
 
                   echo "Adding changes..."
                   git add .
@@ -141,10 +79,9 @@ jobs:
                   git commit --allow-empty  -m "AUTOMATED: Format, lint, and check"
 
                   echo "Pushing changes..."
-                  git push origin main
+                  git push
 
-            - name: Push to deliver
-              run: |
+                  echo "Pushing changes to deploy branch..."
                   echo "testing if on branch 'main'"
                   if [ "$(git rev-parse --abbrev-ref HEAD)" != "main" ]; then
                     echo "not on branch 'main', exiting"
@@ -155,19 +92,19 @@ jobs:
                     exit 0
                   fi
 
-                  echo "Good, we're on main. Pushing to deliver..."
-                  echo "Deleting old deliver branch"
-                  git branch -D deliver || true
-                  git push origin --delete deliver || true
+                  echo "Good, we're on main. Pushing to deploy..."
+                  echo "Deleting old deploy branch"
+                  git branch -D deploy || true
+                  git push origin --delete deploy || true
 
-                  echo "Creating new deliver branch"
-                  git checkout --orphan deliver
+                  echo "Creating new deploy branch"
+                  git checkout --orphan deploy
                   git reset --hard
-                  git commit --allow-empty -m "Initializing deliver branch"
+                  git commit --allow-empty -m "Initializing deploy branch"
 
-                  echo "Merging main into deliver"
+                  echo "Merging main into deploy"
                   git merge main --strategy-option=theirs --allow-unrelated-histories -m "Merging main into gh-pages"
                   git pull origin main --allow-unrelated-histories
                   git add .
-                  git commit --allow-empty -m "Merging main into deliver"
-                  git push origin deliver
+                  git commit --allow-empty -m "Merging main into deploy"
+                  git push origin deploy

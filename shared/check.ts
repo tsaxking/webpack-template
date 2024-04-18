@@ -38,6 +38,11 @@ export class Ok<T = unknown> {
     isErr(): this is Err {
         return false;
     }
+
+    unwrap(): T {
+        console.warn('Warning: Unwrapping Ok result, this is not recommended for anything other than testing.');
+        return this.value;
+    }
 }
 
 /**
@@ -81,6 +86,11 @@ export class Err<E = Error, T = unknown> {
 
     handle(value: T) {
         return new Ok(value);
+    }
+
+    unwrap(): E {
+        console.warn('Warning: Unwrapping Err result, this is not recommended for anything other than testing.');
+        return this.error;
     }
 }
 

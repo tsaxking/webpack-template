@@ -570,7 +570,12 @@ export class DB {
         return attemptAsync(async () => {
             const backups = await readDir('storage/db/backups');
             if (backups.isOk()) {
-                return backups.value.map(b => b);
+                return backups.value
+                    .sort((a, b) => {
+                        const [,aDate] = a.split('_');
+                        const [,bDate] = b.split('_');
+                        return +aDate - +bDate;
+                    });
             }
             return [];
         });
