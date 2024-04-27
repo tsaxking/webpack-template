@@ -608,6 +608,7 @@ export class ServerRequest<T = unknown> {
                     value
                 }): Promise<ReadableStreamReadResult<Uint8Array> | undefined> {
                     if (done) {
+                        console.log('Stream complete, received', i, 'chunks');
                         emitter.emit('complete', output);
                         return;
                     }
@@ -637,6 +638,7 @@ export class ServerRequest<T = unknown> {
                             }
                         }
                     }
+                    i++;
                     return reader.read().then(process);
                 });
             })
@@ -762,8 +764,10 @@ export class ServerRequest<T = unknown> {
 
         // console.log({ isRequesting });
 
+        const cached = typeof this.options?.cached === 'boolean' ? this.options.cached : true;
+
         // greater than 1 because "this" is one of them
-        if (isRequesting.length > 1) {
+        if (isRequesting.length > 1 && cached) {
             const [r] = isRequesting;
             // warn('Currently requesting...');
             const d = await r.promise;

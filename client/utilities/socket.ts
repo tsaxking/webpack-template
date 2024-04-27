@@ -50,10 +50,10 @@ class SocketWrapper {
                 id: string;
             }>('/socket', {
                 cache: this.cache,
-                id: this.id
+                id: this.id,
+            }, {
+                cached: false
             });
-
-            // console.log(res);
 
             if (res.isOk()) {
                 this.id = res.value.id;
