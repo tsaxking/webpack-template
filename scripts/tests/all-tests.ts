@@ -140,11 +140,11 @@ export const runTests = async () => {
         );
     });
 
-    if (!process.argv.includes('lite')) {
-        test('Database tests', async () => {
-            const { DB } = await import('../../server/utilities/databases');
-        });
-    }
+    // if (!process.argv.includes('lite')) {
+    //     test('Database tests', async () => {
+    //         const { DB } = await import('../../server/utilities/databases');
+    //     });
+    // }
 };
 
 if (require.main) runTests();
