@@ -4,26 +4,25 @@ on:
         branches:
             - deploy
 jobs:
+    build:
+        name: Build
+        runs-on: ubuntu-latest
+        steps:
+            - name: Don't do anything
+              run: echo "This is a build step"
+            # - name: pull latest from deploy branch
+            #   uses: appleboy/ssh-action@v1.0.3
+            #   env:
+            #     PROJECT: /root/tators-dashboard
 
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    steps:
-        - name: Don't do anything
-          run: echo "This is a build step"
-        # - name: pull latest from deploy branch
-        #   uses: appleboy/ssh-action@v1.0.3
-        #   env:
-        #     PROJECT: /root/tators-dashboard
-
-        #   with:
-        #     host: ${{ secrets.HOST }}
-        #     username: ${{ secrets.USERNAME }}
-        #     key: ${{ secrets.KEY }}
-        #     port: ${{ secrets.PORT }}
-        #     envs: PROJECT
-        #     script: |
-        #         cd $PROJECT
-        #         git stash
-        #         git checkout deploy
-        #         git pull -ff
+            #   with:
+            #     host: ${{ secrets.HOST }}
+            #     username: ${{ secrets.USERNAME }}
+            #     key: ${{ secrets.KEY }}
+            #     port: ${{ secrets.PORT }}
+            #     envs: PROJECT
+            #     script: |
+            #         cd $PROJECT
+            #         git stash
+            #         git checkout deploy
+            #         git pull -ff
