@@ -122,6 +122,7 @@ class SocketWrapper {
             if (sessionTimeout) clearTimeout(sessionTimeout);
             sessionTimeout = setTimeout(
                 () => {
+                    timeout = 0; // stop the socket
                     alert('Session expired, please refresh the page.')
                         .then(() => location.reload())
                         .catch(() => location.reload());
