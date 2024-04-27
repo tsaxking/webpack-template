@@ -48,12 +48,16 @@ class SocketWrapper {
                     id: number;
                 }[];
                 id: string;
-            }>('/socket', {
-                cache: this.cache,
-                id: this.id,
-            }, {
-                cached: false
-            });
+            }>(
+                '/socket',
+                {
+                    cache: this.cache,
+                    id: this.id
+                },
+                {
+                    cached: false
+                }
+            );
 
             if (res.isOk()) {
                 this.id = res.value.id;

@@ -764,7 +764,10 @@ export class ServerRequest<T = unknown> {
 
         // console.log({ isRequesting });
 
-        const cached = typeof this.options?.cached === 'boolean' ? this.options.cached : true;
+        const cached =
+            typeof this.options?.cached === 'boolean'
+                ? this.options.cached
+                : true;
 
         // greater than 1 because "this" is one of them
         if (isRequesting.length > 1 && cached) {
