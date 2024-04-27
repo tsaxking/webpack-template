@@ -89,7 +89,10 @@ export const viewTables = async () => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             console.table(keys, values as any);
 
-            await select('', ['[Back]']);
+            await select('', ['[Back]'], {
+                clear: false,
+                exit: true
+            });
             return main();
         } else {
             return backToMain('Error getting data: ' + data.error.message);

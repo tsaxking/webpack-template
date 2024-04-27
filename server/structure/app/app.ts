@@ -276,6 +276,8 @@ export class Route<sessionInfo = unknown> {
  * @typedef {App}
  */
 export class App<sessionInfo = unknown> {
+    public static readonly SocketServer = SocketWrapper;
+
     /**
      * Creates a header authorization function
      * @date 3/8/2024 - 6:13:51 AM
@@ -347,10 +349,7 @@ export class App<sessionInfo = unknown> {
     ) {
         this.server = express();
         this.httpServer = http.createServer(this.server);
-        this.io = new SocketWrapper(
-            this as App<unknown>,
-            new Server(this.httpServer)
-        );
+
 
         // s.listen(port, () => {
         //     log(`Server is listening on port ${port}`);
@@ -358,6 +357,7 @@ export class App<sessionInfo = unknown> {
 
         this.server.use(express.json());
         this.server.use(express.urlencoded({ extended: true }));
+
         // this.server.use(
         //     session({
         //         secret: 'hello darkness my old friend',
@@ -385,6 +385,10 @@ export class App<sessionInfo = unknown> {
             req.response = new Res(this as App<unknown>, res, request);
             next();
         });
+        this.io = new SocketWrapper(
+            this as App<unknown>,
+            // new Server(this.httpServer)
+        );
     }
 
     /**

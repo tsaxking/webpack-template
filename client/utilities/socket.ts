@@ -1,13 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// import { EventEmitter } from '../../shared/event-emitter';
-import { io } from 'socket.io-client';
+import { EventEmitter } from '../../shared/event-emitter';
+// import { io } from 'socket.io-client';
+import { ServerRequest } from './requests';
+import { sleep } from '../../shared/sleep';
+import { alert } from './notifications';
+import { attemptAsync } from '../../shared/check';
 
-// type Cache = {
-//     event: string;
-//     data: any;
-// };
+type Cache = {
+    event: string;
+    data: any;
+};
 
-// const SOCKET_INTERVAL = 1500;
+const SOCKET_INTERVAL = 250;
+let latest = 0;
 
 /**
  * Wrapper for the socket.io client
@@ -17,11 +22,11 @@ import { io } from 'socket.io-client';
  * @typedef {SocketWrapper}
  */
 class SocketWrapper {
-    // private cache: Cache[] = [];
-    // private id?: string;
-    // public static isActive = false;
+    private cache: Cache[] = [];
+    private id?: string;
+    public static isActive = false;
 
-    // private readonly em = new EventEmitter();
+    private readonly em = new EventEmitter();
 
     /**
      * Socket.io client
@@ -31,28 +36,37 @@ class SocketWrapper {
      * @readonly
      * @type {*}
      */
-    private readonly socket = io();
+    // private readonly socket = io();
 
-    // private async ping() {
-    //     if (!SocketWrapper.isActive) return;
-    //     const res = await ServerRequest.post<{
-    //         cache: Cache[];
-    //         id: string;
-    //     }>('/socket', {
-    //         cache: this.cache,
-    //         id: this.id
-    //     });
+    private async ping() {
+        return attemptAsync(async () => {
+            // if (!SocketWrapper.isActive) return;
+            const res = await ServerRequest.post<{
+                cache: {
+                    event: string;
+                    data: any;
+                    id: number;
+                }[];
+                id: string;
+            }>('/socket', {
+                cache: this.cache,
+                id: this.id
+            });
 
-    //     if (res.isOk()) {
-    //         this.id = res.value.id;
-    //         for (const c of res.value.cache) this.newEvent(c.event, c.data);
-    //         this.cache = [];
-    //     } else {
-    //         console.error(res.error);
-    //     }
-    // }
-
-    // private interval = setInterval(() => this.ping(), SOCKET_INTERVAL);
+            // console.log(res);
+    
+            if (res.isOk()) {
+                this.id = res.value.id;
+                for (const c of res.value.cache.sort((a, b) => a.id - b.id)) {if (c.id > latest) {
+                    this.newEvent(c.event, c.data);
+                    latest = c.id;
+                }}
+                this.cache = [];
+            } else {
+                console.error(res.error);
+            }
+        });
+    }
 
     /**
      * Adds a listener for the event
@@ -63,8 +77,8 @@ class SocketWrapper {
      * @returns {void) => void}
      */
     on(event: string, callback: (data: any) => void) {
-        // this.em.on(event, callback);
-        this.socket.on(event, callback);
+        this.em.on(event, callback);
+        // this.socket.on(event, callback);
     }
 
     /**
@@ -76,30 +90,62 @@ class SocketWrapper {
      * @returns {void) => void}
      */
     off(event: string, callback: (data: any) => void) {
-        // this.em.off(event, callback);
-        this.socket.off(event, callback);
+        this.em.off(event, callback);
+        // this.socket.off(event, callback);
     }
 
-    // private newEvent(event: string, data: any) {
-    //     console.log({ event, data });
-    //     // this.em.emit(event, data);
-
-    // }
+    private newEvent(event: string, data: any) {
+        console.log({ event, data });
+        this.em.emit(event, data);
+    }
 
     /**
      * Connect to the server
      * @date 3/8/2024 - 7:27:46 AM
      */
     connect() {
-        // clearInterval(this.interval);
-        // this.interval = setInterval(() => {
-        //     this.ping();
-        // }, SOCKET_INTERVAL);
-        this.socket.connect();
+        let running = false;
+        let timeout: number;
+        let sessionTimeout: NodeJS.Timeout;
+        const run = async () => {
+            running = true;
+            await sleep(timeout);
+            await this.ping();
+            timeout += SOCKET_INTERVAL;
+            if (timeout > 0) run();
+            else running = false;
+        }
+        const reset = () => {
+            timeout = SOCKET_INTERVAL
+            if (sessionTimeout) clearTimeout(sessionTimeout);
+            sessionTimeout = setTimeout(() => {
+                alert('Session expired, please refresh the page.')
+                    .then(() => location.reload())
+                    .catch(() => location.reload());
+            }, 1000 * 60 * 5); // 5 minutes
+            if (!running) run();
+        };
+        reset();
+        const on = document.addEventListener
+        on('visibilitychange', reset);
+        on('focus', reset);
+        on('blur', () => timeout = 0);
+        on('scroll', reset);
+        on('mousemove', reset);
+        on('keydown', reset);
+        on('keyup', reset);
+        on('click', reset);
+        on('touchstart', reset);
+        on('touchend', reset);
+        on('touchmove', reset);
+        on('touchcancel', reset);
+        on('touchleave', reset);
 
-        this.socket.on('disconnect', () => {
-            this.socket.io.connect();
-        });
+        // this.socket.connect();
+
+        // this.socket.on('disconnect', () => {
+        //     this.socket.io.connect();
+        // });
     }
 
     /**
@@ -110,9 +156,9 @@ class SocketWrapper {
      * @param {*} data
      */
     emit(event: string, data: any) {
-        // this.cache.push({ event, data });
-        // this.newEvent(event, data);
-        this.socket.emit(event, data);
+        this.cache.push({ event, data });
+        this.newEvent(event, data);
+        // this.socket.emit(event, data);
     }
 }
 
@@ -123,27 +169,5 @@ class SocketWrapper {
  * @type {SocketWrapper}
  */
 export const socket = new SocketWrapper();
-
+socket.connect();
 Object.assign(window, { socket });
-
-// {
-// let timeout: NodeJS.Timeout;
-// const setActivity = () => {
-//     SocketWrapper.isActive = true;
-//     clearTimeout(timeout);
-
-//     // stop after 1 minute of inactivity
-//     timeout = setTimeout(() => {
-//         SocketWrapper.isActive = false;
-//     }, 1000 * 60);
-// };
-// window.addEventListener('focus', setActivity);
-// document.addEventListener('click', setActivity);
-// document.addEventListener('mousemove', setActivity);
-// document.addEventListener('keydown', setActivity);
-// document.addEventListener('scroll', setActivity);
-// document.addEventListener('touchstart', setActivity);
-// document.addEventListener('touchmove', setActivity);
-// document.addEventListener('touchend', setActivity);
-// document.addEventListener('touchcancel', setActivity);
-// }

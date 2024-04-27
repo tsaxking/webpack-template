@@ -90,11 +90,12 @@ type Option<T = unknown> = {
  */
 const _select = async <T = unknown>(
     message: string,
-    options: Option<T>[]
+    options: Option<T>[],
+    clear = true
 ): Promise<T> => {
     const res = await new Promise<T>(res => {
         const run = (selected: number) => {
-            console.clear();
+            if (clear) console.clear();
             console.log(Colors.FgBlue, '?', Colors.Reset, message, '\n');
             for (let i = 0; i < options.length; i++) {
                 const o = options[i];
@@ -166,8 +167,10 @@ export const select = async <T = unknown>(
     options: {
         exit?: boolean;
         return?: boolean;
+        clear?: boolean;
     } = {
-        exit: false
+        exit: false,
+        clear: true
     }
 ): Promise<T> => {
     if (options.return) {
@@ -187,7 +190,8 @@ export const select = async <T = unknown>(
         message,
         data.map(d =>
             typeof d === 'string' ? ({ name: d, value: d } as Option<T>) : d
-        )
+        ),
+        options.clear
     );
 
     if (res === '$$exit$$') {

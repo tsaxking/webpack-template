@@ -101,13 +101,13 @@ export class Email {
 
             switch (type) {
                 case EmailType.link:
-                    r = getTemplateSync('/emails/link', constructor);
+                    r = getTemplateSync('emails/link', constructor);
                     break;
                 case EmailType.text:
-                    r = getTemplateSync('/emails/text', constructor);
+                    r = getTemplateSync('emails/text', constructor);
                     break;
                 case EmailType.error:
-                    r = getTemplateSync('/emails/error', constructor);
+                    r = getTemplateSync('emails/error', constructor);
                     break;
                 default:
                     break;

@@ -40,7 +40,8 @@ const retrieve = async (): Promise<Result<string[]>> => {
 
         if (data.isOk()) {
             // console.log('Retrieved keys!');
-            const json = (await data.value.json()) as string[];
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const json = (await (data.value as any).json()) as string[];
 
             if (!Array.isArray(json)) {
                 throw new Error('Failed to retrieve keys, invalid response');
