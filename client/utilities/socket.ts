@@ -54,13 +54,15 @@ class SocketWrapper {
             });
 
             // console.log(res);
-    
+
             if (res.isOk()) {
                 this.id = res.value.id;
-                for (const c of res.value.cache.sort((a, b) => a.id - b.id)) {if (c.id > latest) {
-                    this.newEvent(c.event, c.data);
-                    latest = c.id;
-                }}
+                for (const c of res.value.cache.sort((a, b) => a.id - b.id)) {
+                    if (c.id > latest) {
+                        this.newEvent(c.event, c.data);
+                        latest = c.id;
+                    }
+                }
                 this.cache = [];
             } else {
                 console.error(res.error);
@@ -114,22 +116,25 @@ class SocketWrapper {
             timeout += SOCKET_INTERVAL;
             if (timeout > 0) run();
             else running = false;
-        }
+        };
         const reset = () => {
-            timeout = SOCKET_INTERVAL
+            timeout = SOCKET_INTERVAL;
             if (sessionTimeout) clearTimeout(sessionTimeout);
-            sessionTimeout = setTimeout(() => {
-                alert('Session expired, please refresh the page.')
-                    .then(() => location.reload())
-                    .catch(() => location.reload());
-            }, 1000 * 60 * 5); // 5 minutes
+            sessionTimeout = setTimeout(
+                () => {
+                    alert('Session expired, please refresh the page.')
+                        .then(() => location.reload())
+                        .catch(() => location.reload());
+                },
+                1000 * 60 * 5
+            ); // 5 minutes
             if (!running) run();
         };
         reset();
-        const on = document.addEventListener
+        const on = document.addEventListener;
         on('visibilitychange', reset);
         on('focus', reset);
-        on('blur', () => timeout = 0);
+        on('blur', () => (timeout = 0));
         on('scroll', reset);
         on('mousemove', reset);
         on('keydown', reset);

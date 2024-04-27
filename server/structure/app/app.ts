@@ -350,7 +350,6 @@ export class App<sessionInfo = unknown> {
         this.server = express();
         this.httpServer = http.createServer(this.server);
 
-
         // s.listen(port, () => {
         //     log(`Server is listening on port ${port}`);
         // });
@@ -386,7 +385,7 @@ export class App<sessionInfo = unknown> {
             next();
         });
         this.io = new SocketWrapper(
-            this as App<unknown>,
+            this as App<unknown>
             // new Server(this.httpServer)
         );
     }

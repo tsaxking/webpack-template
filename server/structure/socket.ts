@@ -81,7 +81,7 @@ export class SocketWrapper {
      * @param {Server} io
      */
     constructor(
-        private readonly app: App,
+        private readonly app: App
         // private readonly io: Server
     ) {
         // io.on('connection', socket => {
@@ -107,32 +107,38 @@ export class SocketWrapper {
                 event: string;
                 data: unknown;
             }[];
-            id: string|undefined;
-        }>('/socket', 
+            id: string | undefined;
+        }>(
+            '/socket',
             // validate({
             //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
             //     cache: (v: unknown) => Array.isArray(v) && v.every((c: any) => typeof c.event === 'string' && typeof c.data === 'object'),
             //     id: ['string', 'undefined']
             // }),
-        (req, res) => {
-            const { cache } = req.body;
-            let { id } = req.body;
-            if (!id) id = uuid();
-            let s = this.sessions.get(id);
-            if (!s) {
-                s = new SocketSession(id, this);
-                this.sessions.set(id, s);
+            (req, res) => {
+                const { cache } = req.body;
+                let { id } = req.body;
+                if (!id) id = uuid();
+                let s = this.sessions.get(id);
+                if (!s) {
+                    s = new SocketSession(id, this);
+                    this.sessions.set(id, s);
 
-                this.em.emit('connect', s);
+                    this.em.emit('connect', s);
+                }
+
+                for (const c of cache) this.em.emit(c.event, c.data);
+
+                res.json({
+                    cache: this.cache.map(c => ({
+                        event: c.event,
+                        data: c.data,
+                        id: c.id
+                    })),
+                    id
+                });
             }
-
-            for (const c of cache) this.em.emit(c.event, c.data);
-
-            res.json({
-                cache: this.cache.map(c => ({ event: c.event, data: c.data, id: c.id })),
-                id
-            });
-        });
+        );
     }
 
     /**
@@ -144,15 +150,20 @@ export class SocketWrapper {
      */
     emit(event: string, data?: unknown) {
         num++;
-        const c = { 
-            event, 
+        const c = {
+            event,
             data,
             id: num
-         };
+        };
         this.cache.push(c);
-        setTimeout(() => {
-            this.cache = this.cache.filter((cc, i, a) => a.indexOf(cc) !== i);
-        }, 5 * 1000 * 60);
+        setTimeout(
+            () => {
+                this.cache = this.cache.filter(
+                    (cc, i, a) => a.indexOf(cc) !== i
+                );
+            },
+            5 * 1000 * 60
+        );
 
         // this.io.emit(event, data);
     }
@@ -194,7 +205,7 @@ export class SocketWrapper {
                 num++;
                 this.cache.push({ event, data, room, id: num });
             }
-        }
+        };
 
         // return this.io.to(room);
     }
