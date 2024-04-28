@@ -113,20 +113,21 @@ class SocketWrapper {
         let running = false;
         let timeout: number;
         let sessionTimeout: NodeJS.Timeout;
+        let isOffline = false;
         const run = async () => {
+            if (isOffline) return running = false;
             running = true;
             await sleep(timeout);
             await this.ping();
             timeout += SOCKET_INTERVAL;
-            if (timeout > 0) run();
-            else running = false;
+            run();
         };
         const reset = () => {
             timeout = SOCKET_INTERVAL;
             if (sessionTimeout) clearTimeout(sessionTimeout);
             sessionTimeout = setTimeout(
                 () => {
-                    timeout = 0; // stop the socket
+                    isOffline = true;
                     alert('Session expired, please refresh the page.')
                         .then(() => location.reload())
                         .catch(() => location.reload());
