@@ -115,7 +115,7 @@ class SocketWrapper {
         let sessionTimeout: NodeJS.Timeout;
         let isOffline = false;
         const run = async () => {
-            if (isOffline) return running = false;
+            if (isOffline) return (running = false);
             running = true;
             await sleep(timeout);
             await this.ping();
