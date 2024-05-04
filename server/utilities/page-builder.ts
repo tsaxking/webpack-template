@@ -109,6 +109,7 @@ export const navBuilder = async (url: string, offcanvas: boolean) => {
                     disabled: false
                 };
             });
-        })
+        }),
+        title: env.TITLE || 'My App'
     });
 };

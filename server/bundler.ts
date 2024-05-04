@@ -15,6 +15,9 @@ import {
 } from './utilities/files';
 import { attempt, attemptAsync } from '../shared/check';
 import { EventEmitter } from '../shared/event-emitter';
+import postCssPlugin from 'esbuild-style-plugin';
+import autoPrefixer from 'autoprefixer';
+import tailwindcss from 'tailwindcss';
 
 {
     // clear the dist folder
@@ -188,6 +191,14 @@ export class Builder {
                                 }
                             })
                         ]
+                    }),
+                    postCssPlugin({
+                        postcss: {
+                            plugins: [
+                                tailwindcss(),
+                                autoPrefixer()
+                            ]
+                        }
                     })
                 ],
                 logLevel: 'info',
