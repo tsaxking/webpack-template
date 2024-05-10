@@ -1,10 +1,11 @@
 {
     "scripts": {
-        "start": "ts-node ./server/main.ts watch stdin",
+        "start": "nodemon ./server/server.ts",
         "manager": "ts-node -P tsconfig.json ./scripts/manager.ts",
-        "build": "ts-node ./server/bundler.ts",
+        "build": "nodemon ./server/bundler.ts",
         "test": "ts-node ./scripts/tests/all-tests.ts",
-        "init": "ts-node ./scripts/init.ts"
+        "init": "ts-node ./scripts/init.ts",
+        "dev": "concurrently --kill-others \"npm run start\" \"npm run build\""
     },
     "devDependencies": {
         "@popperjs/core": "^2.11.8",
@@ -30,7 +31,8 @@
         "@typescript-eslint/eslint-plugin": "^6.19.0",
         "@typescript-eslint/parser": "^6.19.0",
         "callsite": "^1.0.0",
-        "esbuild": "0.20.1",
+        "concurrently": "^8.2.2",
+        "esbuild": "^0.20.1",
         "eslint": "^8.56.0",
         "prettier": "^3.2.2",
         "prettier-plugin-svelte": "^3.1.2",
@@ -43,6 +45,7 @@
     },
     "dependencies": {
         "@beyowi/svelte-recaptcha-v2": "^0.0.4",
+        "@craftamap/esbuild-plugin-html": "^0.6.1",
         "@fortawesome/fontawesome-free": "^6.5.1",
         "@neoxia-js/nodemailer-sendgrid-transport": "^0.1.1",
         "@putout/cli-choose": "^2.0.0",
@@ -75,6 +78,7 @@
         "node-html-constructor": "^4.0.3",
         "nodemailer": "^6.9.11",
         "nodemailer-sendgrid-transport": "^0.2.0",
+        "nodemon": "^3.1.0",
         "objects-to-csv": "^1.3.6",
         "pg": "^8.11.3",
         "prompt": "^1.3.0",

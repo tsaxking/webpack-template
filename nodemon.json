@@ -1,0 +1,12 @@
+{
+    "watch": [
+        "/server/**/*.ts",
+        "/shared/**/*.ts",
+        "/client/*",
+        "/public/templates"
+    ],
+    "ignore": [
+        "/dist",
+        "/public/templates/entries"
+    ]
+}
