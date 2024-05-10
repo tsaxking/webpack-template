@@ -5,10 +5,7 @@ import { typescript } from 'svelte-preprocess-esbuild';
 import fs from 'fs';
 import path from 'path';
 import env, { __entries, __root, __templates } from './utilities/env';
-import {
-    getTemplate,
-    saveTemplate,
-} from './utilities/files';
+import { getTemplate, saveTemplate } from './utilities/files';
 import { attempt } from '../shared/check';
 
 {
@@ -89,9 +86,7 @@ const readDir = async (dirPath: string): Promise<string[]> => {
 };
 
 Promise.all([
-    readDir(
-        __entries
-    ),
+    readDir(__entries),
     esbuild.build({
         entryPoints: ['client/entries/**/*.ts'],
         bundle: true,
