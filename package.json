@@ -2,10 +2,11 @@
     "scripts": {
         "start": "nodemon ./server/server.ts",
         "manager": "ts-node -P tsconfig.json ./scripts/manager.ts",
-        "build": "nodemon ./server/bundler.ts",
+        "build:watch": "nodemon ./server/bundler.ts",
+        "build": "ts-node ./server/bundler.ts",
         "test": "ts-node ./scripts/tests/all-tests.ts",
         "init": "ts-node ./scripts/init.ts",
-        "dev": "concurrently --kill-others \"npm run start\" \"npm run build\""
+        "dev": "concurrently --kill-others \"npm run start\" \"npm run build:watch\""
     },
     "devDependencies": {
         "@popperjs/core": "^2.11.8",
