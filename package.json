@@ -7,6 +7,7 @@
         "init": "ts-node ./scripts/init.ts"
     },
     "devDependencies": {
+        "@bahmutov/cypress-esbuild-preprocessor": "^2.2.0",
         "@popperjs/core": "^2.11.8",
         "@tsconfig/deno": "^1.0.9",
         "@tsconfig/svelte": "^5.0.2",
@@ -30,6 +31,7 @@
         "@typescript-eslint/eslint-plugin": "^6.19.0",
         "@typescript-eslint/parser": "^6.19.0",
         "callsite": "^1.0.0",
+        "cypress": "^13.9.0",
         "esbuild": "0.20.1",
         "eslint": "^8.56.0",
         "prettier": "^3.2.2",
