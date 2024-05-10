@@ -51,15 +51,15 @@ function rightClickContextMenu(e: MouseEvent) {
     // at inline style.
     // Instead of context menu is displayed from top left of cursor position
     // when right-click occur, it will be displayed from bottom left.
-    if (browser.h - pos.y < menu.h) pos.y = pos.y - menu.h;
-    if (browser.w - pos.x < menu.w) pos.x = pos.x - menu.w;
+    if ((browser.h || 0) - pos.y < (menu.h || 0)) pos.y = pos.y - (menu.h || 0);
+    if ((browser.w || 0) - pos.x < (menu.w || 0)) pos.x = pos.x - (menu.w || 0);
 }
-function onPageClick(e) {
+function onPageClick(e: MouseEvent) {
     // To make context menu disappear when
     // mouse is clicked outside context menu
     showMenu = false;
 }
-function getContextMenuDimension(node) {
+function getContextMenuDimension(node: HTMLElement) {
     // This function will get context menu dimension
     // when navigation is shown => showMenu = true
     let height = node.offsetHeight;
