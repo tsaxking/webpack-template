@@ -54,11 +54,11 @@ export class Random {
      * @returns {T[]}
      */
     static shuffle<T = never>(array: T[]): T[] {
+        array = array.slice();
         const result: T[] = [];
-        for (let i = 0; i < array.length; i++) {
+        while (array.length > 0) {
             const index = Math.floor(Math.random() * array.length);
-            result.push(array[index]);
-            array.splice(index, 1);
+            result.push(array.splice(index, 1)[0]);
         }
         return result;
     }
@@ -114,9 +114,8 @@ export class $Math {
             throw new Error('Window must be an integer');
         }
         return (value: number, index: number, array: number[]): number => {
-            if (index === 1) return value; // not enough data yet
-            if (index < window) return $Math.average(array.slice(0, index)); // average available data
-            return $Math.average(array.slice(index - window, index)); // average window
+            if (index < window) return $Math.average(array.slice(0, index + 1)); // average available data
+            return $Math.average(array.slice(index + 1 - window, index + 1)); // average window
         };
     }
 
@@ -129,6 +128,14 @@ export class $Math {
      * @returns {number}
      */
     static average(array: number[]): number {
-        return array.reduce((a, b) => a + b) / array.length;
+        return $Math.sum(array) / array.length;
+    }
+
+    static sum(array: number[]): number {
+        return array.reduce((a, b) => a + b, 0);
+    }
+
+    static range(num: number): Array<number> {
+        return Array.from({ length: num }, (_, i) => i);
     }
 }
