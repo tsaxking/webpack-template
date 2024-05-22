@@ -92,13 +92,4 @@ export class Cache {
     public destroy() {
         Cache.emit('delete', this);
     }
-
-    /**
-     * Updates the cache
-     *
-     * @public
-     */
-    public update() {
-        Cache.emit('update', this);
-    }
 }
