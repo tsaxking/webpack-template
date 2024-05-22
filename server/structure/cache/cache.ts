@@ -1,4 +1,4 @@
-import { EventEmitter } from "../../../shared/event-emitter";
+import { EventEmitter } from '../../../shared/event-emitter';
 
 /**
  * Global Cache Events
