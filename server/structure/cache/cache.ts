@@ -1,4 +1,4 @@
-import { EventEmitter } from "../../../shared/event-emitter";
+import { EventEmitter } from '../../../shared/event-emitter';
 
 /**
  * Global Cache Events
@@ -6,10 +6,10 @@ import { EventEmitter } from "../../../shared/event-emitter";
  * @typedef {Events}
  */
 type Events = {
-    'update': Cache<unknown>;
-    'delete': Cache<unknown>;
-    'new': Cache<unknown>;
-}
+    update: Cache<unknown>;
+    delete: Cache<unknown>;
+    new: Cache<unknown>;
+};
 
 /**
  * Backend Cache
@@ -40,7 +40,10 @@ export class Cache<E> {
      * @param {(cache: Cache<Events>) => void} listener
      * @returns {void) => void}
      */
-    public static on<K extends keyof Events>(event: K, listener: (cache: Cache<Events>) => void) {
+    public static on<K extends keyof Events>(
+        event: K,
+        listener: (cache: Cache<Events>) => void
+    ) {
         this.emitter.on(event, listener);
     }
 
@@ -54,7 +57,10 @@ export class Cache<E> {
      * @param {(cache: Cache<Events>) => void} listener
      * @returns {void) => void}
      */
-    public static off<K extends keyof Events>(event: K, listener: (cache: Cache<Events>) => void) {
+    public static off<K extends keyof Events>(
+        event: K,
+        listener: (cache: Cache<Events>) => void
+    ) {
         this.emitter.off(event, listener);
     }
 
@@ -96,7 +102,10 @@ export class Cache<E> {
      * @param {(cache: Cache<E>) => void} listener
      * @returns {void) => void}
      */
-    public on<K extends keyof E>(event: K, listener: (cache: Cache<E>) => void) {
+    public on<K extends keyof E>(
+        event: K,
+        listener: (cache: Cache<E>) => void
+    ) {
         this.emitter.on(event, listener);
     }
 
@@ -109,7 +118,10 @@ export class Cache<E> {
      * @param {(cache: Cache<E>) => void} listener
      * @returns {void) => void}
      */
-    public off<K extends keyof E>(event: K, listener: (cache: Cache<E>) => void) {
+    public off<K extends keyof E>(
+        event: K,
+        listener: (cache: Cache<E>) => void
+    ) {
         this.emitter.off(event, listener);
     }
 
