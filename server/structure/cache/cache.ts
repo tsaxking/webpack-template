@@ -6,9 +6,9 @@ import { EventEmitter } from "../../../shared/event-emitter";
  * @typedef {Events}
  */
 type Events = {
-    'update': Cache<unknown>;
-    'delete': Cache<unknown>;
-    'new': Cache<unknown>;
+    'update': Cache;
+    'delete': Cache;
+    'new': Cache;
 }
 
 /**
@@ -19,7 +19,7 @@ type Events = {
  * @typedef {Cache}
  * @template E
  */
-export class Cache<E> {
+export class Cache {
     /**
      * Event Emitter for Global Cache Events
      *
@@ -40,7 +40,7 @@ export class Cache<E> {
      * @param {(cache: Cache<Events>) => void} listener
      * @returns {void) => void}
      */
-    public static on<K extends keyof Events>(event: K, listener: (cache: Cache<Events>) => void) {
+    public static on<K extends keyof Events>(event: K, listener: (cache: Events[K]) => void) {
         this.emitter.on(event, listener);
     }
 
@@ -54,7 +54,7 @@ export class Cache<E> {
      * @param {(cache: Cache<Events>) => void} listener
      * @returns {void) => void}
      */
-    public static off<K extends keyof Events>(event: K, listener: (cache: Cache<Events>) => void) {
+    public static off<K extends keyof Events>(event: K, listener: (cache: Events[K]) => void) {
         this.emitter.off(event, listener);
     }
 
@@ -67,7 +67,7 @@ export class Cache<E> {
      * @param {K} event
      * @param {Cache<Events>} cache
      */
-    public static emit<K extends keyof Events>(event: K, cache: Cache<Events>) {
+    public static emit<K extends keyof Events>(event: K, cache: Events[K]) {
         this.emitter.emit(event, cache);
     }
 
@@ -79,58 +79,12 @@ export class Cache<E> {
     constructor() {}
 
     /**
-     * Event Emitter for Cache Events
-     *
-     * @private
-     * @readonly
-     * @type {*}
-     */
-    private readonly emitter = new EventEmitter<keyof E>();
-
-    /**
-     * Adds a listener to a cache event
-     *
-     * @public
-     * @template {keyof E} K
-     * @param {K} event
-     * @param {(cache: Cache<E>) => void} listener
-     * @returns {void) => void}
-     */
-    public on<K extends keyof E>(event: K, listener: (cache: Cache<E>) => void) {
-        this.emitter.on(event, listener);
-    }
-
-    /**
-     * Removes a listener from a cache event
-     *
-     * @public
-     * @template {keyof E} K
-     * @param {K} event
-     * @param {(cache: Cache<E>) => void} listener
-     * @returns {void) => void}
-     */
-    public off<K extends keyof E>(event: K, listener: (cache: Cache<E>) => void) {
-        this.emitter.off(event, listener);
-    }
-
-    /**
-     * Emits a cache event
-     *
-     * @public
-     * @template {keyof E} K
-     * @param {K} event
-     */
-    public emit<K extends keyof E>(event: K) {
-        this.emitter.emit(event, this);
-    }
-
-    /**
      * Destroys the cache
      *
      * @public
      */
     public destroy() {
-        Cache.emit('delete', this as Cache<unknown>);
+        Cache.emit('delete', this);
     }
 
     /**
@@ -139,6 +93,6 @@ export class Cache<E> {
      * @public
      */
     public update() {
-        Cache.emit('update', this as Cache<unknown>);
+        Cache.emit('update', this);
     }
 }
