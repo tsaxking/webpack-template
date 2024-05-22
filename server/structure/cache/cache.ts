@@ -6,10 +6,10 @@ import { EventEmitter } from '../../../shared/event-emitter';
  * @typedef {Events}
  */
 type Events = {
-    'update': Cache;
-    'delete': Cache;
-    'new': Cache;
-}
+    update: Cache;
+    delete: Cache;
+    new: Cache;
+};
 
 /**
  * Backend Cache
@@ -40,7 +40,10 @@ export class Cache {
      * @param {(cache: Cache<Events>) => void} listener
      * @returns {void) => void}
      */
-    public static on<K extends keyof Events>(event: K, listener: (cache: Events[K]) => void) {
+    public static on<K extends keyof Events>(
+        event: K,
+        listener: (cache: Events[K]) => void
+    ) {
         this.emitter.on(event, listener);
     }
 
@@ -54,7 +57,10 @@ export class Cache {
      * @param {(cache: Cache<Events>) => void} listener
      * @returns {void) => void}
      */
-    public static off<K extends keyof Events>(event: K, listener: (cache: Events[K]) => void) {
+    public static off<K extends keyof Events>(
+        event: K,
+        listener: (cache: Events[K]) => void
+    ) {
         this.emitter.off(event, listener);
     }
 
