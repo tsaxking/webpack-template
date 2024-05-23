@@ -4,9 +4,10 @@ import { typescript } from 'svelte-preprocess-esbuild';
 // import preprocess from 'svelte-preprocess';
 import fs from 'fs';
 import path from 'path';
-import env, { __entries, __root, __templates } from './utilities/env';
-import { getTemplate, saveTemplate } from './utilities/files';
+import env, { __entries, __root, __templates } from '../server/utilities/env';
+import { getTemplate, saveTemplate } from '../server/utilities/files';
 import { attempt } from '../shared/check';
+import { sassPlugin } from 'esbuild-sass-plugin';
 
 {
     // clear the dist folder
@@ -104,7 +105,10 @@ Promise.all([
                         }
                     })
                 ]
-            })
+            }),
+            sassPlugin({
+                filter: /\.s[ac]ss$/,
+            }),
         ],
         logLevel: 'info',
         loader: {

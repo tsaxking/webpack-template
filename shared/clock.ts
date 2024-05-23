@@ -201,3 +201,18 @@ export const changeTimezone = (to: Timezone) => (date: Date) => {
     const utc = date.getTime() + date.getTimezoneOffset() * 60000;
     return new Date(utc + 3600000 * offset);
 };
+
+export const segment = (dates: Date[], segments: number): Date[] => {
+    dates = dates.slice(); // copy the array
+    dates.sort((a, b) => a.getTime() - b.getTime());
+    const min = dates[0];
+    const max = dates[dates.length - 1];
+    if (!min || !max) return []; // no dates
+
+    const range = max.getTime() - min.getTime();
+    return Array.from({ length: segments })
+        .map((_, i) => {
+            const start = min.getTime() + (range / segments) * i;
+            return new Date(start);
+        });
+}
