@@ -107,8 +107,8 @@ Promise.all([
                 ]
             }),
             sassPlugin({
-                filter: /\.s[ac]ss$/,
-            }),
+                filter: /\.s[ac]ss$/
+            })
         ],
         logLevel: 'info',
         loader: {
