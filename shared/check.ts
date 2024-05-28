@@ -45,6 +45,13 @@ export class Ok<T = unknown> {
         );
         return this.value;
     }
+
+    expect(message: string): T {
+        console.warn(
+            'Warning: Expecting Ok result, this is not recommended for anything other than testing.'
+        );
+        return this.value;
+    }
 }
 
 /**
@@ -90,11 +97,18 @@ export class Err<E = Error, T = unknown> {
         return new Ok(value);
     }
 
-    unwrap(): E {
+    unwrap(): T {
         console.warn(
             'Warning: Unwrapping Err result, this is not recommended for anything other than testing.'
         );
-        return this.error;
+        throw this.error;
+    }
+
+    expect(message: string): T {
+        console.warn(
+            'Warning: Expecting Err result, this is not recommended for anything other than testing.'
+        );
+        throw new Error(message);
     }
 }
 
