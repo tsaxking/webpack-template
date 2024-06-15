@@ -84,11 +84,11 @@ Settings.on('set', ([key, value]) => {
 .dashboard-card.expanded {
     position: fixed;
     z-index: 2000;
-    top: calc(50% + 10vh);
+    top: 50%;
     left: 50%;
     width: 100vw !important;
-    height: 90vh !important;
+    height: 100vh !important;
     transform: translate(-50%, -50%);
-    /* animate */
+    margin: 2em;
 }
 </style>
