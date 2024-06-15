@@ -6,7 +6,11 @@ type DashboardCardSettings = {
 
 export class DashboardCard {
     public static readonly cards = new Map<string, DashboardCard>();
-    public static add(id: string, title: string, settings: DashboardCardSettings) {
+    public static add(
+        id: string,
+        title: string,
+        settings: DashboardCardSettings
+    ) {
         const card = new DashboardCard(id, title, settings);
         if (DashboardCard.cards.has(id)) return; // probably set through the settings
         DashboardCard.cards.set(id, card);
@@ -24,8 +28,11 @@ export class DashboardCard {
         Settings.set('dashboardCards', all);
     }
 
-    constructor(public readonly id: string, public readonly name: string, public settings: DashboardCardSettings) {
-    }
+    constructor(
+        public readonly id: string,
+        public readonly name: string,
+        public settings: DashboardCardSettings
+    ) {}
 }
 
 Settings.on('set', ([key, value]) => {
