@@ -22,6 +22,12 @@ install_postgres() {
             sudo apt-get update
             sudo apt-get install postgresql -y
             ;;
+            # Wsl
+        *"Ubuntu"*)
+            echo "Detected Ubuntu-based system, installing PostgreSQL..."
+            sudo apt-get update
+            sudo apt-get install postgresql -y
+            ;;
         *)
             echo "Unsupported distribution. Please install PostgreSQL manually."
             exit 1
@@ -44,7 +50,6 @@ sudo systemctl start postgresql
 echo "Creating user and database."
 sudo -u postgres psql <<EOF
 
--- Create role 'admin' with NOLOGIN
 CREATE ROLE "admin" WITH NOLOGIN;
 
 -- Create role with the provided username from environment variable

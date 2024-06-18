@@ -5,6 +5,7 @@
         "build:watch": "nodemon ./scripts/esbuild.ts",
         "build": "ts-node ./scripts/esbuild.ts",
         "test": "ts-node ./scripts/tests/all-tests.ts",
+        "test:full": "ts-node ./scripts/tests/full.ts",
         "init": "ts-node ./scripts/init.ts",
         "dev": "concurrently --kill-others \"npm run start\" \"npm run build:watch\""
     },

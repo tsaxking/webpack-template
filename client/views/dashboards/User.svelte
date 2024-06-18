@@ -3,7 +3,7 @@ import Main from '../components/main/Main.svelte';
 import Page from '../components/main/Page.svelte';
 import { getOpenPage } from '../../utilities/page';
 import Dashboard from '../pages/Dashboard.svelte';
-import Account from '../pages/account.svelte';
+import Account from '../pages/Account.svelte';
 import type { PageGroup } from '../../utilities/general-types';
 
 const groups: PageGroup[] = [
