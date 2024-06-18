@@ -31,7 +31,7 @@ Settings.on('set', ([key, value]) => {
 </script>
 
 {#if !minimized}
-    <div class="col-xl-4 col-md-6 m-3">
+    <div class="col-xl-4 col-md-6">
         <div class="card dashboard-card {expanded ? 'expanded' : ''}">
             <div class="card-header">
                 <div class="d-flex justify-content-between">
@@ -84,11 +84,11 @@ Settings.on('set', ([key, value]) => {
 .dashboard-card.expanded {
     position: fixed;
     z-index: 2000;
-    top: calc(50% + 10vh);
+    top: 50%;
     left: 50%;
     width: 100vw !important;
-    height: 90vh !important;
+    height: 100vh !important;
     transform: translate(-50%, -50%);
-    /* animate */
+    margin: 2em;
 }
 </style>

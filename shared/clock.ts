@@ -202,16 +202,32 @@ export const changeTimezone = (to: Timezone) => (date: Date) => {
     return new Date(utc + 3600000 * offset);
 };
 
-export const segment = (dates: Date[], segments: number): Date[] => {
+export const segment = (dates: Date[], segments?: number): Date[] => {
     dates = dates.slice(); // copy the array
     dates.sort((a, b) => a.getTime() - b.getTime());
     const min = dates[0];
     const max = dates[dates.length - 1];
     if (!min || !max) return []; // no dates
-
     const range = max.getTime() - min.getTime();
-    return Array.from({ length: segments }).map((_, i) => {
-        const start = min.getTime() + (range / segments) * i;
-        return new Date(start);
-    });
+    if (segments) {
+        return Array.from({ length: segments }).map((_, i) => {
+            const start = min.getTime() + (range / segments) * i;
+            return new Date(start);
+        });
+    } else {
+        switch (true) {
+            case range < 1000 * 60 * 60: // less than an hour
+                return segment(dates, 4); // 15 minute segments
+            case range < 1000 * 60 * 60 * 24: // less than a day
+                return segment(dates, 24); // 1 hour segments
+            case range < 1000 * 60 * 60 * 24 * 7: // less than a week
+                return segment(dates, 7); // 1 day segments
+            case range < 1000 * 60 * 60 * 24 * 30: // less than a month
+                return segment(dates, 30); // 1 week segments
+            case range < 1000 * 60 * 60 * 24 * 365: // less than a year
+                return segment(dates, 12); // 1 month segments
+            default:
+                return segment(dates, 5); // 1 year segments
+        }
+    }
 };
