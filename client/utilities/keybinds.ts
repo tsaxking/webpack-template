@@ -18,8 +18,8 @@ type KeyFn = () => void;
 //     'Numpad0' | 'NumpadDecimal';
 
 export class Keyboard {
-    private static _current = new Keyboard('default');
     private static readonly keyboards = new Map<string, Keyboard>();
+    private static _current = new Keyboard('default');
 
     public static get all() {
         return Array.from(Keyboard.keyboards.values());
@@ -96,3 +96,5 @@ document.addEventListener('keydown', e => {
     const [global] = Keyboard.get(key) || [];
     if (global) global();
 });
+
+Object.assign(window, { Keyboard });
