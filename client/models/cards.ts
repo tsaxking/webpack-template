@@ -15,6 +15,13 @@ export class DashboardCard {
         if (DashboardCard.cards.has(id)) return; // probably set through the settings
         DashboardCard.cards.set(id, card);
     }
+
+    public static remove(id: string) {
+        DashboardCard.cards.delete(id);
+        const all = Array.from(DashboardCard.cards.entries());
+        Settings.set('dashboardCards', all);
+    }
+
     public static get(id: string) {
         return DashboardCard.cards.get(id);
     }
