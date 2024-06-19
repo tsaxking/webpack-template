@@ -106,9 +106,7 @@ onMount(() => {
     transition:
         top 0.3s ease,
         left 0.3s ease,
-        width 0.3s ease,
-        transform 0.3s ease,
-        padding 0.3s ease;
+        width 0.3s ease;
 }
 
 .dashboard-card.expanded {
