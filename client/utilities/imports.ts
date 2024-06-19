@@ -7,9 +7,6 @@ import '../styles/global.css';
 import '../styles/style.css';
 import './deps';
 
-// socket
-import './socket';
-
 // settings
 import './settings';
 
