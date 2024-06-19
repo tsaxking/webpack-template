@@ -51,7 +51,7 @@ onMount(() => {
     return () => {
         Settings.off('set', onSettings);
         keyboard.off('Escape', toggleExpand);
-    }
+    };
 });
 </script>
 
