@@ -51,8 +51,8 @@ export const addEntry = (name: string, importFile?: string) => {
 
     const imports = `import '${unify(importsRelative)}';
 import { build } from '${unify(
-    relative(dir, resolve(__root, 'client', 'utilities', 'socket'))
-)};
+        relative(dir, resolve(__root, 'client', 'utilities', 'socket'))
+    )};
 
 build({
     interval: 1000,
