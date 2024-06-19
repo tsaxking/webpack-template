@@ -1,6 +1,7 @@
 <script lang="ts">
 import { DashboardCard } from '../../../models/cards';
 import { Settings } from '../../../models/settings';
+import { Keyboard } from '../../../utilities/keybinds';
 
 export let title: string;
 export let subtitle = '';
@@ -10,8 +11,19 @@ export let id: string;
 // let button: HTMLButtonElement;
 export let expandable = false;
 export let minimizable = false;
+export let keyboard: Keyboard = Keyboard.default;
 
 let expanded = false;
+
+const toggleExpand = () => expanded = !expanded;
+
+$: {
+    if (expanded) {
+        keyboard.on('Escape', toggleExpand);
+    } else {
+        keyboard.off('Escape', toggleExpand);
+    }
+}
 DashboardCard.add(id, title, {
     minimized: false
 });
@@ -39,7 +51,7 @@ Settings.on('set', ([key, value]) => {
                         {#if minimizable}
                             <button
                                 class="btn m-0 p-0"
-                                on:click="{() => (minimized = !minimized)}"
+                                on:click="{toggleExpand}"
                             >
                                 <i class="material-icons">
                                     {minimized ? 'expand_more' : 'expand_less'}
@@ -55,7 +67,7 @@ Settings.on('set', ([key, value]) => {
                         {#if expandable}
                             <button
                                 class="btn m-0 p-0"
-                                on:click="{() => (expanded = !expanded)}"
+                                on:click="{toggleExpand}"
                             >
                                 <i class="material-icons">
                                     {expanded
