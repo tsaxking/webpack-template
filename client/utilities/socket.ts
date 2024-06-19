@@ -10,7 +10,7 @@ type SocketOptions = {
     type: 'adaptive' | 'constant';
     interval: number;
     timeLimit?: number;
-}
+};
 
 type Cache = {
     event: string;
@@ -19,7 +19,6 @@ type Cache = {
 
 const SOCKET_INTERVAL = 250;
 let latest = 0;
-
 
 /**
  * Wrapper for the socket.io client
@@ -37,7 +36,7 @@ class Socket {
         type: 'adaptive',
         interval: 1000,
         timeLimit: 1000 * 60 * 5 // 5 minutes
-    }
+    };
 
     private readonly em = new EventEmitter();
 
@@ -141,8 +140,8 @@ class Socket {
         const reset = () => {
             timeout = SOCKET_INTERVAL;
             if (sessionTimeout) clearTimeout(sessionTimeout);
-            if (this.options.timeLimit) sessionTimeout = setTimeout(
-                () => {
+            if (this.options.timeLimit)
+                sessionTimeout = setTimeout(() => {
                     isOffline = true;
                     off('visibilitychange', reset);
                     off('focus', reset);
@@ -160,9 +159,7 @@ class Socket {
                     alert('Session expired, please refresh the page.')
                         .then(() => location.reload())
                         .catch(() => location.reload());
-                },
-                this.options.timeLimit
-            ); // 5 minutes
+                }, this.options.timeLimit); // 5 minutes
             if (!running) run();
         };
         reset();
@@ -201,7 +198,6 @@ class Socket {
     }
 }
 
-
 /**
  * Socket.io client
  * @date 3/8/2024 - 7:27:46 AM
@@ -222,13 +218,9 @@ let changed = false;
  *
  * @param {SocketOptions} options
  */
-export const buildSocket = ({
-    type,
-    interval,
-    timeLimit
-}: SocketOptions) => {
+export const buildSocket = ({ type, interval, timeLimit }: SocketOptions) => {
     if (changed) throw new Error('Socket already built');
     socket.options = { type, interval, timeLimit };
     socket.connect();
     changed = true;
-}
+};

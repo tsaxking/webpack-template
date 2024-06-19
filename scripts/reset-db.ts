@@ -1,10 +1,11 @@
-import { Colors } from "../server/utilities/colors";
-import { DB } from "../server/utilities/databases";
-import env from "../server/utilities/env";
-import { sleep } from "../shared/sleep";
+import { Colors } from '../server/utilities/colors';
+import { DB } from '../server/utilities/databases';
+import env from '../server/utilities/env';
+import { sleep } from '../shared/sleep';
 
 const main = async () => {
-    if (env.ENVIRONMENT !== 'test') throw new Error('This script can only be run in test environment');
+    if (env.ENVIRONMENT !== 'test')
+        throw new Error('This script can only be run in test environment');
     for (let count = 5; count > 0; count--) {
         console.warn(
             Colors.FgYellow,
@@ -17,7 +18,6 @@ const main = async () => {
 
     await DB.reset();
     process.exit(0);
-}
-
+};
 
 if (require.main === module) main();
