@@ -117,5 +117,9 @@
         "./node_modules/*",
         "./node_modules/@types/node/index.d.ts",
         "build"
-    ]
+    ],
+    "ts-node": {
+        "files": true,
+        "transpileOnly": true
+    }
 }
