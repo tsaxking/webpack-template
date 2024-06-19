@@ -56,9 +56,7 @@ export class Keyboard {
         return Keyboard.current.listeners.get(key) || Keyboard.global.get(key);
     }
 
-    constructor(
-        public readonly name: string
-    ) {
+    constructor(public readonly name: string) {
         Keyboard.keyboards.set(name, this);
     }
 
@@ -88,7 +86,7 @@ export class Keyboard {
     }
 }
 
-document.addEventListener('keydown', (e) => {
+document.addEventListener('keydown', e => {
     const alt = e.altKey ? 'alt+' : '';
     const ctrl = e.ctrlKey ? 'ctrl+' : '';
     const shift = e.shiftKey ? 'shift+' : '';

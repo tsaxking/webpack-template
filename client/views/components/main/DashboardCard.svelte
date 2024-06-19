@@ -16,7 +16,7 @@ export let keyboard: Keyboard = Keyboard.default;
 
 let expanded = false;
 
-const toggleExpand = () => expanded = !expanded;
+const toggleExpand = () => (expanded = !expanded);
 
 $: {
     if (expanded) {
