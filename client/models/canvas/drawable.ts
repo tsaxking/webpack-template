@@ -142,7 +142,7 @@ export class Drawable<T = any> {
      * @readonly
      * @type {Partial<ShapeProperties<T>>}
      */
-    public readonly $$properties: ShapeProperties<T> = {
+    public readonly properties: ShapeProperties<T> = {
         fill: {},
         line: {},
         text: {},
@@ -152,18 +152,6 @@ export class Drawable<T = any> {
             y: false
         }
     };
-
-    private $warned = false;
-
-    get $properties() {
-        if (!this.$warned) {
-            console.warn(
-                'Drawable.$properties will be deprecated in the future, use Drawable.properties instead'
-            );
-        }
-        this.$warned = true;
-        return this.$$properties;
-    }
 
     /**
      * Add a listener to the given event
@@ -299,39 +287,35 @@ export class Drawable<T = any> {
         return [px, py];
     }
 
-    get properties() {
-        return this.$properties;
-    }
-
     get fill() {
-        return this.$properties.fill || {};
+        return this.properties.fill || {};
     }
 
     set fill(fill: Partial<FillProperties<T>>) {
-        this.$properties.fill = fill;
+        this.properties.fill = fill;
     }
 
     get line() {
-        return this.$properties.line || {};
+        return this.properties.line || {};
     }
 
     set line(line: Partial<LineProperties<T>>) {
-        this.$properties.line = line;
+        this.properties.line = line;
     }
 
     get text() {
-        return this.$properties.text || {};
+        return this.properties.text || {};
     }
 
     set text(text: Partial<TextProperties<T>>) {
-        this.$properties.text = text;
+        this.properties.text = text;
     }
 
     set mirror(mirror: { x?: boolean; y?: boolean }) {
-        this.$properties.mirror = mirror;
+        this.properties.mirror = mirror;
     }
 
     get mirror() {
-        return this.$properties.mirror || {};
+        return this.properties.mirror || {};
     }
 }

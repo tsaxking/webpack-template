@@ -8,8 +8,12 @@ export let active: string;
 
 {#if active === title}
     <div class="container-fluid p-3">
-        <h1 class="no-select p-5">{capitalize(fromSnakeCase(title, '-'))}</h1>
-        <hr class="dropdown-divider" />
+        {#if !title.startsWith('--$')}
+            <h1 class="no-select p-5">
+                {capitalize(fromSnakeCase(title, '-'))}
+            </h1>
+            <hr class="dropdown-divider" />
+        {/if}
         <slot />
         <p class="text-muted text-center">
             &copy; {year}

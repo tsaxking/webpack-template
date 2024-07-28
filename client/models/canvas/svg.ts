@@ -16,12 +16,12 @@ export class SVG extends Drawable<SVG> {
         this.$img.onload = () => {
             this.$ready = true;
 
-            if (this.$properties?.text?.height) {
-                this.$img.height = this.$properties.text.height;
+            if (this.properties.text.height) {
+                this.$img.height = this.properties.text.height;
             }
 
-            if (this.$properties?.text?.width) {
-                this.$img.width = this.$properties.text.width;
+            if (this.properties.text?.width) {
+                this.$img.width = this.properties.text.width;
             }
         };
     }
@@ -43,18 +43,18 @@ export class SVG extends Drawable<SVG> {
     }
 
     set color(color: string) {
-        if (!this.$properties.text) this.$properties.text = {};
-        this.$properties.text!.color = color;
+        if (!this.properties.text) this.properties.text = {};
+        this.properties.text!.color = color;
     }
 
     draw(ctx: CanvasRenderingContext2D) {
         if (!this.$ready) return;
 
-        if (this.$properties?.text?.color) {
-            ctx.fillStyle = this.$properties.text.color;
+        if (this.properties.text.color) {
+            ctx.fillStyle = this.properties.text.color;
         }
 
-        if (this.$properties?.text?.font) {
+        if (this.properties.text.font) {
             console.warn("You can't set the font of an SVG");
         }
 

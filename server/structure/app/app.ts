@@ -5,7 +5,7 @@ import { Req } from './req';
 import { Res } from './res';
 import { SocketWrapper } from '../socket';
 import http from 'http';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import { Session } from '../sessions';
 import session from 'express-session';
 
@@ -369,7 +369,20 @@ export class App<sessionInfo = unknown> {
         //         name: Session.sessionName
         //     })
         // );
+
+        this.io = new SocketWrapper(
+            this as App<unknown>,
+            new Server(this.httpServer, {
+                connectionStateRecovery: {
+                    maxDisconnectionDuration: 1000 * 60 * 5
+                }
+            })
+        );
+
         this.server.use(async (req, res, next) => {
+            const socketId = req.headers['socket-id'] as string | undefined;
+            const socket = this.io.io.sockets.sockets.get(socketId || '');
+
             const s = await Session.from<sessionInfo>(
                 this as App<unknown>,
                 req,
@@ -378,16 +391,13 @@ export class App<sessionInfo = unknown> {
             const request = new Req<unknown, sessionInfo>(
                 this as App<unknown>,
                 req,
-                s
+                s,
+                socket
             );
             req.request = request;
             req.response = new Res(this as App<unknown>, res, request);
             next();
         });
-        this.io = new SocketWrapper(
-            this as App<unknown>
-            // new Server(this.httpServer)
-        );
     }
 
     /**

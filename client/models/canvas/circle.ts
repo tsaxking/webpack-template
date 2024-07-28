@@ -44,14 +44,14 @@ export class Circle extends Drawable<Circle> {
      */
     public draw(context: CanvasRenderingContext2D) {
         context.beginPath();
-        if (this.$properties?.line?.color) {
-            context.strokeStyle = this.$properties.line.color;
+        if (this.properties.line?.color) {
+            context.strokeStyle = this.properties.line.color;
         }
-        if (this.$properties?.line?.width) {
-            context.lineWidth = this.$properties.line.width;
+        if (this.properties?.line?.width) {
+            context.lineWidth = this.properties.line.width;
         }
-        if (this.$properties?.fill?.color) {
-            context.fillStyle = this.$properties.fill.color;
+        if (this.properties.fill?.color) {
+            context.fillStyle = this.properties.fill.color;
         }
         // console.log(this.center);
         const [x, y] = this.reflect(this.center);
@@ -62,8 +62,8 @@ export class Circle extends Drawable<Circle> {
             0,
             2 * Math.PI
         );
-        if (this.$properties?.fill) context.fill();
-        if (this.$properties.line) context.stroke();
+        if (this.properties.fill) context.fill();
+        if (this.properties.line) context.stroke();
     }
 
     /**

@@ -1,6 +1,5 @@
 <script lang="ts">
 import { capitalize, fromSnakeCase } from '../../../../shared/text';
-import ThemeSwitch from '../ThemeSwitch.svelte';
 export let title: string;
 export let navItems: string[] = [];
 import { Account } from '../../../models/account';

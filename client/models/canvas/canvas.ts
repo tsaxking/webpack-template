@@ -586,14 +586,10 @@ export class Canvas<T = unknown> {
                 draw = false;
             }
 
-            if (drawable.$properties?.doDraw) {
-                if (!drawable.$properties.doDraw(drawable)) {
-                    // drawable.hide();
-                    this.$ctx.globalAlpha = 0;
-                    draw = false;
-                }
-            } else {
-                // drawable.show();
+            if (!drawable.properties.doDraw(drawable)) {
+                // drawable.hide();
+                this.$ctx.globalAlpha = 0;
+                draw = false;
             }
 
             const res = attempt(() => drawable.draw(this.$ctx));

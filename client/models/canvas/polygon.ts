@@ -21,7 +21,7 @@ export class Polygon extends Drawable<Polygon> {
      *
      * @constructor
      * @param {Point2D[]} points
-     * @param {Partial<ShapeProperties<Polygon>>} [$properties={}]
+     * @param {Partial<ShapeProperties<Polygon>>} [properties={}]
      */
     constructor(public points: (Point2D | Point3D)[]) {
         // it doesn't matter, because we only pull the first 2 values
@@ -51,19 +51,19 @@ export class Polygon extends Drawable<Polygon> {
         }
         ctx.closePath();
 
-        if (this.$properties?.line?.color) {
-            ctx.strokeStyle = this.$properties.line.color;
+        if (this.properties.line?.color) {
+            ctx.strokeStyle = this.properties.line.color;
         }
-        if (this.$properties?.line?.width) {
-            ctx.lineWidth = this.$properties.line.width;
+        if (this.properties.line?.width) {
+            ctx.lineWidth = this.properties.line.width;
         }
 
-        if (this.$properties?.line) ctx.stroke();
+        if (this.properties.line) ctx.stroke();
 
-        if (this.$properties?.fill?.color) {
-            ctx.fillStyle = this.$properties.fill.color;
+        if (this.properties.fill?.color) {
+            ctx.fillStyle = this.properties.fill.color;
         }
-        if (this.$properties?.fill) ctx.fill();
+        if (this.properties.fill) ctx.fill();
     }
 
     /**

@@ -21,8 +21,9 @@ export const versionInfo = async () => {
         DB.latestVersion()
     ]);
 
-    console.log(`Current: ${current.join('.')}\nLatest: ${latest.join('.')}`);
-    await select('', ['[Back]']);
+    await select(`Current: ${current.join('.')}\nLatest: ${latest.join('.')}`, [
+        '[Back]'
+    ]);
     return main();
 };
 
@@ -72,22 +73,22 @@ export const viewTables = async () => {
         const data = await DB.unsafe.all<any>(`SELECT * FROM ${table}`);
         if (data.isOk()) {
             // using cliffy to display the data
-            const tableData = data.value;
-            const keys = Object.keys(tableData[0] || {});
-            const values = tableData.map(d =>
-                Object.values(d).map(a => {
-                    switch (typeof a) {
-                        case 'bigint':
-                            return a.toString() + 'n';
-                        case 'object':
-                            return JSON.stringify(a);
-                        default:
-                            return a;
-                    }
-                })
-            );
+            // const tableData = data.value;
+            // const keys = Object.keys(tableData[0] || {});
+            // const values = tableData.map(d =>
+            //     Object.values(d).map(a => {
+            //         switch (typeof a) {
+            //             case 'bigint':
+            //                 return a.toString() + 'n';
+            //             case 'object':
+            //                 return JSON.stringify(a);
+            //             default:
+            //                 return a;
+            //         }
+            //     })
+            // );
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            console.table(keys, values as any);
+            console.table(data.value);
 
             await select('', ['[Back]'], {
                 clear: false,
@@ -248,7 +249,7 @@ export const restoreBackup = async () => {
 export const backup = async () => {
     const res = await DB.makeBackup();
     if (res.isOk()) {
-        backToMain('Backup created');
+        backToMain(`Backup created: ${res.value}`);
     } else {
         backToMain('Error creating backup: ' + res.error.message);
     }

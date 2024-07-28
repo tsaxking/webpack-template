@@ -2,6 +2,7 @@ import express from 'express';
 import { App } from './app';
 import { Session } from '../sessions';
 import { FileUpload } from '../../middleware/stream';
+import { Socket } from 'socket.io';
 
 /**
  * Body type
@@ -72,7 +73,8 @@ export class Req<T = unknown, s = unknown> {
     constructor(
         public readonly app: App<unknown>,
         public readonly req: express.Request,
-        public readonly session: Session<s>
+        public readonly session: Session<s>,
+        public readonly socket?: Socket
     ) {}
 
     /**

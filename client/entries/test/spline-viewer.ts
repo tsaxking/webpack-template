@@ -106,7 +106,7 @@ const start = () => {
 
     c.add(
         ...Object.values(paths).map(p => {
-            p.$properties.line = {
+            p.properties.line = {
                 color: Color.fromBootstrap('gray').toString('rgba'),
                 width: 1
             };
@@ -120,7 +120,7 @@ const start = () => {
 
     const circles = spline.points.map((_, i, a) => {
         const cir = new Circle([i / a.length, 1 - i / a.length], 0.02);
-        cir.$properties.fill = {
+        cir.properties.fill = {
             color: Color.fromBootstrap('primary').toString('rgba')
         };
 
@@ -151,7 +151,7 @@ const start = () => {
 
     // spline.magnitude = 5;
 
-    s.$properties.line = {
+    s.properties.line = {
         color: Color.fromBootstrap('primary').toString('rgba'),
         width: 2
     };
