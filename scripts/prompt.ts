@@ -112,7 +112,9 @@ const _select = async <T = unknown>(
 
         let selected = 0;
 
-        const stdin = process.stdin;
+        const stdin = process.stdin as unknown as NodeJS.ReadStream & {
+            off: (event: string, fn: (str: string) => void) => void;
+        };
 
         stdin.setRawMode(true);
         stdin.resume();

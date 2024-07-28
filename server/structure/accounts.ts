@@ -96,16 +96,15 @@ export default class Account {
      */
     static autoSignIn(username?: string): ServerFunction {
         return async (req, _res, next) => {
-            if (env.ENVIRONMENT === 'production') return next();
+            if (['test', 'dev'].includes(env.ENVIRONMENT || '')) {
+                if (!username) return next();
+                if (req.session.accountId) return next();
 
-            if (!username) return next();
-            const a = req.session?.accountId;
-            if (a) return next();
+                const account = await Account.fromUsername(username);
+                if (!account) return next();
 
-            const account = await Account.fromUsername(username);
-            if (!account) return next();
-
-            req.session.signIn(account);
+                req.session.signIn(account);
+            }
             next();
         };
     }

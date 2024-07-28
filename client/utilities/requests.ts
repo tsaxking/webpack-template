@@ -341,6 +341,8 @@ export class SendStream {
  * @template [T=unknown]
  */
 export class ServerRequest<T = unknown> {
+    static readonly metadata = new Map<string, string>();
+
     /**
      * List of all requests (for caching, debugging, and statistics)
      * @date 10/12/2023 - 1:19:15 PM
@@ -786,7 +788,7 @@ export class ServerRequest<T = unknown> {
             const start = Date.now();
             this.sent = true;
 
-            if (this.options?.cached) {
+            if (cached) {
                 const reqs = ServerRequest.all.filter(r => r.url == this.url);
                 const req = reqs[reqs.length - 1];
                 if (req) {
@@ -805,7 +807,15 @@ export class ServerRequest<T = unknown> {
                 method: this.method.toUpperCase(),
                 headers: {
                     'Content-Type': 'application/json',
-                    ...this.options?.headers
+                    ...this.options?.headers,
+                    // populate metadata
+                    ...Array.from(ServerRequest.metadata.entries()).reduce(
+                        (acc, cur) => {
+                            acc[cur[0]] = cur[1];
+                            return acc;
+                        },
+                        {} as { [key: string]: string }
+                    )
                 },
                 body: JSON.stringify(this.body)
             })
@@ -838,11 +848,10 @@ export class ServerRequest<T = unknown> {
                     this.duration = Date.now() - start;
                     this.response = data;
 
-                    if ((data as StatusJson)?.redirect) {
-                        if (typeof (data as StatusJson).sleep !== 'number')
-                            (data as StatusJson).sleep = 1000;
-                        await sleep((data as StatusJson).sleep as number);
-                        location.href = (data as StatusJson).redirect as string;
+                    const d = data as StatusJson;
+                    if (d?.redirect) {
+                        await sleep(d.sleep || 1000);
+                        location.href = d.redirect as string;
                     }
 
                     if (

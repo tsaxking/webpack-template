@@ -19,8 +19,8 @@ export class Spline extends Drawable<Spline> {
 
     draw(ctx: CanvasRenderingContext2D) {
         const { width, height } = ctx.canvas;
-        ctx.fillStyle = this.$properties.fill?.color || 'black';
-        ctx.strokeStyle = this.$properties.line?.color || 'black';
+        ctx.fillStyle = this.properties.fill?.color || 'black';
+        ctx.strokeStyle = this.properties.line?.color || 'black';
 
         ctx.beginPath();
         let { x, y } = this.spline.ft(0);

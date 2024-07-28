@@ -25,11 +25,11 @@ export class Path extends Drawable<Path> {
             points[0][0] * ctx.canvas.width,
             points[0][1] * ctx.canvas.height
         );
-        if (this.$properties?.line?.color) {
-            ctx.strokeStyle = this.$properties.line?.color;
+        if (this.properties.line?.color) {
+            ctx.strokeStyle = this.properties.line?.color;
         }
-        if (this.$properties?.line?.width) {
-            ctx.lineWidth = this.$properties.line?.width;
+        if (this.properties.line?.width) {
+            ctx.lineWidth = this.properties.line?.width;
         }
         for (let i = 1; i < this.points.length; i++) {
             ctx.lineTo(

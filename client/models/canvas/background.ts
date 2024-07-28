@@ -4,11 +4,11 @@ import { Drawable } from './drawable';
 
 export class Background extends Drawable<Background> {
     get color() {
-        return Color.parse(this.$properties.fill?.color || 'white');
+        return Color.parse(this.properties.fill?.color || 'white');
     }
 
     set color(value: Color) {
-        this.$properties.fill = {
+        this.properties.fill = {
             color: value.toString('rgba')
         };
     }

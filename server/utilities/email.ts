@@ -127,8 +127,8 @@ export class Email {
                     attachments
                 };
 
-                return new Promise(resolve => {
-                    transporter.sendMail(
+                return transporter
+                    .sendMail(
                         mailOptions
                         // (err: Error, info: { response: string }) => {
                         //     if (err) {
@@ -138,8 +138,8 @@ export class Email {
                         //         resolve(info);
                         //     }
                         // },
-                    );
-                });
+                    )
+                    .catch(console.error);
             }
 
             throw r.error;

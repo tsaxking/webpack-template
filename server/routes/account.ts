@@ -106,6 +106,10 @@ router.post<{
         }
 
         await req.session.signIn(account);
+        const roles = await account.getRoles();
+        for (const role of roles) {
+            // req.socket
+        }
 
         // if (r.isErr()) return res.sendStatus('unknown:error');
         res.sendStatus(

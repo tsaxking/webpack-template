@@ -31,9 +31,9 @@ export class Border extends Polygon {
         region.closePath();
 
         // fill the area between the polygon and the canvas edges
-        if (this.$properties?.fill?.color) {
-            ctx.fillStyle = this.$properties.fill.color;
+        if (this.properties?.fill?.color) {
+            ctx.fillStyle = this.properties.fill.color;
         }
-        if (this.$properties?.fill) ctx.fill(region, 'evenodd');
+        if (this.properties.fill) ctx.fill(region, 'evenodd');
     }
 }
