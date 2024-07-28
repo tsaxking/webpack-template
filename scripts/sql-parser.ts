@@ -104,11 +104,14 @@ export const getPrimitive = (col: string): Primitive => {
 }
 
 export const getColumnType = (col: string): ColType => {
+    const primaryKey = col.includes('PRIMARY KEY');
+    const hasDefault = col.includes('DEFAULT');
+    const nullable = !primaryKey && !hasDefault && !col.includes('NOT NULL');
     return {
         input: col,
         type: getPrimitive(col),
-        nullable: !col.includes('NOT NULL'),
-        primaryKey: col.includes('PRIMARY KEY'),
+        nullable,
+        primaryKey,
         unique: col.includes('UNIQUE'),
         autoIncrement: col.includes('AUTOINCREMENT'),
         foreignKey: '',
@@ -187,6 +190,7 @@ export const alterTable = (sql: string, table: Table): Table => {
 
 export const tableToTS = (table: Table): string => {
     const columns = Object.entries(table.columns).map(([key, value]) => {
+        console.log(value);
         return `${key}${value.nullable ? '?' : ''}: ${value.type};`;
     }).join('\n    ');
 
@@ -265,6 +269,47 @@ export const parseSelect = (sql: string, tables: Table[]): { [key: string]: ColT
     }
 }
 
+// export const parseInsert = (sql: string, tables: Table[]): { [key: string]: ColType } => {
+//     const name = tableName(sql);
+//     const table = tables.find((t) => t.name === name);
+//     if (!table) throw new Error('Table not found');
+
+//     const cols = sql.match(/\([a-zA-z\w\s\n,]+\)/i);
+//     if (!cols) throw new Error('Columns not found');
+//     const colNames = cols[0].slice(1, -1).split(',').map((c) => c.trim());
+//     return colNames.reduce((acc, col) => {
+//         if (!table.columns[col]) throw new Error(`Column ${col} not found`);
+//         acc[col] = table.columns[col];
+//         return acc;
+//     }, {} as { [key: string]: ColType });
+// }
+
+// export const parseUpdate = (sql: string, tables: Table[]): { [key: string]: ColType } => {
+//     const name = tableName(sql);
+//     const table = tables.find((t) => t.name === name);
+//     if (!table) throw new Error('Table not found');
+
+//     const cols = sql.match(/UPDATE(\s*)(\w+)(\s*)SET(\s*)(.+)/i);
+//     if (!cols) throw new Error('Columns not found');
+//     const colNames = cols[5].split(',').map((c) => c.trim().split('=')[0].trim());
+//     return colNames.reduce((acc, col) => {
+//         if (!table.columns[col]) throw new Error(`Column ${col} not found`);
+//         acc[col] = table.columns[col];
+//         return acc;
+//     }, {} as { [key: string]: ColType });
+// }
+
+// const parseDelete = (sql: string, tables: Table[]): { [key: string]: ColType } => {
+//     const name = tableName(sql);
+//     const table = tables.find((t) => t.name === name);
+//     if (!table) throw new Error('Table not found');
+
+//     return Object.entries(table.columns).reduce((acc, [key, value]) => {
+//         acc[key] = value;
+//         return acc;
+//     }, {} as { [key: string]: ColType });
+// }
+
 export const parseExecQuery = (sql: string, tables: Table[]): ExecQuery => {
     const type = sqlType(sql);
     if (!type) throw new Error('Unknown SQL statement type');
@@ -276,7 +321,7 @@ export const parseExecQuery = (sql: string, tables: Table[]): ExecQuery => {
     // get all col variables
     const colsMatch = sql.match(/:.+/g);
     if (!colsMatch) throw new Error('No variables found');
-    const cols = colsMatch.map((c) => c.slice(1));
+    const cols = colsMatch.map((c) => c.slice(1).replace(':', '').replace(',', '').trim());
     const input: {
         [key: string]: ColType;
     } = {};
@@ -285,15 +330,18 @@ export const parseExecQuery = (sql: string, tables: Table[]): ExecQuery => {
         input[col] = table.columns[col];
     }
 
+    console.log(type);
+
     return {
         type,
         input,
         output: (() => {
-            if (type === 'insert') return {};
-            if (type === 'update') return {};
-            if (type === 'delete') return {};
+            // if (type === 'insert') return parseInsert(sql, tables);
+            // if (type === 'update') return parseUpdate(sql, tables);
+            // if (type === 'delete') return parseDelete(sql, tables);
             if (type === 'select') return parseSelect(sql, tables);
-            throw new Error('Not implemented');
+            else return {};
+            // throw new Error('Not implemented');
         })()
     }
 };
@@ -356,6 +404,22 @@ export const execQueryToTSObject = (query: ExecQuery, name: string): [TSObject, 
     throw new Error('Invalid query type');
 }
 
+// export const buildClass = (table: Table): string => {
+//     return `
+// import { Cache } './cache';
+// import { attemptAsync } from '../../../shared/check';
+// import { DB } from '../../utilities/databases';
+// import { uuid } from '../../utilities/uuid';
+// import { ${table.name} as Data } from '../../utilities/tables';
+
+// export class ${table.name} extends Cache {
+
+//     constructor(data: Data) {
+//         super();
+//     }
+// }
+// `.trim();
+// };
 
 
 
@@ -404,10 +468,11 @@ export const parseTSQuery = (ts: string): TSObject => {
     const typeObj = ts.match(/{[a-zA-Z;:\s,]+}/g);
     if (!typeObj) throw new Error('Data not found');
     const data = typeObj[0].slice(1, -1).split(';').map((s) => s.trim()).filter((s) => s.length > 0);
+    const n = name.replace(capitalize(type) + '_', '').replace(/_Input|_Output/, '');
 
     return {
         type,
-        name: name.replace(capitalize(type) + '_', '').replace(/_Input|_Output/, ''),
+        name: capitalize(type) + '_' + n,
         io: name.includes('Input') ? 'input' : 'output',
         data: data.reduce((acc, cur) => {
             const [key, value] = cur.split(':').map((s) => s.trim());
@@ -455,97 +520,154 @@ export const getTSPairs = (tsObjects: TSObject[]): [TSObject, TSObject][] => {
 }
 
 export const TSObjectToTS = (ts: TSObject): string => {
-    const io = ts.io === 'input' ? 'Input' : 'Output';
     const data = Object.entries(ts.data).map(([key, value]) => {
         return `${key}${value.nullable ? '?' : ''}: ${value.type};`;
     }).join('\n    ');
-    return `export type ${capitalize(ts.type)}_${capitalize(ts.name)}_${capitalize(io)} = {
+    return `export type ${ts.name} = {
     ${data}
 };`;
 };
 
+export const queryTypeToTSObject = (query: ExecQuery, name: string): TSObject[] => {
+    switch(query.type) {
+        case 'insert':
+        case 'update':
+        case 'delete':
+        case 'select':
+            break;
+        default:
+            throw new Error('Invalid query type');
+    }
+    return [
+        {
+            type: query.type,
+            name,
+            io: 'input',
+            data: query.input
+        },
+        {
+            type: query.type,
+            name,
+            io: 'output',
+            data: query.output
+        }
+    ];
+}
 
 
 
 
-export const generateQueryTypes = (objects: TSObject[]) => {}
+
+export const generateQueryTypes = (objects: [TSObject, TSObject][]) => {
+    let imports = 'import {\n';
+    let ts = 'export type Queries = {\n';
+    for (let i = 0; i <= objects.length; i++) {
+        const [input, output] = objects[i];
+        const [inputName, outputName] = [input.name, output.name];
+        imports += `    ${inputName},\n`;
+        imports += `    ${outputName},\n`;
+        ts += `    '${inputName}': [[${inputName}], ${outputName}];\n`;
+    }
+    ts += '};\n';
+    imports += "\n } from './tables';\n";
+
+    return imports + ts;
+}
 
 if (require.main === module) {
-    // const sql = `
-    // CREATE TABLE IF NOT EXISTS Sessions (
-    //     id TEXT PRIMARY KEY,
-    //     accountId TEXT,
-    //     ip TEXT,
-    //     userAgent TEXT,
-    //     latestActivity BIGINT,
-    //     requests INTEGER NOT NULL DEFAULT 0,
-    //     created BIGINT NOT NULL,
-    //     prevUrl TEXT
+    const sql = `
+    CREATE TABLE IF NOT EXISTS Sessions (
+        id TEXT PRIMARY KEY,
+        accountId TEXT NOT NULL,
+        ip TEXT,
+        userAgent TEXT,
+        latestActivity BIGINT NOT NULL,
+        requests INTEGER NOT NULL DEFAULT 0,
+        created BIGINT NOT NULL,
+        prevUrl TEXT
     
-    //     -- customData TEXT NOT NULL DEFAULT '{}' -- added in 1-4-0
-    // );
+        -- customData TEXT NOT NULL DEFAULT '{}' -- added in 1-4-0
+    );
     
-    // CREATE TABLE IF NOT EXISTS Accounts (
-    //     id TEXT PRIMARY KEY,
-    //     email TEXT,
-    //     password TEXT,
-    //     created BIGINT NOT NULL,
-    //     lastLogin BIGINT
-    // );
+    CREATE TABLE IF NOT EXISTS Accounts (
+        id TEXT PRIMARY KEY,
+        email TEXT,
+        password TEXT,
+        created BIGINT NOT NULL,
+        lastLogin BIGINT
+    );
 
-    // SELECT accountId FROM Sessions WHERE id = :id;
-    // SELECT * FROM Accounts WHERE id = :id;
-    // -- SELECT * FROM Sessions INNER JOIN Accounts ON Sessions.accountId = Accounts.id;
-    // `;
+    SELECT accountId FROM Sessions WHERE id = :id;
+    SELECT * FROM Accounts WHERE id = :id;
 
-    // const { tables, queries } = parseSQL(sql);
-    // const tableTS = tables.map(tableToTS).join('\n\n');
-    // const queryTS = queries.map((q) => execQueryToTS(q, q.type)).join('\n\n');
-
-    // console.log(tableTS);
-    // console.log(queryTS);
-
-    const ts = `
-    export type Sessions = {
-        id: string;
-        accountId: string;
-        ip: string;
-        userAgent: string;
-        latestActivity: bigint;
-        requests: null;
-        created: null;
-        prevUrl: string;
-    };
-    
-    export type Accounts = {
-        id: string;
-        email: string;
-        password: string;
-        created: null;
-        lastLogin: bigint;
-    };
-    
-    export type Select_Select_Input = {
-        id: string;
-    };
-    export type Select_Select_Output = {
-        accountId: string;
-    };
-    
-    
-    export type Select_Select_Input = {
-        id: string;
-    };
-    export type Select_Select_Output = {
-        id: string;
-        email: string;
-        password: string;
-        created: null;
-        lastLogin: bigint;
-    };
+    INSERT INTO Sessions (
+        id, 
+        accountId, 
+        ip, 
+        userAgent, 
+        latestActivity, 
+        prevUrl
+    ) VALUES (
+        :id, 
+        :accountId, 
+        :ip, 
+        :userAgent, 
+        :latestActivity, 
+        :prevUrl
+    );
+    -- SELECT * FROM Sessions INNER JOIN Accounts ON Sessions.accountId = Accounts.id;
     `;
 
-    const tsArr = splitTS(ts);
-    const parsed = tsArr.map(parseTSQuery);
-    console.log(parsed);
+    const { tables, queries } = parseSQL(sql);
+    const tableTS = tables.map(tableToTS).join('\n\n');
+    const queryTS = queries.map((q) => execQueryToTS(q, q.type)).join('\n\n');
+
+    console.log(tableTS);
+    console.log(queryTS);
+
+    const tsObjects = queries.map(q => execQueryToTSObject(q, q.type));
+
+    // const ts = `
+    // export type Sessions = {
+    //     id: string;
+    //     accountId: string;
+    //     ip: string;
+    //     userAgent: string;
+    //     latestActivity: bigint;
+    //     requests: null;
+    //     created: null;
+    //     prevUrl: string;
+    // };
+    
+    // export type Accounts = {
+    //     id: string;
+    //     email: string;
+    //     password: string;
+    //     created: null;
+    //     lastLogin: bigint;
+    // };
+    
+    // export type Select_Select_Input = {
+    //     id: string;
+    // };
+    // export type Select_Select_Output = {
+    //     accountId: string;
+    // };
+    
+    
+    // export type Select_Select_Input = {
+    //     id: string;
+    // };
+    // export type Select_Select_Output = {
+    //     id: string;
+    //     email: string;
+    //     password: string;
+    //     created: null;
+    //     lastLogin: bigint;
+    // };
+    // `;
+
+    // const tsArr = splitTS(ts);
+    // const parsed = tsArr.map(parseTSQuery);
+    // console.log(JSON.stringify(parsed, null, 4));
 }
