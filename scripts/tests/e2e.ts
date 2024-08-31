@@ -5,6 +5,7 @@ import { Colors } from '../../server/utilities/colors';
 import { bundle } from '../esbuild';
 import axios from 'axios';
 import { EventEmitter } from '../../shared/event-emitter';
+import { exec } from 'child_process';
 
 type Env = {
     [key: string]: string;
@@ -15,6 +16,30 @@ const log = (...data: unknown[]) =>
 
 const err = (...data: unknown[]) =>
     console.error(Colors.FgRed, '[Test]', Colors.Reset, ...data);
+
+const startCypressTests = () => {
+    return new Promise<void>((resolve, reject) => {
+        const cypressProcess = exec('npx cypress run --spec cypress/e2e/account.cy.ts', {
+            cwd: path.resolve(__dirname, '../../')
+        });
+
+        cypressProcess.stdout?.on('data', data => {
+            console.log(data.toString());
+        });
+
+        cypressProcess.stderr?.on('data', data => {
+            console.error(data.toString());
+        });
+
+        cypressProcess.on('exit', code => {
+            if (code === 0) {
+                resolve();
+            } else {
+                reject(new Error(`Cypress test run failed with exit code ${code}`));
+            }
+        });
+    });
+};
 
 const readEnv = (envPath: string): Env => {
     const env = fs
@@ -51,7 +76,7 @@ const buildDatabase = () =>
                 1000 * 60 * 5
             );
 
-            const pcs = spawn('sh', ['./db-init.sh', '--force-reset'], {
+            const pcs = spawn('bash', ['./db-init.sh', '--force-reset'], {
                 stdio: 'inherit',
                 cwd: path.resolve(__dirname, '../')
             });
@@ -157,8 +182,62 @@ const request = async (url: string, method: Method, body: unknown) => {
 
 const main = async () => {
     const server = new Server();
-    // reset env
-    process.on('exit', () => {
+
+    try {
+        // Reading env
+        log('Reading env');
+        const env = readEnv(path.resolve(__dirname, '../../.env'));
+        fs.cpSync(
+            path.resolve(__dirname, '../../.env'),
+            path.resolve(__dirname, '../../._env')
+        );
+
+        env.PORT = '3000';
+        env.SOCKET_PORT = '3001';
+        env.ENVIRONMENT = 'dev';
+        env.DOMAIN = 'http://localhost:3000';
+        env.SOCKET_DOMAIN = 'ws://localhost:3001';
+        env.TITLE = 'Test Server';
+        env.DATABASE_NAME = env.DATABASE_NAME + '_test';
+        env.DATABASE_PORT = '5432';
+        env.DATABASE_HOST = 'localhost';
+
+        saveEnv(path.resolve(__dirname, '../../.env'), env);
+
+        log('Building database...');
+        const dbRes = await buildDatabase();
+        if (dbRes.isErr()) {
+            err(dbRes.error);
+            process.exit(1);
+        }
+        log('Database built successfully');
+
+        log('Building client');
+        const res = await bundle();
+        if (res.isErr()) {
+            err(res.error);
+            process.exit(1);
+        }
+
+        log('Client built successfully');
+
+        log('Starting server');
+        await server.start();
+
+        // Run Cypress tests
+        log('Running Cypress tests');
+        try {
+            await startCypressTests();
+            log('Cypress tests completed successfully');
+        } catch (e) {
+            err('Cypress tests failed', e);
+            process.exit(1);
+        }
+    } catch (e) {
+        err(e);
+        process.exit(1);
+    } finally {
+        // Resetting env
         log('Resetting env');
         fs.cpSync(
             path.resolve(__dirname, '../../._env'),
@@ -166,72 +245,7 @@ const main = async () => {
         );
         fs.unlinkSync(path.resolve(__dirname, '../../._env'));
         server.stop();
-    });
-
-    log('Reading env');
-    const env = readEnv(path.resolve(__dirname, '../../.env'));
-    fs.cpSync(
-        path.resolve(__dirname, '../../.env'),
-        path.resolve(__dirname, '../../._env')
-    );
-
-    env.PORT = '3000';
-    env.SOCKET_PORT = '3001';
-    env.ENVIRONMENT = 'test';
-    env.DOMAIN = 'http://localhost:3000';
-    env.SOCKET_DOMAIN = 'ws://localhost:3001';
-    env.TITLE = 'Test Server';
-    env.DATABASE_NAME = env.DATABASE_NAME + '_test';
-    env.DATABASE_PORT = '5432';
-    env.DATABASE_HOST = 'localhost';
-
-    saveEnv(path.resolve(__dirname, '../../.env'), env);
-
-    log('Building database...');
-    const dbRes = await buildDatabase();
-    if (dbRes.isErr()) {
-        err(dbRes.error);
-        process.exit(1);
     }
-    log('Database built successfully');
-
-    log('Building client');
-    const res = await bundle();
-    if (res.isErr()) {
-        err(res.error);
-        process.exit(1);
-    }
-
-    log('Client built successfully');
-
-    log('Starting server');
-    await server.start();
-
-    await Promise.all(
-        tests.map(async (t, i) => {
-            const { url, method, body, expect } = t;
-            const okStr = `${Colors.BgGreen}Test ${i + 1}: ${method} ${url}${Colors.Reset}`;
-            const errStr = `${Colors.BgRed}Test ${i + 1}: ${method} ${url}${Colors.Reset}`;
-
-            try {
-                const res = await (
-                    await request(env.DOMAIN + url, method, body)
-                ).unwrap();
-
-                if (expect) {
-                    if (!(await expect(res.data))) {
-                        throw new Error(
-                            'Test failed, expected value not returned'
-                        );
-                    }
-                }
-
-                log(okStr, res.status, res.statusText);
-            } catch (e) {
-                err(errStr, e);
-            }
-        })
-    );
 
     process.exit(0);
 };

@@ -46,7 +46,8 @@ fi
 echo "Starting postgresql service."
 sudo systemctl start postgresql
 
-if $1 == "--force-reset"; then
+# Check for force-reset argument
+if [[ "$1" == "--force-reset" ]]; then
     echo "Creating backup, if exists."
     sudo su - postgres -c "pg_dump $DATABASE_NAME > /tmp/$DATABASE_NAME.sql"
 
