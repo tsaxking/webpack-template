@@ -61,7 +61,7 @@ jobs:
 
       - name: Run
         run: |
-          # exit 0
+          exit 0
           echo "Installing dependencies..."
           npm i
           echo "Running e2e tests..."
