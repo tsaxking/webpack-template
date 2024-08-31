@@ -19,7 +19,7 @@ const err = (...data: unknown[]) =>
 
 const startCypressTests = () => {
     return new Promise<void>((resolve, reject) => {
-        const cypressProcess = exec('npx cypress run --spec cypress/e2e/account.cy.ts', {
+        const cypressProcess = exec('npx cypress run --record --key 971a0cb6-ab38-45f6-8e19-faa77cde1b07', {
             cwd: path.resolve(__dirname, '../../')
         });
 
