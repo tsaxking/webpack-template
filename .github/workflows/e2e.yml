@@ -68,6 +68,4 @@ jobs:
           echo "Creating user and database."
           sh ./scripts/db-init.sh --create-only
           echo "Running e2e tests..."
-          # npm run test:e2e
-          npm run dev & wait-on http://localhost:3000
-          npx cypress run --record --key $CYPRESS_RECORD_KEY
+          npm run test:e2e
