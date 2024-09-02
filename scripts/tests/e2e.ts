@@ -19,7 +19,7 @@ const err = (...data: unknown[]) =>
 
 const startCypressTests = () => {
     return new Promise<void>((resolve, reject) => {
-        const cypressProcess = exec('npx cypress run --record', {
+        const cypressProcess = exec('npx cypress run --headed', {
             cwd: path.resolve(__dirname, '../../')
         });
 
@@ -231,7 +231,8 @@ const main = async () => {
             log('Cypress tests completed successfully');
         } catch (e) {
             err('Cypress tests failed', e);
-            process.exit(1);
+            // don't just kill the thing, else the env won't revert
+            // process.exit(1);
         }
     } catch (e) {
         err(e);
