@@ -1,4 +1,4 @@
-import { ServerRequest } from "../../../client/utilities/requests";
+import { ServerRequest } from '../../../client/utilities/requests';
 
 export class SignInPage {
     // Selectors
