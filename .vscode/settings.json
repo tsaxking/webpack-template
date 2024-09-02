@@ -2,7 +2,7 @@
     // "deno.enablePaths": ["./server", "./storage/db/scripts", "./scripts"],
     // "deno.disablePaths": ["./client"],
     "deno.enable": false,
-    "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnPaste": false, // required
     "editor.formatOnType": false, // required
     "editor.formatOnSave": true, // optional
@@ -15,9 +15,5 @@
     "parameterTypes.enabled": true,
     "propertyDeclarationTypes.enabled": true,
     // "variableTypes.enabled": true,
-    "eslint.validate": [
-        "javascript",
-        "typescript",
-        "svelte"
-    ]
+    "eslint.validate": ["javascript", "typescript", "svelte"]
 }
