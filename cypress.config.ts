@@ -5,6 +5,7 @@ export default defineConfig({
   projectId: '1xne6k',
   e2e: {
     baseUrl: 'http://localhost:3000',
+    supportFile: 'cypress/support/e2e.ts',
     setupNodeEvents(on, config) {
       on('task', {
         async getAccountFromUsername({ username }: { username: string }) {
