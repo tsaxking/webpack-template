@@ -22,9 +22,7 @@ jobs:
       postgres:
         image: postgres:latest
         env:
-          POSTGRES_USER: testuser
           POSTGRES_PASSWORD: password
-          POSTGRES_DB: testdb
         ports:
           - 5432:5432
 
@@ -48,10 +46,10 @@ jobs:
           echo "DOMAIN=http://localhost:3000" >> .env
           echo "SOCKET_DOMAIN=http://localhost:3001" >> .env
           echo "TITLE=Test Server" >> .env
-          echo "DATABASE_NAME=testdb" >> .env
-          echo "DATABASE_USER=testuser" >> .env
+          echo "DATABASE_NAME=postgres" >> .env
+          echo "DATABASE_USER=postgres" >> .env
           echo "DATABASE_PASSWORD=password" >> .env
-          echo "DATABASE_HOST=postgres" >> .env
+          echo "DATABASE_HOST=localhost" >> .env
           echo "DATABASE_PORT=5432" >> .env
           echo "SEND_STATUS_EMAILS=false" >> .env
           echo "MINIFY=y" >> .env
@@ -67,6 +65,8 @@ jobs:
           echo "Installing dependencies..."
           npm i
           npm install -g wait-on
+          echo "Creating user and database."
+          sh ./scripts/db-init.sh --create-only
           echo "Running e2e tests..."
           # npm run test:e2e
           npm run dev & wait-on http://localhost:3000

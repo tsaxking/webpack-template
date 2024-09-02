@@ -9,6 +9,16 @@ eval "$(
   done
 )"
 
+# Check if PostgreSQL is installed
+check_postgres() {
+    if ! command -v psql &>/dev/null; then
+        echo "PostgreSQL is not installed."
+        install_postgres
+    else
+        echo "PostgreSQL is already installed."
+    fi
+}
+
 # Function to install PostgreSQL based on the distribution
 install_postgres() {
     distro=$(awk -F= '/^NAME/{print $2}' /etc/os-release)
@@ -35,16 +45,15 @@ install_postgres() {
     esac
 }
 
-# Check if PostgreSQL is installed
-if ! command -v psql &>/dev/null; then
-    install_postgres
-else
-    echo "PostgreSQL is already installed."
-fi
-
-# Start PostgreSQL service
-echo "Starting postgresql service."
-sudo systemctl start postgresql
+# Function to create user and database
+setup_db() {
+    echo "Creating user and database."
+    sudo su - postgres -c "psql -c \"CREATE ROLE admin WITH NOLOGIN;\""
+    sudo su - postgres -c "psql -c \"CREATE ROLE $DATABASE_USER WITH LOGIN;\""
+    sudo su - postgres -c "psql -c \"ALTER ROLE $DATABASE_USER WITH PASSWORD '$DATABASE_PASSWORD';\""
+    sudo su - postgres -c "psql -c \"GRANT admin TO $DATABASE_USER;\""
+    sudo su - postgres -c "psql -c \"CREATE DATABASE $DATABASE_NAME with OWNER $DATABASE_USER;\""
+}
 
 # Check for force-reset argument
 if [[ "$1" == "--force-reset" ]]; then
@@ -56,12 +65,16 @@ if [[ "$1" == "--force-reset" ]]; then
     sudo su - postgres -c "psql -c \"DROP ROLE IF EXISTS $DATABASE_USER;\""
 fi
 
-echo "Creating user and database."
-sudo su - postgres -c "psql -c \"CREATE ROLE admin WITH NOLOGIN;\""
-sudo su - postgres -c "psql -c \"CREATE ROLE $DATABASE_USER WITH LOGIN;\""
-sudo su - postgres -c "psql -c \"ALTER ROLE $DATABASE_USER WITH PASSWORD '$DATABASE_PASSWORD';\""
-sudo su - postgres -c "psql -c \"GRANT admin TO $DATABASE_USER;\""
-sudo su - postgres -c "psql -c \"CREATE DATABASE $DATABASE_NAME with OWNER $DATABASE_USER;\""
+if [[ "$1" == "--create-only" ]]; then
+    echo "Creating database only."
+    setup_db
+else
+    check_postgres
+    echo "Starting up PostgreSQL."
+    sudo systemctl start postgresql
+    # Setup database
+    setup_db
+    sudo service postgresql restart
+fi
 
-sudo service postgresql restart
 exit 0
