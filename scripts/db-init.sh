@@ -2,7 +2,7 @@
 
 # Load environment variables
 eval "$(
-  cat ../.env | awk '!/^\s*#/' | awk '!/^\s*$/' | while IFS='' read -r line; do
+  cat .env | awk '!/^\s*#/' | awk '!/^\s*$/' | while IFS='' read -r line; do
     key=$(echo "$line" | cut -d '=' -f 1 | awk '{$1=$1;print}')
     value=$(echo "$line" | cut -d '=' -f 2- | awk '{$1=$1;gsub("\047", "\042", $0);print}')
     echo "export $key=\"$value\""
