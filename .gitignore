@@ -150,3 +150,6 @@ dist
 # Duplicate packages
 .package.json
 .package-lock.json
+
+# Any potential cypress screenshots
+cypress/screenshots/
