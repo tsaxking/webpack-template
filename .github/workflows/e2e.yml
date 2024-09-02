@@ -67,4 +67,5 @@ jobs:
           echo "Installing dependencies..."
           npm i
           echo "Running e2e tests..."
-          npm run test:e2e
+          # npm run test:e2e
+          npx cypress run --record --key $CYPRESS_RECORD_KEY
