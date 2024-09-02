@@ -36,26 +36,26 @@
 //   }
 // }
 
-// i don't even know what this thing is doing
-// it makes errors go away though
-export {};
+// ***********************************************
+// I am very confused by this file.
+// The cypress recommendation as above is completely broken;
+// instead I have ./cypress.d.ts to define the types
+//
+// Technically I can have the types of ./cypress.d.ts in here,
+// if prefaced with export {}
+// However, that makes eslint unhappy with error:
+// ES2015 module syntax is preferred over namespaces @typescript-eslint/no-namespace
+// ***********************************************
 
-declare global {
-    namespace Cypress {
-        interface Chainable {
-            login(email: string, password: string): Chainable<void>
-        }
-    }
-}
-
-Cypress.Commands.add('login', (email: string, password: string) => {
+// this is kind of cool, the types inferred are actually defined in ./cypress.d.ts
+Cypress.Commands.add('login', (email, password) => {
     cy.request({
         method: 'POST',
         url: '/account/sign-in',
         body: {
             username: email,
-            password: password
-        }
+            password: password,
+        },
     }).then((response) => {
         console.log(response);
         expect(response.status).to.eq(200);

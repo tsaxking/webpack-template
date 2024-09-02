@@ -1,5 +1,5 @@
-import { defineConfig } from "cypress";
-import Account from "./server/structure/accounts";
+import { defineConfig } from 'cypress';
+import Account from './server/structure/accounts';
 
 export default defineConfig({
   projectId: '1xne6k',
@@ -12,9 +12,9 @@ export default defineConfig({
           const account = (await Account.fromUsername(username)).unwrap();
           if (!account) {
             return null;
-          } else {
+          } 
             return account;
-          }
+          
         },
         async generateVerifiedAccount({ username, password, email, firstName, lastName }: 
           { 
@@ -31,20 +31,20 @@ export default defineConfig({
               return null;
             }
             return acc.verify();
-          } else {
+          } 
             return null;
-          }
+          
         },
         async removeAccountFromUsername({ username }: { username: string }) {
           const account = (await Account.fromUsername(username)).unwrap();
           if (!account) {
             return null;
-          } else {
+          } 
             const status = await Account.delete(account.id);
             if (status.unwrap() === 'removed') {
               return true;
             }
-          }
+          
         },
       });
     },
