@@ -1,3 +1,5 @@
+import { ServerRequest } from "../../../client/utilities/requests";
+
 export class SignInPage {
     // Selectors
     private titleSelector = 'h1';

@@ -27,7 +27,7 @@ describe('Sign In Page', () => {
     });
 
     after(() => {
-        cy.task('removeAccountFromUsername', { username: 'testuser' });
+        cy.task('removeAccountFromUsername', { username: user.username });
         cy.log('Account removed');
     });
 
@@ -57,6 +57,12 @@ describe('Sign In Page', () => {
         cy.url().should('include', '/account/sign-up');
     });
 
+    it('should login through API', () => {
+        // cypress/support/commands.ts
+        // can be used in any spec, logs in through API
+        cy.login(user.username, user.password);
+    });
+    
     describe('Reset Password', () => {
         it('should handle reset password click', () => {
             signInPage.clickResetPassword();

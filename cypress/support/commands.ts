@@ -35,3 +35,30 @@
 //     }
 //   }
 // }
+
+// i don't even know what this thing is doing
+// it makes errors go away though
+export {};
+
+declare global {
+    namespace Cypress {
+        interface Chainable {
+            login(email: string, password: string): Chainable<void>
+        }
+    }
+}
+
+Cypress.Commands.add('login', (email: string, password: string) => {
+    cy.request({
+        method: 'POST',
+        url: '/account/sign-in',
+        body: {
+            username: email,
+            password: password
+        }
+    }).then((response) => {
+        console.log(response);
+        expect(response.status).to.eq(200);
+        expect(response.body).to.have.property('$status').to.eq('logged-in');
+    });
+});
