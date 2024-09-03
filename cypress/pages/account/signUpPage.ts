@@ -1,16 +1,16 @@
 export class SignUpPage {
     // Selectors
-    private titleSelector = 'h1';
-    private usernameInputSelector = 'input[name=\'username\']';
-    private emailInputSelector = 'input[name=\'email\']';
-    private firstNameInputSelector = 'input[name=\'firstName\']';
-    private lastNameInputSelector = 'input[name=\'lastName\']';
-    private passwordInputSelector = 'input[placeholder=\'Password\']';
-    private confirmPasswordInputSelector = 'input[placeholder=\'Confirm Password\']';
-    private submitButtonSelector = 'input[type=\'submit\']';
-    private signInLinkSelector = 'a[href="/account/sign-in"]';
-    private errorSelector = 'small.text-danger';
-    private successSelector = 'small.text-success';
+    private readonly titleSelector = 'h1';
+    private readonly usernameInputSelector = 'input[name=\'username\']';
+    private readonly emailInputSelector = 'input[name=\'email\']';
+    private readonly firstNameInputSelector = 'input[name=\'firstName\']';
+    private readonly lastNameInputSelector = 'input[name=\'lastName\']';
+    private readonly passwordInputSelector = 'input[placeholder=\'Password\']';
+    private readonly confirmPasswordInputSelector = 'input[placeholder=\'Confirm Password\']';
+    private readonly submitButtonSelector = 'input[type=\'submit\']';
+    private readonly signInLinkSelector = 'a[href="/account/sign-in"]';
+    private readonly errorSelector = 'small.text-danger';
+    private readonly successSelector = 'small.text-success';
 
     // Page Methods
 

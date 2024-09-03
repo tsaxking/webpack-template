@@ -1,15 +1,13 @@
-import { ServerRequest } from '../../../client/utilities/requests';
-
 export class SignInPage {
     // Selectors
-    private titleSelector = 'h1';
-    private usernameInputSelector = 'input[name=\'username\']';
-    private passwordInputSelector = 'input[placeholder=\'Password\']';
-    private resetPasswordLinkSelector = 'Reset Password';
-    private submitButtonSelector = 'input[type="submit"]';
-    private signUpLinkSelector = 'a[href="/account/sign-up"]';
-    private errorSelector = 'small.text-danger';
-	private passwordVisibilityToggle = 'visibility';
+    private readonly titleSelector = 'h1';
+    private readonly usernameInputSelector = 'input[name=\'username\']';
+    private readonly passwordInputSelector = 'input[placeholder=\'Password\']';
+    private readonly resetPasswordLinkSelector = 'Reset Password';
+    private readonly submitButtonSelector = 'input[type="submit"]';
+    private readonly signUpLinkSelector = 'a[href="/account/sign-up"]';
+    private readonly errorSelector = 'small.text-danger';
+	private readonly passwordVisibilityToggle = 'visibility';
 
 	// Page Methods
 

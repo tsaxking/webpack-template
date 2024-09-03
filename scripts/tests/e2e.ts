@@ -19,7 +19,7 @@ const err = (...data: unknown[]) =>
 
 const startCypressTests = () => {
     return new Promise<void>((resolve, reject) => {
-        const cypressProcess = exec('npx cypress run --record', {
+        const cypressProcess = exec('npx cypress run', {
             cwd: path.resolve(__dirname, '../../')
         });
 
@@ -183,6 +183,18 @@ const request = async (url: string, method: Method, body: unknown) => {
 const main = async () => {
     const server = new Server();
 
+    const exit = (code: number) => {
+        // Resetting env
+        log('Resetting env');
+        fs.cpSync(
+            path.resolve(__dirname, '../../._env'),
+            path.resolve(__dirname, '../../.env')
+        );
+        fs.unlinkSync(path.resolve(__dirname, '../../._env'));
+        server.stop();
+        process.exit(code);
+    }
+
     try {
         // Reading env
         log('Reading env');
@@ -208,7 +220,7 @@ const main = async () => {
         const dbRes = await buildDatabase();
         if (dbRes.isErr()) {
             err(dbRes.error);
-            process.exit(1);
+            exit(1);
         }
         log('Database built successfully');
 
@@ -216,7 +228,7 @@ const main = async () => {
         const res = await bundle();
         if (res.isErr()) {
             err(res.error);
-            process.exit(1);
+            exit(1);
         }
 
         log('Client built successfully');
@@ -232,23 +244,14 @@ const main = async () => {
         } catch (e) {
             err('Cypress tests failed', e);
             // don't just kill the thing, else the env won't revert
-            // process.exit(1);
+            // exit(1);
         }
     } catch (e) {
         err(e);
-        process.exit(1);
-    } finally {
-        // Resetting env
-        log('Resetting env');
-        fs.cpSync(
-            path.resolve(__dirname, '../../._env'),
-            path.resolve(__dirname, '../../.env')
-        );
-        fs.unlinkSync(path.resolve(__dirname, '../../._env'));
-        server.stop();
+        exit(1);
     }
 
-    process.exit(0);
+    exit(0);
 };
 
 if (require.main === module) {

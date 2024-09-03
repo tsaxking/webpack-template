@@ -44,7 +44,6 @@ export default defineConfig({
             if (status.unwrap() === 'removed') {
               return true;
             }
-          
         },
       });
     },
