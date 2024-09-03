@@ -71,9 +71,9 @@ export const notify = <T extends 'toast' | 'alert'>(
  * @param {string} message The message to display to the user
  * @async
  */
-export const alert = async (message: string): Promise<void> => {
+export const alert = async (message: string, id?: string): Promise<void> => {
     return new Promise<void>(res => {
-        const m = new Modal();
+        const m = new Modal(id);
         m.setTitle('Alert');
         const p = document.createElement('p');
         p.innerText = message;
@@ -93,7 +93,7 @@ export const alert = async (message: string): Promise<void> => {
  *  @param {string} message The prompt to display to the user
  * @returns {Promise<boolean>}
  */
-export const confirm = async (message: string): Promise<boolean | null> => {
+export const confirm = async (message: string, id?: string): Promise<boolean | null> => {
     return new Promise<boolean | null>(res => {
         let resolved = false;
         const doRes = (val: boolean | null) => {
@@ -102,7 +102,7 @@ export const confirm = async (message: string): Promise<boolean | null> => {
             res(val);
             m.hide();
         };
-        const m = new Modal();
+        const m = new Modal(id);
 
         m.setTitle('Confirm');
         m.setBody(message);
@@ -142,7 +142,7 @@ export const confirm = async (message: string): Promise<boolean | null> => {
  * @param {string} question The prompt to display to the user
  * @returns {Promise<string|null>}
  */
-export const prompt = async (question: string): Promise<string | null> => {
+export const prompt = async (question: string, id?: string): Promise<string | null> => {
     return new Promise<string | null>(res => {
         let resolved = false;
         const doRes = (val: string | null) => {
@@ -150,7 +150,7 @@ export const prompt = async (question: string): Promise<string | null> => {
             resolved = true;
             res(val);
         };
-        const m = new Modal();
+        const m = new Modal(id);
         m.setTitle('Prompt');
 
         const formGroup = document.createElement('div');
@@ -212,7 +212,7 @@ export const prompt = async (question: string): Promise<string | null> => {
  */
 export const select = async (
     question: string,
-    options: string[]
+    options: string[], id?: string
 ): Promise<number> => {
     return new Promise<number>(res => {
         let resolved = false;
@@ -222,7 +222,7 @@ export const select = async (
             res(val);
         };
 
-        const m = new Modal();
+        const m = new Modal(id);
         m.setTitle('Select');
 
         const formGroup = document.createElement('div');
@@ -295,7 +295,7 @@ export const select = async (
 export const choose = async <A extends string, B extends string>(
     question: string,
     option1: A,
-    option2: B
+    option2: B, id?: string
 ): Promise<null | A | B> => {
     return new Promise<null | A | B>(res => {
         let resolved = false;
@@ -306,7 +306,7 @@ export const choose = async <A extends string, B extends string>(
             m.hide();
         };
 
-        const m = new Modal();
+        const m = new Modal(id);
         m.setTitle('Choose');
 
         m.setBody(question);
