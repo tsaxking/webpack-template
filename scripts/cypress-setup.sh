@@ -1,40 +1,63 @@
 #!/bin/bash
 
-# Check if the script is running under bash or dash
-if [ -z "$BASH_VERSION" ]; then
-    echo "This script needs to be run with bash."
-    echo "Attempting to re-run using bash..."
-    chmod u+x scripts/cypress-setup.sh
-    echo "Use chmod u+x scripts/cypress-setup.sh if this does not work"
-    echo "then run ./scripts/cypress-setup.sh"
-    sleep 3
-    ./scripts/cypress-setup.sh
-    exit 1
-fi
+set -e
 
-# Get the operating system information
-os_name=$(lsb_release -is)
-ubuntu_version=$(lsb_release -rs)
+# Function to check if a command exists
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
 
-if [[ "$os_name" == "Ubuntu" ]]; then
-    # If Ubuntu, check the version
-    if [[ "$(echo "$ubuntu_version < 24.04" | bc)" -eq 1 ]]; then
-        # Ubuntu < 24.04
-        sudo apt-get install libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libnss3 libxss1 libasound2 libxtst6 xauth xvfb
+# Function to detect OS
+detect_os() {
+    if command_exists lsb_release; then
+        os_name=$(lsb_release -is)
+        os_version=$(lsb_release -rs)
+    elif [ -f /etc/os-release ]; then
+        . /etc/os-release
+        os_name=$NAME
+        os_version=$VERSION_ID
     else
-        # Ubuntu 24.04
-        sudo apt-get install libgtk2.0-0t64 libgtk-3-0t64 libgbm-dev libnotify-dev libnss3 libxss1 libasound2t64 libxtst6 xauth xvfb
+        echo "Unable to detect OS. Please install dependencies manually."
+        exit 1
     fi
-elif [[ "$os_name" == "Debian" ]]; then
-    # Debian
-    sudo apt-get install libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libnss3 libxss1 libasound2 libxtst6 xauth xvfb
-elif grep -q 'Arch Linux' /etc/os-release; then
-    # Arch Linux
-    sudo pacman -S gtk2 gtk3 alsa-lib xorg-server-xvfb libxss nss libnotify
+}
+
+# Detect OS
+detect_os
+
+# Install dependencies based on OS
+install_dependencies() {
+    case $os_name in
+        Ubuntu)
+            if [ "$(echo "$os_version < 24.04" | bc)" -eq 1 ]; then
+                sudo apt-get update && sudo apt-get install -y libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libnss3 libxss1 libasound2 libxtst6 xauth xvfb
+            else
+                sudo apt-get update && sudo apt-get install -y libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libnss3 libxss1 libasound2 libxtst6 xauth xvfb
+            fi
+            ;;
+        Debian)
+            sudo apt-get update && sudo apt-get install -y libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libnss3 libxss1 libasound2 libxtst6 xauth xvfb
+            ;;
+        "Arch Linux")
+            sudo pacman -Syu --noconfirm gtk2 gtk3 alsa-lib xorg-server-xvfb libxss nss libnotify
+            ;;
+        *)
+            echo "Unsupported OS: $os_name. Please install dependencies manually."
+            exit 1
+            ;;
+    esac
+}
+
+# Install dependencies
+echo "Installing dependencies for $os_name $os_version"
+install_dependencies
+
+# Install or update Cypress
+echo "Installing/updating Cypress"
+if ! npm list cypress --depth=0 >/dev/null 2>&1; then
+    npm install cypress --save-dev
 else
-    # Other OS (amazon linux, freebsd, macOS, etc.)
-    echo "Unknown OS"
+    npm update cypress
 fi
 
-# Check if Cypress is actually installed
-npm install cypress --save-dev
+echo "Cypress setup completed successfully!"
