@@ -29,6 +29,7 @@ import { gitBranch, gitCommit } from './git';
 import { Version as V } from './tables';
 import { confirm } from '../../scripts/prompt';
 import cliProgress from 'cli-progress';
+import { Worker } from 'worker_threads';
 
 /**
  * The name of the main database
@@ -684,60 +685,92 @@ export class Backup extends Version {
             }, cliProgress.Presets.shades_classic);
 
             log('Inserting...', tables);
-            const res = await Promise.all(
-                tables.map(async table => {
-                    const res = await attemptAsync(async () => {
-                        const rows = data[table];
-                        const bar = multibar.create(rows.length, 0, { table });
-                        let current = 0;
+            // const res = await Promise.all(
+            //     tables.map(async table => {
+            //         const res = await attemptAsync(async () => {
+            //             const rows = data[table];
+            //             const bar = multibar.create(rows.length, 0, { table });
+            //             let current = 0;
 
-                        const cols = Object.keys(rows[0] || {});
-                        if (!cols.length) return; // no data to insert
+            //             const cols = Object.keys(rows[0] || {});
+            //             if (!cols.length) return; // no data to insert
 
-                        const colNames = cols.join(', ');
-                        const colVals = cols.map(c => `:${c}`).join(', ');
+            //             const colNames = cols.join(', ');
+            //             const colVals = cols.map(c => `:${c}`).join(', ');
 
-                        return Promise.all(
-                            rows.map(async r => {
-                                const q = `INSERT INTO ${table} (${colNames}) VALUES (${colVals})`;
-                                const res = await DB.unsafe.run(q, r);
+            //             return Promise.all(
+            //                 rows.map(async r => {
+            //                     const q = `INSERT INTO ${table} (${colNames}) VALUES (${colVals})`;
+            //                     const res = await DB.unsafe.run(q, r);
 
-                                if (res.isErr()) {
-                                    error(
-                                        'Error inserting data into',
-                                        table,
-                                        res.error,
-                                        q,
-                                        r
-                                    );
-                                }
+            //                     if (res.isErr()) {
+            //                         error(
+            //                             'Error inserting data into',
+            //                             table,
+            //                             res.error,
+            //                             q,
+            //                             r
+            //                         );
+            //                     }
 
-                                current++;
+            //                     current++;
 
-                                bar.update(current, { filename: table });
+            //                     bar.update(current, { filename: table });
 
-                                return res;
-                            })
-                        );
-                    });
+            //                     return res;
+            //                 })
+            //             );
+            //         });
 
-                    if (res.isErr()) throw res.error;
-                    if (res.value?.some(r => r.isErr())) {
-                        error('Error inserting data');
-                        throw new Error('Error inserting data');
+            //         if (res.isErr()) throw res.error;
+            //         if (res.value?.some(r => r.isErr())) {
+            //             error('Error inserting data');
+            //             throw new Error('Error inserting data');
+            //         }
+            //         return res;
+            //     })
+            // );
+
+            const workers = new Set<Worker>();
+
+            for (const table of tables) {
+                const rows = data[table];
+                
+                const worker = new Worker(path.join(__dirname, './db-backup-restore-multithread.ts'), {
+                    workerData: {
+                        table,
+                        rows,
+                        DB,
+                        multibar
                     }
-                    return res;
+                });
+
+                workers.add(worker);
+            }
+
+            await Promise.all(
+                Array.from(workers).map(worker => {
+                    return new Promise<void>((resolve, reject) => {
+                        worker.on('exit', code => {
+                            if (code === 0) {
+                                resolve();
+                            } else {
+                                reject(new Error(`Worker stopped with exit code ${code}`));
+                            }
+                        });
+                    });
                 })
             );
 
+
             multibar.stop();
 
-            if (res.every(r => r.isOk())) {
-                log('Database restored');
-            } else {
-                // log('Error(s) restoring database', res);
-                throw new Error('Error(s) restoring database');
-            }
+            // if (res.every(r => r.isOk())) {
+            //     log('Database restored');
+            // } else {
+            //     // log('Error(s) restoring database', res);
+            //     throw new Error('Error(s) restoring database');
+            // }
         });
     }
 
