@@ -1,0 +1,116 @@
+name: Deploy
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+    secrets:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  backend:
+    uses: ./.github/workflows/backend.yml
+    secrets:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  e2e:
+    uses: ./.github/workflows/e2e.yml
+    secrets:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  # linter:
+  #   uses: ./.github/workflows/linter.yml
+  #   secrets:
+  #     GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  formatter:
+    uses: ./.github/workflows/formatter.yml
+    secrets:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  tsc:
+    uses: ./.github/workflows/tsc.yml
+    secrets:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    # if branch is main
+    if: github.ref == 'refs/heads/main'
+    needs: [build, e2e, backend, formatter, tsc]
+    steps:
+      - name: Retrieve git dependencies
+        uses: actions/checkout@v3
+        with:
+          submodules: 'true'
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: v20.8
+
+      - name: Push to Deploy
+        run: |
+          echo "testing if on branch 'main'"
+          if [ "$(git rev-parse --abbrev-ref HEAD)" != "main" ]; then
+            echo "not on branch 'main', exiting"
+            exit 0
+          fi
+
+          echo "Setting up identity"
+          # Setup the committers identity.
+          git config --global user.email "taylorking206@u.boisestate.edu"
+          git config --global user.name "Webpack Bot"
+
+          echo "Pushing changes to deploy branch..."
+
+          echo "Good, we're on main. Pushing to deploy..."
+          echo "Deleting old deploy branch"
+          git branch -D deploy || true
+          git push origin --delete deploy || true
+
+          echo "Creating new deploy branch"
+          git checkout --orphan deploy
+          git reset --hard
+          git commit --allow-empty -m "Initializing deploy branch"
+
+          echo "Merging main into deploy"
+          git merge main --strategy-option=theirs --allow-unrelated-histories -m "Merging main into gh-pages"
+          git pull origin main --allow-unrelated-histories
+
+          echo "formatting and linting"
+          npm i
+          npm run fmt
+          npm run lint
+
+          git add .
+          git commit --allow-empty -m "Merging main into deploy"
+          git push origin deploy
+  # ssh:
+  #   name: Deploy
+  #   if: github.ref == 'refs/heads/deploy'
+  #   runs-on: ubuntu-latest
+  #   needs: [
+  #     build,
+  #     e2e,
+  #     backend,
+  #     linter,
+  #     formatter,
+  #     tsc
+  #   ]
+  #   steps:
+  #     - name: Don't do anything
+  #       run: echo "This is a build step"
+  #     - name: pull latest from deploy branch
+  #       uses: appleboy/ssh-action@v1.0.3
+  #       env:
+  #         PROJECT: /root/tators-dashboard
+
+  #       with:
+  #         host: ${{ secrets.HOST }}
+  #         username: ${{ secrets.USERNAME }}
+  #         key: ${{ secrets.KEY }}
+  #         port: ${{ secrets.PORT }}
+  #         envs: PROJECT
+  #         script: |
+  #             cd $PROJECT
+  #             git stash
+  #             git checkout deploy
+  #             git pull -ff

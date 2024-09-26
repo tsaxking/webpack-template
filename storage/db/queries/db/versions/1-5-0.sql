@@ -1,0 +1,1 @@
+ALTER TABLE Accounts ADD COLUMN customData TEXT NOT NULL DEFAULT '{}';

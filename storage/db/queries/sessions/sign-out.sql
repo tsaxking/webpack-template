@@ -1,0 +1,1 @@
+UPDATE Sessions SET accountId = NULL WHERE id = :id;
