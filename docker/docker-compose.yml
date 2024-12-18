@@ -1,0 +1,51 @@
+services:
+  app:
+    build: 
+      context: ../
+      dockerfile: docker/Dockerfile
+    user: "node"
+    command: "sleep infinity"
+    volumes:
+      - ./data/app:/app
+    ports:
+      - 4000:4000
+      - 4001:4001
+    env_file:
+      - .env
+
+  db:
+    container_name: postgresdocker
+    image: postgres:latest
+    restart: unless-stopped
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+      PGPORT: 5433
+      POSTGRES_HOSTNAME: postgresdocker
+    ports:
+      - 5433:5433
+    expose:
+      - "5433"
+    env_file:
+      - .env
+
+  # nginx:
+  #   image: nginx:1.15-alpine
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./data/nginx:/etc/nginx/conf.d
+  #     - ./data/certbot/conf:/etc/letsencrypt
+  #     - ./data/certbot/www:/var/www/certbot
+
+  # certbot:
+  #   image: certbot/certbot
+  #   volumes:
+  #     - ./data/certbot/conf:/etc/letsencrypt
+  #     - ./data/certbot/www:/var/www/certbot
+
+  # ddclient
