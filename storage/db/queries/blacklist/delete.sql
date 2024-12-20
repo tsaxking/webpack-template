@@ -1,0 +1,1 @@
+DELETE FROM Blacklist WHERE id = :id;

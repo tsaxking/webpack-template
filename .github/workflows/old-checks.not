@@ -1,0 +1,99 @@
+name: Checks
+
+on:
+    push:
+        branches: ['main']
+    pull_request:
+        branches: ['main']
+
+permissions:
+    contents: read
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+
+#         steps:
+#             - name: Retrieve git dependencies
+#               uses: actions/checkout@v3
+#               with:
+#                   submodules: 'true'
+#                   token: ${{ secrets.GH_TOKEN }}
+
+#             - name: Setup Node.js
+#               uses: actions/setup-node@v4
+#               with:
+#                   node-version: v20.8
+
+#             - name: Run
+#               run: |
+#                   if git log -1 --pretty=%B | grep -q "AUTOMATED"; then
+#                     echo "Changes were automated, exiting"
+#                     exit 0
+#                   fi
+#                   if git log -1 --pretty=%B | grep -q "Chore"; then
+#                     echo "Changes were automated, exiting"
+#                     exit 0
+#                   fi
+#                   echo "Rename package.json and package-lock.json to .package.json and .package-lock.json so that they are not picked up by npm install"
+
+#                   cp package.json .package.json
+#                   cp package-lock.json .package-lock.json
+
+#                   echo "Installing all dependencies"
+#                   npm i
+#                   npm i --save-dev --force prettier-plugin-svelte prettier @typescript-eslint/parser @typescript-eslint/eslint-plugin@5.33.0 eslint typescript prettier-plugin-svelte svelte
+
+#                   echo "Installing all local dependencies"
+#                   npm i -g eslint prettier svelte
+
+#                   echo "Running tests"
+#                   sh ./scripts/fmt-lint-check.sh
+
+#                   echo "Restoring dependencies"
+#                   echo "Restore package.json and package-lock.json to their original names"
+#                   rm package.json package-lock.json
+
+#                   mv .package.json package.json
+#                   mv .package-lock.json package-lock.json
+
+#                   echo "Committing changes"
+#                   git config --global user.name "github-actions[bot]"
+#                   git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+#                   echo "Adding changes..."
+#                   git add .
+
+#                   echo "Committing changes..."
+#                   git commit --allow-empty  -m "AUTOMATED: Format, lint, and check"
+
+#                   echo "Pushing changes..."
+#                   git push
+
+#                   echo "Pushing changes to deploy branch..."
+#                   echo "testing if on branch 'main'"
+#                   if [ "$(git rev-parse --abbrev-ref HEAD)" != "main" ]; then
+#                     echo "not on branch 'main', exiting"
+#                     exit 0
+#                   fi
+#                   if git log -1 --pretty=%B | grep -q "Chore"; then
+#                     echo "Changes were automated, exiting"
+#                     exit 0
+#                   fi
+
+#                   echo "Good, we're on main. Pushing to deploy..."
+#                   echo "Deleting old deploy branch"
+#                   git branch -D deploy || true
+#                   git push origin --delete deploy || true
+
+#                   echo "Creating new deploy branch"
+#                   git checkout --orphan deploy
+#                   git reset --hard
+#                   git commit --allow-empty -m "Initializing deploy branch"
+
+#                   echo "Merging main into deploy"
+#                   git merge main --strategy-option=theirs --allow-unrelated-histories -m "Merging main into gh-pages"
+#                   git pull origin main --allow-unrelated-histories
+#                   git add .
+#                   git commit --allow-empty -m "Merging main into deploy"
+#                   git push origin deploy

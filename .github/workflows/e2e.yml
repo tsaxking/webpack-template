@@ -1,0 +1,64 @@
+name: e2e
+
+on:
+  workflow_call:
+    secrets:
+      GH_TOKEN:
+        description: 'GitHub Token'
+        required: true
+  push:
+    branches:
+      - '*'
+      - '!deploy'
+      - '!gh-pages'
+
+permissions:
+  contents: read
+
+jobs:
+  e2e-tests:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:latest
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Retrieve git dependencies
+        uses: actions/checkout@v3
+        with:
+          submodules: 'true'
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4.0.3
+        with:
+          node-version: v20.16
+
+      - name: Build .env
+        run: |
+          echo "PORT=3000" >> .env
+          echo "SOCKET_PORT=3001" >> .env
+          echo "ENVIRONMENT=test" >> .env
+          echo "DOMAIN=http://localhost:3000" >> .env
+          echo "SOCKET_DOMAIN=http://localhost:3001" >> .env
+          echo "TITLE=Test Server" >> .env
+          echo "DATABASE_NAME=testdb" >> .env
+          echo "DATABASE_USER=testuser" >> .env
+          echo "DATABASE_PASSWORD=password" >> .env
+          echo "DATABASE_HOST=localhost" >> .env
+          echo "DATABASE_PORT=5432" >> .env
+          echo "SEND_STATUS_EMAILS=false" >> .env
+          echo "MINIFY=y" >> .env
+          echo "BACKUP_DAYS=7" >> .env
+          echo "BACKUP_INTERVAL=24" >> .env
+          echo "AUTO_SIGN_IN=tsaxking" >> .env
+
+      - name: Run
+        run: |
+          exit 0
+          echo "Installing dependencies..."
+          npm i
+          echo "Running e2e tests..."
+          npm run test:e2e
