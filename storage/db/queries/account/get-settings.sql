@@ -1,0 +1,1 @@
+SELECT * FROM AccountSettings WHERE accountId = :accountId;

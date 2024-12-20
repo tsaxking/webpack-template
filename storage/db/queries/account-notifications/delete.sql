@@ -1,0 +1,1 @@
+DELETE FROM AccountNotifications WHERE id = :id;

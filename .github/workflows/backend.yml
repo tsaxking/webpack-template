@@ -1,0 +1,38 @@
+name: Backend
+
+on:
+  workflow_call:
+    secrets:
+      GH_TOKEN:
+        description: 'GitHub Token'
+        required: true
+  push:
+    branches:
+      - '*'
+      - '!deploy'
+      - '!gh-pages'
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Retrieve git dependencies
+        uses: actions/checkout@v3
+        with:
+          submodules: 'true'
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: v20.4
+
+      - name: Run
+        run: |
+          echo "Installing dependencies..."
+          npm i
+          echo "Running backend tests..."
+          npm run test:backend

@@ -1,0 +1,63 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/javascript-node-postgres
+{
+    "name": "Node.js & PostgreSQL",
+    "dockerComposeFile": "docker-compose.yml",
+    "service": "app",
+    "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+
+    // Features to add to the dev container. More info: https://containers.dev/features.
+    "features": {
+        "ghcr.io/devcontainers/features/github-cli:1": {},
+        "ghcr.io/nils-geistmann/devcontainers-features/zsh:0": {},
+        "ghcr.io/duduribeiro/devcontainer-features/tmux:1": {},
+        "ghcr.io/dhoeric/features/act:1": {}
+    },
+
+    "mounts": [
+        "source=${localEnv:HOME}/.gitconfig,target=/home/node/.gitconfig,type=bind,consistency=cached",
+        "source=${localEnv:HOME}/.ssh,target=/home/node/.ssh,type=bind,consistency=cached"
+    ],
+
+    // Use 'forwardPorts' to make a list of ports inside the container available locally.
+    // This can be used to network with other containers or with the host.
+    "forwardPorts": [4000, 4001, 5433],
+
+    // Use 'postCreateCommand' to run commands after the container is created.
+    "postCreateCommand": "bash .devcontainer/setup.sh",
+
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "mads-hartmann.bash-ide-vscode",
+                "dbaeumer.vscode-eslint",
+                "wolforce.bigtext",
+                "anbuselvanrocky.bootstrap5-vscode",
+                "phplasma.csv-to-table",
+                "eamodio.gitlens",
+                "oderwat.indent-rainbow",
+                "crystal-spider.jsdoc-generator",
+                "ritwickdey.LiveServer",
+                "yzhang.markdown-all-in-one",
+                "allenshuber.quote-flipper",
+                "allenshuber.readme-editor",
+                "svelte.svelte-vscode",
+                "svelte.svelte-vscode",
+                "gruntfuggly.todo-tree",
+                "vscode-icons-team.vscode-icons",
+                "mechatroner.rainbow-csv",
+                "jock.svg",
+                "tbeseda.toggle-js-inlayhints",
+                "github.copilot",
+                "ms-ossdata.vscode-postgresql",
+                "esbenp.prettier-vscode",
+                "rvest.vs-code-prettier-eslint",
+                "yoavbls.pretty-ts-errors",
+                "ms-azuretools.vscode-docker"
+            ]
+        }
+    }
+
+    // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+    // "remoteUser": "root"
+}

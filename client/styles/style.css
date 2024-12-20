@@ -1,0 +1,122 @@
+:root {
+    --offCanvas-width: 270px;
+    --topNavbarHeight: 58px;
+}
+
+body {
+    transition: background-color ease 0.25s;
+}
+
+#sidebar-nav {
+    position: fixed;
+    /* top: var(--topNavbarHeight); */
+    width: var(--offCanvas-width) !important;
+    z-index: 1500;
+}
+
+.notification {
+    position: fixed;
+    top: var(--topNavbarHeight);
+    right: 0;
+    z-index: 1000;
+    margin-right: 1em;
+}
+
+#top-navbar {
+    z-index: 100;
+    /* height: var(--topNavbarHeight) !important; */
+}
+
+/* .navbar-collapse.collapse.show {
+    background-color: var(--bs-dark);
+    padding: 0.5rem 1rem;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+} */
+
+#navbarSupportedContent {
+    padding-top: 1em;
+}
+
+@media (min-width: 992px) {
+    body {
+        overflow: auto !important;
+    }
+    .offcanvas-backdrop::before {
+        display: none !important;
+    }
+    main.dashboard {
+        /* margin-left: var(--offCanvas-width) !important; */
+        /* width: calc(100vw - var(--offCanvas-width) - 24px) !important; */
+        width: calc(100vw - 24px) !important;
+    }
+    /* .sidebar-nav {
+        transform: none !important;
+        visibility: visible !important;
+        top: var(--topNavbarHeight) !important;
+        height: calc(100% - var(--topNavbarHeight)) !important;
+    } */
+    #navbarSupportedContent {
+        padding-top: 0 !important;
+    }
+}
+
+main {
+    margin-top: var(--topNavbarHeight);
+    /* width: 100vw; */
+}
+
+.page {
+    /* height: calc(100vh - var(--topNavbarHeight)); */
+}
+
+.material-icons {
+    vertical-align: middle;
+    line-height: 0 !important;
+    position: relative;
+    top: -1px;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+}
+
+.sidebar-link .right-icon {
+    display: inline-flex;
+}
+
+[aria-expanded='true'] .down-icon,
+[aria-expanded='true'] .right-icon {
+    transform: rotate(180deg);
+    transition: all ease 0.25s;
+}
+
+[aria-expanded='false'] .down-icon,
+[aria-expanded='true'] .right-icon {
+    transition: all ease 0.25s;
+}
+
+.border.border-dashed {
+    border-style: dashed !important;
+}
+
+.lib-add-pdf {
+    min-height: 297px !important;
+}
+
+::-webkit-scrollbar {
+    width: 1em;
+}
+
+/* ::-webkit-scrollbar-track {
+    background: var(--bs-card-cap-color);
+} */
+
+::-webkit-scrollbar-thumb {
+    background: rgba(93, 93, 93, 0.5);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(93, 93, 93, 0.8);
+}
