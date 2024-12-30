@@ -3,10 +3,10 @@ if [ ! -f ".env" ]; then
 	cp .devcontainer/env.template .env
 fi
 
-echo "Installing dependencies via NPM..."
-npm i
+echo "Installing dependencies via PNPM..."
+pnpm i
 
 if grep -q "TBA_KEY = ''" .env; then
-	echo "\033[31mWARNING!\033[0m \033[33mYOU DO NOT HAVE A TBA KEY!\033[0m"
-	echo "\033[31mWARNING!\033[0m \033[33mPLEASE ADD A TBA KEY!\033[0m"
+	echo "YOU DO NOT HAVE A TBA KEY!"
+	echo "PLEASE ADD A TBA KEY!"
 fi

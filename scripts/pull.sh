@@ -1,3 +1,3 @@
 git pull --ff &&
-npm i &&
+pnpm i &&
 git status

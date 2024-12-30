@@ -39,6 +39,11 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE }}
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
       - name: 'Setup Node.js'
         uses: 'actions/setup-node@v2'
         with:
@@ -46,11 +51,11 @@ jobs:
 
       - name: 'Installing dependencies'
         run: |
-          npm i
+          pnpm i
 
       - name: 'Converting Readme'
         run: |
-          npx ts-node ./scripts/fix-readme.ts ${{ matrix.templates }}
+          pnpm dlx ts-node ./scripts/fix-readme.ts ${{ matrix.templates }}
           rm -rf ./scripts/fix-readme.ts
 
       - name: Send pull-request

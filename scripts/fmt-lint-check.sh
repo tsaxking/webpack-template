@@ -1,6 +1,6 @@
-npm run fmt &&
-npm run lint &&
+pnpm fmt &&
+pnpm lint &&
 tsc &&
-npm run build &&
-npm run test:backend #&&
-# npm run test:e2e
+pnpm build &&
+pnpm test:backend #&&
+# pnpm test:e2e
