@@ -1,6 +1,6 @@
 {
     "scripts": {
-        "start": "npm run build && ts-node ./server/server.ts",
+        "start": "pnpm build && ts-node ./server/server.ts",
         "start:watch": "nodemon ./server/server.ts",
         "manager": "ts-node -P tsconfig.json ./scripts/manager.ts",
         "build:watch": "nodemon ./scripts/esbuild.ts",
@@ -10,10 +10,11 @@
         "lint": "eslint **/*.{svelte,ts} --fix",
         "fmt": "prettier . --write",
         "init": "ts-node ./scripts/init.ts",
-        "dev": "concurrently --kill-others \"npm run start\" \"npm run build:watch\"",
+        "dev": "concurrently --kill-others \"pnpm start\" \"pnpm build:watch\"",
         "encrypt-backup": "ts-node ./scripts/encrypt-backup.ts",
         "backup": "ts-node ./scripts/backup-db.ts",
-        "restore": "ts-node ./scripts/restore-db.ts"
+        "restore": "ts-node ./scripts/restore-db.ts",
+        "preinstall": "npx only-allow pnpm"
     },
     "devDependencies": {
         "@popperjs/core": "^2.11.8",

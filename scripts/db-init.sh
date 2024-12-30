@@ -30,7 +30,7 @@ echo "Arguments: $@"
 # done
 
 # Parse arguments
-# assume --name=DATABASE_NAME --user=DATABASE_USER --password=DATABASE_PASSWORD
+# assume --database=DATABASE_NAME --user=DATABASE_USER --password=DATABASE_PASSWORD
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --database=*) DATABASE_NAME="${1#*=}" ;;

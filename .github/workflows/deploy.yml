@@ -41,6 +41,11 @@ jobs:
           submodules: 'true'
           token: ${{ secrets.GH_TOKEN }}
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -76,9 +81,9 @@ jobs:
           git pull origin main --allow-unrelated-histories
 
           echo "formatting and linting"
-          npm i
-          npm run fmt
-          npm run lint
+          pnpm i
+          pnpm run fmt
+          pnpm run lint
 
           git add .
           git commit --allow-empty -m "Merging main into deploy"

@@ -22,7 +22,7 @@ This includes a GitHub action to deploy documentation to GitHub Pages, and a Git
     - Query streaming is built into the system to allow for low memory usage when querying large amounts of data and sending to the front end
     - Automatic updating is integrated through websockets (socket.io) to allow for real-time updates to the front end in the universe'
 - CLI: Custom built
-    - The CLI (`npm run manager`) is a custom built CLI that allows for easy management of the whole project. It is fully scalable and can be used to manage the project at any size.
+    - The CLI (`pnpm run manager`) is a custom built CLI that allows for easy management of the whole project. It is fully scalable and can be used to manage the project at any size.
 
 ## Getting Started
 
