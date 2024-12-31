@@ -542,7 +542,7 @@ export class ServerRequest<T = unknown> {
                         const chunks = text.split(streamDelimiter);
 
                         if (cache) {
-                            chunks[chunks.length - 1] += cache;
+                            chunks[0] = cache + chunks[0];
                             cache = '';
                         }
                         if (!text.endsWith(streamDelimiter)) {

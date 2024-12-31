@@ -449,6 +449,14 @@ export class App<
         path: string,
         ...fn: ServerFunction<T, SessionCustomData, AccountCustomData>[]
     ) {
+        let caught:
+            | ((
+                  error: Error,
+                  req: Req<T>,
+                  res: Res,
+                  next: Next
+              ) => Promise<void> | void)
+            | undefined;
         this.server[method](path, async (req: express.Request, _res, next) => {
             const final = async () => {
                 // console.log('Final');
@@ -489,9 +497,41 @@ export class App<
                 await final();
             } catch (e) {
                 console.error(e);
-                req.response.sendStatus('unknown:error');
+
+                const emitError = () => {
+                    req.response.sendStatus('unknown:error');
+                };
+                if (caught) {
+                    let error: Error = e as Error;
+                    if (!(e instanceof Error)) error = new Error(String(e));
+                    try {
+                        await caught(
+                            error,
+                            req.request as Req<
+                                T,
+                                SessionCustomData,
+                                AccountCustomData
+                            >,
+                            req.response,
+                            next
+                        );
+                    } catch (error) {
+                        console.error(error);
+                        emitError();
+                    }
+                } else {
+                    emitError();
+                }
             }
         });
+
+        return {
+            catch(
+                fn: (error: Error, req: Req<T>, res: Res, next: Next) => void
+            ) {
+                caught = fn;
+            }
+        };
     }
 
     /**
@@ -507,7 +547,11 @@ export class App<
         path: string,
         ...fn: ServerFunction<T, SessionCustomData, AccountCustomData>[]
     ) {
-        this.addListener<T>(RequestMethod.GET, path, ...fn);
+        return this.addListener<T>(RequestMethod.GET, path, ...fn);
+
+        // return {
+        //     catch(fn: (error: Error, req: Req<T>, res: Res) => void) {}
+        // };
     }
 
     /**
@@ -523,7 +567,7 @@ export class App<
         path: string,
         ...fn: ServerFunction<T, SessionCustomData>[]
     ) {
-        this.addListener<T>(RequestMethod.POST, path, ...fn);
+        return this.addListener<T>(RequestMethod.POST, path, ...fn);
     }
 
     /**
@@ -539,7 +583,7 @@ export class App<
         path: string,
         ...fn: ServerFunction<T, SessionCustomData, AccountCustomData>[]
     ) {
-        this.addListener<T>(RequestMethod.PUT, path, ...fn);
+        return this.addListener<T>(RequestMethod.PUT, path, ...fn);
     }
 
     /**
@@ -555,7 +599,7 @@ export class App<
         path: string,
         ...fn: ServerFunction<T, SessionCustomData, AccountCustomData>[]
     ) {
-        this.addListener<T>(RequestMethod.DELETE, path, ...fn);
+        return this.addListener<T>(RequestMethod.DELETE, path, ...fn);
     }
 
     /**
@@ -571,7 +615,7 @@ export class App<
         path: string,
         ...fn: ServerFunction<T, SessionCustomData, AccountCustomData>[]
     ) {
-        this.addListener<T>(RequestMethod.USE, path, ...fn);
+        return this.addListener<T>(RequestMethod.USE, path, ...fn);
     }
 
     /**
@@ -598,7 +642,7 @@ export class App<
      * @param {string} dirPath
      */
     public static(path: string, dirPath: string) {
-        this.server.use(path, express.static(dirPath));
+        return this.server.use(path, express.static(dirPath));
     }
 
     /**

@@ -14,7 +14,11 @@ import { __root } from './env';
  * @param {string[]} args
  * @returns {unknown}
  */
-export const runTask = async (command: string, args: string[], timeLimit = 5000) => {
+export const runTask = async (
+    command: string,
+    args: string[],
+    timeLimit = 5000
+) => {
     return attemptAsync(() => {
         return new Promise<void>((res, rej) => {
             const task = spawn(command, args, {

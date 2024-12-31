@@ -536,46 +536,49 @@ type Env = {
 
 const buildDatabase = () => {
     // attemptAsync(() => {
-        // return new Promise<void>((res, rej) => {
-        //     setTimeout(
-        //         () => {
-        //             rej('Database took too long to build');
-        //         },
-        //         1000 * 60 * 5
-        //     );
+    // return new Promise<void>((res, rej) => {
+    //     setTimeout(
+    //         () => {
+    //             rej('Database took too long to build');
+    //         },
+    //         1000 * 60 * 5
+    //     );
 
-            return runTask('bash', [
-                './scripts/db-init.sh',
-                '--force-reset',
-                '--user=' + (env.DATABASE_USER || 'test'),
-                '--password=' + (env.DATABASE_PASSWORD || 'test'),
-                '--database=' + (env.DATABASE_NAME || 'test'),
-            ], 60 * 1000);
+    return runTask(
+        'bash',
+        [
+            './scripts/db-init.sh',
+            '--force-reset',
+            '--user=' + (env.DATABASE_USER || 'test'),
+            '--password=' + (env.DATABASE_PASSWORD || 'test'),
+            '--database=' + (env.DATABASE_NAME || 'test')
+        ],
+        60 * 1000
+    );
 
-            // const pcs = spawn(
-            //     'sh',
-            //     [
-            //         './db-init.sh',
-            //         '--force-reset',
-            //         '--user=' + env.DATABASE_USER || 'test',
-            //         '--password=' + env.DATABASE_PASSWORD || 'test',
-            //         '--database=' + env.DATABASE_NAME || 'test'
-            //     ],
-            //     {
-            //         stdio: 'inherit',
-            //         cwd: path.resolve(__dirname, '../')
-            //     }
-            // );
-            
+    // const pcs = spawn(
+    //     'sh',
+    //     [
+    //         './db-init.sh',
+    //         '--force-reset',
+    //         '--user=' + env.DATABASE_USER || 'test',
+    //         '--password=' + env.DATABASE_PASSWORD || 'test',
+    //         '--database=' + env.DATABASE_NAME || 'test'
+    //     ],
+    //     {
+    //         stdio: 'inherit',
+    //         cwd: path.resolve(__dirname, '../')
+    //     }
+    // );
 
-            // pcs.on('exit', code => {
-            //     if (code === 0) {
-            //         res();
-            //     } else {
-            //         rej(code);
-            //     }
-            // });
-        // });
+    // pcs.on('exit', code => {
+    //     if (code === 0) {
+    //         res();
+    //     } else {
+    //         rej(code);
+    //     }
+    // });
+    // });
     // });
 };
 const main = async () => {
