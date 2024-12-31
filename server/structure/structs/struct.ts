@@ -700,8 +700,8 @@ export class StructStream<Structure extends Blank, Name extends string> {
 
                     this.on('data', run);
 
-                    this.on('end', () => end);
-                    this.on('close', () => end);
+                    this.on('end', () => end());
+                    this.on('close', () => end());
                     this.on('error', end);
                 })
         );
@@ -1640,7 +1640,7 @@ export class Struct<Structure extends Blank, Name extends string> {
             const { Permissions } = await import('./permissions');
             const { Session } = await import('./session');
             const { Account } = await import('./account');
-            const { API } = await import('./api');
+            // const { API } = await import('./api');
 
             const image = (await this.imagize()).unwrap();
             (await Struct.initImage(this, image)).unwrap();
@@ -1855,13 +1855,13 @@ export class Struct<Structure extends Blank, Name extends string> {
                         }
 
                         if (
-                            !(await Account.isAdmin(account)).unwrap() ||
-                            !(
-                                await API.canAccess(
-                                    req.headers.get('x-api-key') || '',
-                                    this
-                                )
-                            ).unwrap()
+                            !(await Account.isAdmin(account)).unwrap() //||
+                            // !(
+                            //     await API.canAccess(
+                            //         req.headers.get('x-api-key') || '',
+                            //         this
+                            //     )
+                            // ).unwrap()
                         ) {
                             if (
                                 !this.bypasses
@@ -1976,13 +1976,13 @@ export class Struct<Structure extends Blank, Name extends string> {
                             doBypass = bypasses.some(bp => bp.fn(account, n));
                         }
                         if (
-                            (await Account.isAdmin(account)).unwrap() ||
-                            (
-                                await API.canAccess(
-                                    req.headers.get('x-api-key') || '',
-                                    this
-                                )
-                            ).unwrap()
+                            (await Account.isAdmin(account)).unwrap() //||
+                            // (
+                            //     await API.canAccess(
+                            //         req.headers.get('x-api-key') || '',
+                            //         this
+                            //     )
+                            // ).unwrap()
                         ) {
                             doBypass = true;
                         }
@@ -2068,13 +2068,13 @@ export class Struct<Structure extends Blank, Name extends string> {
                         if (!n) return res.sendStatus(notFoundStatus(req));
 
                         if (
-                            (await Account.isAdmin(account)).unwrap() ||
-                            (
-                                await API.canAccess(
-                                    req.headers.get('x-api-key') || '',
-                                    this
-                                )
-                            ).unwrap()
+                            (await Account.isAdmin(account)).unwrap() //||
+                            // (
+                            //     await API.canAccess(
+                            //         req.headers.get('x-api-key') || '',
+                            //         this
+                            //     )
+                            // ).unwrap()
                         ) {
                             return res.json(n.data);
                         }
@@ -2118,13 +2118,13 @@ export class Struct<Structure extends Blank, Name extends string> {
                     if (!account) return res.sendStatus(notSignedInStatus(req));
 
                     if (
-                        (await Account.isAdmin(account)).unwrap() ||
-                        (
-                            await API.canAccess(
-                                req.headers.get('x-api-key') || '',
-                                this
-                            )
-                        ).unwrap()
+                        (await Account.isAdmin(account)).unwrap() //||
+                        // (
+                        //     await API.canAccess(
+                        //         req.headers.get('x-api-key') || '',
+                        //         this
+                        //     )
+                        // ).unwrap()
                     ) {
                         return res.stream<StructData<Structure, Name>>(
                             this.all(true, false),
@@ -2236,13 +2236,13 @@ export class Struct<Structure extends Blank, Name extends string> {
                             return res.sendStatus(notSignedInStatus(req));
 
                         if (
-                            (await Account.isAdmin(account)).unwrap() ||
-                            (
-                                await API.canAccess(
-                                    req.headers.get('x-api-key') || '',
-                                    this
-                                )
-                            ).unwrap()
+                            (await Account.isAdmin(account)).unwrap() //||
+                            // (
+                            //     await API.canAccess(
+                            //         req.headers.get('x-api-key') || '',
+                            //         this
+                            //     )
+                            // ).unwrap()
                         ) {
                             return res.stream<StructData<Structure, Name>>(
                                 this.fromProperty(
@@ -2343,13 +2343,13 @@ export class Struct<Structure extends Blank, Name extends string> {
                     if (!account) return res.sendStatus(notSignedInStatus(req));
 
                     if (
-                        (await Account.isAdmin(account)).unwrap() ||
-                        (
-                            await API.canAccess(
-                                req.headers.get('x-api-key') || '',
-                                this
-                            )
-                        ).unwrap()
+                        (await Account.isAdmin(account)).unwrap() //||
+                        // (
+                        //     await API.canAccess(
+                        //         req.headers.get('x-api-key') || '',
+                        //         this
+                        //     )
+                        // ).unwrap()
                     ) {
                         return res.stream<StructData<Structure, Name>>(
                             this.archived(true),
@@ -2451,13 +2451,13 @@ export class Struct<Structure extends Blank, Name extends string> {
                             return res.sendStatus(notSignedInStatus(req));
 
                         if (
-                            (await Account.isAdmin(account)).unwrap() ||
-                            (
-                                await API.canAccess(
-                                    req.headers.get('x-api-key') || '',
-                                    this
-                                )
-                            ).unwrap()
+                            (await Account.isAdmin(account)).unwrap() //||
+                            // (
+                            //     await API.canAccess(
+                            //         req.headers.get('x-api-key') || '',
+                            //         this
+                            //     )
+                            // ).unwrap()
                         ) {
                             const n = (await this.fromId(req.body.id)).unwrap();
                             if (!n) return res.sendStatus(notFoundStatus(req));
@@ -2541,13 +2541,13 @@ export class Struct<Structure extends Blank, Name extends string> {
                         if (!n) return res.sendStatus(notFoundStatus(req));
 
                         if (
-                            !(await Account.isAdmin(account)).unwrap() ||
-                            !(
-                                await API.canAccess(
-                                    req.headers.get('x-api-key') || '',
-                                    this
-                                )
-                            ).unwrap()
+                            !(await Account.isAdmin(account)).unwrap()// ||
+                            // !(
+                            //     await API.canAccess(
+                            //         req.headers.get('x-api-key') || '',
+                            //         this
+                            //     )
+                            // ).unwrap()
                         ) {
                             const roles = (
                                 await Permissions.getRoles(account)
@@ -2642,13 +2642,13 @@ export class Struct<Structure extends Blank, Name extends string> {
                         }
 
                         if (
-                            !(await Account.isAdmin(account)).unwrap() ||
-                            !(
-                                await API.canAccess(
-                                    req.headers.get('x-api-key') || '',
-                                    this
-                                )
-                            ).unwrap()
+                            !(await Account.isAdmin(account)).unwrap() //||
+                            // !(
+                            //     await API.canAccess(
+                            //         req.headers.get('x-api-key') || '',
+                            //         this
+                            //     )
+                            // ).unwrap()
                         ) {
                             const roles = (
                                 await Permissions.getRoles(account)
@@ -2732,13 +2732,13 @@ export class Struct<Structure extends Blank, Name extends string> {
                         if (!n) return res.sendStatus(notFoundStatus(req));
 
                         if (
-                            !(await Account.isAdmin(account)).unwrap() ||
-                            !(
-                                await API.canAccess(
-                                    req.headers.get('x-api-key') || '',
-                                    this
-                                )
-                            ).unwrap()
+                            !(await Account.isAdmin(account)).unwrap()// ||
+                            // !(
+                            //     await API.canAccess(
+                            //         req.headers.get('x-api-key') || '',
+                            //         this
+                            //     )
+                            // ).unwrap()
                         ) {
                             const roles = (
                                 await Permissions.getRoles(account)
@@ -2811,13 +2811,13 @@ export class Struct<Structure extends Blank, Name extends string> {
                         if (!n) return res.sendStatus(notFoundStatus(req));
 
                         if (
-                            !(await Account.isAdmin(account)).unwrap() ||
-                            !(
-                                await API.canAccess(
-                                    req.headers.get('x-api-key') || '',
-                                    this
-                                )
-                            ).unwrap()
+                            !(await Account.isAdmin(account)).unwrap() //||
+                            // !(
+                            //     await API.canAccess(
+                            //         req.headers.get('x-api-key') || '',
+                            //         this
+                            //     )
+                            // ).unwrap()
                         ) {
                             const roles = (
                                 await Permissions.getRoles(account)
@@ -2965,8 +2965,8 @@ export class Struct<Structure extends Blank, Name extends string> {
         property: Property,
         value: TS_Type<Structure[Property]>,
         asStream: true // filter?: (
-        // ) => boolean | Promise<boolean>
-    ) //     data: StructData<Structure, Name>
+        //     data: StructData<Structure, Name>
+    ) // ) => boolean | Promise<boolean>
     : StructStream<Structure, Name>;
     fromProperty<Property extends keyof Structure>(
         property: Property,
@@ -3023,8 +3023,8 @@ export class Struct<Structure extends Blank, Name extends string> {
     all(
         asStream: true,
         includeArchived?: boolean // filter?: (
-        // ) => boolean | Promise<boolean>
-    ) //     data: StructData<Structure, Name>
+        //     data: StructData<Structure, Name>
+    ) // ) => boolean | Promise<boolean>
     : StructStream<Structure, Name>;
     all(
         asStream: false,
@@ -3083,8 +3083,8 @@ export class Struct<Structure extends Blank, Name extends string> {
     fromUniverse(
         universe: string,
         asStream: true // filter?: (
-        // ) => boolean | Promise<boolean>
-    ) //     data: StructData<Structure, Name>
+        //     data: StructData<Structure, Name>
+    ) // ) => boolean | Promise<boolean>
     : StructStream<Structure, Name>;
     fromUniverse(
         universe: string,
@@ -3136,8 +3136,8 @@ export class Struct<Structure extends Blank, Name extends string> {
      */
     archived(
         asStream: true // filter?: (
-        // ) => boolean | Promise<boolean>
-    ) //     data: StructData<Structure, Name>
+        //     data: StructData<Structure, Name>
+    ) // ) => boolean | Promise<boolean>
     : StructStream<Structure, Name>;
     archived(asStream: false): Promise<Result<StructData<Structure, Name>[]>>;
     archived(
